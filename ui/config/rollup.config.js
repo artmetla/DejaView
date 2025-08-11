@@ -108,10 +108,6 @@ function maybeUglify() {
   return [uglify(opts)];
 }
 
-const maybeBigtrace = process.env['ENABLE_BIGTRACE']
-  ? [defBundle('tsc/bigtrace', 'bigtrace', 'dist_version/bigtrace')]
-  : [];
-
 const maybeOpenDejaViewTrace = process.env['ENABLE_OPEN_DEJAVIEW_TRACE']
   ? [defBundle('tsc', 'open_dejaview_trace', 'dist/open_dejaview_trace')]
   : [];
@@ -119,9 +115,6 @@ const maybeOpenDejaViewTrace = process.env['ENABLE_OPEN_DEJAVIEW_TRACE']
 module.exports = [
   defBundle('tsc', 'frontend', 'dist_version'),
   defBundle('tsc', 'engine', 'dist_version'),
-  defBundle('tsc', 'traceconv', 'dist_version'),
-  defBundle('tsc', 'chrome_extension', 'chrome_extension'),
   defServiceWorkerBundle(),
 ]
-  .concat(maybeBigtrace)
   .concat(maybeOpenDejaViewTrace);

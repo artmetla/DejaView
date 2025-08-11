@@ -28,7 +28,6 @@
 #include "src/trace_processor/util/protozero_to_text.h"
 
 #include "protos/dejaview/config/trace_config.pbzero.h"
-#include "protos/dejaview/trace/chrome/chrome_trigger.pbzero.h"
 #include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "protos/dejaview/trace/trace_uuid.pbzero.h"
 #include "protos/dejaview/trace/trigger.pbzero.h"
@@ -45,7 +44,6 @@ MetadataModule::MetadataModule(TraceProcessorContext* context)
           context_->storage->InternString("trusted_producer_uid")) {
   RegisterForField(TracePacket::kUiStateFieldNumber, context);
   RegisterForField(TracePacket::kTriggerFieldNumber, context);
-  RegisterForField(TracePacket::kChromeTriggerFieldNumber, context);
   RegisterForField(TracePacket::kTraceUuidFieldNumber, context);
 }
 
@@ -96,9 +94,6 @@ void MetadataModule::ParseTracePacketData(
   if (field_id == TracePacket::kTriggerFieldNumber) {
     ParseTrigger(ts, decoder.trigger());
   }
-  if (field_id == TracePacket::kChromeTriggerFieldNumber) {
-    ParseChromeTrigger(ts, decoder.chrome_trigger());
-  }
 }
 
 void MetadataModule::ParseTrigger(int64_t ts, ConstBytes blob) {
@@ -122,27 +117,6 @@ void MetadataModule::ParseTrigger(int64_t ts, ConstBytes blob) {
                              Variadic::Integer(trigger.trusted_producer_uid()));
         }
       });
-}
-
-void MetadataModule::ParseChromeTrigger(int64_t ts, ConstBytes blob) {
-  protos::pbzero::ChromeTrigger::Decoder trigger(blob.data, blob.size);
-  StringId cat_id = kNullStringId;
-  TrackId track_id = context_->track_tracker->InternGlobalTrack(
-      TrackTracker::TrackClassification::kTrigger);
-  StringId name_id;
-  if (trigger.has_trigger_name()) {
-    name_id = context_->storage->InternString(trigger.trigger_name());
-  } else {
-    name_id = context_->storage->InternString(
-        base::StringView(base::IntToHexString(trigger.trigger_name_hash())));
-  }
-  context_->slice_tracker->Scoped(ts, track_id, cat_id, name_id,
-                                  /* duration = */ 0);
-
-  MetadataTracker* metadata = context_->metadata_tracker.get();
-  metadata->SetDynamicMetadata(
-      context_->storage->InternString("cr-triggered_rule_name_hash"),
-      Variadic::Integer(trigger.trigger_name_hash()));
 }
 
 void MetadataModule::ParseTraceUuid(ConstBytes blob) {

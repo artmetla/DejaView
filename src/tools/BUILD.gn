@@ -22,56 +22,13 @@ group("tools") {
   testonly = true
   deps = [
     ":copy_protoc",
-    "ftrace_proto_gen",
-    "proto_filter",
     "proto_merger",
-    "protoprofile",
   ]
-  if (is_linux || is_android) {
-    deps += [
-      ":idle_alloc",
-      "busy_threads",
-      "cpu_utilization",
-      "dump_ftrace_stats",
-      "skippy",
-    ]
-  }
-}
-
-if (is_linux && enable_dejaview_heapprofd) {
-  executable("profiling_sample_distribution") {
-    sources = [ "profiling_sample_distribution.cc" ]
-    deps = [
-      "../../gn:default_deps",
-      "../base",
-      "../profiling/memory:client",
-    ]
-  }
-
-  executable("multithreaded_alloc") {
-    sources = [ "multithreaded_alloc.cc" ]
-    deps = [
-      "../../gn:default_deps",
-      "../base",
-      "../profiling/memory:client_api_standalone",
-    ]
-  }
-}
-
-if (is_linux || is_android) {
-  executable("idle_alloc") {
-    deps = [ "../../gn:default_deps" ]
-    sources = [ "idle_alloc.cc" ]
-  }
 }
 
 group("unittests") {
   testonly = true
   deps = []
-
-  if (current_toolchain == host_toolchain) {
-    deps += [ "ftrace_proto_gen:unittests" ]
-  }
 }
 
 # The protoc binary can end up in out/protoc or out/gcc_like_host/protoc

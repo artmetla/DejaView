@@ -17,8 +17,8 @@
 #ifndef SRC_TRACE_REDACTION_MERGE_THREADS_H_
 #define SRC_TRACE_REDACTION_MERGE_THREADS_H_
 
-#include "src/trace_redaction/redact_sched_events.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
+#include "src/trace_redaction/modify.h"
 
 namespace dejaview::trace_redaction {
 

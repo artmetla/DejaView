@@ -230,30 +230,8 @@ source_set("proto_profiler") {
     ":descriptors",
     "../../../gn:default_deps",
     "../../../protos/dejaview/common:zero",
-    "../../../protos/third_party/pprof:zero",
     "../../base",
     "../../protozero",
-  ]
-}
-
-source_set("profile_builder") {
-  sources = [
-    "annotated_callsites.cc",
-    "annotated_callsites.h",
-    "profile_builder.cc",
-    "profile_builder.h",
-  ]
-  deps = [
-    "../../../gn:default_deps",
-    "../../../include/dejaview/ext/trace_processor:demangle",
-    "../../../include/dejaview/protozero:protozero",
-    "../../../protos/dejaview/trace_processor:zero",
-    "../../../protos/third_party/pprof:zero",
-    "../../base",
-    "../containers",
-    "../storage",
-    "../tables",
-    "../types",
   ]
 }
 
@@ -279,8 +257,6 @@ source_set("trace_type") {
     "../../../include/dejaview/ext/base",
     "../../../protos/dejaview/trace:non_minimal_zero",
     "../../protozero",
-    "../importers/android_bugreport:android_log_event",
-    "../importers/perf_text:perf_text_sample_line_parser",
   ]
 }
 
@@ -328,12 +304,6 @@ source_set("unittests") {
     "../storage",
     "../types",
   ]
-  if (dejaview_build_standalone) {
-    deps += [
-      "../../../protos/dejaview/metrics/chrome:lite",
-      "../metrics:gen_cc_all_chrome_metrics_descriptor",
-    ]
-  }
   if (enable_dejaview_zlib) {
     sources += [ "gzip_utils_unittest.cc" ]
     deps += [ "../../../gn:zlib" ]

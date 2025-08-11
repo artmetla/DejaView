@@ -24,63 +24,14 @@ namespace dejaview::trace_processor::stats {
 // Compile time list of parsing and processing stats.
 // clang-format off
 #define DEJAVIEW_TP_STATS(F)                                                   \
-  F(android_br_parse_errors,              kSingle,  kError,    kTrace,    ""), \
-  F(android_log_num_failed,               kSingle,  kError,    kTrace,    ""), \
-  F(android_log_format_invalid,           kSingle,  kError,    kTrace,    ""), \
-  F(android_log_num_skipped,              kSingle,  kInfo,     kTrace,    ""), \
-  F(android_log_num_total,                kSingle,  kInfo,     kTrace,    ""), \
   F(counter_events_out_of_order,          kSingle,  kError,    kAnalysis, ""), \
   F(deobfuscate_location_parse_error,     kSingle,  kError,    kTrace,    ""), \
-  F(energy_breakdown_missing_values,      kSingle,  kError,    kAnalysis, ""), \
-  F(energy_descriptor_invalid,            kSingle,  kError,    kAnalysis, ""), \
   F(entity_state_descriptor_invalid,      kSingle,  kError,    kAnalysis, ""), \
   F(entity_state_residency_invalid,       kSingle,  kError,    kAnalysis, ""), \
   F(entity_state_residency_lookup_failed, kSingle,  kError,    kAnalysis, ""), \
   F(energy_uid_breakdown_missing_values,  kSingle,  kError,    kAnalysis, ""), \
   F(frame_timeline_event_parser_errors,   kSingle,  kInfo,     kAnalysis, ""), \
   F(frame_timeline_unpaired_end_event,    kSingle,  kInfo,     kAnalysis, ""), \
-  F(ftrace_bundle_tokenizer_errors,       kSingle,  kError,    kAnalysis, ""), \
-  F(ftrace_cpu_bytes_begin,               kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_bytes_end,                 kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_bytes_delta,               kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_commit_overrun_begin,      kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_commit_overrun_end,        kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_commit_overrun_delta,      kIndexed, kError,    kTrace,    ""), \
-  F(ftrace_cpu_dropped_events_begin,      kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_dropped_events_end,        kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_dropped_events_delta,      kIndexed, kError,    kTrace,    ""), \
-  F(ftrace_cpu_entries_begin,             kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_entries_end,               kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_entries_delta,             kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_now_ts_begin,              kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_now_ts_end,                kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_oldest_event_ts_begin,     kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_oldest_event_ts_end,       kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_overrun_begin,             kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_overrun_end,               kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_overrun_delta,             kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_read_events_begin,         kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_read_events_end,           kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_read_events_delta,         kIndexed, kInfo,     kTrace,    ""), \
-  F(ftrace_cpu_has_data_loss,             kIndexed, kDataLoss, kTrace,         \
-       "Ftrace data for the given cpu has data losses and is therefore "       \
-       "unreliable. The kernel buffer overwrote events between our reads "     \
-       "in userspace. Try re-recording the trace with a bigger buffer "        \
-       "(ftrace_config.buffer_size_kb), or with fewer enabled ftrace events."),\
-  F(ftrace_setup_errors,                  kSingle,  kInfo,     kTrace,         \
-       "One or more atrace/ftrace categories were not found or failed to "     \
-       "enable. See ftrace_setup_errors in the metadata table for details."),  \
-  F(ftrace_abi_errors_skipped_zero_data_length,                                \
-                                          kSingle,  kInfo,     kAnalysis, ""), \
-  F(ftrace_thermal_exynos_acpm_unknown_tz_id,                                  \
-                                          kSingle,  kError,    kAnalysis, ""), \
-  F(fuchsia_non_numeric_counters,         kSingle,  kError,    kAnalysis, ""), \
-  F(fuchsia_timestamp_overflow,           kSingle,  kError,    kAnalysis, ""), \
-  F(fuchsia_invalid_event,                kSingle,  kError,    kAnalysis, ""), \
-  F(gpu_counters_invalid_spec,            kSingle,  kError,    kAnalysis, ""), \
-  F(gpu_counters_missing_spec,            kSingle,  kError,    kAnalysis, ""), \
-  F(gpu_render_stage_parser_errors,       kSingle,  kError,    kAnalysis, ""), \
-  F(graphics_frame_event_parser_errors,   kSingle,  kInfo,     kAnalysis, ""), \
   F(guess_trace_type_duration_ns,         kSingle,  kInfo,     kAnalysis, ""), \
   F(interned_data_tokenizer_errors,       kSingle,  kInfo,     kAnalysis, ""), \
   F(invalid_clock_snapshots,              kSingle,  kError,    kAnalysis, ""), \
@@ -191,18 +142,9 @@ namespace dejaview::trace_processor::stats {
   F(tokenizer_skipped_packets,            kSingle,  kInfo,     kAnalysis, ""), \
   F(vmstat_unknown_keys,                  kSingle,  kError,    kAnalysis, ""), \
   F(psi_unknown_resource,                 kSingle,  kError,    kAnalysis, ""), \
-  F(vulkan_allocations_invalid_string_id,                                      \
-                                          kSingle,  kError,    kTrace,    ""), \
   F(clock_sync_failure,                   kSingle,  kError,    kAnalysis, ""), \
   F(clock_sync_cache_miss,                kSingle,  kInfo,     kAnalysis, ""), \
   F(process_tracker_errors,               kSingle,  kError,    kAnalysis, ""), \
-  F(json_tokenizer_failure,               kSingle,  kError,    kTrace,    ""), \
-  F(json_parser_failure,                  kSingle,  kError,    kTrace,    ""), \
-  F(json_display_time_unit,               kSingle,  kInfo,     kTrace,         \
-      "The displayTimeUnit key was set in the JSON trace. In some prior "      \
-      "versions of trace processor this key could effect how the trace "       \
-      "processor parsed timestamps and durations. In this version the key is " \
-      "ignored which more closely matches the bavahiour of catapult."),        \
   F(heap_graph_invalid_string_id,         kIndexed, kError,    kTrace,    ""), \
   F(heap_graph_non_finalized_graph,       kSingle,  kError,    kTrace,    ""), \
   F(heap_graph_malformed_packet,          kIndexed, kError,    kTrace,    ""), \
@@ -337,98 +279,13 @@ namespace dejaview::trace_processor::stats {
       "missing. Defaulted to inaccurate packet timestamp."),                   \
   F(atom_unknown,                         kSingle,  kInfo,     kAnalysis,      \
       "Unknown statsd atom. Atom descriptor may need to be updated"),          \
-  F(v8_intern_errors,                                                          \
-                                          kSingle,  kDataLoss, kAnalysis,      \
-      "Failed to resolve V8 interned data."),                                  \
-  F(v8_isolate_has_no_code_range,                                              \
-                                          kSingle,  kError,    kAnalysis,      \
-      "V8 isolate had no code range. THis is currently no supported and means" \
-      "we will be unable to parse JS code events for this isolate."),          \
-  F(v8_no_defaults,                                                            \
-                                          kSingle,  kDataLoss, kAnalysis,      \
-      "Failed to resolve V8 default data."),                                   \
-  F(v8_no_code_range,                                                          \
-                                          kSingle,  kError,    kAnalysis,      \
-      "V8 isolate had no code range."),                                        \
-  F(v8_unknown_code_type,                 kSingle,  kError,    kAnalysis, ""), \
-  F(v8_code_load_missing_code_range,      kSingle,  kError,    kAnalysis,      \
-      "V8 load had no code range or an empty one. Event ignored."),            \
-  F(winscope_inputmethod_clients_parse_errors,                                 \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "InputMethod clients packet has unknown fields, which results in "       \
-      "some arguments missing. You may need a newer version of trace "         \
-      "processor to parse them."),                                             \
-  F(winscope_inputmethod_manager_service_parse_errors,                         \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "InputMethod manager service packet has unknown fields, which results "  \
-      "in some arguments missing. You may need a newer version of trace "      \
-      "processor to parse them."),                                             \
-  F(winscope_inputmethod_service_parse_errors,                                 \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "InputMethod service packet has unknown fields, which results in "       \
-      "some arguments missing. You may need a newer version of trace "         \
-      "processor to parse them."),                                             \
-  F(winscope_sf_layers_parse_errors,      kSingle,  kInfo,     kAnalysis,      \
-      "SurfaceFlinger layers snapshot has unknown fields, which results in "   \
-      "some arguments missing. You may need a newer version of trace "         \
-      "processor to parse them."),                                             \
-  F(winscope_sf_transactions_parse_errors,                                     \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "SurfaceFlinger transactions packet has unknown fields, which results "  \
-      "in some arguments missing. You may need a newer version of trace "      \
-      "processor to parse them."),                                             \
-  F(winscope_shell_transitions_parse_errors,                                   \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "Shell transition packet has unknown fields, which results "             \
-      "in some arguments missing. You may need a newer version of trace "      \
-      "processor to parse them."),                                             \
-  F(winscope_protolog_invalid_interpolation_parse_errors,                      \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "ProtoLog message string has invalid interplation parameter."),          \
-  F(winscope_protolog_missing_interned_arg_parse_errors,                       \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "Failed to find interned ProtoLog argument."),                           \
-  F(winscope_protolog_missing_interned_stacktrace_parse_errors,                \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "Failed to find interned ProtoLog stacktrace."),                         \
-  F(winscope_protolog_message_decoding_failed,                                 \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "Failed to decode ProtoLog message."),                                   \
-  F(winscope_protolog_view_config_collision,                                   \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "Got a viewer config collision!"),                                       \
-  F(winscope_viewcapture_parse_errors,                                         \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "ViewCapture packet has unknown fields, which results in some "          \
-      "arguments missing. You may need a newer version of trace processor "    \
-      "to parse them."),                                                       \
-  F(winscope_viewcapture_missing_interned_string_parse_errors,                 \
-                                          kSingle,  kInfo,     kAnalysis,      \
-      "Failed to find interned ViewCapture string."),                          \
-  F(winscope_windowmanager_parse_errors, kSingle,  kInfo,     kAnalysis,       \
-      "WindowManager state packet has unknown fields, which results "          \
-      "in some arguments missing. You may need a newer version of trace "      \
-      "processor to parse them."),                                             \
   F(jit_unknown_frame,                    kSingle,  kDataLoss, kTrace,         \
       "Indicates that we were unable to determine the function for a frame in "\
       "a jitted memory region"),                                               \
   F(ftrace_missing_event_id,              kSingle,  kInfo,    kAnalysis,       \
       "Indicates that the ftrace event was dropped because the event id was "  \
       "missing. This is an 'info' stat rather than an error stat because "     \
-      "this can be legitimately missing due to proto filtering."),             \
-  F(android_input_event_parse_errors,     kSingle,  kInfo,     kAnalysis,      \
-      "Android input event packet has unknown fields, which results "          \
-      "in some arguments missing. You may need a newer version of trace "      \
-      "processor to parse them."),                                             \
-  F(mali_unknown_mcu_state_id,            kSingle,  kError,   kAnalysis,       \
-      "An invalid Mali GPU MCU state ID was detected."),                       \
-  F(pixel_modem_negative_timestamp,       kSingle,  kError,   kAnalysis,       \
-      "A negative timestamp was received from a Pixel modem event."),          \
-  F(legacy_v8_cpu_profile_invalid_callsite, kSingle,  kInfo,  kAnalysis,       \
-      "Indicates a callsite in legacy v8 CPU profiling is invalid."),          \
-  F(legacy_v8_cpu_profile_invalid_sample, kSingle,  kError,  kAnalysis,        \
-      "Indicates a sample in legacy v8 CPU profile is invalid. This will "     \
-      "cause CPU samples to be missing in the UI.")
+      "this can be legitimately missing due to proto filtering.")
 // clang-format on
 
 enum Type {

@@ -22,175 +22,21 @@
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/dejaview/trace/chrome/chrome_benchmark_metadata.pbzero.h"
-#include "protos/dejaview/trace/chrome/chrome_metadata.pbzero.h"
-
 namespace dejaview {
 namespace trace_processor {
 
 using dejaview::protos::pbzero::TracePacket;
 
-MetadataMinimalModule::MetadataMinimalModule(TraceProcessorContext* context)
-    : context_(context) {
-  RegisterForField(TracePacket::kChromeMetadataFieldNumber, context);
-  RegisterForField(TracePacket::kChromeBenchmarkMetadataFieldNumber, context);
+MetadataMinimalModule::MetadataMinimalModule(TraceProcessorContext*) {
 }
 
 ModuleResult MetadataMinimalModule::TokenizePacket(
-    const protos::pbzero::TracePacket::Decoder& decoder,
+    const protos::pbzero::TracePacket::Decoder&,
     TraceBlobView*,
     int64_t,
     RefPtr<PacketSequenceStateGeneration>,
-    uint32_t field_id) {
-  switch (field_id) {
-    case TracePacket::kChromeMetadataFieldNumber: {
-      ParseChromeMetadataPacket(decoder.chrome_metadata());
-      return ModuleResult::Handled();
-    }
-    case TracePacket::kChromeBenchmarkMetadataFieldNumber: {
-      ParseChromeBenchmarkMetadata(decoder.chrome_benchmark_metadata());
-      return ModuleResult::Handled();
-    }
-  }
+    uint32_t) {
   return ModuleResult::Ignored();
-}
-
-void MetadataMinimalModule::ParseChromeBenchmarkMetadata(ConstBytes blob) {
-  TraceStorage* storage = context_->storage.get();
-  MetadataTracker* metadata = context_->metadata_tracker.get();
-
-  protos::pbzero::ChromeBenchmarkMetadata::Decoder packet(blob.data, blob.size);
-  if (packet.has_benchmark_name()) {
-    auto benchmark_name_id = storage->InternString(packet.benchmark_name());
-    metadata->SetMetadata(metadata::benchmark_name,
-                          Variadic::String(benchmark_name_id));
-  }
-  if (packet.has_benchmark_description()) {
-    auto benchmark_description_id =
-        storage->InternString(packet.benchmark_description());
-    metadata->SetMetadata(metadata::benchmark_description,
-                          Variadic::String(benchmark_description_id));
-  }
-  if (packet.has_label()) {
-    auto label_id = storage->InternString(packet.label());
-    metadata->SetMetadata(metadata::benchmark_label,
-                          Variadic::String(label_id));
-  }
-  if (packet.has_story_name()) {
-    auto story_name_id = storage->InternString(packet.story_name());
-    metadata->SetMetadata(metadata::benchmark_story_name,
-                          Variadic::String(story_name_id));
-  }
-  for (auto it = packet.story_tags(); it; ++it) {
-    auto story_tag_id = storage->InternString(*it);
-    metadata->AppendMetadata(metadata::benchmark_story_tags,
-                             Variadic::String(story_tag_id));
-  }
-  if (packet.has_benchmark_start_time_us()) {
-    metadata->SetMetadata(metadata::benchmark_start_time_us,
-                          Variadic::Integer(packet.benchmark_start_time_us()));
-  }
-  if (packet.has_story_run_time_us()) {
-    metadata->SetMetadata(metadata::benchmark_story_run_time_us,
-                          Variadic::Integer(packet.story_run_time_us()));
-  }
-  if (packet.has_story_run_index()) {
-    metadata->SetMetadata(metadata::benchmark_story_run_index,
-                          Variadic::Integer(packet.story_run_index()));
-  }
-  if (packet.has_had_failures()) {
-    metadata->SetMetadata(metadata::benchmark_had_failures,
-                          Variadic::Integer(packet.had_failures()));
-  }
-}
-
-void MetadataMinimalModule::ParseChromeMetadataPacket(ConstBytes blob) {
-  TraceStorage* storage = context_->storage.get();
-  MetadataTracker* metadata = context_->metadata_tracker.get();
-
-  // TODO(b/322298334): There is no easy way to associate ChromeMetadataPacket
-  // with ChromeMetadata for the same instance, so we have opted for letters to
-  // differentiate Chrome instances for ChromeMetadataPacket. When a unifying
-  // Chrome instance ID is in place, update this code to use the same counter
-  // as ChromeMetadata values.
-  base::StackString<6> metadata_prefix(
-      "cr-%c-", static_cast<char>('a' + (chrome_metadata_count_ % 26)));
-  chrome_metadata_count_++;
-
-  // Typed chrome metadata proto. The untyped metadata is parsed below in
-  // ParseChromeEvents().
-  protos::pbzero::ChromeMetadataPacket::Decoder packet_decoder(blob.data,
-                                                               blob.size);
-
-  if (packet_decoder.has_chrome_version_code()) {
-    metadata->SetDynamicMetadata(
-        storage->InternString(base::StringView(metadata_prefix.ToStdString() +
-                                               "playstore_version_code")),
-        Variadic::Integer(packet_decoder.chrome_version_code()));
-  }
-  if (packet_decoder.has_enabled_categories()) {
-    auto categories_id =
-        storage->InternString(packet_decoder.enabled_categories());
-    metadata->SetDynamicMetadata(
-        storage->InternString(base::StringView(metadata_prefix.ToStdString() +
-                                               "enabled_categories")),
-        Variadic::String(categories_id));
-  }
-
-  if (packet_decoder.has_field_trial_hashes()) {
-    std::string field_trials;
-
-    // Add  a line break after every 2 field trial hashes to better utilize the
-    // UI space.
-    int line_size = 0;
-    for (auto it = packet_decoder.field_trial_hashes(); it; ++it) {
-      if (line_size == 2) {
-        field_trials.append("\n");
-        line_size = 1;
-      } else {
-        line_size++;
-      }
-
-      dejaview::protos::pbzero::ChromeMetadataPacket::FinchHash::Decoder
-          field_trial(*it);
-
-      base::StackString<45> field_trial_string(
-          "{ name: %u, group: %u } ", field_trial.name(), field_trial.group());
-
-      field_trials.append(field_trial_string.ToStdString());
-    }
-
-    StringId field_trials_string =
-        context_->storage->InternString(base::StringView(field_trials));
-    metadata->SetDynamicMetadata(
-        storage->InternString(base::StringView(metadata_prefix.ToStdString() +
-                                               "field_trial_hashes")),
-        Variadic::String(field_trials_string));
-  }
-
-  if (packet_decoder.has_background_tracing_metadata()) {
-    auto background_tracing_metadata =
-        packet_decoder.background_tracing_metadata();
-
-    std::string base64 = base::Base64Encode(background_tracing_metadata.data,
-                                            background_tracing_metadata.size);
-    metadata->SetDynamicMetadata(
-        storage->InternString("cr-background_tracing_metadata"),
-        Variadic::String(storage->InternString(base::StringView(base64))));
-
-    protos::pbzero::BackgroundTracingMetadata::Decoder metadata_decoder(
-        background_tracing_metadata.data, background_tracing_metadata.size);
-    if (metadata_decoder.has_scenario_name_hash()) {
-      metadata->SetDynamicMetadata(
-          storage->InternString("cr-scenario_name_hash"),
-          Variadic::Integer(metadata_decoder.scenario_name_hash()));
-    }
-    auto triggered_rule = metadata_decoder.triggered_rule();
-    if (!metadata_decoder.has_triggered_rule())
-      return;
-    protos::pbzero::BackgroundTracingMetadata::TriggerRule::Decoder
-        triggered_rule_decoder(triggered_rule.data, triggered_rule.size);
-  }
 }
 
 }  // namespace trace_processor

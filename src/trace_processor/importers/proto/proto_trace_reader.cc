@@ -94,21 +94,6 @@ base::Status ProtoTraceReader::ParsePacket(TraceBlobView packet) {
   // Any compressed packets should have been handled by the tokenizer.
   DEJAVIEW_CHECK(!decoder.has_compressed_packets());
 
-  // When the trace packet is emitted from a remote machine: parse the packet
-  // using a different ProtoTraceReader instance. The packet will be parsed
-  // in the context of the remote machine.
-  if (DEJAVIEW_UNLIKELY(decoder.has_machine_id())) {
-    if (!context_->machine_id()) {
-      // Default context: switch to another reader instance to parse the packet.
-      DEJAVIEW_DCHECK(context_->multi_machine_trace_manager);
-      auto* reader = context_->multi_machine_trace_manager->GetOrCreateReader(
-          decoder.machine_id());
-      return reader->ParsePacket(std::move(packet));
-    }
-  }
-  // Assert that the packet is parsed using the right instance of reader.
-  DEJAVIEW_DCHECK(decoder.has_machine_id() == !!context_->machine_id());
-
   const uint32_t seq_id = decoder.trusted_packet_sequence_id();
   auto* state = GetIncrementalStateForPacketSequence(seq_id);
 
@@ -156,11 +141,6 @@ base::Status ProtoTraceReader::ParsePacket(TraceBlobView packet) {
     ParseTraceStats(decoder.trace_stats());
   }
 
-  if (decoder.has_remote_clock_sync()) {
-    DEJAVIEW_DCHECK(context_->machine_id());
-    return ParseRemoteClockSync(decoder.remote_clock_sync());
-  }
-
   if (decoder.has_service_event()) {
     DEJAVIEW_DCHECK(decoder.has_timestamp());
     int64_t ts = static_cast<int64_t>(decoder.timestamp());
@@ -206,20 +186,7 @@ base::Status ProtoTraceReader::ParsePacket(TraceBlobView packet) {
             ? decoder.timestamp_clock_id()
             : (defaults ? defaults->timestamp_clock_id() : 0);
 
-    if ((decoder.has_chrome_events() || decoder.has_chrome_metadata()) &&
-        (!timestamp_clock_id ||
-         timestamp_clock_id == protos::pbzero::BUILTIN_CLOCK_MONOTONIC)) {
-      // Chrome event timestamps are in MONOTONIC domain, but may occur in
-      // traces where (a) no clock snapshots exist or (b) no clock_id is
-      // specified for their timestamps. Adjust to trace time if we have a clock
-      // snapshot.
-      // TODO(eseckler): Set timestamp_clock_id and emit ClockSnapshots in
-      // chrome and then remove this.
-      auto trace_ts = context_->clock_tracker->ToTraceTime(
-          protos::pbzero::BUILTIN_CLOCK_MONOTONIC, timestamp);
-      if (trace_ts.ok())
-        timestamp = trace_ts.value();
-    } else if (timestamp_clock_id) {
+    if (timestamp_clock_id) {
       // If the TracePacket specifies a non-zero clock-id, translate the
       // timestamp into the trace-time clock domain.
       ClockTracker::ClockId converted_clock_id = timestamp_clock_id;

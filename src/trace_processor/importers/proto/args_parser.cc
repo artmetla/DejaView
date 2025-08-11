@@ -17,7 +17,6 @@
 #include "src/trace_processor/importers/proto/args_parser.h"
 
 #include "dejaview/ext/base/base64.h"
-#include "src/trace_processor/importers/json/json_utils.h"
 
 namespace dejaview::trace_processor {
 
@@ -26,10 +25,8 @@ using BoundInserter = ArgsTracker::BoundInserter;
 ArgsParser::ArgsParser(int64_t packet_timestamp,
                        BoundInserter& inserter,
                        TraceStorage& storage,
-                       PacketSequenceStateGeneration* sequence_state,
-                       bool support_json)
-    : support_json_(support_json),
-      packet_timestamp_(packet_timestamp),
+                       PacketSequenceStateGeneration* sequence_state)
+    : packet_timestamp_(packet_timestamp),
       sequence_state_(sequence_state),
       inserter_(inserter),
       storage_(storage) {}
@@ -82,18 +79,6 @@ void ArgsParser::AddBoolean(const Key& key, bool value) {
 void ArgsParser::AddBytes(const Key& key, const protozero::ConstBytes& value) {
   std::string b64_data = base::Base64Encode(value.data, value.size);
   AddString(key, b64_data);
-}
-
-bool ArgsParser::AddJson(const Key& key, const protozero::ConstChars& value) {
-  if (!support_json_)
-    DEJAVIEW_FATAL("Unexpected JSON value when parsing data");
-
-  auto json_value = json::ParseJsonString(value);
-  if (!json_value)
-    return false;
-  return json::AddJsonValueToArgs(*json_value, base::StringView(key.flat_key),
-                                  base::StringView(key.key), &storage_,
-                                  &inserter_);
 }
 
 void ArgsParser::AddNull(const Key& key) {

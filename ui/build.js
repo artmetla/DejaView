@@ -16,7 +16,7 @@
 
 
 // This script takes care of:
-// - The build process for the whole UI and the chrome extension.
+// - The build process for the whole UI.
 // - The HTTP dev-server with live-reload capabilities.
 // The reason why this is a hand-rolled script rather than a conventional build
 // system is keeping incremental build fast and maintaining the set of
@@ -61,8 +61,8 @@
 // +----------------------+   | |  *.css   | |*.wasm   | +--------------------+|
 // | buildtools/typefaces |-->| |  *.png   | +---------+ |  engine_bundle.js  ||
 // +----------------------+   | |  *.woff2 |             +--------------------+|
-// | buildtools/legacy_tv |   | |  tv.html |             |traceconv_bundle.js ||
-// +----------------------+   | +----------+             +--------------------+|
+// | buildtools/legacy_tv |   | |  tv.html |                                   |
+// +----------------------+   | +----------+                                   |
 //                            +------------------------------------------------+
 
 const argparse = require('argparse');
@@ -82,11 +82,10 @@ const cfg = {
   watch: false,
   verbose: false,
   debug: false,
-  bigtrace: false,
   startHttpServer: false,
   httpServerListenHost: '127.0.0.1',
   httpServerListenPort: 10000,
-  wasmModules: ['trace_processor', 'traceconv'],
+  wasmModules: ['trace_processor'],
   crossOriginIsolation: false,
   testFilter: '',
   noOverrideGnArgs: false,
@@ -99,7 +98,6 @@ const cfg = {
   //      gen/   -> outGenDir      : Auto-generated .ts/.js (e.g. protos).
   //    dist/    -> outDistRootDir : Only index.html and service_worker.js
   //      v1.2/  -> outDistDir     : JS bundles and assets
-  //    chrome_extension/          : Chrome extension.
   outDir: pjoin(ROOT_DIR, 'out/ui'),
   version: '',  // v1.2.3, derived from the CHANGELOG + git.
   outUiDir: '',
@@ -109,19 +107,15 @@ const cfg = {
   outGenDir: '',
   outDistDir: '',
   outExtDir: '',
-  outBigtraceDistDir: '',
   outOpenDejaViewTraceDistDir: '',
 };
 
 const RULES = [
   {r: /ui\/src\/assets\/index.html/, f: copyIndexHtml},
-  {r: /ui\/src\/assets\/bigtrace.html/, f: copyBigtraceHtml},
   {r: /ui\/src\/open_dejaview_trace\/index.html/, f: copyOpenDejaViewTraceHtml},
   {r: /ui\/src\/assets\/((.*)[.]png)/, f: copyAssets},
   {r: /buildtools\/typefaces\/(.+[.]woff2)/, f: copyAssets},
-  {r: /buildtools\/catapult_trace_viewer\/(.+(js|html))/, f: copyAssets},
   {r: /ui\/src\/assets\/.+[.]scss/, f: compileScss},
-  {r: /ui\/src\/chrome_extension\/.*/, f: copyExtensionAssets},
   {r: /.*\/dist\/.+\/(?!manifest\.json).*/, f: genServiceWorkerManifestJson},
   {r: /.*\/dist\/.*[.](js|html|css|wasm)$/, f: notifyLiveServer},
 ];
@@ -149,7 +143,6 @@ async function main() {
   parser.add_argument('--no-wasm', '-W', {action: 'store_true'});
   parser.add_argument('--run-unittests', '-t', {action: 'store_true'});
   parser.add_argument('--debug', '-d', {action: 'store_true'});
-  parser.add_argument('--bigtrace', {action: 'store_true'});
   parser.add_argument('--open-dejaview-trace', {action: 'store_true'});
   parser.add_argument('--interactive', '-i', {action: 'store_true'});
   parser.add_argument('--rebaseline', '-r', {action: 'store_true'});
@@ -165,7 +158,6 @@ async function main() {
   cfg.outDir = path.resolve(ensureDir(args.out || cfg.outDir));
   cfg.outUiDir = ensureDir(pjoin(cfg.outDir, 'ui'), clean);
   cfg.outUiTestArtifactsDir = ensureDir(pjoin(cfg.outDir, 'ui-test-artifacts'));
-  cfg.outExtDir = ensureDir(pjoin(cfg.outUiDir, 'chrome_extension'));
   cfg.outDistRootDir = ensureDir(pjoin(cfg.outUiDir, 'dist'));
   const proc = exec('python3', [VERSION_SCRIPT, '--stdout'], {stdout: 'pipe'});
   cfg.version = proc.stdout.toString().trim();
@@ -176,15 +168,11 @@ async function main() {
   cfg.watch = !!args.watch;
   cfg.verbose = !!args.verbose;
   cfg.debug = !!args.debug;
-  cfg.bigtrace = !!args.bigtrace;
   cfg.openDejaViewTrace = !!args.open_dejaview_trace;
   cfg.startHttpServer = args.serve;
   cfg.noOverrideGnArgs = !!args.no_override_gn_args;
   if (args.minify_js) {
     cfg.minifyJs = args.minify_js;
-  }
-  if (args.bigtrace) {
-    cfg.outBigtraceDistDir = ensureDir(pjoin(cfg.outDistDir, 'bigtrace'));
   }
   if (cfg.openDejaViewTrace) {
     cfg.outOpenDejaViewTraceDistDir = ensureDir(pjoin(cfg.outDistRootDir,
@@ -249,9 +237,7 @@ async function main() {
 
     buildWasm(args.no_wasm);
     scanDir('ui/src/assets');
-    scanDir('ui/src/chrome_extension');
     scanDir('buildtools/typefaces');
-    scanDir('buildtools/catapult_trace_viewer');
     generateImports('ui/src/core_plugins', 'all_core_plugins.ts');
     generateImports('ui/src/plugins', 'all_plugins.ts');
     compileProtos();
@@ -262,7 +248,6 @@ async function main() {
       'ui',
       'ui/src/service_worker'
     ];
-    if (cfg.bigtrace) tsProjects.push('ui/src/bigtrace');
     if (cfg.openDejaViewTrace) {
       scanDir('ui/src/open_dejaview_trace');
       tsProjects.push('ui/src/open_dejaview_trace');
@@ -359,12 +344,6 @@ function copyIndexHtml(src) {
   addTask(cpHtml, [src, 'index.html']);
 }
 
-function copyBigtraceHtml(src) {
-  if (cfg.bigtrace) {
-    addTask(cpHtml, [src, 'bigtrace.html']);
-  }
-}
-
 function copyOpenDejaViewTraceHtml(src) {
   if (cfg.openDejaViewTrace) {
     addTask(cp, [src, pjoin(cfg.outOpenDejaViewTraceDistDir, 'index.html')]);
@@ -373,13 +352,6 @@ function copyOpenDejaViewTraceHtml(src) {
 
 function copyAssets(src, dst) {
   addTask(cp, [src, pjoin(cfg.outDistDir, 'assets', dst)]);
-  if (cfg.bigtrace) {
-    addTask(cp, [src, pjoin(cfg.outBigtraceDistDir, 'assets', dst)]);
-  }
-}
-
-function copyUiTestArtifactsAssets(src, dst) {
-  addTask(cp, [src, pjoin(cfg.outUiTestArtifactsDir, dst)]);
 }
 
 function compileScss() {
@@ -393,9 +365,6 @@ function compileScss() {
     args.unshift('--quiet');
   }
   addTask(execModule, ['sass', args, {noErrCheck}]);
-  if (cfg.bigtrace) {
-    addTask(cp, [dst, pjoin(cfg.outBigtraceDistDir, 'dejaview.css')]);
-  }
 }
 
 function compileProtos() {
@@ -495,7 +464,7 @@ function updateSymlinks() {
       pjoin(ROOT_DIR, 'ui/node_modules'), pjoin(cfg.outTscDir, 'node_modules'));
 }
 
-// Invokes ninja for building the {trace_processor, traceconv} Wasm modules.
+// Invokes ninja for building the {trace_processor} Wasm modules.
 // It copies the .wasm directly into the out/dist/ dir, and the .js/.ts into
 // out/tsc/, so the typescript compiler and the bundler can pick them up.
 function buildWasm(skipWasmBuild) {
@@ -546,9 +515,6 @@ function transpileTsProject(project, options) {
 function bundleJs(cfgName) {
   const rcfg = pjoin(ROOT_DIR, 'ui/config', cfgName);
   const args = ['-c', rcfg, '--no-indent'];
-  if (cfg.bigtrace) {
-    args.push('--environment', 'ENABLE_BIGTRACE:true');
-  }
   if (cfg.openDejaViewTrace) {
     args.push('--environment', 'ENABLE_OPEN_DEJAVIEW_TRACE:true');
   }
@@ -666,7 +632,6 @@ function isDistComplete() {
   const requiredArtifacts = [
     'frontend_bundle.js',
     'engine_bundle.js',
-    'traceconv_bundle.js',
     'trace_processor.wasm',
     'dejaview.css',
   ];
@@ -688,17 +653,6 @@ function notifyLiveServer(changedFile) {
     cli.write(
         'data: ' + path.relative(cfg.outDistRootDir, changedFile) + '\n\n');
   }
-}
-
-function copyExtensionAssets() {
-  addTask(cp, [
-    pjoin(ROOT_DIR, 'ui/src/assets/logo-128.png'),
-    pjoin(cfg.outExtDir, 'logo-128.png'),
-  ]);
-  addTask(cp, [
-    pjoin(ROOT_DIR, 'ui/src/chrome_extension/manifest.json'),
-    pjoin(cfg.outExtDir, 'manifest.json'),
-  ]);
 }
 
 // -----------------------

@@ -30,7 +30,7 @@ import("dejaview.gni")
 # ODRChecker in tools/gen_android_bp.
 
 # The condition below really means: "is Bazel generator".
-if (is_dejaview_build_generator && !dejaview_build_with_android) {
+if (is_dejaview_build_generator) {
   dejaview_component_type = "static_library"
 } else {
   dejaview_component_type = "source_set"

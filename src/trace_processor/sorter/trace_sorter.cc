@@ -27,15 +27,8 @@
 #include "dejaview/base/logging.h"
 #include "dejaview/public/compiler.h"
 #include "dejaview/trace_processor/trace_blob_view.h"
-#include "src/trace_processor/importers/android_bugreport/android_log_event.h"
-#include "src/trace_processor/importers/art_method/art_method_event.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
-#include "src/trace_processor/importers/fuchsia/fuchsia_record.h"
-#include "src/trace_processor/importers/gecko/gecko_event.h"
-#include "src/trace_processor/importers/instruments/row.h"
-#include "src/trace_processor/importers/perf/record.h"
-#include "src/trace_processor/importers/perf_text/perf_text_event.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
 #include "src/trace_processor/sorter/trace_token_buffer.h"
 #include "src/trace_processor/storage/stats.h"
@@ -220,14 +213,6 @@ void TraceSorter::ParseTracePacket(TraceProcessorContext& context,
                                    const TimestampedEvent& event) {
   TraceTokenBuffer::Id id = GetTokenBufferId(event);
   switch (event.type()) {
-    case TimestampedEvent::Type::kPerfRecord:
-      context.perf_record_parser->ParsePerfRecord(
-          event.ts, token_buffer_.Extract<perf_importer::Record>(id));
-      return;
-    case TimestampedEvent::Type::kInstrumentsRow:
-      context.instruments_row_parser->ParseInstrumentsRow(
-          event.ts, token_buffer_.Extract<instruments_importer::Row>(id));
-      return;
     case TimestampedEvent::Type::kTracePacket:
       context.proto_trace_parser->ParseTracePacket(
           event.ts, token_buffer_.Extract<TracePacketData>(id));
@@ -235,10 +220,6 @@ void TraceSorter::ParseTracePacket(TraceProcessorContext& context,
     case TimestampedEvent::Type::kTrackEvent:
       context.proto_trace_parser->ParseTrackEvent(
           event.ts, token_buffer_.Extract<TrackEventData>(id));
-      return;
-    case TimestampedEvent::Type::kFuchsiaRecord:
-      context.fuchsia_record_parser->ParseFuchsiaRecord(
-          event.ts, token_buffer_.Extract<FuchsiaRecord>(id));
       return;
     case TimestampedEvent::Type::kJsonValue:
       context.json_trace_parser->ParseJsonPacket(
@@ -249,108 +230,6 @@ void TraceSorter::ParseTracePacket(TraceProcessorContext& context,
           event.ts,
           std::move(token_buffer_.Extract<JsonWithDurEvent>(id).value));
       return;
-    case TimestampedEvent::Type::kSpeRecord:
-      context.spe_record_parser->ParseSpeRecord(
-          event.ts, token_buffer_.Extract<TraceBlobView>(id));
-      return;
-    case TimestampedEvent::Type::kSystraceLine:
-      context.json_trace_parser->ParseSystraceLine(
-          event.ts, token_buffer_.Extract<SystraceLine>(id));
-      return;
-    case TimestampedEvent::Type::kAndroidLogEvent:
-      context.android_log_event_parser->ParseAndroidLogEvent(
-          event.ts, token_buffer_.Extract<AndroidLogEvent>(id));
-      return;
-    case TimestampedEvent::Type::kLegacyV8CpuProfileEvent:
-      context.proto_trace_parser->ParseLegacyV8ProfileEvent(
-          event.ts, token_buffer_.Extract<LegacyV8CpuProfileEvent>(id));
-      return;
-    case TimestampedEvent::Type::kGeckoEvent:
-      context.gecko_trace_parser->ParseGeckoEvent(
-          event.ts, token_buffer_.Extract<gecko_importer::GeckoEvent>(id));
-      return;
-    case TimestampedEvent::Type::kArtMethodEvent:
-      context.art_method_parser->ParseArtMethodEvent(
-          event.ts, token_buffer_.Extract<art_method::ArtMethodEvent>(id));
-      return;
-    case TimestampedEvent::Type::kPerfTextEvent:
-      context.perf_text_parser->ParsePerfTextEvent(
-          event.ts,
-          token_buffer_.Extract<perf_text_importer::PerfTextEvent>(id));
-      return;
-    case TimestampedEvent::Type::kInlineSchedSwitch:
-    case TimestampedEvent::Type::kInlineSchedWaking:
-    case TimestampedEvent::Type::kEtwEvent:
-    case TimestampedEvent::Type::kFtraceEvent:
-      DEJAVIEW_FATAL("Invalid event type");
-  }
-  DEJAVIEW_FATAL("For GCC");
-}
-
-void TraceSorter::ParseEtwPacket(TraceProcessorContext& context,
-                                 uint32_t cpu,
-                                 const TimestampedEvent& event) {
-  TraceTokenBuffer::Id id = GetTokenBufferId(event);
-  switch (static_cast<TimestampedEvent::Type>(event.event_type)) {
-    case TimestampedEvent::Type::kEtwEvent:
-      context.proto_trace_parser->ParseEtwEvent(
-          cpu, event.ts, token_buffer_.Extract<TracePacketData>(id));
-      return;
-    case TimestampedEvent::Type::kInlineSchedSwitch:
-    case TimestampedEvent::Type::kInlineSchedWaking:
-    case TimestampedEvent::Type::kFtraceEvent:
-    case TimestampedEvent::Type::kTrackEvent:
-    case TimestampedEvent::Type::kSpeRecord:
-    case TimestampedEvent::Type::kSystraceLine:
-    case TimestampedEvent::Type::kTracePacket:
-    case TimestampedEvent::Type::kPerfRecord:
-    case TimestampedEvent::Type::kInstrumentsRow:
-    case TimestampedEvent::Type::kJsonValue:
-    case TimestampedEvent::Type::kJsonValueWithDur:
-    case TimestampedEvent::Type::kFuchsiaRecord:
-    case TimestampedEvent::Type::kAndroidLogEvent:
-    case TimestampedEvent::Type::kLegacyV8CpuProfileEvent:
-    case TimestampedEvent::Type::kGeckoEvent:
-    case TimestampedEvent::Type::kArtMethodEvent:
-    case TimestampedEvent::Type::kPerfTextEvent:
-      DEJAVIEW_FATAL("Invalid event type");
-  }
-  DEJAVIEW_FATAL("For GCC");
-}
-
-void TraceSorter::ParseFtracePacket(TraceProcessorContext& context,
-                                    uint32_t cpu,
-                                    const TimestampedEvent& event) {
-  TraceTokenBuffer::Id id = GetTokenBufferId(event);
-  switch (static_cast<TimestampedEvent::Type>(event.event_type)) {
-    case TimestampedEvent::Type::kInlineSchedSwitch:
-      context.proto_trace_parser->ParseInlineSchedSwitch(
-          cpu, event.ts, token_buffer_.Extract<InlineSchedSwitch>(id));
-      return;
-    case TimestampedEvent::Type::kInlineSchedWaking:
-      context.proto_trace_parser->ParseInlineSchedWaking(
-          cpu, event.ts, token_buffer_.Extract<InlineSchedWaking>(id));
-      return;
-    case TimestampedEvent::Type::kFtraceEvent:
-      context.proto_trace_parser->ParseFtraceEvent(
-          cpu, event.ts, token_buffer_.Extract<TracePacketData>(id));
-      return;
-    case TimestampedEvent::Type::kEtwEvent:
-    case TimestampedEvent::Type::kTrackEvent:
-    case TimestampedEvent::Type::kSpeRecord:
-    case TimestampedEvent::Type::kSystraceLine:
-    case TimestampedEvent::Type::kTracePacket:
-    case TimestampedEvent::Type::kPerfRecord:
-    case TimestampedEvent::Type::kInstrumentsRow:
-    case TimestampedEvent::Type::kJsonValue:
-    case TimestampedEvent::Type::kJsonValueWithDur:
-    case TimestampedEvent::Type::kFuchsiaRecord:
-    case TimestampedEvent::Type::kAndroidLogEvent:
-    case TimestampedEvent::Type::kLegacyV8CpuProfileEvent:
-    case TimestampedEvent::Type::kGeckoEvent:
-    case TimestampedEvent::Type::kArtMethodEvent:
-    case TimestampedEvent::Type::kPerfTextEvent:
-      DEJAVIEW_FATAL("Invalid event type");
   }
   DEJAVIEW_FATAL("For GCC");
 }
@@ -360,57 +239,14 @@ void TraceSorter::ExtractAndDiscardTokenizedObject(
   TraceTokenBuffer::Id id = GetTokenBufferId(event);
   switch (static_cast<TimestampedEvent::Type>(event.event_type)) {
     case TimestampedEvent::Type::kTracePacket:
-    case TimestampedEvent::Type::kFtraceEvent:
-    case TimestampedEvent::Type::kEtwEvent:
-      base::ignore_result(token_buffer_.Extract<TracePacketData>(id));
-      return;
     case TimestampedEvent::Type::kTrackEvent:
       base::ignore_result(token_buffer_.Extract<TrackEventData>(id));
-      return;
-    case TimestampedEvent::Type::kFuchsiaRecord:
-      base::ignore_result(token_buffer_.Extract<FuchsiaRecord>(id));
       return;
     case TimestampedEvent::Type::kJsonValue:
       base::ignore_result(token_buffer_.Extract<JsonEvent>(id));
       return;
     case TimestampedEvent::Type::kJsonValueWithDur:
       base::ignore_result(token_buffer_.Extract<JsonWithDurEvent>(id));
-      return;
-    case TimestampedEvent::Type::kSpeRecord:
-      base::ignore_result(token_buffer_.Extract<TraceBlobView>(id));
-      return;
-    case TimestampedEvent::Type::kSystraceLine:
-      base::ignore_result(token_buffer_.Extract<SystraceLine>(id));
-      return;
-    case TimestampedEvent::Type::kInlineSchedSwitch:
-      base::ignore_result(token_buffer_.Extract<InlineSchedSwitch>(id));
-      return;
-    case TimestampedEvent::Type::kInlineSchedWaking:
-      base::ignore_result(token_buffer_.Extract<InlineSchedWaking>(id));
-      return;
-    case TimestampedEvent::Type::kPerfRecord:
-      base::ignore_result(token_buffer_.Extract<perf_importer::Record>(id));
-      return;
-    case TimestampedEvent::Type::kInstrumentsRow:
-      base::ignore_result(token_buffer_.Extract<instruments_importer::Row>(id));
-      return;
-    case TimestampedEvent::Type::kAndroidLogEvent:
-      base::ignore_result(token_buffer_.Extract<AndroidLogEvent>(id));
-      return;
-    case TimestampedEvent::Type::kLegacyV8CpuProfileEvent:
-      base::ignore_result(token_buffer_.Extract<LegacyV8CpuProfileEvent>(id));
-      return;
-    case TimestampedEvent::Type::kGeckoEvent:
-      base::ignore_result(
-          token_buffer_.Extract<gecko_importer::GeckoEvent>(id));
-      return;
-    case TimestampedEvent::Type::kArtMethodEvent:
-      base::ignore_result(
-          token_buffer_.Extract<art_method::ArtMethodEvent>(id));
-      return;
-    case TimestampedEvent::Type::kPerfTextEvent:
-      base::ignore_result(
-          token_buffer_.Extract<perf_text_importer::PerfTextEvent>(id));
       return;
   }
   DEJAVIEW_FATAL("For GCC");
@@ -436,16 +272,6 @@ void TraceSorter::MaybeExtractEvent(size_t min_machine_idx,
 
   if (queue_idx == 0) {
     ParseTracePacket(*machine_context, event);
-  } else {
-    // Ftrace queues start at offset 1. So queues_[1] = cpu[0] and so on.
-    uint32_t cpu = static_cast<uint32_t>(queue_idx - 1);
-    auto event_type = static_cast<TimestampedEvent::Type>(event.event_type);
-
-    if (event_type == TimestampedEvent::Type::kEtwEvent) {
-      ParseEtwPacket(*machine_context, static_cast<uint32_t>(cpu), event);
-    } else {
-      ParseFtracePacket(*machine_context, cpu, event);
-    }
   }
 }
 

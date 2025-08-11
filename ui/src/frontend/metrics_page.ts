@@ -252,7 +252,7 @@ export class MetricsPage implements m.ClassComponent<PageWithTraceAttrs> {
     const controller = assertExists(this.controller);
     const json = controller.resultAsJson;
     return m(
-      '.metrics-page',
+      '.metrics-page .page',
       m(MetricPicker, {
         controller,
       }),

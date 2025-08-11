@@ -27,11 +27,9 @@ import {NoteManagerImpl} from './note_manager';
 import {OmniboxManagerImpl} from './omnibox_manager';
 import {SearchManagerImpl} from './search_manager';
 import {SelectionManagerImpl} from './selection_manager';
-import {SidebarManagerImpl} from './sidebar_manager';
 import {TabManagerImpl} from './tab_manager';
 import {TrackManagerImpl} from './track_manager';
 import {WorkspaceManagerImpl} from './workspace_manager';
-import {SidebarMenuItem} from '../public/sidebar';
 import {ScrollHelper} from './scroll_helper';
 import {Selection, SelectionOpts} from '../public/selection';
 import {SearchResult} from '../public/search';
@@ -168,7 +166,6 @@ export class TraceImpl implements Trace {
   private engineProxy: EngineProxy;
   private trackMgrProxy: TrackManagerImpl;
   private commandMgrProxy: CommandManagerImpl;
-  private sidebarProxy: SidebarManagerImpl;
 
   // This is called by TraceController when loading a new trace, soon after the
   // engine has been set up. It obtains a new TraceImpl for the core. From that
@@ -212,15 +209,6 @@ export class TraceImpl implements Trace {
     this.commandMgrProxy = createProxy(ctx.appCtx.commandMgr, {
       registerCommand(cmd: Command): Disposable {
         const disposable = appImpl.commands.registerCommand(cmd);
-        traceUnloadTrash.use(disposable);
-        return disposable;
-      },
-    });
-
-    // Likewise, remove all trace-scoped sidebar entries when the trace unloads.
-    this.sidebarProxy = createProxy(ctx.appCtx.sidebarMgr, {
-      addMenuItem(menuItem: SidebarMenuItem): Disposable {
-        const disposable = appImpl.sidebar.addMenuItem(menuItem);
         traceUnloadTrash.use(disposable);
         return disposable;
       },
@@ -337,10 +325,6 @@ export class TraceImpl implements Trace {
     return this.commandMgrProxy;
   }
 
-  get sidebar(): SidebarManagerImpl {
-    return this.sidebarProxy;
-  }
-
   get omnibox(): OmniboxManagerImpl {
     return this.appImpl.omnibox;
   }
@@ -375,8 +359,8 @@ export interface TraceImplAttrs {
 
 // Allows to take an existing class instance (`target`) and override some of its
 // methods via `overrides`. We use this for cases where we want to expose a
-// "manager" (e.g. TrackManager, SidebarManager) to the plugins, but we want to
-// override few of its methods (e.g. to inject the pluginId in the args).
+// "manager" (e.g. TrackManager) to the plugins, but we want to override few of
+// its methods (e.g. to inject the pluginId in the args).
 function createProxy<T extends object>(target: T, overrides: Partial<T>): T {
   return new Proxy(target, {
     get: (target: T, prop: string | symbol, receiver) => {

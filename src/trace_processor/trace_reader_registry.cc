@@ -40,20 +40,12 @@ bool RequiresZlibSupport(TraceType type) {
     case kZipFile:
       return true;
 
-    case kNinjaLogTraceType:
-    case kSystraceTraceType:
-    case kPerfDataTraceType:
-    case kInstrumentsXmlTraceType:
     case kUnknownTraceType:
     case kJsonTraceType:
-    case kFuchsiaTraceType:
     case kProtoTraceType:
     case kSymbolsTraceType:
     case kAndroidLogcatTraceType:
     case kAndroidDumpstateTraceType:
-    case kGeckoTraceType:
-    case kArtMethodTraceType:
-    case kPerfTextTraceType:
       return false;
   }
   DEJAVIEW_FATAL("For GCC");

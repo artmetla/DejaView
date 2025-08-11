@@ -42,10 +42,6 @@
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/importers/common/trace_file_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
-#include "src/trace_processor/importers/proto/android_track_event.descriptor.h"
-#include "src/trace_processor/importers/proto/chrome_track_event.descriptor.h"
-#include "src/trace_processor/importers/proto/multi_machine_trace_manager.h"
-#include "src/trace_processor/importers/proto/perf_sample_tracker.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/track_event.descriptor.h"
 #include "src/trace_processor/storage/trace_storage.h"
@@ -58,9 +54,6 @@ TraceProcessorContext::TraceProcessorContext(const InitArgs& args)
   reader_registry = std::make_unique<TraceReaderRegistry>(this);
   // Init the trackers.
   machine_tracker.reset(new MachineTracker(this, args.raw_machine_id));
-  if (!machine_id()) {
-    multi_machine_trace_manager.reset(new MultiMachineTraceManager(this));
-  }
   track_tracker.reset(new TrackTracker(this));
   async_track_set_tracker.reset(new AsyncTrackSetTracker(this));
   args_tracker.reset(new ArgsTracker(this));
@@ -76,7 +69,6 @@ TraceProcessorContext::TraceProcessorContext(const InitArgs& args)
   clock_tracker.reset(new ClockTracker(this));
   clock_converter.reset(new ClockConverter(this));
   mapping_tracker.reset(new MappingTracker(this));
-  perf_sample_tracker.reset(new PerfSampleTracker(this));
   stack_profile_tracker.reset(new StackProfileTracker(this));
   metadata_tracker.reset(new MetadataTracker(storage.get()));
   cpu_tracker.reset(new CpuTracker(this));
@@ -87,17 +79,6 @@ TraceProcessorContext::TraceProcessorContext(const InitArgs& args)
         kTrackEventDescriptor.data(), kTrackEventDescriptor.size());
 
     DEJAVIEW_DCHECK(status.ok());
-
-    status = descriptor_pool_->AddFromFileDescriptorSet(
-        kChromeTrackEventDescriptor.data(), kChromeTrackEventDescriptor.size());
-
-    DEJAVIEW_DCHECK(status.ok());
-
-    status = descriptor_pool_->AddFromFileDescriptorSet(
-        kAndroidTrackEventDescriptor.data(),
-        kAndroidTrackEventDescriptor.size());
-
-    DEJAVIEW_DCHECK(status.ok());
   }
 
   slice_tracker->SetOnSliceBeginCallback(
@@ -106,8 +87,6 @@ TraceProcessorContext::TraceProcessorContext(const InitArgs& args)
       });
 
   trace_file_tracker = std::make_unique<TraceFileTracker>(this);
-  legacy_v8_cpu_profile_tracker =
-      std::make_unique<LegacyV8CpuProfileTracker>(this);
 }
 
 TraceProcessorContext::TraceProcessorContext() = default;
@@ -118,11 +97,7 @@ TraceProcessorContext& TraceProcessorContext::operator=(
     TraceProcessorContext&&) = default;
 
 std::optional<MachineId> TraceProcessorContext::machine_id() const {
-  if (!machine_tracker) {
-    // Doesn't require that |machine_tracker| is initialzed, e.g. in unit tests.
-    return std::nullopt;
-  }
-  return machine_tracker->machine_id();
+  return std::nullopt;
 }
 
 }  // namespace dejaview::trace_processor

@@ -15,7 +15,7 @@
 import {Trace} from '../../public/trace';
 import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {getThreadOrProcUri} from '../../public/utils';
-import {NUM, NUM_NULL, STR} from '../../trace_processor/query_result';
+import {NUM, NUM_NULL} from '../../trace_processor/query_result';
 import {
   Config as ProcessSchedulingTrackConfig,
   PROCESS_SCHEDULING_TRACK_KIND,
@@ -39,8 +39,6 @@ class ProcessSummaryPlugin implements DejaViewPlugin {
     const cpuCount = Math.max(...ctx.traceInfo.cpus, -1) + 1;
 
     const result = await ctx.engine.query(`
-      INCLUDE DEJAVIEW MODULE android.process_metadata;
-
       select *
       from (
         select
@@ -50,19 +48,9 @@ class ProcessSummaryPlugin implements DejaViewPlugin {
           null as tid,
           process.name as processName,
           null as threadName,
-          sum_running_dur > 0 as hasSched,
-          android_process_metadata.debuggable as isDebuggable,
-          ifnull((
-            select group_concat(string_value)
-            from args
-            where
-              process.arg_set_id is not null and
-              arg_set_id = process.arg_set_id and
-              flat_key = 'chrome.process_label'
-          ), '') as chromeProcessLabels
+          sum_running_dur > 0 as hasSched
         from _process_available_info_summary
         join process using(upid)
-        left join android_process_metadata using(upid)
       )
       union all
       select *
@@ -74,9 +62,7 @@ class ProcessSummaryPlugin implements DejaViewPlugin {
           tid,
           null as processName,
           thread.name threadName,
-          sum_running_dur > 0 as hasSched,
-          0 as isDebuggable,
-          '' as chromeProcessLabels
+          sum_running_dur > 0 as hasSched
         from _thread_available_info_summary
         join thread using (utid)
         where upid is null
@@ -89,8 +75,6 @@ class ProcessSummaryPlugin implements DejaViewPlugin {
       pid: NUM_NULL,
       tid: NUM_NULL,
       hasSched: NUM_NULL,
-      isDebuggable: NUM_NULL,
-      chromeProcessLabels: STR,
     });
     for (; it.valid(); it.next()) {
       const upid = it.upid;
@@ -98,15 +82,12 @@ class ProcessSummaryPlugin implements DejaViewPlugin {
       const pid = it.pid;
       const tid = it.tid;
       const hasSched = Boolean(it.hasSched);
-      const isDebuggable = Boolean(it.isDebuggable);
-      const subtitle = it.chromeProcessLabels;
 
       // Group by upid if present else by utid.
       const pidForColor = pid ?? tid ?? upid ?? utid ?? 0;
       const uri = getThreadOrProcUri(upid, utid);
 
       const chips: string[] = [];
-      isDebuggable && chips.push('debuggable');
 
       if (hasSched) {
         const config: ProcessSchedulingTrackConfig = {
@@ -123,7 +104,6 @@ class ProcessSummaryPlugin implements DejaViewPlugin {
           },
           chips,
           track: new ProcessSchedulingTrack(ctx, config, cpuCount),
-          subtitle,
         });
       } else {
         const config: ProcessSummaryTrackConfig = {
@@ -140,7 +120,6 @@ class ProcessSummaryPlugin implements DejaViewPlugin {
           },
           chips,
           track: new ProcessSummaryTrack(ctx.engine, config),
-          subtitle,
         });
       }
     }

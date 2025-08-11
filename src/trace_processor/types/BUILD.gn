@@ -18,10 +18,6 @@ source_set("types") {
     "destructible.h",
     "gfp_flags.cc",
     "gfp_flags.h",
-    "softirq_action.h",
-    "task_state.cc",
-    "task_state.h",
-    "tcp_state.h",
     "trace_processor_context.h",
     "variadic.h",
     "version_number.h",
@@ -33,15 +29,5 @@ source_set("types") {
     "../containers",
     "../tables:tables_python",
     "../util:trace_type",
-  ]
-}
-
-source_set("unittests") {
-  testonly = true
-  sources = [ "task_state_unittests.cc" ]
-  deps = [
-    ":types",
-    "../../../gn:default_deps",
-    "../../../gn:gtest_and_gmock",
   ]
 }

@@ -14,33 +14,14 @@
 
 import {Draft} from 'immer';
 import {time} from '../base/time';
-import {RecordConfig} from '../controller/record_config_types';
 import {createEmptyState} from './empty_state';
-import {
-  AdbRecordingTarget,
-  LoadedConfig,
-  RecordingTarget,
-  State,
-} from './state';
+import {State} from './state';
 
 type StateDraft = Draft<State>;
 
 export const StateActions = {
   clearState(state: StateDraft, _args: {}) {
-    const recordConfig = state.recordConfig;
-    const recordingTarget = state.recordingTarget;
-    const fetchChromeCategories = state.fetchChromeCategories;
-    const extensionInstalled = state.extensionInstalled;
-    const availableAdbDevices = state.availableAdbDevices;
-    const chromeCategories = state.chromeCategories;
-
     Object.assign(state, createEmptyState());
-    state.recordConfig = recordConfig;
-    state.recordingTarget = recordingTarget;
-    state.fetchChromeCategories = fetchChromeCategories;
-    state.extensionInstalled = extensionInstalled;
-    state.availableAdbDevices = availableAdbDevices;
-    state.chromeCategories = chromeCategories;
   },
 
   requestTrackReload(state: StateDraft, _: {}) {
@@ -64,68 +45,8 @@ export const StateActions = {
     }
   },
 
-  setRecordConfig(
-    state: StateDraft,
-    args: {config: RecordConfig; configType?: LoadedConfig},
-  ): void {
-    state.recordConfig = args.config;
-    state.lastLoadedConfig = args.configType || {type: 'NONE'};
-  },
-
-  startRecording(state: StateDraft, _: {}): void {
-    state.recordingInProgress = true;
-    state.lastRecordingError = undefined;
-    state.recordingCancelled = false;
-  },
-
-  stopRecording(state: StateDraft, _: {}): void {
-    state.recordingInProgress = false;
-  },
-
-  cancelRecording(state: StateDraft, _: {}): void {
-    state.recordingInProgress = false;
-    state.recordingCancelled = true;
-  },
-
-  setExtensionAvailable(state: StateDraft, args: {available: boolean}): void {
-    state.extensionInstalled = args.available;
-  },
-
-  setRecordingTarget(state: StateDraft, args: {target: RecordingTarget}): void {
-    state.recordingTarget = args.target;
-  },
-
-  setFetchChromeCategories(state: StateDraft, args: {fetch: boolean}): void {
-    state.fetchChromeCategories = args.fetch;
-  },
-
-  setAvailableAdbDevices(
-    state: StateDraft,
-    args: {devices: AdbRecordingTarget[]},
-  ): void {
-    state.availableAdbDevices = args.devices;
-  },
-
-  setChromeCategories(state: StateDraft, args: {categories: string[]}): void {
-    state.chromeCategories = args.categories;
-  },
-
-  setLastRecordingError(state: StateDraft, args: {error?: string}): void {
-    state.lastRecordingError = args.error;
-    state.recordingStatus = undefined;
-  },
-
-  setRecordingStatus(state: StateDraft, args: {status?: string}): void {
-    state.recordingStatus = args.status;
-    state.lastRecordingError = undefined;
-  },
-
   togglePerfDebug(state: StateDraft, _: {}): void {
     state.perfDebug = !state.perfDebug;
-  },
-
-  setSidebar(state: StateDraft, args: {visible: boolean}): void {
-    state.sidebarVisible = args.visible;
   },
 
   setHoveredUtidAndPid(state: StateDraft, args: {utid: number; pid: number}) {

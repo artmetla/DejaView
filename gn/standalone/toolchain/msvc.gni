@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# We should never get in here by accident from the Chromium tree.
-assert(!defined(build_with_chromium) || !build_with_chromium)
-
 if (is_win_host) {
   _find_msvc_out = exec_script("win_find_msvc.py", [], "list lines")
 

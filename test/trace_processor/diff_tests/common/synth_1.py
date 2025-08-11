@@ -24,18 +24,4 @@ trace.add_process(2, 1, "two_thread_process")
 trace.add_process(4, 1, "single_thread_process")
 trace.add_thread(3, 2, "two_thread_process")
 
-trace.add_ftrace_packet(cpu=0)
-trace.add_sched(ts=1, prev_pid=1, next_pid=3)
-trace.add_cpufreq(ts=50, freq=50, cpu=0)
-trace.add_sched(ts=100, prev_pid=3, next_pid=2)
-trace.add_sched(ts=115, prev_pid=2, next_pid=3)
-
-trace.add_ftrace_packet(cpu=1)
-trace.add_sched(ts=50, prev_pid=4, next_pid=1)
-trace.add_sched(ts=120, prev_pid=1, next_pid=2)
-trace.add_sched(ts=170, prev_pid=2, next_pid=0)
-trace.add_sched(ts=250, prev_pid=0, next_pid=2)
-trace.add_sched(ts=390, prev_pid=2, next_pid=4)
-trace.add_cpufreq(ts=400, freq=100, cpu=0)
-
 sys.stdout.buffer.write(trace.trace.SerializeToString())

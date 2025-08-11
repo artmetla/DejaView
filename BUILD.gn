@@ -30,25 +30,7 @@ import("gn/test.gni")
 
 all_targets = [ "protos/dejaview/trace:dejaview_trace_protos" ]
 
-if (enable_dejaview_platform_services) {
-  all_targets += [
-    "src/dejaview_cmd:dejaview",
-    "src/dejaview_cmd:trigger_dejaview",
-    "src/traced/service:traced",
-  ]
-  if (enable_dejaview_traced_probes) {
-    all_targets += [ "src/traced/probes:traced_probes" ]
-  }
-  if (enable_dejaview_traced_relay) {
-    all_targets += [ "src/traced_relay:traced_relay" ]
-  }
-}
-
 if (enable_dejaview_trace_processor && enable_dejaview_trace_processor_sqlite) {
-  if (enable_dejaview_grpc) {
-    all_targets += [ "src/bigtrace/orchestrator:orchestrator_main" ]
-    all_targets += [ "src/bigtrace/worker:worker_main" ]
-  }
   all_targets += [ "src/trace_processor:trace_processor_shell" ]
 }
 
@@ -56,49 +38,8 @@ if (enable_dejaview_trace_processor) {
   all_targets += [ "src/trace_redaction:trace_redactor" ]
 }
 
-if (enable_dejaview_traceconv) {
-  all_targets += [ "src/traceconv" ]
-  if (is_cross_compiling) {
-    # In many cross-compilation scenarios (typically Android) developers expect
-    # the host version of traceconv to be available somewhere in out/, so
-    # they can convert Android traces on their dev machine. Also
-    # tools/gen_android_bp explicitly depends on the host version for the
-    # cc_binary_host("traceconv") target in Android.bp.
-    # Note that when cross-compiling the host executable will be available in
-    # out/xxx/gcc_like_host/traceconv NOT just out/xxx/traceconv.
-    all_targets += [ "src/traceconv($host_toolchain)" ]
-  }
-}
-
-if (enable_dejaview_heapprofd) {
-  all_targets += [ "src/profiling/memory:heapprofd" ]
-
-  if (is_linux && !is_android) {
-    all_targets += [ "src/profiling/memory:heapprofd_glibc_preload" ]
-  }
-  if (dejaview_build_with_android) {
-    all_targets += [
-      "src/profiling/memory:heapprofd_client",
-      "src/profiling/memory:heapprofd_client_api",
-    ]
-  }
-}
-
-if (enable_dejaview_traced_perf) {
-  all_targets += [ "src/profiling/perf:traced_perf" ]
-}
-
-if (dejaview_build_with_android) {
-  all_targets += [ "src/android_internal:libdejaview_android_internal" ]
-}
-
 if (enable_dejaview_tools) {
   all_targets += [ "src/tools" ]
-
-  # Windows does not have an IPC implementation.
-  if (!is_win) {
-    all_targets += [ "src/websocket_bridge" ]
-  }
 }
 
 if (enable_dejaview_unittests) {
@@ -124,27 +65,7 @@ if (enable_dejaview_integration_tests) {
   }
   all_targets += [
     ":dejaview_integrationtests",
-    "examples/sdk:sdk_example",
-    "test:client_api_example",
-    "test/stress_test",
   ]
-  if (!is_win && !is_mac) {
-    all_targets += [
-      "examples/shared_lib:example_shlib_data_source",
-      "examples/shared_lib:example_shlib_track_event",
-    ]
-  }
-}
-
-if (enable_dejaview_trace_processor_json) {
-  test("trace_processor_minimal_smoke_tests") {
-    testonly = true
-    deps = [
-      "gn:default_deps",
-      "src/trace_processor:storage_minimal_smoke_tests",
-    ]
-  }
-  all_targets += [ ":trace_processor_minimal_smoke_tests" ]
 }
 
 if (enable_dejaview_benchmarks) {
@@ -169,37 +90,19 @@ if (enable_dejaview_fuzzers) {
 # compile-time checks for the CI.
 if (dejaview_build_standalone) {
   all_targets += [
-    "test/configs",
-
-    # Used to evaluate the Python folder for Bazel script generation.
-    "python:trace_processor_py",
-
     # For checking all generated xxx.gen.{cc,h} files without waiting for
     # embedders to try to use them and fail.
     "protos/dejaview/config:cpp",
     "protos/dejaview/common:cpp",
 
-    # Used in the when updating the ftrace protos
-    "protos/dejaview/trace/ftrace:descriptor",
-
     # Checks that the "fake" backend implementations build.
     "src/tracing:client_api_no_backends_compile_test",
   ]
-  if (is_linux || is_android || is_mac) {
-    all_targets += [ "src/tracebox" ]
-  }
 }
 
 if (enable_dejaview_merged_protos_check) {
   # For syntax-checking the protos.
   all_targets += [ "protos/dejaview/trace:merged_trace_lite" ]
-}
-
-# The CTS code is built (but not ran) also in standalone builds. This is to
-# catch refactoring breakages earlier without having to wait for treehugger.
-if (is_android && (dejaview_build_standalone || dejaview_build_with_android)) {
-  all_targets += [ "test/cts:dejaview_cts_deps" ]
-  all_targets += [ "test/vts:dejaview_vts_deps" ]
 }
 
 group("all") {
@@ -219,143 +122,17 @@ group("default") {
   deps = [ ":all" ]
 }
 
-# +----------------------------------------------------------------------------+
-# | Other definitions: root targets that don't belong to any other subdirectory|
-# +----------------------------------------------------------------------------+
-
-if (enable_dejaview_ui) {
-  group("ui") {
-    deps = [ "ui" ]
-  }
-}
-
-if (enable_dejaview_site) {
-  group("site") {
-    deps = [ "infra/perfetto.dev:site" ]
-  }
-}
-
-# In Android builds, we build the code of traced and traced_probes in one shared
-# library that exposes one xxx_main() for each. The executables themselves are
-# tiny shells that just invoke their own entry point into the library.
-# This is done merely for saving binary size, because the three binaries happen
-# to share a lot of code.
-# When setting monolithic_binaries=true (only supported in standalone builds)
-# it builds more conventional executables, where each binary has the full
-# implementation and no shared library dependency. This is to make dev cycles
-# on Android faster, avoiding all the LD_LIBRARY_PATH boilerplate.
-# libdejaview.so is also used for stuff that is exposed to the rest of the
-# Android tree.
-if (enable_dejaview_platform_services) {
-  if (monolithic_binaries) {
-    libdejaview_target_type = "static_library"
-  } else {
-    libdejaview_target_type = "shared_library"
-  }
-
-  target(libdejaview_target_type, "libdejaview") {
-    if (libdejaview_target_type == "static_library") {
-      complete_static_lib = true
-    }
-    deps = [
-      "gn:default_deps",
-      "src/traced/service",
-    ]
-    if (enable_dejaview_traced_probes) {
-      deps += [ "src/traced/probes" ]
-    }
-  }
-}
-
-if (!build_with_chromium) {
-  # Client library target exposed to the Android tree.
-  # Still in experimental stage and not API stable yet.
-  # See "libdejaview_client_example" (in Android.bp.extras) for an example
-  # on how to use the DejaView Client API from the android tree.
-  static_library("libdejaview_client_experimental") {
-    complete_static_lib = true
-    public_deps = [
-      "gn:default_deps",
-      "src/tracing:client_api",
-      "src/tracing:platform_impl",
-    ]
-    sources = [ "include/dejaview/tracing.h" ]
-    assert_no_deps = [ "gn:protobuf_lite" ]
-  }
-}
-
-# TODO(primiano): there seem to be two "libdejaview" and one
-# "libdejaview_client_experimental" targets defined within this BUILD.gn file.
-# Rationalize them with eseckler@. For now seems this one is only used from
-# chromium and the other one only from the Android tree.
-if (build_with_chromium) {
-  component("libdejaview") {
-    public_configs = [ "gn:public_config" ]
-    deps = [
-      "src/trace_processor/importers/memory_tracker:graph_processor",
-      "src/tracing:client_api",
-      "src/tracing:platform_impl",
-      "src/tracing/core",
-    ]
-    configs -= [ "//build/config/compiler:chromium_code" ]  # nogncheck
-    configs += [ "//build/config/compiler:no_chromium_code" ]  # nogncheck
-    public_deps = [
-      "include/dejaview/ext/trace_processor/importers/memory_tracker",
-      "include/dejaview/ext/tracing/core",
-      "include/dejaview/tracing",
-      "protos/dejaview/common:zero",
-      "protos/dejaview/trace:zero",
-      "protos/dejaview/trace/chrome:zero",
-      "protos/dejaview/trace/etw:zero",
-      "protos/dejaview/trace/interned_data:zero",
-      "protos/dejaview/trace/profiling:zero",
-      "protos/dejaview/trace/ps:zero",
-      "protos/dejaview/trace/track_event:zero",
-    ]
-    if (enable_dejaview_ipc) {
-      deps += [
-        "src/tracing/ipc/producer",
-        "src/tracing/ipc/service",
-      ]
-      public_deps += [ "include/dejaview/ext/tracing/ipc:ipc" ]
-    }
-    if (!is_nacl) {
-      deps += [
-        "src/trace_processor:export_json",
-        "src/trace_processor:storage_minimal",
-      ]
-      public_deps += [
-        "include/dejaview/ext/trace_processor:export_json",
-        "include/dejaview/trace_processor:storage",
-      ]
-    }
-  }
-
-  # TODO(altimin): this is a temp workaround around very strange link failures
-  # on win-dbg-ng buildbot.
-  if (!is_win) {
-    libtrace_processor_target_type = "source_set"
-  } else {
-    libtrace_processor_target_type = "component"
-  }
-
-  # In Chromium, we want to ensure that we don't link dynamically against sqlite
-  # (as Chromium also uses a more restricted version of sqlite which is actually
-  # shipped to the users).
-  # source_set helps us to achieve that.
-  target(libtrace_processor_target_type, "libtrace_processor") {
-    public_configs = [ "gn:public_config" ]
-    deps = [ "src/trace_processor:lib" ]
-    configs -= [ "//build/config/compiler:chromium_code" ]  # nogncheck
-    configs += [ "//build/config/compiler:no_chromium_code" ]  # nogncheck
-    public_deps = [ "include/dejaview/trace_processor" ]
-  }
-  component("dejaview_test_support") {
-    testonly = true
-    public_configs = [ "gn:public_config" ]
-    configs -= [ "//build/config/compiler:chromium_code" ]  # nogncheck
-    configs += [ "//build/config/compiler:no_chromium_code" ]  # nogncheck
-    public_deps = [ "include/dejaview/test:test_support" ]
-    deps = [ "src/tracing/test:test_support" ]
-  }
+# Client library target exposed to the Android tree.
+# Still in experimental stage and not API stable yet.
+# See "libdejaview_client_example" (in Android.bp.extras) for an example
+# on how to use the DejaView Client API from the android tree.
+static_library("libdejaview_client_experimental") {
+  complete_static_lib = true
+  public_deps = [
+    "gn:default_deps",
+    "src/tracing:client_api",
+    "src/tracing:platform_impl",
+  ]
+  sources = [ "include/dejaview/tracing.h" ]
+  assert_no_deps = [ "gn:protobuf_lite" ]
 }

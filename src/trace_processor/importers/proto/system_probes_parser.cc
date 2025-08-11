@@ -31,7 +31,6 @@
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/system_info_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
-#include "src/trace_processor/importers/syscalls/syscall_tracker.h"
 #include "src/trace_processor/storage/metadata.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
@@ -729,15 +728,6 @@ void SystemProbesParser::ParseSystemInfo(ConstBytes blob) {
     ConstBytes utsname_blob = packet.utsname();
     protos::pbzero::Utsname::Decoder utsname(utsname_blob.data,
                                              utsname_blob.size);
-    base::StringView machine = utsname.machine();
-    SyscallTracker* syscall_tracker = SyscallTracker::GetOrCreate(context_);
-    Architecture arch = SyscallTable::ArchFromString(machine);
-    if (arch != Architecture::kUnknown) {
-      syscall_tracker->SetArchitecture(arch);
-    } else {
-      DEJAVIEW_ELOG("Unknown architecture %s. Syscall traces will not work.",
-                    machine.ToStdString().c_str());
-    }
 
     system_info_tracker->SetKernelVersion(utsname.sysname(), utsname.release());
 

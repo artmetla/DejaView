@@ -177,15 +177,8 @@ class ClockTracker {
 
   // Apply the clock offset to convert remote trace times to host trace time.
   DEJAVIEW_ALWAYS_INLINE int64_t ToHostTraceTime(int64_t timestamp) {
-    if (DEJAVIEW_LIKELY(!context_->machine_id())) {
-      // No need to convert host timestamps.
-      return timestamp;
-    }
-
-    // Find the offset for |trace_time_clock_id_| and apply the offset, or
-    // default offset 0 if not offset is found for |trace_time_clock_id_|.
-    int64_t clock_offset = clock_offsets_[trace_time_clock_id_];
-    return timestamp - clock_offset;
+    // No need to convert host timestamps.
+    return timestamp;
   }
 
   DEJAVIEW_ALWAYS_INLINE base::StatusOr<int64_t> ToTraceTime(

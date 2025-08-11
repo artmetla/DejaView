@@ -27,20 +27,12 @@ enum TraceType {
   kAndroidDumpstateTraceType,
   kAndroidLogcatTraceType,
   kCtraceTraceType,
-  kFuchsiaTraceType,
   kGzipTraceType,
   kJsonTraceType,
-  kNinjaLogTraceType,
-  kPerfDataTraceType,
   kProtoTraceType,
   kSymbolsTraceType,
-  kSystraceTraceType,
   kUnknownTraceType,
   kZipFile,
-  kInstrumentsXmlTraceType,
-  kGeckoTraceType,
-  kArtMethodTraceType,
-  kPerfTextTraceType,
 };
 
 constexpr size_t kGuessTraceMaxLookahead = 64;

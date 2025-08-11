@@ -15,7 +15,6 @@
 import m from 'mithril';
 import {Duration, Time, TimeSpan, duration, time} from '../base/time';
 import {colorForCpu} from '../core/colorizer';
-import {timestampFormat, TimestampFormat} from '../core/timestamp_format';
 import {
   OVERVIEW_TIMELINE_NON_VISIBLE_COLOR,
   TRACK_SHELL_WIDTH,
@@ -277,47 +276,7 @@ function renderTimestamp(
   y: number,
   minWidth: number,
 ): void {
-  const fmt = timestampFormat();
-  switch (fmt) {
-    case TimestampFormat.UTC:
-    case TimestampFormat.TraceTz:
-    case TimestampFormat.Timecode:
-      renderTimecode(ctx, time, x, y, minWidth);
-      break;
-    case TimestampFormat.TraceNs:
-      ctx.fillText(time.toString(), x, y, minWidth);
-      break;
-    case TimestampFormat.TraceNsLocale:
-      ctx.fillText(time.toLocaleString(), x, y, minWidth);
-      break;
-    case TimestampFormat.Seconds:
-      ctx.fillText(Time.formatSeconds(time), x, y, minWidth);
-      break;
-    case TimestampFormat.Milliseoncds:
-      ctx.fillText(Time.formatMilliseconds(time), x, y, minWidth);
-      break;
-    case TimestampFormat.Microseconds:
-      ctx.fillText(Time.formatMicroseconds(time), x, y, minWidth);
-      break;
-    default:
-      const z: never = fmt;
-      throw new Error(`Invalid timestamp ${z}`);
-  }
-}
-
-// Print a timecode over 2 lines with this formatting:
-// DdHH:MM:SS
-// mmm uuu nnn
-function renderTimecode(
-  ctx: CanvasRenderingContext2D,
-  time: time,
-  x: number,
-  y: number,
-  minWidth: number,
-): void {
-  const timecode = Time.toTimecode(time);
-  const {dhhmmss} = timecode;
-  ctx.fillText(dhhmmss, x, y, minWidth);
+  ctx.fillText(time.toString(), x, y, minWidth);
 }
 
 interface QuantizedLoad {

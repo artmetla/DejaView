@@ -280,46 +280,6 @@ SELECT
 FROM
   __intrinsic_raw;
 
--- Contains all the ftrace events in the trace. This table exists only for
--- debugging purposes and should not be relied on in production usecases (i.e.
--- metrics, standard library etc). Note also that this table might be empty if
--- raw ftrace parsing has been disabled.
-CREATE DEJAVIEW VIEW ftrace_event (
-  -- Unique identifier for this ftrace event.
-  id UINT,
-  -- The name of the "most-specific" child table containing this row.
-  type STRING,
-  -- The timestamp of this event.
-  ts LONG,
-  -- The ftrace event name.
-  name STRING,
-  -- The CPU this event was emitted on (meaningful only in single machine
-  -- traces). For multi-machine, join with the `cpu` table on `ucpu` to get the
-  -- CPU identifier of each machine.
-  cpu UINT,
-  -- The thread this event was emitted on.
-  utid UINT,
-  -- The set of key/value pairs associated with this event.
-  arg_set_id UINT,
-  -- Ftrace event flags for this event. Currently only emitted for
-  -- sched_waking events.
-  common_flags UINT,
-  -- The unique CPU identifier that this event was emitted on.
-  ucpu UINT
-) AS
-SELECT
-  id,
-  type,
-  ts,
-  name,
-  ucpu AS cpu,
-  utid,
-  arg_set_id,
-  common_flags,
-  ucpu
-FROM
-  __intrinsic_ftrace_event;
-
 -- The sched_slice table with the upid column.
 CREATE DEJAVIEW VIEW experimental_sched_upid (
   --  Unique identifier for this scheduling slice.

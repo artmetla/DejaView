@@ -27,7 +27,6 @@ import {HotkeyGlyphs} from '../widgets/hotkey_glyphs';
 import {assertExists} from '../base/logging';
 
 export function toggleHelp() {
-  globals.logging.logEvent('User Actions', 'Show help');
   showHelp();
 }
 
@@ -76,30 +75,22 @@ class KeyMappingsHelp implements m.ClassComponent {
   }
 
   view(_: m.Vnode): m.Children {
-    const queryPageInstructions = globals.hideSidebar
-      ? []
-      : [
-          m('h2', 'Making SQL queries from the query page'),
-          m(
-            'table',
-            m(
-              'tr',
-              m('td', keycap('Ctrl'), ' + ', keycap('Enter')),
-              m('td', 'Execute query'),
-            ),
-            m(
-              'tr',
-              m(
-                'td',
-                keycap('Ctrl'),
-                ' + ',
-                keycap('Enter'),
-                ' (with selection)',
-              ),
-              m('td', 'Execute selection'),
-            ),
-          ),
-        ];
+    const queryPageInstructions = [
+      m('h2', 'Making SQL queries from the query page'),
+      m(
+        'table',
+        m(
+          'tr',
+          m('td', keycap('Ctrl'), ' + ', keycap('Enter')),
+          m('td', 'Execute query'),
+        ),
+        m(
+          'tr',
+          m('td', keycap('Ctrl'), ' + ', keycap('Enter'), ' (with selection)'),
+          m('td', 'Execute selection'),
+        ),
+      ),
+    ];
 
     return m(
       '.help',

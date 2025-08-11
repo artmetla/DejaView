@@ -49,7 +49,7 @@
   .record-container-content {
     display: grid;
     grid-template-columns: 2fr 5fr;
-    grid-template-areas: "sidebar section";
+    grid-template-areas: "section";
   }
 
   .full-centered {
@@ -1173,22 +1173,6 @@
           background-color: hsl(88, 50%, 67%);
           box-shadow: 0 0 4px 0 #999;
         }
-      }
-    }
-
-    .permalinkconfig {
-      margin: var(--record-section-padding);
-      height: 40px;
-      max-width: 200px;
-      border-radius: 10px;
-      text-align: center;
-      justify-items: center;
-      font-family: "Roboto", sans-serif;
-      padding: 7px;
-      background-color: hsl(88, 50%, 67%);
-
-      &:hover {
-        box-shadow: 0 0 4px 0 #999;
       }
     }
 

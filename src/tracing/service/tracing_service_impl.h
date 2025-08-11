@@ -46,7 +46,6 @@
 #include "dejaview/tracing/core/data_source_descriptor.h"
 #include "dejaview/tracing/core/forward_decls.h"
 #include "dejaview/tracing/core/trace_config.h"
-#include "src/android_stats/dejaview_atoms.h"
 #include "src/tracing/core/id_allocator.h"
 
 namespace protozero {
@@ -873,13 +872,6 @@ class TracingServiceImpl : public TracingService {
   bool WriteIntoFile(TracingSession* tracing_session,
                      std::vector<TracePacket> packets);
   void OnStartTriggersTimeout(TracingSessionID tsid);
-  void MaybeLogUploadEvent(const TraceConfig&,
-                           const base::Uuid&,
-                           DejaViewStatsdAtom atom,
-                           const std::string& trigger_name = "");
-  void MaybeLogTriggerEvent(const TraceConfig&,
-                            DejaViewTriggerAtom atom,
-                            const std::string& trigger_name);
   size_t PurgeExpiredAndCountTriggerInWindow(int64_t now_ns,
                                              uint64_t trigger_name_hash);
   static void StopOnDurationMsExpiry(base::WeakPtr<TracingServiceImpl>,

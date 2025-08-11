@@ -19,10 +19,6 @@
 #include "src/trace_redaction/process_thread_timeline.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
-#include "protos/dejaview/trace/ftrace/task.pbzero.h"
 #include "protos/dejaview/trace/ps/process_tree.pbzero.h"
 #include "protos/dejaview/trace/trace_packet.pbzero.h"
 
@@ -31,10 +27,6 @@ namespace {
 
 using TracePacket = protos::pbzero::TracePacket;
 using ProcessTree = protos::pbzero::ProcessTree;
-using FtraceEvent = protos::pbzero::FtraceEvent;
-using FtraceEventBundle = protos::pbzero::FtraceEventBundle;
-using SchedProcessFreeFtraceEvent = protos::pbzero::SchedProcessFreeFtraceEvent;
-using TaskNewtaskFtraceEvent = protos::pbzero::TaskNewtaskFtraceEvent;
 
 void MarkOpen(uint64_t ts,
               const ProcessTree::Process::Decoder& process,
@@ -54,25 +46,6 @@ void MarkOpen(uint64_t ts,
   timeline->Append(e);
 }
 
-void MarkClose(const FtraceEvent::Decoder& event,
-               const SchedProcessFreeFtraceEvent::Decoder process_free,
-               ProcessThreadTimeline* timeline) {
-  auto e = ProcessThreadTimeline::Event::Close(event.timestamp(),
-                                               process_free.pid());
-  timeline->Append(e);
-}
-
-void MarkOpen(const FtraceEvent::Decoder& event,
-              const TaskNewtaskFtraceEvent::Decoder new_task,
-              ProcessThreadTimeline* timeline) {
-  // Event though pid() is uint32_t. all other pid values use int32_t, so it's
-  // assumed to be safe to narrow-cast it.
-  auto ppid = static_cast<int32_t>(event.pid());
-  auto e = ProcessThreadTimeline::Event::Open(event.timestamp(), new_task.pid(),
-                                              ppid);
-  timeline->Append(e);
-}
-
 void AppendEvents(uint64_t ts,
                   const ProcessTree::Decoder& tree,
                   ProcessThreadTimeline* timeline) {
@@ -82,27 +55,6 @@ void AppendEvents(uint64_t ts,
 
   for (auto it = tree.threads(); it; ++it) {
     MarkOpen(ts, ProcessTree::Thread::Decoder(*it), timeline);
-  }
-}
-
-void AppendEvents(const FtraceEventBundle::Decoder& ftrace_events,
-                  ProcessThreadTimeline* timeline) {
-  for (auto it = ftrace_events.event(); it; ++it) {
-    FtraceEvent::Decoder event(*it);
-
-    if (event.has_task_newtask()) {
-      MarkOpen(event, TaskNewtaskFtraceEvent::Decoder(event.task_newtask()),
-               timeline);
-      continue;
-    }
-
-    if (event.has_sched_process_free()) {
-      MarkClose(
-          event,
-          SchedProcessFreeFtraceEvent::Decoder(event.sched_process_free()),
-          timeline);
-      continue;
-    }
   }
 }
 
@@ -132,11 +84,6 @@ base::Status CollectTimelineEvents::Collect(const TracePacket::Decoder& packet,
   if (packet.has_process_tree()) {
     AppendEvents(packet.timestamp(),
                  ProcessTree::Decoder(packet.process_tree()),
-                 context->timeline.get());
-  }
-
-  if (packet.has_ftrace_events()) {
-    AppendEvents(FtraceEventBundle::Decoder(packet.ftrace_events()),
                  context->timeline.get());
   }
 

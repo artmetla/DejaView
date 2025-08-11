@@ -16,7 +16,6 @@
 
 syntax = "proto2";
 
-import "protos/dejaview/common/perf_events.proto";
 import "protos/dejaview/trace/profiling/profile_common.proto";
 
 package dejaview.protos;
@@ -355,13 +354,6 @@ message PerfSample {
 
 // Submessage for TracePacketDefaults.
 message PerfSampleDefaults {
-  // The sampling timebase. Might not be identical to the data source config if
-  // the implementation decided to default/override some parameters.
-  optional PerfEvents.Timebase timebase = 1;
-
-  // Description of followers event
-  repeated FollowerEvent followers = 4;
-
   // If the config requested process sharding, report back the count and which
   // of those bins was selected. Never changes for the duration of a trace.
   optional uint32 process_shard_count = 2;

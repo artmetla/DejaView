@@ -30,12 +30,6 @@
 #include "dejaview/protozero/proto_utils.h"
 #include "dejaview/protozero/scattered_stream_writer.h"
 
-namespace dejaview {
-namespace shm_fuzz {
-class FakeProducer;
-}  // namespace shm_fuzz
-}  // namespace dejaview
-
 namespace protozero {
 
 class MessageArena;

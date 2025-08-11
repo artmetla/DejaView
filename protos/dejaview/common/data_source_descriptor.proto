@@ -18,8 +18,6 @@ syntax = "proto2";
 
 package dejaview.protos;
 
-import "protos/dejaview/common/ftrace_descriptor.proto";
-import "protos/dejaview/common/gpu_counter_descriptor.proto";
 import "protos/dejaview/common/track_event_descriptor.proto";
 
 // This message is sent from Producer(s) to the tracing Service when registering
@@ -60,10 +58,5 @@ message DataSourceDescriptor {
   // Introduced in v39 / Android V.
   optional bool no_flush = 9;
 
-  // Optional specification about available GPU counters.
-  optional GpuCounterDescriptor gpu_counter_descriptor = 5 [lazy = true];
-
   optional TrackEventDescriptor track_event_descriptor = 6 [lazy = true];
-
-  optional FtraceDescriptor ftrace_descriptor = 8 [lazy = true];
 }

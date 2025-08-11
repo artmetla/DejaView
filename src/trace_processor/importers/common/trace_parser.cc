@@ -19,14 +19,7 @@
 namespace dejaview::trace_processor {
 
 AndroidLogEventParser::~AndroidLogEventParser() = default;
-FuchsiaRecordParser::~FuchsiaRecordParser() = default;
-InstrumentsRowParser::~InstrumentsRowParser() = default;
 JsonTraceParser::~JsonTraceParser() = default;
-PerfRecordParser::~PerfRecordParser() = default;
 ProtoTraceParser::~ProtoTraceParser() = default;
-SpeRecordParser::~SpeRecordParser() = default;
-GeckoTraceParser::~GeckoTraceParser() = default;
-ArtMethodParser::~ArtMethodParser() = default;
-PerfTextTraceParser::~PerfTextTraceParser() = default;
 
 }  // namespace dejaview::trace_processor

@@ -13,14 +13,10 @@
 // limitations under the License.
 
 import m from 'mithril';
-import {channelChanged, getNextChannel, setChannel} from '../common/channels';
 import {featureFlags, Flag, OverrideState} from '../core/feature_flags';
 import {raf} from '../core/raf_scheduler';
 import {PageAttrs} from '../core/router';
 import {Router} from '../core/router';
-
-const RELEASE_PROCESS_URL =
-  'https://perfetto.dev/docs/visualization/perfetto-ui-release-process';
 
 interface FlagOption {
   id: string;
@@ -102,37 +98,11 @@ class FlagWidget implements m.ClassComponent<FlagWidgetAttrs> {
 
 export class FlagsPage implements m.ClassComponent<PageAttrs> {
   view() {
-    const needsReload = channelChanged();
     return m(
       '.flags-page',
       m(
         '.flags-content',
         m('h1', 'Feature flags'),
-        needsReload && [
-          m('h2', 'Please reload for your changes to take effect'),
-        ],
-        m(SelectWidget, {
-          label: 'Release channel',
-          id: 'releaseChannel',
-          description: [
-            'Which release channel of the UI to use. See ',
-            m(
-              'a',
-              {
-                href: RELEASE_PROCESS_URL,
-              },
-              'Release Process',
-            ),
-            ' for more information.',
-          ],
-          options: [
-            {id: 'stable', name: 'Stable (default)'},
-            {id: 'canary', name: 'Canary'},
-            {id: 'autopush', name: 'Autopush'},
-          ],
-          selected: getNextChannel(),
-          onSelect: (id) => setChannel(id),
-        }),
         m(
           'button',
           {

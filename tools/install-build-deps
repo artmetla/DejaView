@@ -60,7 +60,6 @@ class Dependency:
 CLEANUP_OLD_DIRS = [
     'buildtools/nodejs',  # Moved to buildtools/{mac,linux64}/nodejs
     'buildtools/emsdk',  # Moved to buildtools/{mac,linux64}/emsdk
-    'buildtools/test_data',  # Moved to test/data by r.android.com/1539381 .
     'buildtools/d8',  # Removed by r.android.com/1424334 .
 
     # Build tools moved to third_party/ by r.android.com/2327602 .
@@ -247,22 +246,12 @@ BUILD_DEPS_HOST = [
         'all',
         'all'),
 
-    # JsonCpp for legacy json import. Used only by the trace processor in
-    # standalone builds.
+    # JsonCpp for QMP. Used only by the trace processor in standalone builds.
     # If updating the version, also update bazel/deps.bzl.
     Dependency(
         'buildtools/jsoncpp',
         'https://chromium.googlesource.com/external/github.com/open-source-parsers/jsoncpp.git',
         '6aba23f4a8628d599a9ef7fa4811c4ff6e4070e2',  # refs/tags/1.9.3.
-        'all',
-        'all'),
-
-    # Libexpat for Instruments XML import.
-    # If updating the version, also update bazel/deps.bzl.
-    Dependency(
-        'buildtools/expat/src',
-        'https://chromium.googlesource.com/external/github.com/libexpat/libexpat.git',
-        'fa75b96546c069d17b8f80d91e0f4ef0cde3790d',  # refs/tags/upstream/R_2_6_2.
         'all',
         'all'),
 
@@ -277,34 +266,6 @@ BUILD_DEPS_HOST = [
         '7e2541446a27f2a09a84520da7bc93cd71749ba0f17318f2d5291fbf45b97956',
         'all', 'all'),
 
-    # These dependencies are for libunwindstack, which is used by src/profiling.
-    Dependency('buildtools/android-core',
-               'https://android.googlesource.com/platform/system/core.git',
-               '9e6cef7f07d8c11b3ea820938aeb7ff2e9dbaa52', 'all', 'all'),
-    Dependency(
-        'buildtools/android-unwinding',
-        'https://android.googlesource.com/platform/system/unwinding.git',
-        '4b59ea8471e89d01300481a92de3230b79b6d7c7', 'all', 'all'),
-    Dependency('buildtools/android-logging',
-               'https://android.googlesource.com/platform/system/logging.git',
-               '7b36b566c9113fc703d68f76e8f40c0c2432481c', 'all', 'all'),
-    Dependency('buildtools/android-libbase',
-               'https://android.googlesource.com/platform/system/libbase.git',
-               '78f1c2f83e625bdf66d55b48bdb3a301c20d2fb3', 'all', 'all'),
-    Dependency(
-        'buildtools/android-libprocinfo',
-        'https://android.googlesource.com/platform/system/libprocinfo.git',
-        'fd214c13ededecae97a3b15b5fccc8925a749a84', 'all', 'all'),
-    Dependency('buildtools/lzma',
-               'https://android.googlesource.com/platform/external/lzma.git',
-               '7851dce6f4ca17f5caa1c93a4e0a45686b1d56c3', 'all', 'all'),
-    Dependency('buildtools/zstd',
-               'https://android.googlesource.com/platform/external/zstd.git',
-               '77211fcc5e08c781734a386402ada93d0d18d093', 'all', 'all'),
-    Dependency('buildtools/bionic',
-               'https://android.googlesource.com/platform/bionic.git',
-               'a0d0355105cb9d4a4b5384897448676133d7b8e2', 'all', 'all'),
-
     # Zlib used both in the tracing binaries, as well as the trace processor and
     # assorted tools.
     # If updating the version, also update bazel/deps.bzl.
@@ -317,63 +278,7 @@ BUILD_DEPS_HOST = [
     Dependency('buildtools/linenoise',
                'https://fuchsia.googlesource.com/third_party/linenoise.git',
                'c894b9e59f02203dbe4e2be657572cf88c4230c3', 'all', 'all'),
-
-    # Bloaty, used to investigate binary size
-    Dependency(
-        'buildtools/bloaty.zip',
-        'https://storage.googleapis.com/perfetto/bloaty-1.1-b3b829de35babc2fe831b9488ad2e50bca939412-mac.zip',
-        '2d301bd72a20e3f42888c9274ceb4dca76c103608053572322412c2c65ab8cb8',
-        'darwin', 'all'),
 ]
-
-# Dependencies required to build Android code.
-# URLs and SHA1s taken from:
-# - https://dl.google.com/android/repository/repository-11.xml
-# - https://dl.google.com/android/repository/sys-img/android/sys-img.xml
-BUILD_DEPS_ANDROID = [
-    # Android NDK
-    Dependency(
-        'buildtools/ndk.zip',
-        'https://dl.google.com/android/repository/android-ndk-r26c-darwin.zip',
-        '312756dfcbdbf389d35d651e17ca98683bd36cb83cc7bf7ad51cac5c06bd064b',
-        'darwin', 'all'),
-    Dependency(
-        'buildtools/ndk.zip',
-        'https://dl.google.com/android/repository/android-ndk-r26c-linux.zip',
-        '6d6e659834d28bb24ba7ae66148ad05115ebbad7dabed1af9b3265674774fcf6',
-        'linux', 'x64'),
-]
-
-# Dependencies required to run Android tests.
-TEST_DEPS_ANDROID = [
-    # Android emulator images.
-    Dependency(
-        'buildtools/aosp-arm.zip',
-        'https://storage.googleapis.com/perfetto/aosp-02022018-arm.zip',
-        'f5c7a3a22ad7aa0bd14ba467e8697e1e917d306699bd25622aa4419a413b9b67',
-        'all', 'all'),
-
-    # platform-tools.zip contains adb binaries.
-    Dependency(
-        'buildtools/android_sdk/platform-tools.zip',
-        'https://dl.google.com/android/repository/platform-tools_r26.0.0-darwin.zip',
-        '98d392cbd21ca20d643c7e1605760cc49075611e317c534096b5564053f4ac8e',
-        'darwin', 'all'),
-    Dependency(
-        'buildtools/android_sdk/platform-tools.zip',
-        'https://dl.google.com/android/repository/platform-tools_r26.0.0-linux.zip',
-        '90208207521d85abf0d46e3374aa4e04b7aff74e4f355c792ac334de7a77e50b',
-        'linux', 'x64'),
-
-    # Android emulator binaries.
-    Dependency(
-        'buildtools/emulator',
-        'https://android.googlesource.com/platform/prebuilts/android-emulator.git',
-        '4b260028dc27bc92c39bee9129cb2ba839970956', 'all', 'x64'),
-]
-
-# This variable is updated by tools/roll-catapult-trace-viewer.
-CATAPULT_SHA256 = 'b30108e05268ce6c65bb4126b65f6bfac165d17f5c1fd285046e7e6fd76c209f'
 
 TYPEFACES_SHA256 = '1065172aaf0e9c22bc4f206ed9fdf5f1b4355d233fb21f9f26a89cd66c941940'
 
@@ -404,10 +309,6 @@ UI_DEPS = [
         'bfff9fb0326363c12e19b542f27a5f12cedbfc310f30621dc497c9af51d2d2e3',
         'linux', 'x64'),
     Dependency(
-        'buildtools/catapult_trace_viewer.tgz',
-        'https://storage.googleapis.com/perfetto/catapult_trace_viewer-%s.tar.gz'
-        % CATAPULT_SHA256, CATAPULT_SHA256, 'all', 'all'),
-    Dependency(
         'buildtools/typefaces.tgz',
         'https://storage.googleapis.com/perfetto/typefaces-%s.tar.gz' %
         TYPEFACES_SHA256, TYPEFACES_SHA256, 'all', 'all'),
@@ -434,20 +335,6 @@ UI_DEPS = [
         'darwin', 'x64'),
 ]
 
-# Dependencies to build gRPC.
-BIGTRACE_DEPS = [
-    Dependency(
-        'buildtools/grpc/src',
-        'https://chromium.googlesource.com/external/github.com/grpc/grpc.git',
-        '4795c5e69b25e8c767b498bea784da0ef8c96fd5', 'all', 'all', True),
-    Dependency(
-      'buildtools/cpp-httplib',
-      'https://github.com/yhirose/cpp-httplib.git',
-      '6c3e8482f7b4e3b307bb42afbb85fd8771da86b8',
-      'all', 'all', True
-    )
-]
-
 # Sysroots required to cross-compile Linux targets (linux-arm{,64}).
 # These are taken from Chromium's build/linux/sysroot_scripts/sysroots.json.
 BUILD_DEPS_LINUX_CROSS_SYSROOTS = [
@@ -464,8 +351,8 @@ BUILD_DEPS_LINUX_CROSS_SYSROOTS = [
 ]
 
 ALL_DEPS = (
-    BUILD_DEPS_HOST + BUILD_DEPS_ANDROID + BUILD_DEPS_LINUX_CROSS_SYSROOTS +
-    TEST_DEPS_ANDROID + UI_DEPS)
+    BUILD_DEPS_HOST + BUILD_DEPS_LINUX_CROSS_SYSROOTS +
+    UI_DEPS)
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 UI_DIR = os.path.join(ROOT_DIR, 'ui')
@@ -683,8 +570,6 @@ def Main():
       '--ui',
       action='store_true',
       help='Node and NPM packages to Build the Web-based UI via ./ui/build')
-  parser.add_argument(
-      '--grpc', action='store_true', help='Packages to build gRPC')
   parser.add_argument('--check-only')
   parser.add_argument('--filter', action='append')
   parser.add_argument('--verify', help='Check all URLs', action='store_true')
@@ -716,15 +601,10 @@ def Main():
   deps = BUILD_DEPS_HOST
   if not args.no_toolchain:
     deps += BUILD_DEPS_TOOLCHAIN_HOST
-  if args.android:
-    deps += BUILD_DEPS_ANDROID + TEST_DEPS_ANDROID
   if args.linux_arm:
     deps += BUILD_DEPS_LINUX_CROSS_SYSROOTS
   if args.ui:
     deps += UI_DEPS
-  # TODO(b/360084012) Change the arg name to bigtrace
-  if args.grpc:
-    deps += BIGTRACE_DEPS
   deps_updated = False
   nodejs_updated = False
 
@@ -830,7 +710,7 @@ def Main():
     print('\033[91mBuild deps are stale. ' +
           'Please run tools/install-build-deps %s\033[0m' % argz)
     if not test_data_synced:
-      print('//test/data/ is out of sync. `tools/test_data status` for details')
+        print('//test/data/ is out of sync. `tools/test_data status` for details')
     return 1
 
   if not test_data_synced:

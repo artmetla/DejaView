@@ -33,8 +33,7 @@ class ArgsParser : public util::ProtoToArgsParser::Delegate {
   ArgsParser(int64_t packet_timestamp,
                       ArgsTracker::BoundInserter& inserter,
                       TraceStorage& storage,
-                      PacketSequenceStateGeneration* sequence_state = nullptr,
-                      bool support_json = false);
+                      PacketSequenceStateGeneration* sequence_state = nullptr);
   ~ArgsParser() override;
   void AddInteger(const Key&, int64_t) override;
   void AddUnsignedInteger(const Key&, uint64_t) override;
@@ -44,7 +43,6 @@ class ArgsParser : public util::ProtoToArgsParser::Delegate {
   void AddPointer(const Key&, const void*) override;
   void AddBoolean(const Key&, bool) override;
   void AddBytes(const Key&, const protozero::ConstBytes&) override;
-  bool AddJson(const Key&, const protozero::ConstChars&) override;
   void AddNull(const Key&) override;
   size_t GetArrayEntryIndex(const std::string& array_key) override;
   size_t IncrementArrayEntryIndex(const std::string& array_key) override;
@@ -56,7 +54,6 @@ class ArgsParser : public util::ProtoToArgsParser::Delegate {
                                               uint64_t iid) override;
 
  private:
-  const bool support_json_;
   const int64_t packet_timestamp_;
   PacketSequenceStateGeneration* const sequence_state_;
   ArgsTracker::BoundInserter& inserter_;

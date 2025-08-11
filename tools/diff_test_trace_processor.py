@@ -39,9 +39,7 @@ def main():
   parser.add_argument('--test-type', type=str, default='all')
   parser.add_argument('--trace-descriptor', type=str)
   parser.add_argument('--metrics-descriptor', nargs='+', type=str)
-  parser.add_argument('--chrome-track-event-descriptor', type=str, default=None)
   parser.add_argument('--test-extensions', type=str, default=None)
-  parser.add_argument('--winscope-extensions', type=str, default=None)
   parser.add_argument('--perf-file', type=str)
   parser.add_argument(
       '--override-sql-module', type=str, action='append', default=[])
@@ -66,17 +64,9 @@ def main():
   args = parser.parse_args()
 
   out_path = os.path.dirname(args.trace_processor)
-  if args.chrome_track_event_descriptor is None:
-    args.chrome_track_event_descriptor = os.path.join(
-        out_path, 'gen', 'protos', 'third_party', 'chromium',
-        'chrome_track_event.descriptor')
   if args.test_extensions is None:
     args.test_extensions = os.path.join(out_path, 'gen', 'protos', 'dejaview',
                                         'trace', 'test_extensions.descriptor')
-  if args.winscope_extensions is None:
-    args.winscope_extensions = os.path.join(out_path, 'gen', 'protos',
-                                            'dejaview', 'trace', 'android',
-                                            'winscope.descriptor')
 
   test_runner = DiffTestsRunner(args.name_filter, args.trace_processor,
                                 args.trace_descriptor, args.no_colors,
@@ -84,9 +74,8 @@ def main():
   sys.stderr.write(f"[==========] Running {len(test_runner.tests)} tests.\n")
 
   results = test_runner.run_all_tests(args.metrics_descriptor,
-                                      args.chrome_track_event_descriptor,
                                       args.test_extensions,
-                                      args.winscope_extensions, args.keep_input,
+                                      args.keep_input,
                                       args.rebase)
   sys.stderr.write(results.str(args.no_colors, len(test_runner.tests)))
 

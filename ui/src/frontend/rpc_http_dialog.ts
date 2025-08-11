@@ -55,9 +55,10 @@ If you continue, this is almost surely going to cause UI failures.
 
 Please update your local Trace Processor binary:
 
-curl -LO https://get.perfetto.dev/trace_processor
-chmod +x ./trace_processor
-./trace_processor --httpd
+git clone https://github.com/FlorentRevest/DejaView
+cd DejaView/
+# Follow the README.md to get the latest build instruction
+out/linux/trace_processor --httpd
 
 UI version code: ${VERSION}
 UI RPC API: ${CURRENT_API_VERSION}
@@ -203,7 +204,7 @@ export async function CheckHttpRpcConnection(): Promise<void> {
   }
 
   // Check if pre-loaded:
-  if (tpStatus.loadedTraceName) {
+  if (tpStatus.loadedTraceName as string) {
     // If a trace is already loaded in the trace processor (e.g., the user
     // launched trace_processor_shell -D trace_file.pftrace), prompt the user to
     // initialize the UI with the already-loaded trace.

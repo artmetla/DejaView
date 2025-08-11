@@ -116,7 +116,7 @@ dejaview_unittest_source_set("unittests") {
   # On chromium component build we cannot have a test target depening boh on
   # protobuf-full and protobuf-lite. Just skip those targets there.
   # See also https://crug.com/1210223 .
-  if (dejaview_build_standalone || dejaview_build_with_android) {
+  if (dejaview_build_standalone) {
     deps += [ ":filter_util" ]
     sources += [
       "filter_util_unittest.cc",

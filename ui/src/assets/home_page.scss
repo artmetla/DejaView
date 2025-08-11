@@ -128,12 +128,13 @@
       }
     } // .channel-select
 
-    .home-page-hints {
+    .home-page-actions {
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-family: $pf-font;
+      font-size: 26px;
 
       .pf-hotkey {
         display: inline-flex;
@@ -143,9 +144,14 @@
       ul {
         margin: 0;
         padding: 0;
+        list-style-type: none;
 
         li {
-          padding-top: 0.5rem;
+          padding-top: 1.5rem;
+
+          .home-page-actions-icon {
+            margin-right: 10px;
+          }
         }
       }
 

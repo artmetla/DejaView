@@ -16,10 +16,6 @@
 
 syntax = "proto2";
 
-import "protos/dejaview/trace/android/network_trace.proto";
-import "protos/dejaview/trace/chrome/v8.proto";
-import "protos/dejaview/trace/gpu/gpu_render_stage_event.proto";
-import "protos/dejaview/trace/track_event/chrome_histogram_sample.proto";
 import "protos/dejaview/trace/track_event/debug_annotation.proto";
 import "protos/dejaview/trace/track_event/log_message.proto";
 import "protos/dejaview/trace/track_event/track_event.proto";
@@ -72,7 +68,6 @@ message InternedData {
   repeated SourceLocation source_locations = 4;
   repeated UnsymbolizedSourceLocation unsymbolized_source_locations = 28;
   repeated LogMessageBody log_message_body = 20;
-  repeated HistogramName histogram_names = 25;
 
   // Note: field IDs up to 15 should be used for frequent data only.
 
@@ -97,13 +92,6 @@ message InternedData {
   // Additional Vulkan information sent in a VulkanMemoryEvent message
   repeated InternedString vulkan_memory_keys = 22;
 
-  // Graphics context of a render stage event.  This represent the GL
-  // context for an OpenGl app or the VkDevice for a Vulkan app.
-  repeated InternedGraphicsContext graphics_contexts = 23;
-
-  // Description of a GPU hardware queue or render stage.
-  repeated InternedGpuRenderStageSpecification gpu_specifications = 24;
-
   // This is set when FtraceConfig.symbolize_ksyms = true.
   // The id of each symbol the number that will be reported in ftrace events
   // like sched_block_reason.caller and is obtained from a monotonic counter.
@@ -114,24 +102,6 @@ message InternedData {
 
   // Interned string values in the DebugAnnotation proto.
   repeated InternedString debug_annotation_string_values = 29;
-
-  // Interned packet context for android.network_packets.
-  repeated NetworkPacketContext packet_context = 30;
-
-  // Interned name of a js function. We only intern js functions as there is a
-  // lot of duplication for them, but less so for other strings in the V8 data
-  // source.
-  repeated InternedV8String v8_js_function_name = 31;
-  // Js functions can be emitted multiple times for various compilation tiers,
-  // so it makes sense to deduplicate all this.
-  repeated InternedV8JsFunction v8_js_function = 32;
-  // Interned JS script (there is one associated with each JS function)
-  repeated InternedV8JsScript v8_js_script = 33;
-  // Interned Wasm script (there is one associated with each Wasm function)
-  repeated InternedV8WasmScript v8_wasm_script = 34;
-  // Every V8 event is associated with an isolate, intern the isolate to remove
-  // duplication.
-  repeated InternedV8Isolate v8_isolate = 35;
 
   // Interned protolog strings args.
   repeated InternedString protolog_string_args = 36;

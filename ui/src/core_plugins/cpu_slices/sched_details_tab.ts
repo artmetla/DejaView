@@ -82,11 +82,7 @@ export class SchedSliceDetailsPanel implements TrackEventDetailsPanel {
         title: 'CPU Sched Slice',
         description: this.renderTitle(this.details),
       },
-      m(
-        GridLayout,
-        this.renderDetails(this.details, threadInfo),
-        this.renderSchedLatencyInfo(this.details),
-      ),
+      m(GridLayout, this.renderDetails(this.details, threadInfo)),
     );
   }
 
@@ -96,70 +92,6 @@ export class SchedSliceDetailsPanel implements TrackEventDetailsPanel {
       return null;
     }
     return `${threadInfo.procName} [${threadInfo.pid}]`;
-  }
-
-  private renderSchedLatencyInfo(data: Data): m.Children {
-    if (
-      data.wakeup?.wakeupTs === undefined ||
-      data.wakeup?.wakerUtid === undefined
-    ) {
-      return null;
-    }
-    return m(
-      Section,
-      {title: 'Scheduling Latency'},
-      m(
-        '.slice-details-latency-panel',
-        m('img.slice-details-image', {
-          src: `${globals.root}assets/scheduling_latency.png`,
-        }),
-        this.renderWakeupText(data),
-        this.renderDisplayLatencyText(data),
-      ),
-    );
-  }
-
-  private renderWakeupText(data: Data): m.Children {
-    if (
-      data.wakeup?.wakerUtid === undefined ||
-      data.wakeup?.wakeupTs === undefined ||
-      data.wakeup?.wakerCpu === undefined
-    ) {
-      return null;
-    }
-    const threadInfo = this.trace.threads.get(data.wakeup.wakerUtid);
-    if (!threadInfo) {
-      return null;
-    }
-    return m(
-      '.slice-details-wakeup-text',
-      m(
-        '',
-        `Wakeup @ `,
-        m(Timestamp, {ts: data.wakeup?.wakeupTs}),
-        ` on CPU ${data.wakeup.wakerCpu} by`,
-      ),
-      m('', `P: ${threadInfo.procName} [${threadInfo.pid}]`),
-      m('', `T: ${threadInfo.threadName} [${threadInfo.tid}]`),
-    );
-  }
-
-  private renderDisplayLatencyText(data: Data): m.Children {
-    if (data.wakeup?.wakeupTs === undefined) {
-      return null;
-    }
-
-    const latency = data.sched.ts - data.wakeup?.wakeupTs;
-    return m(
-      '.slice-details-latency-text',
-      m('', `Scheduling latency: `, m(DurationWidget, {dur: latency})),
-      m(
-        '.text-detail',
-        `This is the interval from when the task became eligible to run
-        (e.g. because of notifying a wait queue it was suspended on) to
-        when it started running.`,
-      ),
-    );
   }
 
   private renderPriorityText(priority?: number) {
@@ -177,13 +109,6 @@ export class SchedSliceDetailsPanel implements TrackEventDetailsPanel {
       ['Thread', getDisplayName(data.sched.thread.name, data.sched.thread.tid)],
       ['Process', getDisplayName(process?.name, process?.pid)],
       ['User ID', exists(process?.uid) ? String(process?.uid) : undefined],
-      ['Package name', process?.packageName],
-      [
-        'Version code',
-        process?.versionCode !== undefined
-          ? String(process?.versionCode)
-          : undefined,
-      ],
     ]);
   }
 

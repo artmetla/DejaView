@@ -26,8 +26,6 @@
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
-#include "src/trace_processor/importers/proto/active_chrome_processes_tracker.h"
-#include "src/trace_processor/importers/proto/chrome_string_lookup.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
@@ -52,11 +50,9 @@ class TrackEventParser {
  public:
   TrackEventParser(TraceProcessorContext*, TrackEventTracker*);
 
-  void ParseTrackDescriptor(int64_t packet_timestamp,
-                            protozero::ConstBytes,
+  void ParseTrackDescriptor(protozero::ConstBytes,
                             uint32_t packet_sequence_id);
-  UniquePid ParseProcessDescriptor(int64_t packet_timestamp,
-                                   protozero::ConstBytes);
+  UniquePid ParseProcessDescriptor(protozero::ConstBytes);
   UniqueTid ParseThreadDescriptor(protozero::ConstBytes);
 
   void ParseTrackEvent(int64_t ts,
@@ -69,10 +65,7 @@ class TrackEventParser {
  private:
   class EventImporter;
 
-  void ParseChromeProcessDescriptor(UniquePid, protozero::ConstBytes);
-  void ParseChromeThreadDescriptor(UniqueTid, protozero::ConstBytes);
   void ParseCounterDescriptor(TrackId, protozero::ConstBytes);
-  void AddActiveProcess(int64_t packet_timestamp, int32_t pid);
 
   // Reflection-based proto TrackEvent field parser.
   util::ProtoToArgsParser args_parser_;
@@ -124,12 +117,9 @@ class TrackEventParser {
   const StringId event_category_key_id_;
   const StringId event_name_key_id_;
 
-  ChromeStringLookup chrome_string_lookup_;
   std::array<StringId, 4> counter_unit_ids_;
 
   std::vector<uint32_t> reflect_fields_;
-
-  ActiveChromeProcessesTracker active_chrome_processes_tracker_;
 };
 
 }  // namespace dejaview::trace_processor

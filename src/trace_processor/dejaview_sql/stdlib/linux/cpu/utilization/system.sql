@@ -91,37 +91,6 @@ SELECT
   cast_int!(SUM((dur * freq / 1000)) / SUM(dur / 1000)) AS avg_freq
 FROM _cpu_freq_per_thread;
 
--- Aggregated CPU statistics in a provided interval. Results in one row.
-CREATE DEJAVIEW FUNCTION cpu_cycles_in_interval(
-    -- Start of the interval.
-    ts INT,
-    -- Duration of the interval.
-    dur INT
-)
-RETURNS TABLE(
-  -- Sum of CPU millicycles.
-  millicycles INT,
-  -- Sum of CPU megacycles.
-  megacycles INT,
-  -- Total runtime of all threads running on all CPUs.
-  runtime INT,
-  -- Minimum CPU frequency in kHz.
-  min_freq INT,
-  -- Maximum CPU frequency in kHz.
-  max_freq INT,
-  -- Average CPU frequency in kHz.
-  avg_freq INT
-) AS
-SELECT
-  cast_int!(SUM(ii.dur * freq / 1000)) AS millicycles,
-  cast_int!(SUM(ii.dur * freq / 1000) / 1e9) AS megacycles,
-  SUM(ii.dur) AS runtime,
-  MIN(freq) AS min_freq,
-  MAX(freq) AS max_freq,
-  cast_int!(SUM((ii.dur * freq / 1000)) / SUM(ii.dur / 1000)) AS avg_freq
-FROM _interval_intersect_single!($ts, $dur, _cpu_freq_per_thread) ii
-JOIN _cpu_freq_per_thread USING (id);
-
 -- Aggregated CPU statistics for each CPU.
 CREATE DEJAVIEW TABLE cpu_cycles_per_cpu(
   -- Unique CPU id. Joinable with `cpu.id`.
@@ -151,42 +120,4 @@ SELECT
   MAX(freq) AS max_freq,
   cast_int!(SUM((dur * freq / 1000)) / SUM(dur / 1000)) AS avg_freq
 FROM _cpu_freq_per_thread
-GROUP BY ucpu;
-
--- Aggregated CPU statistics for each CPU in a provided interval.
-CREATE DEJAVIEW FUNCTION cpu_cycles_per_cpu_in_interval(
-    -- Start of the interval.
-    ts INT,
-    -- Duration of the interval.
-    dur INT
-)
-RETURNS TABLE(
-  -- Unique CPU id. Joinable with `cpu.id`.
-  ucpu INT,
-  -- CPU number.
-  cpu INT,
-  -- Sum of CPU millicycles.
-  millicycles INT,
-  -- Sum of CPU megacycles.
-  megacycles INT,
-  -- Total runtime of all threads running on CPU.
-  runtime INT,
-  -- Minimum CPU frequency in kHz.
-  min_freq INT,
-  -- Maximum CPU frequency in kHz.
-  max_freq INT,
-  -- Average CPU frequency in kHz.
-  avg_freq INT
-) AS
-SELECT
-  ucpu,
-  cpu,
-  cast_int!(SUM(ii.dur * freq / 1000)) AS millicycles,
-  cast_int!(SUM(ii.dur * freq / 1000) / 1e9) AS megacycles,
-  SUM(ii.dur) AS runtime,
-  MIN(freq) AS min_freq,
-  MAX(freq) AS max_freq,
-  cast_int!(SUM((ii.dur * freq / 1000)) / SUM(ii.dur / 1000)) AS avg_freq
-FROM _interval_intersect_single!($ts, $dur, _cpu_freq_per_thread) ii
-JOIN _cpu_freq_per_thread USING (id)
 GROUP BY ucpu;

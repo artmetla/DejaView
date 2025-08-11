@@ -20,8 +20,6 @@
 #include "src/trace_processor/util/status_macros.h"
 
 #include "protos/dejaview/common/trace_stats.pbzero.h"
-#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 #include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 namespace dejaview::trace_redaction {
@@ -37,10 +35,6 @@ base::Status VerifyIntegrity::Collect(
   if (packet.trusted_uid() > Context::kMaxTrustedUid) {
     return base::ErrStatus("VerifyIntegrity: untrusted uid found (uid = %d).",
                            packet.trusted_uid());
-  }
-
-  if (packet.has_ftrace_events()) {
-    RETURN_IF_ERROR(OnFtraceEvents(packet.ftrace_events()));
   }
 
   // If there is a process tree, there should be a timestamp on the packet. This
@@ -61,63 +55,6 @@ base::Status VerifyIntegrity::Collect(
 
   if (packet.has_trace_stats()) {
     RETURN_IF_ERROR(OnTraceStats(packet.trace_stats()));
-  }
-
-  return base::OkStatus();
-}
-
-base::Status VerifyIntegrity::OnFtraceEvents(
-    const protozero::ConstBytes bytes) const {
-  protos::pbzero::FtraceEventBundle::Decoder events(bytes);
-
-  // Any ftrace lost events should cause the trace to be dropped:
-  // protos/dejaview/trace/ftrace/ftrace_event_bundle.proto
-  if (events.has_lost_events() && events.has_lost_events()) {
-    return base::ErrStatus(
-        "VerifyIntegrity: detected FtraceEventBundle error.");
-  }
-
-  // The other clocks in ftrace are only used on very old kernel versions. No
-  // device with V should have such an old version. As a failsafe though,
-  // check that the ftrace_clock field is unset to ensure no invalid
-  // timestamps get by.
-  if (events.has_ftrace_clock()) {
-    return base::ErrStatus(
-        "VerifyIntegrity: unexpected field (FtraceEventBundle::kFtraceClock).");
-  }
-
-  // Every ftrace event bundle should have a CPU field. This is necessary for
-  // switch/waking redaction to work.
-  if (!events.has_cpu()) {
-    return base::ErrStatus(
-        "VerifyIntegrity: missing field (FtraceEventBundle::kCpu).");
-  }
-
-  // Any ftrace errors should cause the trace to be dropped:
-  // protos/dejaview/trace/ftrace/ftrace_event_bundle.proto
-  if (events.has_error()) {
-    return base::ErrStatus("VerifyIntegrity: detected FtraceEvent errors.");
-  }
-
-  for (auto it = events.event(); it; ++it) {
-    RETURN_IF_ERROR(OnFtraceEvent(*it));
-  }
-
-  return base::OkStatus();
-}
-
-base::Status VerifyIntegrity::OnFtraceEvent(
-    const protozero::ConstBytes bytes) const {
-  protos::pbzero::FtraceEvent::Decoder event(bytes);
-
-  if (!event.has_timestamp()) {
-    return base::ErrStatus(
-        "VerifyIntegrity: missing field (FtraceEvent::kTimestamp).");
-  }
-
-  if (!event.has_pid()) {
-    return base::ErrStatus(
-        "VerifyIntegrity: missing field (FtraceEvent::kPid).");
   }
 
   return base::OkStatus();

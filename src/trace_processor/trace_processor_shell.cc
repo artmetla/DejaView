@@ -49,8 +49,6 @@
 #include "dejaview/trace_processor/metatrace_config.h"
 #include "dejaview/trace_processor/read_trace.h"
 #include "dejaview/trace_processor/trace_processor.h"
-#include "src/trace_processor/metrics/all_chrome_metrics.descriptor.h"
-#include "src/trace_processor/metrics/all_webview_metrics.descriptor.h"
 #include "src/trace_processor/metrics/metrics.descriptor.h"
 #include "src/trace_processor/read_trace_internal.h"
 #include "src/trace_processor/rpc/stdiod.h"
@@ -1398,12 +1396,6 @@ base::Status PopulateDescriptorPool(
   }
   ExtendPoolWithBinaryDescriptor(pool, kMetricsDescriptor.data(),
                                  kMetricsDescriptor.size(), skip_prefixes);
-  ExtendPoolWithBinaryDescriptor(pool, kAllChromeMetricsDescriptor.data(),
-                                 kAllChromeMetricsDescriptor.size(),
-                                 skip_prefixes);
-  ExtendPoolWithBinaryDescriptor(pool, kAllWebviewMetricsDescriptor.data(),
-                                 kAllWebviewMetricsDescriptor.size(),
-                                 skip_prefixes);
   return base::OkStatus();
 }
 

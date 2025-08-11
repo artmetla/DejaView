@@ -21,12 +21,6 @@ from python.generators.diff_tests.testing import TestSuite
 
 class SpanJoinRegression(TestSuite):
 
-  def test_android_sched_and_ps_slice_span_join_b118665515(self):
-    return DiffTestBlueprint(
-        trace=DataPath('android_sched_and_ps.pb'),
-        query=Path('slice_span_join_b118665515_test.sql'),
-        out=Path('android_sched_and_ps_slice_span_join_b118665515.out'))
-
   def test_span_join_unpartitioned_empty(self):
     return DiffTestBlueprint(
         trace=DataPath('android_sched_and_ps.pb'),

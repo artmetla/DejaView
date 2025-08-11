@@ -24,7 +24,6 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/dejaview/trace/track_event/chrome_compositor_scheduler_state.pbzero.h"
 #include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 
 namespace dejaview {
@@ -55,44 +54,6 @@ TEST(ProtozeroToTextTest, TrackEventBasic) {
           protozero::ConstBytes{binary_proto.data(), binary_proto.size()}));
   EXPECT_EQ(
       "track_uuid: 4 timestamp_delta_us: 3",
-      ShortDebugTrackEventProtozeroToText(
-          ".dejaview.protos.TrackEvent",
-          protozero::ConstBytes{binary_proto.data(), binary_proto.size()}));
-}
-
-TEST(ProtozeroToTextTest, TrackEventNestedMsg) {
-  using dejaview::protos::pbzero::TrackEvent;
-  protozero::HeapBuffered<TrackEvent> msg{kChunkSize, kChunkSize};
-  msg->set_track_uuid(4);
-  auto* state = msg->set_cc_scheduler_state();
-  state->set_deadline_us(7);
-  auto* machine = state->set_state_machine();
-  auto* minor_state = machine->set_minor_state();
-  minor_state->set_commit_count(8);
-  state->set_observing_begin_frame_source(true);
-  msg->set_timestamp_delta_us(3);
-  auto binary_proto = msg.SerializeAsArray();
-
-  EXPECT_EQ(
-      R"(track_uuid: 4
-cc_scheduler_state {
-  deadline_us: 7
-  state_machine {
-    minor_state {
-      commit_count: 8
-    }
-  }
-  observing_begin_frame_source: true
-}
-timestamp_delta_us: 3)",
-      DebugTrackEventProtozeroToText(
-          ".dejaview.protos.TrackEvent",
-          protozero::ConstBytes{binary_proto.data(), binary_proto.size()}));
-
-  EXPECT_EQ(
-      "track_uuid: 4 cc_scheduler_state { deadline_us: 7 state_machine { "
-      "minor_state { commit_count: 8 } } observing_begin_frame_source: true } "
-      "timestamp_delta_us: 3",
       ShortDebugTrackEventProtozeroToText(
           ".dejaview.protos.TrackEvent",
           protozero::ConstBytes{binary_proto.data(), binary_proto.size()}));
@@ -131,47 +92,6 @@ TEST(ProtozeroToTextTest, CustomDescriptorPoolBasic) {
   EXPECT_EQ("track_uuid: 4 timestamp_delta_us: 3",
             ProtozeroToText(pool, ".dejaview.protos.TrackEvent", binary_proto,
                             kSkipNewLines));
-}
-
-TEST(ProtozeroToTextTest, CustomDescriptorPoolNestedMsg) {
-  using dejaview::protos::pbzero::TrackEvent;
-  protozero::HeapBuffered<TrackEvent> msg{kChunkSize, kChunkSize};
-  msg->set_track_uuid(4);
-  auto* state = msg->set_cc_scheduler_state();
-  state->set_deadline_us(7);
-  auto* machine = state->set_state_machine();
-  auto* minor_state = machine->set_minor_state();
-  minor_state->set_commit_count(8);
-  state->set_observing_begin_frame_source(true);
-  msg->set_timestamp_delta_us(3);
-  auto binary_proto = msg.SerializeAsArray();
-
-  DescriptorPool pool;
-  auto status = pool.AddFromFileDescriptorSet(kTrackEventDescriptor.data(),
-                                              kTrackEventDescriptor.size());
-  ASSERT_TRUE(status.ok());
-
-  EXPECT_EQ(
-      R"(track_uuid: 4
-cc_scheduler_state {
-  deadline_us: 7
-  state_machine {
-    minor_state {
-      commit_count: 8
-    }
-  }
-  observing_begin_frame_source: true
-}
-timestamp_delta_us: 3)",
-      ProtozeroToText(pool, ".dejaview.protos.TrackEvent", binary_proto,
-                      kIncludeNewLines));
-
-  EXPECT_EQ(
-      "track_uuid: 4 cc_scheduler_state { deadline_us: 7 state_machine { "
-      "minor_state { commit_count: 8 } } observing_begin_frame_source: true } "
-      "timestamp_delta_us: 3",
-      ProtozeroToText(pool, ".dejaview.protos.TrackEvent", binary_proto,
-                      kSkipNewLines));
 }
 
 TEST(ProtozeroToTextTest, ProtozeroEnumToText) {

@@ -45,37 +45,15 @@ class ProtoTraceParserImpl : public ProtoTraceParser {
   void ParseTrackEvent(int64_t ts, TrackEventData data) override;
   void ParseTracePacket(int64_t ts, TracePacketData data) override;
 
-  void ParseEtwEvent(uint32_t cpu,
-                     int64_t /*ts*/,
-                     TracePacketData data) override;
-
-  void ParseFtraceEvent(uint32_t cpu,
-                        int64_t /*ts*/,
-                        TracePacketData data) override;
-
-  void ParseInlineSchedSwitch(uint32_t cpu,
-                              int64_t /*ts*/,
-                              InlineSchedSwitch data) override;
-
-  void ParseInlineSchedWaking(uint32_t cpu,
-                              int64_t /*ts*/,
-                              InlineSchedWaking data) override;
-
-  void ParseLegacyV8ProfileEvent(int64_t ts, LegacyV8CpuProfileEvent) override;
-
  private:
   StringId GetMetatraceInternedString(uint64_t iid);
 
-  void ParseChromeEvents(int64_t ts, ConstBytes);
   void ParseMetatraceEvent(int64_t ts, ConstBytes);
 
   TraceProcessorContext* context_;
 
   const StringId metatrace_id_;
   const StringId data_name_id_;
-  const StringId raw_chrome_metadata_event_id_;
-  const StringId raw_chrome_legacy_system_trace_event_id_;
-  const StringId raw_chrome_legacy_user_trace_event_id_;
   const StringId missing_metatrace_interned_string_id_;
 
   base::FlatHashMap<uint64_t, StringId> metatrace_interned_strings_;

@@ -19,30 +19,18 @@ import {FuzzyFinder} from '../base/fuzzy';
 import {assertExists, assertTrue, assertUnreachable} from '../base/logging';
 import {undoCommonChatAppReplacements} from '../base/string_utils';
 import {Actions} from '../common/actions';
-import {
-  DurationPrecision,
-  setDurationPrecision,
-  setTimestampFormat,
-  TimestampFormat,
-} from '../core/timestamp_format';
 import {raf} from '../core/raf_scheduler';
 import {Command} from '../public/command';
 import {HotkeyConfig, HotkeyContext} from '../widgets/hotkey_context';
 import {HotkeyGlyphs} from '../widgets/hotkey_glyphs';
-import {maybeRenderFullscreenModalDialog, showModal} from '../widgets/modal';
-import {onClickCopy} from './clipboard';
-import {CookieConsent} from './cookie_consent';
+import {maybeRenderFullscreenModalDialog} from '../widgets/modal';
 import {globals} from './globals';
 import {toggleHelp} from './help_modal';
 import {Omnibox, OmniboxOption} from './omnibox';
 import {addQueryResultsTab} from '../public/lib/query_table/query_result_tab';
-import {Sidebar} from './sidebar';
 import {Topbar} from './topbar';
-import {shareTrace} from './trace_attrs';
 import {AggregationsTabs} from './aggregation_tab';
-import {publishPermalinkHash} from './publish';
 import {OmniboxMode} from '../core/omnibox_manager';
-import {PromptOption} from '../public/omnibox';
 import {DisposableStack} from '../base/disposable_stack';
 import {Spinner} from '../widgets/spinner';
 import {TraceImpl} from '../core/trace_impl';
@@ -52,30 +40,6 @@ import {NotesListEditor} from './notes_list_editor';
 import {getTimeSpanOfSelectionOrVisibleWindow} from '../public/utils';
 
 const OMNIBOX_INPUT_REF = 'omnibox';
-
-function renderPermalink(): m.Children {
-  const hash = globals.permalinkHash;
-  if (!hash) return null;
-  const url = `${self.location.origin}/#!/?s=${hash}`;
-  const linkProps = {title: 'Click to copy the URL', onclick: onClickCopy(url)};
-
-  return m('.alert-permalink', [
-    m('div', 'Permalink: ', m(`a[href=${url}]`, linkProps, url)),
-    m(
-      'button',
-      {
-        onclick: () => publishPermalinkHash(undefined),
-      },
-      m('i.material-icons.disallow-selection', 'close'),
-    ),
-  ]);
-}
-
-class Alerts implements m.ClassComponent {
-  view() {
-    return m('.alerts', renderPermalink());
-  }
-}
 
 // This wrapper creates a new instance of UiMainPerTrace for each new trace
 // loaded (including the case of no trace at the beginning).
@@ -130,7 +94,6 @@ export class UiMainPerTrace implements m.ClassComponent {
     assertTrue(trace instanceof TraceImpl);
     this.trace = trace;
     document.title = `${trace.traceInfo.traceTitle || 'Trace'} - DejaView UI`;
-    this.maybeShowJsonWarning();
 
     // Register the aggregation tabs.
     this.trash.use(new AggregationsTabs(trace));
@@ -151,70 +114,11 @@ export class UiMainPerTrace implements m.ClassComponent {
 
     const cmds: Command[] = [
       {
-        id: 'dejaview.SetTimestampFormat',
-        name: 'Set timestamp and duration format',
-        callback: async () => {
-          const options: PromptOption[] = [
-            {key: TimestampFormat.Timecode, displayName: 'Timecode'},
-            {key: TimestampFormat.UTC, displayName: 'Realtime (UTC)'},
-            {
-              key: TimestampFormat.TraceTz,
-              displayName: 'Realtime (Trace TZ)',
-            },
-            {key: TimestampFormat.Seconds, displayName: 'Seconds'},
-            {key: TimestampFormat.Milliseoncds, displayName: 'Milliseconds'},
-            {key: TimestampFormat.Microseconds, displayName: 'Microseconds'},
-            {key: TimestampFormat.TraceNs, displayName: 'Trace nanoseconds'},
-            {
-              key: TimestampFormat.TraceNsLocale,
-              displayName:
-                'Trace nanoseconds (with locale-specific formatting)',
-            },
-          ];
-          const promptText = 'Select format...';
-
-          const result = await AppImpl.instance.omnibox.prompt(
-            promptText,
-            options,
-          );
-          if (result === undefined) return;
-          setTimestampFormat(result as TimestampFormat);
-          raf.scheduleFullRedraw();
-        },
-      },
-      {
-        id: 'dejaview.SetDurationPrecision',
-        name: 'Set duration precision',
-        callback: async () => {
-          const options: PromptOption[] = [
-            {key: DurationPrecision.Full, displayName: 'Full'},
-            {
-              key: DurationPrecision.HumanReadable,
-              displayName: 'Human readable',
-            },
-          ];
-          const promptText = 'Select duration precision mode...';
-
-          const result = await AppImpl.instance.omnibox.prompt(
-            promptText,
-            options,
-          );
-          if (result === undefined) return;
-          setDurationPrecision(result as DurationPrecision);
-          raf.scheduleFullRedraw();
-        },
-      },
-      {
         id: 'dejaview.TogglePerformanceMetrics',
         name: 'Toggle performance metrics',
         callback: () => {
           globals.dispatch(Actions.togglePerfDebug({}));
         },
-      },
-      {
-        id: 'dejaview.ShareTrace',
-        name: 'Share trace',
-        callback: shareTrace,
       },
       {
         id: 'dejaview.SearchNext',
@@ -658,14 +562,11 @@ export class UiMainPerTrace implements m.ClassComponent {
       {hotkeys},
       m(
         'main',
-        m(Sidebar, {trace: this.trace}),
         m(Topbar, {
           omnibox: this.renderOmnibox(),
           trace: this.trace,
         }),
-        m(Alerts),
         children,
-        m(CookieConsent),
         maybeRenderFullscreenModalDialog(),
         globals.state.perfDebug && m('.perf-stats'),
       ),
@@ -717,45 +618,5 @@ export class UiMainPerTrace implements m.ClassComponent {
       }
       AppImpl.instance.omnibox.clearFocusFlag();
     }
-  }
-
-  private async maybeShowJsonWarning() {
-    // Show warning if the trace is in JSON format.
-    const isJsonTrace = this.trace?.traceInfo.traceType === 'json';
-    const SHOWN_JSON_WARNING_KEY = 'shownJsonWarning';
-
-    if (
-      !isJsonTrace ||
-      window.localStorage.getItem(SHOWN_JSON_WARNING_KEY) === 'true' ||
-      globals.embeddedMode
-    ) {
-      // When in embedded mode, the host app will control which trace format
-      // it passes to DejaView, so we don't need to show this warning.
-      return;
-    }
-
-    // Save that the warning has been shown. Value is irrelevant since only
-    // the presence of key is going to be checked.
-    window.localStorage.setItem(SHOWN_JSON_WARNING_KEY, 'true');
-
-    showModal({
-      title: 'Warning',
-      content: m(
-        'div',
-        m(
-          'span',
-          'DejaView UI features are limited for JSON traces. ',
-          'We recommend recording ',
-          m(
-            'a',
-            {href: 'https://perfetto.dev/docs/quickstart/chrome-tracing'},
-            'proto-format traces',
-          ),
-          ' from Chrome.',
-        ),
-        m('br'),
-      ),
-      buttons: [],
-    });
   }
 }

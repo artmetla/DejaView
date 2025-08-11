@@ -31,7 +31,6 @@
 #include "dejaview/trace_processor/trace_blob.h"
 #include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
-#include "src/trace_processor/importers/android_bugreport/android_bugreport_reader.h"
 #include "src/trace_processor/importers/common/trace_file_tracker.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/status_macros.h"
@@ -82,12 +81,6 @@ base::Status ZipTraceReader::Parse(TraceBlobView blob) {
 
 base::Status ZipTraceReader::NotifyEndOfFile() {
   std::vector<util::ZipFile> files = zip_reader_.TakeFiles();
-
-  // Android bug reports are ZIP files and its files do not get handled
-  // separately.
-  if (AndroidBugreportReader::IsAndroidBugReport(files)) {
-    return AndroidBugreportReader::Parse(context_, std::move(files));
-  }
 
   ASSIGN_OR_RETURN(std::vector<Entry> entries,
                    ExtractEntries(std::move(files)));

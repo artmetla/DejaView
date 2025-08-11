@@ -39,8 +39,6 @@
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
-#include "src/trace_processor/importers/etw/etw_module.h"
-#include "src/trace_processor/importers/ftrace/ftrace_module.h"
 #include "src/trace_processor/importers/proto/track_event_module.h"
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/storage/trace_storage.h"
@@ -48,7 +46,6 @@
 #include "src/trace_processor/types/variadic.h"
 
 #include "protos/dejaview/config/trace_config.pbzero.h"
-#include "protos/dejaview/trace/chrome/chrome_trace_event.pbzero.h"
 #include "protos/dejaview/trace/dejaview/dejaview_metatrace.pbzero.h"
 #include "protos/dejaview/trace/trace_packet.pbzero.h"
 
@@ -58,12 +55,6 @@ ProtoTraceParserImpl::ProtoTraceParserImpl(TraceProcessorContext* context)
     : context_(context),
       metatrace_id_(context->storage->InternString("metatrace")),
       data_name_id_(context->storage->InternString("data")),
-      raw_chrome_metadata_event_id_(
-          context->storage->InternString("chrome_event.metadata")),
-      raw_chrome_legacy_system_trace_event_id_(
-          context->storage->InternString("chrome_event.legacy_system_trace")),
-      raw_chrome_legacy_user_trace_event_id_(
-          context->storage->InternString("chrome_event.legacy_user_trace")),
       missing_metatrace_interned_string_id_(
           context->storage->InternString("MISSING STRING")) {}
 
@@ -86,10 +77,6 @@ void ProtoTraceParserImpl::ParseTracePacket(int64_t ts, TracePacketData data) {
     }
   }
 
-  if (packet.has_chrome_events()) {
-    ParseChromeEvents(ts, packet.chrome_events());
-  }
-
   if (packet.has_dejaview_metatrace()) {
     ParseMetatraceEvent(ts, packet.dejaview_metatrace());
   }
@@ -108,153 +95,6 @@ void ProtoTraceParserImpl::ParseTrackEvent(int64_t ts, TrackEventData data) {
   protos::pbzero::TracePacket::Decoder packet(blob.data(), blob.length());
   context_->track_module->ParseTrackEventData(packet, ts, data);
   context_->args_tracker->Flush();
-}
-
-void ProtoTraceParserImpl::ParseEtwEvent(uint32_t cpu,
-                                         int64_t ts,
-                                         TracePacketData data) {
-  DEJAVIEW_DCHECK(context_->etw_module);
-  context_->etw_module->ParseEtwEventData(cpu, ts, data);
-
-  // TODO(lalitm): maybe move this to the flush method in the trace processor
-  // once we have it. This may reduce performance in the ArgsTracker though so
-  // needs to be handled carefully.
-  context_->args_tracker->Flush();
-}
-
-void ProtoTraceParserImpl::ParseFtraceEvent(uint32_t cpu,
-                                            int64_t ts,
-                                            TracePacketData data) {
-  DEJAVIEW_DCHECK(context_->ftrace_module);
-  context_->ftrace_module->ParseFtraceEventData(cpu, ts, data);
-
-  // TODO(lalitm): maybe move this to the flush method in the trace processor
-  // once we have it. This may reduce performance in the ArgsTracker though so
-  // needs to be handled carefully.
-  context_->args_tracker->Flush();
-}
-
-void ProtoTraceParserImpl::ParseInlineSchedSwitch(uint32_t cpu,
-                                                  int64_t ts,
-                                                  InlineSchedSwitch data) {
-  DEJAVIEW_DCHECK(context_->ftrace_module);
-  context_->ftrace_module->ParseInlineSchedSwitch(cpu, ts, data);
-
-  // TODO(lalitm): maybe move this to the flush method in the trace processor
-  // once we have it. This may reduce performance in the ArgsTracker though so
-  // needs to be handled carefully.
-  context_->args_tracker->Flush();
-}
-
-void ProtoTraceParserImpl::ParseInlineSchedWaking(uint32_t cpu,
-                                                  int64_t ts,
-                                                  InlineSchedWaking data) {
-  DEJAVIEW_DCHECK(context_->ftrace_module);
-  context_->ftrace_module->ParseInlineSchedWaking(cpu, ts, data);
-
-  // TODO(lalitm): maybe move this to the flush method in the trace processor
-  // once we have it. This may reduce performance in the ArgsTracker though so
-  // needs to be handled carefully.
-  context_->args_tracker->Flush();
-}
-
-void ProtoTraceParserImpl::ParseLegacyV8ProfileEvent(
-    int64_t ts,
-    LegacyV8CpuProfileEvent event) {
-  base::Status status = context_->legacy_v8_cpu_profile_tracker->AddSample(
-      ts, event.session_id, event.pid, event.tid, event.callsite_id);
-  if (!status.ok()) {
-    context_->storage->IncrementStats(
-        stats::legacy_v8_cpu_profile_invalid_sample);
-  }
-  context_->args_tracker->Flush();
-}
-
-void ProtoTraceParserImpl::ParseChromeEvents(int64_t ts, ConstBytes blob) {
-  TraceStorage* storage = context_->storage.get();
-  protos::pbzero::ChromeEventBundle::Decoder bundle(blob.data, blob.size);
-  ArgsTracker args(context_);
-  if (bundle.has_metadata()) {
-    auto ucpu = context_->cpu_tracker->GetOrCreateCpu(0);
-    RawId id = storage->mutable_raw_table()
-                   ->Insert({ts, raw_chrome_metadata_event_id_, 0, 0, 0, ucpu})
-                   .id;
-    auto inserter = args.AddArgsTo(id);
-
-    uint32_t bundle_index =
-        context_->metadata_tracker->IncrementChromeMetadataBundleCount();
-
-    // The legacy untyped metadata is proxied via a special event in the raw
-    // table to JSON export.
-    for (auto it = bundle.metadata(); it; ++it) {
-      protos::pbzero::ChromeMetadata::Decoder metadata(*it);
-      Variadic value;
-      if (metadata.has_string_value()) {
-        value =
-            Variadic::String(storage->InternString(metadata.string_value()));
-      } else if (metadata.has_int_value()) {
-        value = Variadic::Integer(metadata.int_value());
-      } else if (metadata.has_bool_value()) {
-        value = Variadic::Integer(metadata.bool_value());
-      } else if (metadata.has_json_value()) {
-        value = Variadic::Json(storage->InternString(metadata.json_value()));
-      } else {
-        context_->storage->IncrementStats(stats::empty_chrome_metadata);
-        continue;
-      }
-
-      StringId name_id = storage->InternString(metadata.name());
-      args.AddArgsTo(id).AddArg(name_id, value);
-
-      char buffer[2048];
-      base::StringWriter writer(buffer, sizeof(buffer));
-      writer.AppendString("cr-");
-      // If we have data from multiple Chrome instances, append a suffix
-      // to differentiate them.
-      if (bundle_index > 1) {
-        writer.AppendUnsignedInt(bundle_index);
-        writer.AppendChar('-');
-      }
-      writer.AppendString(metadata.name());
-
-      auto metadata_id = storage->InternString(writer.GetStringView());
-      context_->metadata_tracker->SetDynamicMetadata(metadata_id, value);
-    }
-  }
-
-  if (bundle.has_legacy_ftrace_output()) {
-    auto ucpu = context_->cpu_tracker->GetOrCreateCpu(0);
-    RawId id = storage->mutable_raw_table()
-                   ->Insert({ts, raw_chrome_legacy_system_trace_event_id_, 0, 0,
-                             0, ucpu})
-                   .id;
-
-    std::string data;
-    for (auto it = bundle.legacy_ftrace_output(); it; ++it) {
-      data += (*it).ToStdString();
-    }
-    Variadic value =
-        Variadic::String(storage->InternString(base::StringView(data)));
-    args.AddArgsTo(id).AddArg(data_name_id_, value);
-  }
-
-  if (bundle.has_legacy_json_trace()) {
-    for (auto it = bundle.legacy_json_trace(); it; ++it) {
-      protos::pbzero::ChromeLegacyJsonTrace::Decoder legacy_trace(*it);
-      if (legacy_trace.type() !=
-          protos::pbzero::ChromeLegacyJsonTrace::USER_TRACE) {
-        continue;
-      }
-      auto ucpu = context_->cpu_tracker->GetOrCreateCpu(0);
-      RawId id = storage->mutable_raw_table()
-                     ->Insert({ts, raw_chrome_legacy_user_trace_event_id_, 0, 0,
-                               0, ucpu})
-                     .id;
-      Variadic value =
-          Variadic::String(storage->InternString(legacy_trace.data()));
-      args.AddArgsTo(id).AddArg(data_name_id_, value);
-    }
-  }
 }
 
 void ProtoTraceParserImpl::ParseMetatraceEvent(int64_t ts, ConstBytes blob) {

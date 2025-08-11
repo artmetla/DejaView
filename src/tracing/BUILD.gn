@@ -28,11 +28,7 @@ group("client_api") {
     "../../include/dejaview/tracing",
     "../../include/dejaview/tracing/core",
   ]
-  if (enable_dejaview_ipc) {
-    public_deps += [ ":system_backend" ]
-  } else {
-    public_deps += [ ":system_backend_fake" ]
-  }
+  public_deps += [ ":system_backend_fake" ]
 }
 
 # This target checks that the client API builds without backends. This is to
@@ -134,21 +130,6 @@ source_set("client_api_without_backends") {
   }
 }
 
-# Separate target because the embedder might not want this.
-source_set("integrationtests") {
-  testonly = true
-  deps = [
-    "../../gn:default_deps",
-    "../../gn:gtest_and_gmock",
-    "../../include/dejaview/ext/tracing/ipc",
-    "../../include/dejaview/tracing",
-    "../../protos/dejaview/trace:cpp",
-    "../base",
-    "../base:test_support",
-  ]
-  sources = [ "internal/tracing_muxer_impl_integrationtest.cc" ]
-}
-
 dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
@@ -163,55 +144,25 @@ dejaview_unittest_source_set("unittests") {
 
   sources = []
 
-  # TODO(primiano): remove the build_with_chromium conditional once the root
-  # //BUILD.gn:libdejaview (in chromium) stops adding tracing:platform_fake.
-  # The problem is the following: in chrome builds we end up with duplicate
-  # symbol definitions in the test because both platforms (impl and fake) are
-  # present: impl added here and fake coming from chromium's base (full path:
-  # dejaview_unittests -> //(chromium)base:test_support -> //(chromium)base
-  # -> libdejaview -> platform_fake.
-  if (!build_with_chromium) {
-    deps += [
-      ":client_api_without_backends",
-      ":platform_impl",
-    ]
+  deps += [
+    ":client_api_without_backends",
+    ":platform_impl",
+  ]
 
-    sources += [
-      "internal/interceptor_trace_writer_unittest.cc",
-      "traced_proto_unittest.cc",
-      "traced_value_unittest.cc",
-    ]
-  }
+  sources += [
+    "internal/interceptor_trace_writer_unittest.cc",
+    "traced_proto_unittest.cc",
+    "traced_value_unittest.cc",
+  ]
 }
 
-# System backend: connects to an external "traced" instance via a UNIX socket.
-# Requires the IPC layer and is supported only on posix systems.
-if (enable_dejaview_ipc) {
-  source_set("system_backend") {
-    public_deps = [ "../../include/dejaview/tracing" ]
-    deps = [
-      ":client_api_without_backends",
-      "../../gn:default_deps",
-      "../../include/dejaview/tracing/core",
-      "../base",
-      "ipc:common",
-      "ipc/producer",
-      "ipc/service",
-    ]
-    if (enable_dejaview_system_consumer) {
-      deps += [ "ipc/consumer" ]
-    }
-    sources = [ "internal/system_tracing_backend.cc" ]
-  }
-} else {
-  source_set("system_backend_fake") {
-    public_deps = [ "../../include/dejaview/tracing" ]
-    deps = [
-      "../../gn:default_deps",
-      "../base",
-    ]
-    sources = [ "internal/system_tracing_backend_fake.cc" ]
-  }
+source_set("system_backend_fake") {
+  public_deps = [ "../../include/dejaview/tracing" ]
+  deps = [
+    "../../gn:default_deps",
+    "../base",
+  ]
+  sources = [ "internal/system_tracing_backend_fake.cc" ]
 }
 
 # In-process backend: starts the tracing service in-process on a dedicated

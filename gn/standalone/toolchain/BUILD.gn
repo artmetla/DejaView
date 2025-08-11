@@ -20,8 +20,6 @@ import("msvc.gni")
 
 # This file is evaluated once, within the context of the default toolchain,
 # which is the target toolchain.
-# Note: This means that is_android=true even on a mac when cross-compiling for
-# Android.
 assert(current_os == target_os && current_cpu == target_cpu,
        "Assumptions on current_xxx in this file have been violated")
 
@@ -169,7 +167,7 @@ declare_args() {
 
 declare_args() {
   target_strip = ""
-  if (is_linux || is_android) {
+  if (is_linux) {
     target_linker = "gold"
   } else {
     target_linker = ""
@@ -184,30 +182,22 @@ declare_args() {
     target_strip = strip
   } else {
     target_ar = "ar"
-    if (is_android) {
-      target_ar = "$android_llvm_dir/bin/llvm-ar"
-      target_cc = "$android_llvm_dir/bin/clang"
-      target_cxx = "$android_llvm_dir/bin/clang++"
-      target_linker = "$android_llvm_dir/bin/ld.lld"
-      target_strip = "$android_llvm_dir/bin/llvm-strip"
-    } else {
-      assert(_target_triplet != "",
-             "target_triplet must be non-empty when cross-compiling")
-      target_strip = strip
-      if (is_clang) {
-        if (is_linux_host) {
-          target_cc = "${linux_clang_bin} --target=${_target_triplet}"
-          target_cxx = "${linux_clangxx_bin} --target=${_target_triplet}"
-          target_linker = "${linux_clang_linker} --target=${_target_triplet}"
-        } else {
-          target_cc = "clang --target=${_target_triplet}"
-          target_cxx = "clang++ --target=${_target_triplet}"
-        }
-      } else {  # GCC
-        target_ar = "${_target_triplet}-ar"
-        target_cc = "${_target_triplet}-gcc"
-        target_cxx = "${_target_triplet}-g++"
+    assert(_target_triplet != "",
+            "target_triplet must be non-empty when cross-compiling")
+    target_strip = strip
+    if (is_clang) {
+      if (is_linux_host) {
+        target_cc = "${linux_clang_bin} --target=${_target_triplet}"
+        target_cxx = "${linux_clangxx_bin} --target=${_target_triplet}"
+        target_linker = "${linux_clang_linker} --target=${_target_triplet}"
+      } else {
+        target_cc = "clang --target=${_target_triplet}"
+        target_cxx = "clang++ --target=${_target_triplet}"
       }
+    } else {  # GCC
+      target_ar = "${_target_triplet}-ar"
+      target_cc = "${_target_triplet}-gcc"
+      target_cxx = "${_target_triplet}-g++"
     }
   }
 }

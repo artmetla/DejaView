@@ -32,7 +32,7 @@ export class VizPage implements m.ClassComponent<PageWithTraceAttrs> {
   view() {
     const engine = assertExists(this.engine);
     return m(
-      '.viz-page',
+      '.viz-page .page',
       m(VegaView, {
         spec: SPEC,
         engine: engine,

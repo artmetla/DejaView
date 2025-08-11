@@ -18,11 +18,9 @@ import {TraceImpl} from './trace_impl';
 import {CommandManagerImpl} from './command_manager';
 import {OmniboxManagerImpl} from './omnibox_manager';
 import {raf} from './raf_scheduler';
-import {SidebarManagerImpl} from './sidebar_manager';
 import {PluginManager} from './plugin_manager';
 import {NewEngineMode} from '../trace_processor/engine';
 import {RouteArgs} from '../public/route_schema';
-import {SqlPackage} from '../public/extra_sql_packages';
 import {SerializedAppState} from '../public/state_serialization_schema';
 import {PostedTrace, TraceSource} from '../public/trace_source';
 import {loadTrace} from './load_trace';
@@ -50,16 +48,11 @@ export interface AppInitArgs {
 export class AppContext {
   readonly commandMgr = new CommandManagerImpl();
   readonly omniboxMgr = new OmniboxManagerImpl();
-  readonly sidebarMgr = new SidebarManagerImpl();
   readonly pluginMgr: PluginManager;
   newEngineMode: NewEngineMode = 'USE_HTTP_RPC_IF_AVAILABLE';
   initialRouteArgs: RouteArgs;
   isLoadingTrace = false; // Set when calling openTrace().
   readonly initArgs: AppInitArgs;
-
-  // This is normally empty and is injected with extra google-internal packages
-  // via is_internal_user.js
-  extraSqlPackages: SqlPackage[] = [];
 
   // This constructor is invoked only once, when frontend/index.ts invokes
   // AppMainImpl.initialize().
@@ -121,10 +114,6 @@ export class AppImpl implements App {
 
   get commands(): CommandManagerImpl {
     return this.appCtx.commandMgr;
-  }
-
-  get sidebar(): SidebarManagerImpl {
-    return this.appCtx.sidebarMgr;
   }
 
   get omnibox(): OmniboxManagerImpl {
@@ -213,7 +202,7 @@ export class AppImpl implements App {
     if (this.currentTrace !== undefined) {
       this.appCtx.pluginMgr.onTraceClose();
       // This will trigger the unregistration of trace-scoped commands and
-      // sidebar menuitems (and few similar things).
+      // topbar menuitems (and few similar things).
       this.currentTrace[Symbol.dispose]();
       this.currentTrace = undefined;
     }
@@ -236,10 +225,6 @@ export class AppImpl implements App {
 
   get rootUrl() {
     return this.appCtx.initArgs.rootUrl;
-  }
-
-  get extraSqlPackages(): SqlPackage[] {
-    return this.appCtx.extraSqlPackages;
   }
 
   // Nothing other than TraceImpl's constructor should ever refer to this.

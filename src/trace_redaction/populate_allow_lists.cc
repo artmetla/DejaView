@@ -19,7 +19,6 @@
 #include "dejaview/base/status.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
 #include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 namespace dejaview::trace_redaction {
@@ -49,10 +48,6 @@ base::Status PopulateAllowlists::Build(Context* context) const {
   // by message-focused transform.
   packet_mask.set(protos::pbzero::TracePacket::kClockSnapshotFieldNumber);
   packet_mask.set(protos::pbzero::TracePacket::kCpuInfoFieldNumber);
-  packet_mask.set(protos::pbzero::TracePacket::kFrameTimelineEventFieldNumber);
-  packet_mask.set(protos::pbzero::TracePacket::kFtraceEventsFieldNumber);
-  packet_mask.set(protos::pbzero::TracePacket::kInitialDisplayStateFieldNumber);
-  packet_mask.set(protos::pbzero::TracePacket::kPackagesListFieldNumber);
   packet_mask.set(protos::pbzero::TracePacket::kProcessStatsFieldNumber);
   packet_mask.set(protos::pbzero::TracePacket::kProcessTreeFieldNumber);
   packet_mask.set(protos::pbzero::TracePacket::kServiceEventFieldNumber);
@@ -63,38 +58,6 @@ base::Status PopulateAllowlists::Build(Context* context) const {
   packet_mask.set(protos::pbzero::TracePacket::kTraceConfigFieldNumber);
   packet_mask.set(protos::pbzero::TracePacket::kTraceStatsFieldNumber);
   packet_mask.set(protos::pbzero::TracePacket::kTriggerFieldNumber);
-
-  // FTRACE EVENT NOTES
-  //
-  //    Dma events (kDmaHeapStatFieldNumber) are global events and are not
-  //    emitted within a process context (they are centrally allocated by the
-  //    HAL process). We drop them for now as we don't have the required
-  //    attribution info in the trace.
-  //
-  //    ION events (e.g. kIonBufferCreateFieldNumber, kIonHeapGrowFieldNumber,
-  //    etc.) are global events are not emitted within a process context (they
-  //    are centrally allocated by the HAL process). We drop them for now as we
-  //    don't have the required attribution info in the trace.
-  //
-  //    TODO(vaage): kSchedBlockedReasonFieldNumber contains two pids, an outer
-  //    and inner pid. A primitive is needed to further redact these events.
-
-  auto& ftrace_masks = context->ftrace_mask;
-
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kCommonFlagsFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kCpuFrequencyFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kCpuIdleFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kPidFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kPrintFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kRssStatFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kRssStatThrottledFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kSchedBlockedReasonFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kSchedProcessFreeFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kSchedSwitchFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kSchedWakingFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kTaskNewtaskFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kTaskRenameFieldNumber);
-  ftrace_masks.set(protos::pbzero::FtraceEvent::kTimestampFieldNumber);
 
   return base::OkStatus();
 }

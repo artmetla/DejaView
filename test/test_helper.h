@@ -43,7 +43,6 @@
 #else
 #include <signal.h>
 
-#include "src/traced/probes/probes_producer.h"
 #include "src/tracing/ipc/posix_shared_memory.h"
 #endif
 
@@ -198,14 +197,12 @@ class ProbesProducerThread {
   ~ProbesProducerThread() {
     if (!runner_)
       return;
-    runner_->PostTaskAndWaitForTesting([this]() { producer_.reset(); });
+    runner_->PostTaskAndWaitForTesting([]() { });
   }
 
   void Connect() {
     runner_ = base::ThreadTaskRunner::CreateAndStart("dejaview.prd.probes");
-    runner_->PostTaskAndWaitForTesting([this]() {
-      producer_.reset(new ProbesProducer());
-      producer_->ConnectWithRetries(producer_socket_.c_str(), runner_->get());
+    runner_->PostTaskAndWaitForTesting([]() {
     });
   }
 
@@ -213,7 +210,6 @@ class ProbesProducerThread {
   std::optional<base::ThreadTaskRunner> runner_;  // Keep first.
 
   std::string producer_socket_;
-  std::unique_ptr<ProbesProducer> producer_;
 };
 #endif  // !OS_WIN
 

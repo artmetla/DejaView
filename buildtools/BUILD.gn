@@ -60,32 +60,6 @@ config("test_warning_suppressions") {
   }
 }
 
-config("libunwindstack_config") {
-  visibility = _buildtools_visibility
-  cflags = [
-    # Using -isystem instead of include_dirs (-I), so we don't need to suppress
-    # warnings coming from libunwindstack headers. Doing so would mask warnings
-    # in our own code.
-    dejaview_isystem_cflag,
-    rebase_path("android-unwinding/libunwindstack/include", root_build_dir),
-    dejaview_isystem_cflag,
-    rebase_path("android-libprocinfo/include", root_build_dir),
-    dejaview_isystem_cflag,
-    rebase_path("android-libbase/include", root_build_dir),
-    dejaview_isystem_cflag,
-    rebase_path("android-core/demangle/include", root_build_dir),
-    dejaview_isystem_cflag,
-    rebase_path("rustc-demangle-capi", root_build_dir),
-  ]
-
-  # TODO(rsavitski): figure out how to cleanly depend on bionic's uapi headers
-  defines = [
-    "NO_LIBDEXFILE_SUPPORT",
-    "NT_RISCV_VECTOR=0x901",
-    "ELFCOMPRESS_ZSTD=2",
-  ]
-}
-
 # Config to include gtest.h in test targets.
 config("googletest_config") {
   visibility = _buildtools_visibility
@@ -697,14 +671,6 @@ if (use_custom_libcxx) {
   source_set("libc++abi") {
     visibility = _buildtools_visibility
 
-    # Fuchsia builds don't link against any libraries that provide stack
-    # unwinding symbols, unlike Linux does with glibc (same applies for
-    # Android). Build and link against libunwind manually to get this
-    # functionality.
-    if (is_fuchsia || is_android) {
-      deps = [ ":libunwind" ]
-    }
-
     sources = [
       "libcxxabi/src/abort_message.cpp",
       "libcxxabi/src/cxa_aux_runtime.cpp",
@@ -734,7 +700,7 @@ if (use_custom_libcxx) {
     # demangler on android.
     sources += [ "libcxxabi/src/cxa_demangle.cpp" ]
 
-    if (is_fuchsia || is_android || is_linux) {
+    if (is_linux) {
       sources += [ "libcxxabi/src/cxa_thread_atexit.cpp" ]
     }
 
@@ -871,9 +837,9 @@ if (use_custom_libcxx) {
       "//gn/standalone:no_rtti",
       "//gn/standalone:c++17",
     ]
-    if ((is_android || is_mac) && !custom_libcxx_is_static) {
+    if ((is_mac) && !custom_libcxx_is_static) {
       # Use libc++_dejaview to avoid conflicting with system libc++
-      output_name = "libc++_perfettto"
+      output_name = "libc++_dejaview"
     }
     configs += [
       ":libc++config",
@@ -989,8 +955,8 @@ source_set("benchmark") {
   deps = [ "//gn:default_deps" ]
 }
 
-# On Linux/Android use libbacktrace in debug builds for better stacktraces.
-if (is_linux || is_android) {
+# On Linux use libbacktrace in debug builds for better stacktraces.
+if (is_linux) {
   config("libbacktrace_config") {
     visibility = _buildtools_visibility
     include_dirs = [
@@ -1070,56 +1036,6 @@ source_set("sqlite") {
   deps = [ "//gn:default_deps" ]
 }
 
-source_set("lzma") {
-  visibility = _buildtools_visibility
-  defines = [ "_7ZIP_ST" ]
-  sources = [
-    "lzma/C/7zAlloc.c",
-    "lzma/C/7zArcIn.c",
-    "lzma/C/7zBuf.c",
-    "lzma/C/7zBuf2.c",
-    "lzma/C/7zCrc.c",
-    "lzma/C/7zCrcOpt.c",
-    "lzma/C/7zDec.c",
-    "lzma/C/7zFile.c",
-    "lzma/C/7zStream.c",
-    "lzma/C/Aes.c",
-    "lzma/C/AesOpt.c",
-    "lzma/C/Alloc.c",
-    "lzma/C/Bcj2.c",
-    "lzma/C/Bra.c",
-    "lzma/C/Bra86.c",
-    "lzma/C/BraIA64.c",
-    "lzma/C/CpuArch.c",
-    "lzma/C/Delta.c",
-    "lzma/C/LzFind.c",
-    "lzma/C/Lzma2Dec.c",
-    "lzma/C/Lzma2Enc.c",
-    "lzma/C/Lzma86Dec.c",
-    "lzma/C/Lzma86Enc.c",
-    "lzma/C/LzmaDec.c",
-    "lzma/C/LzmaEnc.c",
-    "lzma/C/LzmaLib.c",
-    "lzma/C/Ppmd7.c",
-    "lzma/C/Ppmd7Dec.c",
-    "lzma/C/Ppmd7Enc.c",
-    "lzma/C/Sha256.c",
-    "lzma/C/Sort.c",
-    "lzma/C/Xz.c",
-    "lzma/C/XzCrc64.c",
-    "lzma/C/XzCrc64Opt.c",
-    "lzma/C/XzDec.c",
-    "lzma/C/XzEnc.c",
-    "lzma/C/XzIn.c",
-  ]
-  configs -= [ "//gn/standalone:extra_warnings" ]
-  cflags = [
-    "-Wno-empty-body",
-    "-Wno-enum-conversion",
-  ]
-  deps = [ "//gn:default_deps" ]
-}
-
 source_set("zlib") {
   visibility = _buildtools_visibility
   sources = [
@@ -1187,190 +1103,6 @@ config("zlib_config") {
   }
 }
 
-source_set("zstd") {
-  visibility = _buildtools_visibility
-  sources = [
-    "zstd/lib/common/allocations.h",
-    "zstd/lib/common/bits.h",
-    "zstd/lib/common/bitstream.h",
-    "zstd/lib/common/compiler.h",
-    "zstd/lib/common/cpu.h",
-    "zstd/lib/common/debug.c",
-    "zstd/lib/common/debug.h",
-    "zstd/lib/common/entropy_common.c",
-    "zstd/lib/common/error_private.c",
-    "zstd/lib/common/error_private.h",
-    "zstd/lib/common/fse.h",
-    "zstd/lib/common/fse_decompress.c",
-    "zstd/lib/common/huf.h",
-    "zstd/lib/common/mem.h",
-    "zstd/lib/common/pool.c",
-    "zstd/lib/common/pool.h",
-    "zstd/lib/common/portability_macros.h",
-    "zstd/lib/common/threading.c",
-    "zstd/lib/common/threading.h",
-    "zstd/lib/common/xxhash.c",
-    "zstd/lib/common/xxhash.h",
-    "zstd/lib/common/zstd_common.c",
-    "zstd/lib/common/zstd_deps.h",
-    "zstd/lib/common/zstd_internal.h",
-    "zstd/lib/common/zstd_trace.h",
-    "zstd/lib/compress/clevels.h",
-    "zstd/lib/compress/fse_compress.c",
-    "zstd/lib/compress/hist.c",
-    "zstd/lib/compress/hist.h",
-    "zstd/lib/compress/huf_compress.c",
-    "zstd/lib/compress/zstd_compress.c",
-    "zstd/lib/compress/zstd_compress_internal.h",
-    "zstd/lib/compress/zstd_compress_literals.c",
-    "zstd/lib/compress/zstd_compress_literals.h",
-    "zstd/lib/compress/zstd_compress_sequences.c",
-    "zstd/lib/compress/zstd_compress_sequences.h",
-    "zstd/lib/compress/zstd_compress_superblock.c",
-    "zstd/lib/compress/zstd_compress_superblock.h",
-    "zstd/lib/compress/zstd_cwksp.h",
-    "zstd/lib/compress/zstd_double_fast.c",
-    "zstd/lib/compress/zstd_double_fast.h",
-    "zstd/lib/compress/zstd_fast.c",
-    "zstd/lib/compress/zstd_fast.h",
-    "zstd/lib/compress/zstd_lazy.c",
-    "zstd/lib/compress/zstd_lazy.h",
-    "zstd/lib/compress/zstd_ldm.c",
-    "zstd/lib/compress/zstd_ldm.h",
-    "zstd/lib/compress/zstd_ldm_geartab.h",
-    "zstd/lib/compress/zstd_opt.c",
-    "zstd/lib/compress/zstd_opt.h",
-    "zstd/lib/compress/zstdmt_compress.c",
-    "zstd/lib/compress/zstdmt_compress.h",
-    "zstd/lib/decompress/huf_decompress.c",
-    "zstd/lib/decompress/zstd_ddict.c",
-    "zstd/lib/decompress/zstd_ddict.h",
-    "zstd/lib/decompress/zstd_decompress.c",
-    "zstd/lib/decompress/zstd_decompress_block.c",
-    "zstd/lib/decompress/zstd_decompress_block.h",
-    "zstd/lib/decompress/zstd_decompress_internal.h",
-    "zstd/lib/deprecated/zbuff.h",
-    "zstd/lib/deprecated/zbuff_common.c",
-    "zstd/lib/deprecated/zbuff_compress.c",
-    "zstd/lib/deprecated/zbuff_decompress.c",
-    "zstd/lib/dictBuilder/cover.c",
-    "zstd/lib/dictBuilder/cover.h",
-    "zstd/lib/dictBuilder/divsufsort.c",
-    "zstd/lib/dictBuilder/divsufsort.h",
-    "zstd/lib/dictBuilder/fastcover.c",
-    "zstd/lib/dictBuilder/zdict.c",
-    "zstd/lib/zdict.h",
-    "zstd/lib/zstd.h",
-    "zstd/lib/zstd_errors.h",
-  ]
-  configs -= [ "//gn/standalone:extra_warnings" ]
-  public_configs = [ ":zstd_config" ]
-  deps = [ "//gn:default_deps" ]
-}
-
-config("zstd_config") {
-  visibility = _buildtools_visibility
-  cflags = [
-    dejaview_isystem_cflag,
-    rebase_path("zstd", root_build_dir),
-  ]
-  if (current_cpu == "x64") {
-    defines = [ "ZSTD_DISABLE_ASM" ]
-  }
-}
-
-# For standalone profiler builds.
-source_set("libunwindstack") {
-  visibility = _buildtools_visibility
-  include_dirs = [
-    "android-unwinding/libunwindstack/include",
-    "android-unwinding/libunwindstack",
-    "android-libbase/include",
-    "android-logging/liblog/include",
-    "android-libprocinfo/include",
-    "android-core/include",
-    "android-core/libcutils/include",
-    "bionic/libc/async_safe/include",
-    "bionic/libc/platform/",
-    "lzma/C",
-    "zstd/lib",
-  ]
-  deps = [
-    ":lzma",
-    ":zlib",
-    ":zstd",
-    "//gn:default_deps",
-  ]
-  sources = [
-    "android-libbase/file.cpp",
-    "android-libbase/stringprintf.cpp",
-    "android-libbase/strings.cpp",
-    "android-unwinding/libunwindstack/ArmExidx.cpp",
-    "android-unwinding/libunwindstack/Demangle.cpp",
-    "android-unwinding/libunwindstack/DwarfCfa.cpp",
-    "android-unwinding/libunwindstack/DwarfEhFrameWithHdr.cpp",
-    "android-unwinding/libunwindstack/DwarfMemory.cpp",
-    "android-unwinding/libunwindstack/DwarfOp.cpp",
-    "android-unwinding/libunwindstack/DwarfSection.cpp",
-    "android-unwinding/libunwindstack/Elf.cpp",
-    "android-unwinding/libunwindstack/ElfInterface.cpp",
-    "android-unwinding/libunwindstack/ElfInterfaceArm.cpp",
-    "android-unwinding/libunwindstack/Global.cpp",
-    "android-unwinding/libunwindstack/JitDebug.cpp",
-    "android-unwinding/libunwindstack/MapInfo.cpp",
-    "android-unwinding/libunwindstack/Maps.cpp",
-    "android-unwinding/libunwindstack/Memory.cpp",
-    "android-unwinding/libunwindstack/MemoryXz.cpp",
-    "android-unwinding/libunwindstack/Regs.cpp",
-    "android-unwinding/libunwindstack/RegsArm.cpp",
-    "android-unwinding/libunwindstack/RegsArm64.cpp",
-    "android-unwinding/libunwindstack/RegsRiscv64.cpp",
-    "android-unwinding/libunwindstack/RegsX86.cpp",
-    "android-unwinding/libunwindstack/RegsX86_64.cpp",
-    "android-unwinding/libunwindstack/Symbols.cpp",
-    "android-unwinding/libunwindstack/Unwinder.cpp",
-  ]
-  if (!is_android) {
-    sources += [
-      "android-libbase/liblog_symbols.cpp",
-      "android-libbase/logging.cpp",
-      "android-libbase/threads.cpp",
-      "android-logging/liblog/logger_write.cpp",
-      "android-logging/liblog/properties.cpp",
-      "android-unwinding/libunwindstack/LogStdout.cpp",
-      "android-unwinding/libunwindstack/MemoryMte.cpp",
-    ]
-  } else {
-    sources += [ "android-unwinding/libunwindstack/LogAndroid.cpp" ]
-  }
-  if (current_cpu == "x86") {
-    sources += [ "android-unwinding/libunwindstack/AsmGetRegsX86.S" ]
-  } else if (current_cpu == "x64") {
-    sources += [ "android-unwinding/libunwindstack/AsmGetRegsX86_64.S" ]
-  }
-  configs -= [
-    "//gn/standalone:extra_warnings",
-    "//gn/standalone:visibility_hidden",
-  ]
-  cflags = [ "-DFAKE_LOG_DEVICE=1" ]
-  if (!is_win) {
-    cflags += [
-      "-Wno-deprecated-declarations",
-      "-Wno-vla-cxx-extension",
-      "-Wno-c99-designator",
-    ]
-  }
-  public_configs = [ ":libunwindstack_config" ]
-}
-
-config("bionic_kernel_uapi_headers") {
-  visibility = _buildtools_visibility
-  cflags = [
-    dejaview_isystem_cflag,
-    rebase_path("bionic/libc/kernel", root_build_dir),
-  ]
-}
-
 config("jsoncpp_config") {
   visibility = _buildtools_visibility
   cflags = [ "-DJSON_USE_EXCEPTION=0" ]
@@ -1404,39 +1136,6 @@ source_set("jsoncpp") {
 
 config("no_format_warning") {
   cflags = [ "-Wno-format" ]
-}
-
-if (enable_dejaview_trace_processor_mac_instruments) {
-  config("expat_public_config") {
-    defines = [ "XML_STATIC" ]
-    cflags = [
-      # Using -isystem instead of include_dirs (-I), so we don't need to
-      # suppress warnings coming from third-party headers. Doing so would mask
-      # warnings in our own code.
-      dejaview_isystem_cflag,
-      rebase_path("expat/src/expat/lib", root_build_dir),
-      dejaview_isystem_cflag,
-      rebase_path("expat/include", root_build_dir),
-    ]
-  }
-
-  source_set("expat") {
-    sources = [
-      "expat/src/expat/lib/expat.h",
-      "expat/src/expat/lib/xmlparse.c",
-      "expat/src/expat/lib/xmlrole.c",
-      "expat/src/expat/lib/xmltok.c",
-    ]
-
-    public_configs = [ ":expat_public_config" ]
-    configs -= [ "//gn/standalone:extra_warnings" ]
-    configs += [ ":no_format_warning" ]
-
-    defines = [
-      "_LIB",
-      "HAVE_EXPAT_CONFIG_H",
-    ]
-  }
 }
 
 config("linenoise_config") {
@@ -1525,102 +1224,3 @@ source_set("llvm_demangle") {
   deps = [ "//gn:default_deps" ]
 }
 
-if (enable_dejaview_grpc) {
-  config("grpc_absl_config") {
-    visibility = _buildtools_visibility
-    include_dirs = [ "grpc/src/third_party/abseil-cpp" ]
-    cflags = [
-      "-Wno-deprecated-builtins",
-      "-Wno-deprecated-pragma",
-    ]
-  }
-
-  config("grpc_boringssl_config") {
-    visibility = _buildtools_visibility
-    include_dirs = [ "grpc/src/third_party/boringssl-with-bazel/src/include" ]
-    if (is_gcc) {
-      cflags = [ "-Wno-stringop-overflow" ]
-    }
-  }
-
-  config("grpc_upb_config") {
-    visibility = _buildtools_visibility
-    include_dirs = [
-      "grpc/src/third_party/upb",
-      "grpc/src/src/core/ext/upb-generated",
-      "grpc/src/src/core/ext/upbdefs-generated",
-    ]
-  }
-
-  config("grpc_re2_config") {
-    visibility = _buildtools_visibility
-    include_dirs = [ "grpc/src/third_party/re2" ]
-  }
-
-  config("grpc_internal_config") {
-    visibility = _buildtools_visibility
-    include_dirs = [
-      "grpc/protobuf_include",
-      "grpc/src",
-      "grpc/src/include",
-      "grpc/src/src/core/ext/upb-gen",
-      "grpc/src/src/core/ext/upbdefs-gen",
-      "grpc/src/third_party/abseil-cpp",
-      "grpc/src/third_party/address_sorting/include",
-      "grpc/src/third_party/re2",
-      "grpc/src/third_party/upb",
-      "grpc/src/third_party/utf8_range",
-      "grpc/src/third_party/xxhash",
-    ]
-    cflags = [ "-DGRPC_ARES=0" ]
-    if (is_gcc) {
-      cflags += [
-        "-Wno-attributes",
-        "-Wno-return-type",
-      ]
-    }
-  }
-
-  config("grpc_gen_config") {
-    cflags = [
-      # Using -isystem instead of include_dirs (-I), so we don't need to
-      # suppress warnings coming from libprotobuf headers. Doing so would mask
-      # warnings in our own code.
-      dejaview_isystem_cflag,
-      rebase_path("grpc/src/include", root_build_dir),
-      dejaview_isystem_cflag,
-      rebase_path("grpc/src/third_party/abseil-cpp", root_build_dir),
-    ]
-
-    # This issues appear in .grpc.pb.h files so we unfortunately need to leak
-    # the cflags outside of just compiling this code.
-    if (is_clang && !is_win) {
-      cflags += [
-        "-Wno-weak-vtables",
-        "-Wno-suggest-destructor-override",
-      ]
-    }
-  }
-
-  config("grpc_public_config") {
-    visibility = _buildtools_visibility
-    cflags = [
-      dejaview_isystem_cflag,
-      rebase_path("grpc/src/include", root_build_dir),
-    ]
-  }
-  config("cpp_httplib_config") {
-    visibility = _buildtools_visibility
-    cflags = [
-      dejaview_isystem_cflag,
-      rebase_path("cpp-httplib", root_build_dir),
-    ]
-  }
-
-  source_set("cpp_httplib") {
-    visibility = _buildtools_visibility
-    sources = [ "cpp-httplib/httplib.h" ]
-    public_configs = [ ":cpp_httplib_config" ]
-    deps = [ "//gn:default_deps" ]
-  }
-}

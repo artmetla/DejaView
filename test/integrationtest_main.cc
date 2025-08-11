@@ -21,13 +21,6 @@
 
 namespace dejaview::integration_tests {
 
-static void (*heapprofd_end_to_end_test_initializer)(void) = nullptr;
-int RegisterHeapprofdEndToEndTestInitializer(void (*fn)(void)) {
-  DEJAVIEW_CHECK(heapprofd_end_to_end_test_initializer == nullptr);
-  heapprofd_end_to_end_test_initializer = fn;
-  return 0;
-}
-
 static void (*api_integration_test_initializer)(void) = nullptr;
 int RegisterApiIntegrationTestInitializer(void (*fn)(void)) {
   DEJAVIEW_CHECK(api_integration_test_initializer == nullptr);
@@ -38,9 +31,6 @@ int RegisterApiIntegrationTestInitializer(void (*fn)(void)) {
 }  // namespace dejaview::integration_tests
 
 int main(int argc, char** argv) {
-  if (dejaview::integration_tests::heapprofd_end_to_end_test_initializer) {
-    dejaview::integration_tests::heapprofd_end_to_end_test_initializer();
-  }
   if (dejaview::integration_tests::api_integration_test_initializer) {
     dejaview::integration_tests::api_integration_test_initializer();
   }

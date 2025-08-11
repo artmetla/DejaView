@@ -59,11 +59,6 @@
 
 #include "protos/dejaview/common/android_log_constants.pbzero.h"
 #include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
-#include "protos/dejaview/trace/track_event/chrome_active_processes.pbzero.h"
-#include "protos/dejaview/trace/track_event/chrome_compositor_scheduler_state.pbzero.h"
-#include "protos/dejaview/trace/track_event/chrome_histogram_sample.pbzero.h"
-#include "protos/dejaview/trace/track_event/chrome_process_descriptor.pbzero.h"
-#include "protos/dejaview/trace/track_event/chrome_thread_descriptor.pbzero.h"
 #include "protos/dejaview/trace/track_event/counter_descriptor.pbzero.h"
 #include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
 #include "protos/dejaview/trace/track_event/log_message.pbzero.h"
@@ -1128,20 +1123,8 @@ class TrackEventParser::EventImporter {
     if (event_.has_log_message()) {
       log_errors(ParseLogMessage(event_.log_message(), inserter));
     }
-    if (event_.has_chrome_histogram_sample()) {
-      log_errors(
-          ParseHistogramName(event_.chrome_histogram_sample(), inserter));
-    }
-    if (event_.has_chrome_active_processes()) {
-      protos::pbzero::ChromeActiveProcesses::Decoder message(
-          event_.chrome_active_processes());
-      for (auto it = message.pid(); it; ++it) {
-        parser_->AddActiveProcess(ts_, *it);
-      }
-    }
 
-    ArgsParser args_writer(ts_, *inserter, *storage_, sequence_state_,
-                           /*support_json=*/true);
+    ArgsParser args_writer(ts_, *inserter, *storage_, sequence_state_);
     int unknown_extensions = 0;
     log_errors(parser_->args_parser_.ParseMessage(
         blob_, ".dejaview.protos.TrackEvent", &parser_->reflect_fields_,
@@ -1286,28 +1269,6 @@ class TrackEventParser::EventImporter {
     return base::OkStatus();
   }
 
-  base::Status ParseHistogramName(ConstBytes blob, BoundInserter* inserter) {
-    protos::pbzero::ChromeHistogramSample::Decoder sample(blob);
-    if (!sample.has_name_iid())
-      return base::OkStatus();
-
-    if (sample.has_name()) {
-      return base::ErrStatus(
-          "name is already set for ChromeHistogramSample: only one of name and "
-          "name_iid can be set.");
-    }
-
-    auto* decoder = sequence_state_->LookupInternedMessage<
-        protos::pbzero::InternedData::kHistogramNamesFieldNumber,
-        protos::pbzero::HistogramName>(sample.name_iid());
-    if (!decoder)
-      return base::ErrStatus("HistogramName with invalid name_iid");
-
-    inserter->AddArg(parser_->histogram_name_key_id_,
-                     Variadic::String(storage_->InternString(decoder->name())));
-    return base::OkStatus();
-  }
-
   tables::SliceTable::Row MakeThreadSliceRow() {
     tables::SliceTable::Row row;
     row.ts = ts_;
@@ -1443,11 +1404,9 @@ TrackEventParser::TrackEventParser(TraceProcessorContext* context,
           context_->storage->InternString("chrome.process_type")),
       event_category_key_id_(context_->storage->InternString("event.category")),
       event_name_key_id_(context_->storage->InternString("event.name")),
-      chrome_string_lookup_(context->storage.get()),
       counter_unit_ids_{{kNullStringId, context_->storage->InternString("ns"),
                          context_->storage->InternString("count"),
-                         context_->storage->InternString("bytes")}},
-      active_chrome_processes_tracker_(context) {
+                         context_->storage->InternString("bytes")}} {
   args_parser_.AddParsingOverrideForField(
       "chrome_mojo_event_info.mojo_interface_method_iid",
       [](const protozero::Field& field,
@@ -1499,21 +1458,12 @@ TrackEventParser::TrackEventParser(TraceProcessorContext* context,
         return annotation_parser.Parse(data, delegate);
       });
 
-  args_parser_.AddParsingOverrideForField(
-      "active_processes.pid", [&](const protozero::Field& field,
-                                  util::ProtoToArgsParser::Delegate& delegate) {
-        AddActiveProcess(delegate.packet_timestamp(), field.as_int32());
-        // Fallthrough so that the parser adds pid as a regular arg.
-        return std::nullopt;
-      });
-
   for (uint16_t index : kReflectFields) {
     reflect_fields_.push_back(index);
   }
 }
 
 void TrackEventParser::ParseTrackDescriptor(
-    int64_t packet_timestamp,
     protozero::ConstBytes track_descriptor,
     uint32_t packet_sequence_id) {
   protos::pbzero::TrackDescriptor::Decoder decoder(track_descriptor);
@@ -1524,14 +1474,9 @@ void TrackEventParser::ParseTrackDescriptor(
       decoder.uuid(), kNullStringId, packet_sequence_id);
 
   if (decoder.has_thread()) {
-    UniqueTid utid = ParseThreadDescriptor(decoder.thread());
-    if (decoder.has_chrome_thread())
-      ParseChromeThreadDescriptor(utid, decoder.chrome_thread());
+    ParseThreadDescriptor(decoder.thread());
   } else if (decoder.has_process()) {
-    UniquePid upid =
-        ParseProcessDescriptor(packet_timestamp, decoder.process());
-    if (decoder.has_chrome_process())
-      ParseChromeProcessDescriptor(upid, decoder.chrome_process());
+    ParseProcessDescriptor(decoder.process());
   } else if (decoder.has_counter()) {
     ParseCounterDescriptor(track_id, decoder.counter());
   }
@@ -1548,12 +1493,10 @@ void TrackEventParser::ParseTrackDescriptor(
 }
 
 UniquePid TrackEventParser::ParseProcessDescriptor(
-    int64_t packet_timestamp,
     protozero::ConstBytes process_descriptor) {
   protos::pbzero::ProcessDescriptor::Decoder decoder(process_descriptor);
   UniquePid upid = context_->process_tracker->GetOrCreateProcess(
       static_cast<uint32_t>(decoder.pid()));
-  active_chrome_processes_tracker_.AddProcessDescriptor(packet_timestamp, upid);
   if (decoder.has_process_name() && decoder.process_name().size) {
     // Don't override system-provided names.
     context_->process_tracker->SetProcessNameIfUnset(
@@ -1563,51 +1506,7 @@ UniquePid TrackEventParser::ParseProcessDescriptor(
     context_->process_tracker->SetStartTsIfUnset(upid,
                                                  decoder.start_timestamp_ns());
   }
-  // TODO(skyostil): Remove parsing for legacy chrome_process_type field.
-  if (decoder.has_chrome_process_type()) {
-    StringId name_id =
-        chrome_string_lookup_.GetProcessName(decoder.chrome_process_type());
-    // Don't override system-provided names.
-    context_->process_tracker->SetProcessNameIfUnset(upid, name_id);
-  }
-  int label_index = 0;
-  for (auto it = decoder.process_labels(); it; it++) {
-    StringId label_id = context_->storage->InternString(*it);
-    std::string key = "chrome.process_label[";
-    key.append(std::to_string(label_index++));
-    key.append("]");
-    context_->process_tracker->AddArgsTo(upid).AddArg(
-        chrome_process_label_flat_key_id_,
-        context_->storage->InternString(base::StringView(key)),
-        Variadic::String(label_id));
-  }
   return upid;
-}
-
-void TrackEventParser::ParseChromeProcessDescriptor(
-    UniquePid upid,
-    protozero::ConstBytes chrome_process_descriptor) {
-  protos::pbzero::ChromeProcessDescriptor::Decoder decoder(
-      chrome_process_descriptor);
-
-  StringId name_id =
-      chrome_string_lookup_.GetProcessName(decoder.process_type());
-  // Don't override system-provided names.
-  context_->process_tracker->SetProcessNameIfUnset(upid, name_id);
-
-  ArgsTracker::BoundInserter process_args =
-      context_->process_tracker->AddArgsTo(upid);
-  // For identifying Chrome processes in system traces.
-  process_args.AddArg(chrome_process_type_id_, Variadic::String(name_id));
-  if (decoder.has_host_app_package_name()) {
-    process_args.AddArg(chrome_host_app_package_name_id_,
-                        Variadic::String(context_->storage->InternString(
-                            decoder.host_app_package_name())));
-  }
-  if (decoder.has_crash_trace_id()) {
-    process_args.AddArg(chrome_crash_trace_id_name_id_,
-                        Variadic::UnsignedInteger(decoder.crash_trace_id()));
-  }
 }
 
 UniqueTid TrackEventParser::ParseThreadDescriptor(
@@ -1619,26 +1518,10 @@ UniqueTid TrackEventParser::ParseThreadDescriptor(
   StringId name_id = kNullStringId;
   if (decoder.has_thread_name() && decoder.thread_name().size) {
     name_id = context_->storage->InternString(decoder.thread_name());
-  } else if (decoder.has_chrome_thread_type()) {
-    // TODO(skyostil): Remove parsing for legacy chrome_thread_type field.
-    name_id = chrome_string_lookup_.GetThreadName(decoder.chrome_thread_type());
   }
   context_->process_tracker->UpdateThreadNameByUtid(
       utid, name_id, ThreadNamePriority::kTrackDescriptor);
   return utid;
-}
-
-void TrackEventParser::ParseChromeThreadDescriptor(
-    UniqueTid utid,
-    protozero::ConstBytes chrome_thread_descriptor) {
-  protos::pbzero::ChromeThreadDescriptor::Decoder decoder(
-      chrome_thread_descriptor);
-  if (!decoder.has_thread_type())
-    return;
-
-  StringId name_id = chrome_string_lookup_.GetThreadName(decoder.thread_type());
-  context_->process_tracker->UpdateThreadNameByUtid(
-      utid, name_id, ThreadNamePriority::kTrackDescriptorThreadType);
 }
 
 void TrackEventParser::ParseCounterDescriptor(
@@ -1698,15 +1581,7 @@ void TrackEventParser::ParseTrackEvent(int64_t ts,
   }
 }
 
-void TrackEventParser::AddActiveProcess(int64_t packet_timestamp, int32_t pid) {
-  UniquePid upid =
-      context_->process_tracker->GetOrCreateProcess(static_cast<uint32_t>(pid));
-  active_chrome_processes_tracker_.AddActiveProcessMetadata(packet_timestamp,
-                                                            upid);
-}
-
 void TrackEventParser::NotifyEndOfFile() {
-  active_chrome_processes_tracker_.NotifyEndOfFile();
 }
 
 }  // namespace dejaview::trace_processor

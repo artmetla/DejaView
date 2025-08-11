@@ -436,7 +436,7 @@ export class TraceInfoPage implements m.ClassComponent<PageWithTraceAttrs> {
   view({attrs}: m.CVnode<PageWithTraceAttrs>) {
     const engine = assertExists(this.engine);
     return m(
-      '.trace-info-page',
+      '.trace-info-page .page',
       m(LoadingErrors, {trace: attrs.trace}),
       m(StatsSection, {
         engine,

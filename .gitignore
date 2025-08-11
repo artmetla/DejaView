@@ -1,4 +1,3 @@
-.android_config
 .cache
 .ccls
 .ccls-cache
@@ -22,7 +21,6 @@
 *.sock
 *.swp
 /*.dvtrace
-/bazel-*
 /compile_commands.json
 /fuzz_out/
 /out*

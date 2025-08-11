@@ -54,22 +54,6 @@ class BroadphasePacketFilterIntegrationTest
     return mask;
   }
 
-  Context::FtraceEventMask ScanFtraceEventFields(const std::string& buffer) {
-    protos::pbzero::Trace::Decoder trace(buffer);
-
-    Context::FtraceEventMask mask;
-
-    for (auto packet = trace.packet(); packet; ++packet) {
-      protos::pbzero::TracePacket::Decoder decoder(*packet);
-
-      if (decoder.has_ftrace_events()) {
-        mask |= CopyEventFields(decoder.ftrace_events());
-      }
-    }
-
-    return mask;
-  }
-
   Context context_;
   TraceRedactor trace_redactor_;
 
@@ -102,28 +86,6 @@ TEST_F(BroadphasePacketFilterIntegrationTest, OnlyKeepsIncludedPacketFields) {
   auto exclude_mask = ~include_mask;
 
   auto fields = ScanPacketFields(*trace);
-
-  ASSERT_TRUE(fields.any());
-  ASSERT_TRUE(include_mask.any());
-
-  ASSERT_TRUE((fields & include_mask).any());
-  ASSERT_FALSE((fields & exclude_mask).any());
-}
-
-// To avoid being fragile, this test checks that some included fields passed
-// through redaction and checks that no excluded fields passed through
-// redaction.
-TEST_F(BroadphasePacketFilterIntegrationTest,
-       OnlyKeepsIncludedFtraceEventFields) {
-  ASSERT_OK(Redact(trace_redactor_, &context_));
-
-  auto trace = LoadRedacted();
-  ASSERT_OK(trace);
-
-  auto include_mask = context_.ftrace_mask;
-  auto exclude_mask = ~include_mask;
-
-  auto fields = ScanFtraceEventFields(*trace);
 
   ASSERT_TRUE(fields.any());
   ASSERT_TRUE(include_mask.any());

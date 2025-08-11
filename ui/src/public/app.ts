@@ -15,7 +15,6 @@
 import {RouteArgs} from './route_schema';
 import {CommandManager} from './command';
 import {OmniboxManager} from './omnibox';
-import {SidebarManager} from './sidebar';
 
 /**
  * The API endpoint to interact programmaticaly with the UI before a trace has
@@ -28,7 +27,6 @@ export interface App {
    */
   readonly pluginId: string;
   readonly commands: CommandManager;
-  readonly sidebar: SidebarManager;
   readonly omnibox: OmniboxManager;
 
   /**

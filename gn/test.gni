@@ -21,16 +21,6 @@ if (dejaview_root_path == "//") {
       testonly = true
     }
   }
-} else if (build_with_chromium) {
-  import("//testing/test.gni")
-} else {
-  assert(dejaview_build_with_embedder)
-  template("test") {
-    group(target_name) {
-      not_needed(invoker, "*")
-      testonly = true
-    }
-  }
 }
 
 # This is to avoid that unittest targets get discovered and built in the

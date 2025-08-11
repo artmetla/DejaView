@@ -14,10 +14,9 @@
 
 import {CPU_SLICE_TRACK_KIND} from '../../public/track_kinds';
 import {SchedSliceDetailsPanel} from './sched_details_tab';
-import {Engine} from '../../trace_processor/engine';
 import {Trace} from '../../public/trace';
 import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
-import {NUM, STR_NULL} from '../../trace_processor/query_result';
+import {NUM} from '../../trace_processor/query_result';
 import {CpuSliceTrack} from './cpu_slice_track';
 import {TrackNode} from '../../public/workspace';
 import {CpuSliceSelectionAggregator} from './cpu_slice_selection_aggregator';
@@ -37,10 +36,9 @@ class CpuSlices implements DejaViewPlugin {
     );
 
     const cpus = ctx.traceInfo.cpus;
-    const cpuToClusterType = await this.getAndroidCpuClusterTypes(ctx.engine);
 
     for (const cpu of cpus) {
-      const size = cpuToClusterType.get(cpu);
+      const size = 1;
       const uri = uriForSchedTrack(cpu);
 
       const name = size === undefined ? `Cpu ${cpu}` : `Cpu ${cpu} (${size})`;
@@ -78,33 +76,6 @@ class CpuSlices implements DejaViewPlugin {
         };
       },
     });
-  }
-
-  async getAndroidCpuClusterTypes(
-    engine: Engine,
-  ): Promise<Map<number, string>> {
-    const cpuToClusterType = new Map<number, string>();
-    await engine.query(`
-      include dejaview module android.cpu.cluster_type;
-    `);
-    const result = await engine.query(`
-      select cpu, cluster_type as clusterType
-      from android_cpu_cluster_mapping
-    `);
-
-    const it = result.iter({
-      cpu: NUM,
-      clusterType: STR_NULL,
-    });
-
-    for (; it.valid(); it.next()) {
-      const clusterType = it.clusterType;
-      if (clusterType !== null) {
-        cpuToClusterType.set(it.cpu, clusterType);
-      }
-    }
-
-    return cpuToClusterType;
   }
 }
 

@@ -27,7 +27,6 @@
 #include "dejaview/ext/trace_processor/demangle.h"
 #include "protos/dejaview/common/builtin_clock.pbzero.h"
 #include "src/trace_processor/db/column/utils.h"
-#include "src/trace_processor/export_json.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/sql_function.h"
 #include "src/trace_processor/sqlite/sqlite_utils.h"
@@ -36,39 +35,6 @@
 
 namespace dejaview {
 namespace trace_processor {
-
-struct ExportJson : public SqlFunction {
-  using Context = TraceStorage;
-  static base::Status Run(TraceStorage* storage,
-                          size_t /*argc*/,
-                          sqlite3_value** argv,
-                          SqlValue& /*out*/,
-                          Destructors&);
-};
-
-base::Status ExportJson::Run(TraceStorage* storage,
-                             size_t /*argc*/,
-                             sqlite3_value** argv,
-                             SqlValue& /*out*/,
-                             Destructors&) {
-  base::ScopedFstream output;
-  if (sqlite3_value_type(argv[0]) == SQLITE_INTEGER) {
-    // Assume input is an FD.
-    output.reset(fdopen(sqlite3_value_int(argv[0]), "w"));
-    if (!output) {
-      return base::ErrStatus(
-          "EXPORT_JSON: Couldn't open output file from given FD");
-    }
-  } else {
-    const char* filename =
-        reinterpret_cast<const char*>(sqlite3_value_text(argv[0]));
-    output = base::OpenFstream(filename, "w");
-    if (!output) {
-      return base::ErrStatus("EXPORT_JSON: Couldn't open output file");
-    }
-  }
-  return json::ExportJson(storage, output.get());
-}
 
 struct Hash : public SqlFunction {
   static base::Status Run(void*,

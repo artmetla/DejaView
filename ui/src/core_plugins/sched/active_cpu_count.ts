@@ -61,7 +61,6 @@ export class ActiveCPUCountTrack extends BaseCounterTrack {
   async onInit() {
     await this.engine.query(`
       INCLUDE DEJAVIEW MODULE sched.thread_level_parallelism;
-      INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
     `);
   }
 

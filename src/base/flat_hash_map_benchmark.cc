@@ -100,110 +100,12 @@ class Ours : public base::FlatHashMap<Key, Value, Hasher, Probe> {
   }
 };
 
-std::vector<uint64_t> LoadTraceStrings(benchmark::State& state) {
-  std::vector<uint64_t> str_hashes;
-  // This requires that the user has downloaded the file
-  // go/perfetto-benchmark-trace-strings into /tmp/trace_strings. The file is
-  // too big (2.3 GB after uncompression) and it's not worth adding it to the
-  // //test/data. Also it contains data from a team member's phone and cannot
-  // be public.
-  base::ScopedFstream f(fopen("/tmp/trace_strings", "re"));
-  if (!f) {
-    state.SkipWithError(
-        "Test strings missing. Googlers: download "
-        "go/perfetto-benchmark-trace-strings and save into /tmp/trace_strings");
-    return str_hashes;
-  }
-  char line[4096];
-  while (fgets(line, sizeof(line), *f)) {
-    base::Hasher hasher;
-    hasher.Update(line, strlen(line));
-    str_hashes.emplace_back(hasher.digest());
-  }
-  return str_hashes;
-}
-
 bool IsBenchmarkFunctionalOnly() {
   return getenv("BENCHMARK_FUNCTIONAL_TEST_ONLY") != nullptr;
 }
 
 size_t num_samples() {
   return IsBenchmarkFunctionalOnly() ? size_t(100) : size_t(10 * 1000 * 1000);
-}
-
-// Uses directly the base::FlatHashMap with no STL wrapper. Configures the map
-// in append-only mode.
-void BM_HashMap_InsertTraceStrings_AppendOnly(benchmark::State& state) {
-  std::vector<uint64_t> hashes = LoadTraceStrings(state);
-  for (auto _ : state) {
-    base::FlatHashMap<uint64_t, uint64_t, AlreadyHashed<uint64_t>, LinearProbe,
-                      /*AppendOnly=*/true>
-        mapz;
-    for (uint64_t hash : hashes)
-      mapz.Insert(hash, 42);
-
-    benchmark::ClobberMemory();
-    state.counters["uniq"] = Counter(static_cast<double>(mapz.size()));
-  }
-  state.counters["tot"] = Counter(static_cast<double>(hashes.size()),
-                                  Counter::kIsIterationInvariant);
-  state.counters["rate"] = Counter(static_cast<double>(hashes.size()),
-                                   Counter::kIsIterationInvariantRate);
-}
-
-template <typename MapType>
-void BM_HashMap_InsertTraceStrings(benchmark::State& state) {
-  std::vector<uint64_t> hashes = LoadTraceStrings(state);
-  for (auto _ : state) {
-    MapType mapz;
-    for (uint64_t hash : hashes)
-      mapz.insert({hash, 42});
-
-    benchmark::ClobberMemory();
-    state.counters["uniq"] = Counter(static_cast<double>(mapz.size()));
-  }
-  state.counters["tot"] = Counter(static_cast<double>(hashes.size()),
-                                  Counter::kIsIterationInvariant);
-  state.counters["rate"] = Counter(static_cast<double>(hashes.size()),
-                                   Counter::kIsIterationInvariantRate);
-}
-
-template <typename MapType>
-void BM_HashMap_TraceTids(benchmark::State& state) {
-  std::vector<std::pair<char, int>> ops_and_tids;
-  {
-    base::ScopedFstream f(fopen("/tmp/tids", "re"));
-    if (!f) {
-      // This test requires a large (800MB) test file. It's not checked into the
-      // repository's //test/data because it would slow down all developers for
-      // a marginal benefit.
-      state.SkipWithError(
-          "Please run `curl -Lo /tmp/tids "
-          "https://storage.googleapis.com/perfetto/test_datalong_trace_tids.txt"
-          "` and try again.");
-      return;
-    }
-    char op;
-    int tid;
-    while (fscanf(*f, "%c %d\n", &op, &tid) == 2)
-      ops_and_tids.emplace_back(op, tid);
-  }
-
-  for (auto _ : state) {
-    MapType mapz;
-    for (const auto& ops_and_tid : ops_and_tids) {
-      if (ops_and_tid.first == '[') {
-        mapz[ops_and_tid.second]++;
-      } else {
-        mapz.insert({ops_and_tid.second, 0});
-      }
-    }
-
-    benchmark::ClobberMemory();
-    state.counters["uniq"] = Counter(static_cast<double>(mapz.size()));
-  }
-  state.counters["rate"] = Counter(static_cast<double>(ops_and_tids.size()),
-                                   Counter::kIsIterationInvariantRate);
 }
 
 template <typename MapType>
@@ -318,21 +220,12 @@ using FollyF14FastMap =
     folly::F14FastMap<uint64_t, uint64_t, AlreadyHashed<uint64_t>>;
 #endif
 
-BENCHMARK(BM_HashMap_InsertTraceStrings_AppendOnly);
-BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, Ours_LinearProbing);
-BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, Ours_QuadProbing);
-BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, StdUnorderedMap);
 #if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, RobinMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, AbslFlatHashMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, FollyF14FastMap);
 #endif
 
-#define TID_ARGS int, uint64_t, std::hash<int>
-BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, Ours<TID_ARGS, LinearProbe>);
-BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, Ours<TID_ARGS, QuadraticProbe>);
-BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, Ours<TID_ARGS, QuadraticHalfProbe>);
-BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, std::unordered_map<TID_ARGS>);
 #if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, tsl::robin_map<TID_ARGS>);
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, absl::flat_hash_map<TID_ARGS>);

@@ -33,11 +33,6 @@ TEST(TraceProcessorImplTest, GuessTraceType_Json) {
   EXPECT_EQ(kJsonTraceType, GuessTraceType(prefix, sizeof(prefix)));
 }
 
-TEST(TraceProcessorImplTest, GuessTraceType_Ninja) {
-  const uint8_t prefix[] = "# ninja log v5\n";
-  EXPECT_EQ(kNinjaLogTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
 TEST(TraceProcessorImplTest, GuessTraceType_JsonWithSpaces) {
   const uint8_t prefix[] = "\n{ \"traceEvents\": [";
   EXPECT_EQ(kJsonTraceType, GuessTraceType(prefix, sizeof(prefix)));
@@ -49,44 +44,9 @@ TEST(TraceProcessorImplTest, GuessTraceType_JsonMissingTraceEvents) {
   EXPECT_EQ(kJsonTraceType, GuessTraceType(prefix, sizeof(prefix)));
 }
 
-TEST(TraceProcessorImplTest, GuessTraceType_DoctypeHtmlUppercase) {
-  const uint8_t prefix[] = "<!DOCTYPE HTML>";
-  EXPECT_EQ(kSystraceTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
-TEST(TraceProcessorImplTest, GuessTraceType_DoctypeHtml) {
-  const uint8_t prefix[] = "<!doctype html>";
-  EXPECT_EQ(kSystraceTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
-TEST(TraceProcessorImplTest, GuessTraceType_DoctypeHtmlMixed) {
-  const uint8_t prefix[] = "<!DoCTyPe HtMl>";
-  EXPECT_EQ(kSystraceTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
-TEST(TraceProcessorImplTest, GuessTraceType_Html) {
-  const uint8_t prefix[] = "<html>";
-  EXPECT_EQ(kSystraceTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
-TEST(TraceProcessorImplTest, GuessTraceType_HtmlUpper) {
-  const uint8_t prefix[] = "<HTML>";
-  EXPECT_EQ(kSystraceTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
-TEST(TraceProcessorImplTest, GuessTraceType_HtmlMixed) {
-  const uint8_t prefix[] = "<htmL>";
-  EXPECT_EQ(kSystraceTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
 TEST(TraceProcessorImplTest, GuessTraceType_Proto) {
   const uint8_t prefix[] = {0x0a, 0x00};  // An empty TracePacket.
   EXPECT_EQ(kProtoTraceType, GuessTraceType(prefix, sizeof(prefix)));
-}
-
-TEST(TraceProcessorImplTest, GuessTraceType_Fuchsia) {
-  const uint8_t prefix[] = {0x10, 0x00, 0x04, 0x46, 0x78, 0x54, 0x16, 0x00};
-  EXPECT_EQ(kFuchsiaTraceType, GuessTraceType(prefix, sizeof(prefix)));
 }
 
 TEST(TraceProcessorImplTest, GuessTraceType_Bmp) {

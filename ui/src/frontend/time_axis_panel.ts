@@ -13,8 +13,7 @@
 // limitations under the License.
 
 import m from 'mithril';
-import {Time, time, toISODateOnly} from '../base/time';
-import {TimestampFormat, timestampFormat} from '../core/timestamp_format';
+import {time} from '../base/time';
 import {TRACK_SHELL_WIDTH} from './css_constants';
 import {globals} from './globals';
 import {
@@ -42,8 +41,6 @@ export class TimeAxisPanel implements Panel {
     ctx.textAlign = 'left';
     ctx.font = '11px Roboto Condensed';
 
-    this.renderOffsetTimestamp(ctx);
-
     const trackSize = {...size, width: size.width - TRACK_SHELL_WIDTH};
     ctx.save();
     ctx.translate(TRACK_SHELL_WIDTH, 0);
@@ -52,36 +49,6 @@ export class TimeAxisPanel implements Panel {
     ctx.restore();
 
     ctx.fillRect(TRACK_SHELL_WIDTH - 2, 0, 2, size.height);
-  }
-
-  private renderOffsetTimestamp(ctx: CanvasRenderingContext2D): void {
-    const offset = globals.trace.timeline.timestampOffset();
-    switch (timestampFormat()) {
-      case TimestampFormat.TraceNs:
-      case TimestampFormat.TraceNsLocale:
-        break;
-      case TimestampFormat.Seconds:
-      case TimestampFormat.Timecode:
-        const width = renderTimestamp(ctx, offset, 6, 10, MIN_PX_PER_STEP);
-        ctx.fillText('+', 6 + width + 2, 10, 6);
-        break;
-      case TimestampFormat.UTC:
-        const offsetDate = Time.toDate(
-          globals.traceContext.utcOffset,
-          globals.traceContext.realtimeOffset,
-        );
-        const dateStr = toISODateOnly(offsetDate);
-        ctx.fillText(`UTC ${dateStr}`, 6, 10);
-        break;
-      case TimestampFormat.TraceTz:
-        const offsetTzDate = Time.toDate(
-          globals.traceContext.traceTzOffset,
-          globals.traceContext.realtimeOffset,
-        );
-        const dateTzStr = toISODateOnly(offsetTzDate);
-        ctx.fillText(dateTzStr, 6, 10);
-        break;
-    }
   }
 
   private renderPanel(ctx: CanvasRenderingContext2D, size: Size2D): void {
@@ -116,76 +83,8 @@ function renderTimestamp(
   y: number,
   minWidth: number,
 ) {
-  const fmt = timestampFormat();
-  switch (fmt) {
-    case TimestampFormat.UTC:
-    case TimestampFormat.TraceTz:
-    case TimestampFormat.Timecode:
-      return renderTimecode(ctx, time, x, y, minWidth);
-    case TimestampFormat.TraceNs:
-      return renderRawTimestamp(ctx, time.toString(), x, y, minWidth);
-    case TimestampFormat.TraceNsLocale:
-      return renderRawTimestamp(ctx, time.toLocaleString(), x, y, minWidth);
-    case TimestampFormat.Seconds:
-      return renderRawTimestamp(ctx, Time.formatSeconds(time), x, y, minWidth);
-    case TimestampFormat.Milliseoncds:
-      return renderRawTimestamp(
-        ctx,
-        Time.formatMilliseconds(time),
-        x,
-        y,
-        minWidth,
-      );
-    case TimestampFormat.Microseconds:
-      return renderRawTimestamp(
-        ctx,
-        Time.formatMicroseconds(time),
-        x,
-        y,
-        minWidth,
-      );
-    default:
-      const z: never = fmt;
-      throw new Error(`Invalid timestamp ${z}`);
-  }
-}
-
-// Print a time on the canvas in raw format.
-function renderRawTimestamp(
-  ctx: CanvasRenderingContext2D,
-  time: string,
-  x: number,
-  y: number,
-  minWidth: number,
-) {
+  const timeStr = time.toString();
   ctx.font = '11px Roboto Condensed';
-  ctx.fillText(time, x, y, minWidth);
-  return ctx.measureText(time).width;
-}
-
-// Print a timecode over 2 lines with this formatting:
-// DdHH:MM:SS
-// mmm uuu nnn
-// Returns the resultant width of the timecode.
-function renderTimecode(
-  ctx: CanvasRenderingContext2D,
-  time: time,
-  x: number,
-  y: number,
-  minWidth: number,
-): number {
-  const timecode = Time.toTimecode(time);
-  ctx.font = '11px Roboto Condensed';
-
-  const {dhhmmss} = timecode;
-  const thinSpace = '\u2009';
-  const subsec = timecode.subsec(thinSpace);
-  ctx.fillText(dhhmmss, x, y, minWidth);
-  const {width: firstRowWidth} = ctx.measureText(subsec);
-
-  ctx.font = '10.5px Roboto Condensed';
-  ctx.fillText(subsec, x, y + 10, minWidth);
-  const {width: secondRowWidth} = ctx.measureText(subsec);
-
-  return Math.max(firstRowWidth, secondRowWidth);
+  ctx.fillText(timeStr, x, y, minWidth);
+  return ctx.measureText(timeStr).width;
 }

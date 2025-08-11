@@ -29,7 +29,6 @@ source_set("service") {
     "../../../protos/dejaview/config:zero",
     "../../../protos/dejaview/trace:zero",
     "../../../protos/dejaview/trace/dejaview:zero",  # For MetatraceWriter.
-    "../../android_stats",
     "../../base",
     "../../base:version",
     "../../protozero/filtering:message_filter",
@@ -47,12 +46,6 @@ source_set("service") {
     "tracing_service_impl.cc",
     "tracing_service_impl.h",
   ]
-  if (is_android && dejaview_build_with_android) {
-    deps += [
-      "../../android_internal:headers",
-      "../../android_internal:lazy_library_loader",
-    ]
-  }
 }
 
 if (enable_dejaview_zlib) {
@@ -78,7 +71,6 @@ dejaview_unittest_source_set("unittests") {
     "../../../gn:gtest_and_gmock",
     "../../../protos/dejaview/trace:cpp",
     "../../../protos/dejaview/trace:zero",
-    "../../../protos/dejaview/trace/ftrace:cpp",
     "../../../protos/dejaview/trace/dejaview:cpp",
     "../../../src/protozero/filtering:bytecode_generator",
     "../../base",
@@ -108,22 +100,6 @@ dejaview_unittest_source_set("unittests") {
   # has no Windows implementation.
   if (!is_win) {
     sources += [ "tracing_service_impl_unittest.cc" ]
-  }
-}
-
-if (enable_dejaview_benchmarks) {
-  source_set("benchmarks") {
-    testonly = true
-    deps = [
-      ":service",
-      "../../../gn:benchmark",
-      "../../../gn:default_deps",
-      "../../../protos/dejaview/trace:zero",
-      "../../../protos/dejaview/trace/ftrace:zero",
-      "../../protozero",
-      "../core",
-    ]
-    sources = [ "packet_stream_validator_benchmark.cc" ]
   }
 }
 

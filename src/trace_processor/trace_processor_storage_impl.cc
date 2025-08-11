@@ -38,10 +38,8 @@
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/importers/common/trace_file_tracker.h"
-#include "src/trace_processor/importers/perf/dso_tracker.h"
 #include "src/trace_processor/importers/proto/default_modules.h"
 #include "src/trace_processor/importers/proto/packet_analyzer.h"
-#include "src/trace_processor/importers/proto/perf_sample_tracker.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/proto_trace_parser_impl.h"
 #include "src/trace_processor/importers/proto/proto_trace_reader.h"
@@ -137,9 +135,6 @@ base::Status TraceProcessorStorageImpl::NotifyEndOfFile() {
   context_.slice_tracker->FlushPendingSlices();
   context_.args_tracker->Flush();
   context_.process_tracker->NotifyEndOfFile();
-  if (context_.perf_dso_tracker) {
-    perf_importer::DsoTracker::GetOrCreate(&context_).SymbolizeFrames();
-  }
   return base::OkStatus();
 }
 

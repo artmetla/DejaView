@@ -110,14 +110,6 @@ class DebugAnnotationParserTest : public ::testing::Test,
     args_.push_back(ss.str());
   }
 
-  bool AddJson(const Key& key, const protozero::ConstChars& value) override {
-    std::stringstream ss;
-    ss << key.flat_key << " " << key.key << " " << std::hex
-       << value.ToStdString() << std::dec;
-    args_.push_back(ss.str());
-    return true;
-  }
-
   void AddNull(const Key& key) override {
     std::stringstream ss;
     ss << key.flat_key << " " << key.key << " [NULL]";

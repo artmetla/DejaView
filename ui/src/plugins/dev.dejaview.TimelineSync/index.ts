@@ -184,7 +184,7 @@ class TimelineSync implements DejaViewPlugin {
         {style: 'display: flex;  flex-direction: column;'},
         m(
           'div',
-          'Select the dejaview UI tab(s) you want to keep in sync ' +
+          'Select the DejaView UI tab(s) you want to keep in sync ' +
             '(Ctrl+Click to select many).',
         ),
         m(

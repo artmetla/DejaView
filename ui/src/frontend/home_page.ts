@@ -13,53 +13,45 @@
 // limitations under the License.
 
 import m from 'mithril';
-import {channelChanged, getNextChannel, setChannel} from '../common/channels';
-import {Anchor} from '../widgets/anchor';
-import {HotkeyGlyphs} from '../widgets/hotkey_glyphs';
 import {globals} from './globals';
+import {Anchor} from '../widgets/anchor';
 import {PageAttrs} from '../core/router';
 
-export class Hints implements m.ClassComponent {
+export class Actions implements m.ClassComponent {
   view() {
     return m(
-      '.home-page-hints',
-      m('.tagline', 'New!'),
+      '.home-page-actions',
       m(
         'ul',
         m(
           'li',
-          'New updated ',
           m(
             Anchor,
             {
-              href: 'https://perfetto.dev/docs/visualization/perfetto-ui#tabs-v2',
+              onclick: () => {
+                globals.commandManager.runCommand(
+                  'dejaview.CoreCommands#openTrace',
+                );
+              },
             },
-            'tabs',
+            m('i.material-icons .home-page-actions-icon', 'folder_open'),
+            'Open trace file', // ${formatHotkey(cmd.defaultHotkey)}
           ),
-          ' are extensible and user friendly.',
         ),
         m(
           'li',
-          'Use ',
-          m(HotkeyGlyphs, {hotkey: 'W'}),
-          m(HotkeyGlyphs, {hotkey: 'A'}),
-          m(HotkeyGlyphs, {hotkey: 'S'}),
-          m(HotkeyGlyphs, {hotkey: 'D'}),
-          ' to navigate the trace.',
-        ),
-        m(
-          'li',
-          'Try the ',
           m(
             Anchor,
             {
-              href: 'https://perfetto.dev/docs/visualization/perfetto-ui#command-palette',
+              onclick: () => {
+                globals.commandManager.runCommand(
+                  'dejaview.CoreCommands#OpenExampleTrace',
+                );
+              },
             },
-            'command palette,',
+            m('i.material-icons .home-page-actions-icon', 'description'),
+            'Open demo trace',
           ),
-          ' press ',
-          m(HotkeyGlyphs, {hotkey: '!Mod+Shift+P'}),
-          '.',
         ),
       ),
     );
@@ -77,34 +69,8 @@ export class HomePage implements m.ClassComponent<PageAttrs> {
           m(`img.logo[src=${globals.root}assets/logo-3d.png]`),
           'DejaView',
         ),
-        m(Hints),
-        m(
-          '.channel-select',
-          m('', 'Feeling adventurous? Try our bleeding edge Canary version'),
-          m('fieldset', mkChan('stable'), mkChan('canary'), m('.highlight')),
-          m(
-            `.home-page-reload${channelChanged() ? '.show' : ''}`,
-            'You need to reload the page for the changes to have effect',
-          ),
-        ),
-      ),
-      m(
-        'a.privacy',
-        {href: 'https://policies.google.com/privacy', target: '_blank'},
-        'Privacy policy',
+        m(Actions),
       ),
     );
   }
-}
-
-function mkChan(chan: string) {
-  const checked = getNextChannel() === chan ? '[checked=true]' : '';
-  return [
-    m(`input[type=radio][name=chan][id=chan_${chan}]${checked}`, {
-      onchange: () => {
-        setChannel(chan);
-      },
-    }),
-    m(`label[for=chan_${chan}]`, chan),
-  ];
 }

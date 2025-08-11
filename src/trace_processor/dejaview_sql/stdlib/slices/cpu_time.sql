@@ -48,35 +48,3 @@ FROM _interval_intersect!((
 JOIN thread_slice ts ON ts.id = ii.id_0
 GROUP BY id
 ORDER BY id;
-
--- CPU cycles per each slice.
-CREATE DEJAVIEW VIEW thread_slice_cpu_cycles(
-  -- Id of a slice. Alias of `slice.id`.
-  id INT,
-  -- Name of the slice.
-  name STRING,
-  -- Id of the thread the slice is running on. Alias of `thread.id`.
-  utid INT,
-  -- Name of the thread.
-  thread_name STRING,
-  -- Id of the process the slice is running on. Alias of `process.id`.
-  upid INT,
-  -- Name of the process.
-  process_name STRING,
-  -- Sum of CPU millicycles. Null if frequency couldn't be fetched for any
-  -- period during the runtime of the slice.
-  millicycles INT,
-  -- Sum of CPU megacycles. Null if frequency couldn't be fetched for any
-  -- period during the runtime of the slice.
-  megacycles INT
-) AS
-SELECT
-  id,
-  name,
-  utid,
-  thread_name,
-  upid,
-  process_name,
-  millicycles,
-  megacycles
-FROM cpu_cycles_per_thread_slice;

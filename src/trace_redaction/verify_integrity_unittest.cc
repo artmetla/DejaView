@@ -19,8 +19,6 @@
 #include "test/gtest_and_gmock.h"
 
 #include "protos/dejaview/common/trace_stats.gen.h"
-#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
-#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
 #include "protos/dejaview/trace/trace_packet.gen.h"
 
 namespace dejaview::trace_redaction {
@@ -33,9 +31,6 @@ int32_t kLastValid = Context::kMaxTrustedUid;
 int32_t kInvalidUid = 12000;
 
 uint64_t kSomeTime = 1234;
-uint32_t kSomePid = 7;
-
-uint32_t kSomeCpu = 3;
 }  // namespace
 
 class VerifyIntegrityUnitTest : public testing::Test {
@@ -75,105 +70,6 @@ TEST_F(VerifyIntegrityUnitTest, InclusiveEnd) {
   protos::gen::TracePacket packet;
 
   packet.set_trusted_uid(kLastValid);
-
-  ASSERT_OK(Verify(packet));
-}
-
-TEST_F(VerifyIntegrityUnitTest, InvalidPacketFtraceBundleHasLostEvents) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  packet.mutable_ftrace_events()->set_lost_events(true);
-
-  ASSERT_FALSE(Verify(packet).ok());
-}
-
-TEST_F(VerifyIntegrityUnitTest, ValidPacketFtraceBundleHasNoLostEvents) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  packet.mutable_ftrace_events()->set_lost_events(false);
-
-  ASSERT_FALSE(Verify(packet).ok());
-}
-
-TEST_F(VerifyIntegrityUnitTest, InvalidPacketFtraceBundleMissingCpu) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  packet.mutable_ftrace_events();
-
-  ASSERT_FALSE(Verify(packet).ok());
-}
-
-TEST_F(VerifyIntegrityUnitTest, InvalidPacketFtraceBundleHasErrors) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  packet.mutable_ftrace_events()->add_error();
-
-  ASSERT_FALSE(Verify(packet).ok());
-}
-
-TEST_F(VerifyIntegrityUnitTest, ValidPacketFtraceBundle) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  // A bundle doesn't need to have anything in it (other than cpu).
-  auto* ftrace_events = packet.mutable_ftrace_events();
-  ftrace_events->set_cpu(kSomeCpu);
-
-  ASSERT_OK(Verify(packet));
-}
-
-TEST_F(VerifyIntegrityUnitTest, InvalidPacketFtraceEventMissingPid) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  auto* ftrace_events = packet.mutable_ftrace_events();
-  ftrace_events->set_cpu(kSomeCpu);
-
-  // A valid event has a pid and timestamp. Add the time (but not the pid) to
-  // ensure the pid caused the error.
-  auto* event = ftrace_events->add_event();
-  event->set_timestamp(kSomeTime);
-
-  ASSERT_FALSE(Verify(packet).ok());
-}
-
-TEST_F(VerifyIntegrityUnitTest, InvalidPacketFtraceEventMissingTime) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  auto* ftrace_events = packet.mutable_ftrace_events();
-  ftrace_events->set_cpu(kSomeCpu);
-
-  // A valid event has a pid and timestamp. Add the pid (but not the time) to
-  // ensure the time caused the error.
-  auto* event = ftrace_events->add_event();
-  event->set_pid(kSomePid);
-
-  ASSERT_FALSE(Verify(packet).ok());
-}
-
-TEST_F(VerifyIntegrityUnitTest, ValidPacketFtraceEvent) {
-  protos::gen::TracePacket packet;
-
-  packet.set_trusted_uid(kValid);
-
-  auto* ftrace_events = packet.mutable_ftrace_events();
-  ftrace_events->set_cpu(kSomeCpu);
-
-  auto* event = ftrace_events->add_event();
-  event->set_pid(kSomePid);
-  event->set_timestamp(kSomeTime);
 
   ASSERT_OK(Verify(packet));
 }

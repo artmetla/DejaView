@@ -26,8 +26,6 @@
 #include "src/trace_processor/tables/slice_tables_py.h"
 #include "src/trace_processor/tables/trace_proto_tables_py.h"
 #include "src/trace_processor/tables/track_tables_py.h"
-#include "src/trace_processor/tables/v8_tables_py.h"
-#include "src/trace_processor/tables/winscope_tables_py.h"
 
 namespace dejaview {
 namespace trace_processor {
@@ -54,7 +52,6 @@ JitFrameTable::~JitFrameTable() = default;
 
 // metadata_tables_py.h
 RawTable::~RawTable() = default;
-FtraceEventTable::~FtraceEventTable() = default;
 ArgTable::~ArgTable() = default;
 ExpMissingChromeProcTable::~ExpMissingChromeProcTable() = default;
 MetadataTable::~MetadataTable() = default;
@@ -134,33 +131,6 @@ MemorySnapshotTable::~MemorySnapshotTable() = default;
 ProcessMemorySnapshotTable::~ProcessMemorySnapshotTable() = default;
 MemorySnapshotNodeTable::~MemorySnapshotNodeTable() = default;
 MemorySnapshotEdgeTable::~MemorySnapshotEdgeTable() = default;
-
-// v8_tables_py.h
-V8IsolateTable::~V8IsolateTable() = default;
-V8JsScriptTable::~V8JsScriptTable() = default;
-V8WasmScriptTable::~V8WasmScriptTable() = default;
-V8JsFunctionTable::~V8JsFunctionTable() = default;
-V8JsCodeTable::~V8JsCodeTable() = default;
-V8InternalCodeTable::~V8InternalCodeTable() = default;
-V8WasmCodeTable::~V8WasmCodeTable() = default;
-V8RegexpCodeTable::~V8RegexpCodeTable() = default;
-
-// winscope_tables_py.h
-InputMethodClientsTable::~InputMethodClientsTable() = default;
-InputMethodManagerServiceTable::~InputMethodManagerServiceTable() = default;
-InputMethodServiceTable::~InputMethodServiceTable() = default;
-ProtoLogTable::~ProtoLogTable() = default;
-SurfaceFlingerLayersSnapshotTable::~SurfaceFlingerLayersSnapshotTable() =
-    default;
-SurfaceFlingerLayerTable::~SurfaceFlingerLayerTable() = default;
-SurfaceFlingerTransactionsTable::~SurfaceFlingerTransactionsTable() = default;
-ViewCaptureTable::~ViewCaptureTable() = default;
-WindowManagerTable::~WindowManagerTable() = default;
-WindowManagerShellTransitionsTable::~WindowManagerShellTransitionsTable() =
-    default;
-WindowManagerShellTransitionHandlersTable::
-    ~WindowManagerShellTransitionHandlersTable() = default;
-
 }  // namespace tables
 
 }  // namespace trace_processor

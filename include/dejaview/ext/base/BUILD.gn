@@ -16,7 +16,6 @@ import("../../../../gn/dejaview.gni")
 
 source_set("base") {
   sources = [
-    "android_utils.h",
     "base64.h",
     "circular_queue.h",
     "container_annotations.h",
@@ -38,7 +37,6 @@ source_set("base") {
     "platform.h",
     "scoped_file.h",
     "scoped_mmap.h",
-    "small_set.h",
     "small_vector.h",
     "status_or.h",
     "string_splitter.h",

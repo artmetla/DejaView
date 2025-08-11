@@ -24,14 +24,11 @@ import {
 import {raf} from '../../core/raf_scheduler';
 import {Router} from '../../core/router';
 import {globals} from '../../frontend/globals';
-import {getCurrentTrace} from '../../frontend/sidebar';
-import {convertTraceToPprofAndDownload} from '../../frontend/trace_converter';
 import {Timestamp} from '../../frontend/widgets/timestamp';
 import {TrackEventDetailsPanel} from '../../public/details_panel';
 import {ProfileType, TrackEventSelection} from '../../public/selection';
 import {Trace} from '../../public/trace';
 import {Engine} from '../../trace_processor/engine';
-import {NUM} from '../../trace_processor/query_result';
 import {Button} from '../../widgets/button';
 import {Intent} from '../../widgets/common';
 import {DetailsShell} from '../../widgets/details_shell';
@@ -108,7 +105,6 @@ export class HeapProfileFlamegraphDetailsPanel
                 icon: 'file_download',
                 intent: Intent.Primary,
                 onclick: () => {
-                  downloadPprof(this.trace.engine, this.upid, ts);
                   raf.scheduleFullRedraw();
                 },
               }),
@@ -383,25 +379,6 @@ function getFlamegraphTitle(type: ProfileType) {
     case ProfileType.PERF_SAMPLE:
       assertFalse(false, 'Perf sample not supported');
       return 'Impossible';
-  }
-}
-
-async function downloadPprof(
-  engine: Engine | undefined,
-  upid: number,
-  ts: time,
-) {
-  if (engine === undefined) {
-    return;
-  }
-  try {
-    const pid = await engine.query(
-      `select pid from process where upid = ${upid}`,
-    );
-    const trace = await getCurrentTrace();
-    convertTraceToPprofAndDownload(trace, pid.firstRow({pid: NUM}).pid, ts);
-  } catch (error) {
-    throw new Error(`Failed to get current trace ${error}`);
   }
 }
 

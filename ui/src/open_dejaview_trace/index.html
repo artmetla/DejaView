@@ -20,7 +20,6 @@
   <input type='button' value='Fetch and open selected trace' id='fetch'>
   <label><input type='checkbox' id='show_progress' checked="checked">Show progress dialog</label>
   <label><input type='checkbox' id='new_tab'>Open in new tab</label>
-  <label><input type='checkbox' id='hide_sidebar'>Hide sidebar in DejaView UI</label>
 
 </main>
 
@@ -40,7 +39,6 @@ document.getElementById('fetch').addEventListener('click', () => {
 
   opts.statusDialog = getCheckbox('show_progress');
   opts.newTab = getCheckbox('new_tab');
-  opts.hideSidebar = getCheckbox('hide_sidebar');
 
   const fileInput = document.getElementById('file');
   let traceSource;

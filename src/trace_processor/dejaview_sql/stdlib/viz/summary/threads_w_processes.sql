@@ -13,8 +13,6 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE DEJAVIEW MODULE android.process_metadata;
-
 -- Establish relationships between thread and process
 CREATE DEJAVIEW TABLE _thread_process_summary AS
 SELECT
@@ -53,11 +51,8 @@ SELECT
   m.upid,
   m.tid,
   m.pid,
-  package.uid,
   m.thread_name,
-  m.process_name,
-  package.package_name
+  m.process_name
 FROM _thread_process_summary as m
 JOIN sched USING (utid)
-LEFT JOIN android_process_metadata as package USING(upid)
 WHERE dur > 0;

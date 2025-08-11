@@ -44,34 +44,14 @@
 #include "dejaview/trace_processor/iterator.h"
 #include "dejaview/trace_processor/trace_blob_view.h"
 #include "dejaview/trace_processor/trace_processor.h"
-#include "src/trace_processor/importers/android_bugreport/android_log_event_parser_impl.h"
-#include "src/trace_processor/importers/android_bugreport/android_log_reader.h"
-#include "src/trace_processor/importers/art_method/art_method_parser_impl.h"
-#include "src/trace_processor/importers/art_method/art_method_tokenizer.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/trace_file_tracker.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
-#include "src/trace_processor/importers/fuchsia/fuchsia_trace_parser.h"
-#include "src/trace_processor/importers/fuchsia/fuchsia_trace_tokenizer.h"
-#include "src/trace_processor/importers/gecko/gecko_trace_parser_impl.h"
-#include "src/trace_processor/importers/gecko/gecko_trace_tokenizer.h"
 #include "src/trace_processor/importers/gzip/gzip_trace_parser.h"
-#include "src/trace_processor/importers/json/json_trace_parser_impl.h"
-#include "src/trace_processor/importers/json/json_trace_tokenizer.h"
-#include "src/trace_processor/importers/json/json_utils.h"
-#include "src/trace_processor/importers/ninja/ninja_log_parser.h"
-#include "src/trace_processor/importers/perf/perf_data_tokenizer.h"
-#include "src/trace_processor/importers/perf/record_parser.h"
-#include "src/trace_processor/importers/perf/spe_record_parser.h"
-#include "src/trace_processor/importers/perf_text/perf_text_trace_parser_impl.h"
-#include "src/trace_processor/importers/perf_text/perf_text_trace_tokenizer.h"
 #include "src/trace_processor/importers/proto/additional_modules.h"
 #include "src/trace_processor/importers/proto/content_analyzer.h"
-#include "src/trace_processor/importers/systrace/systrace_trace_parser.h"
 #include "src/trace_processor/importers/zip/zip_trace_reader.h"
 #include "src/trace_processor/iterator_impl.h"
-#include "src/trace_processor/metrics/all_chrome_metrics.descriptor.h"
-#include "src/trace_processor/metrics/all_webview_metrics.descriptor.h"
 #include "src/trace_processor/metrics/metrics.descriptor.h"
 #include "src/trace_processor/metrics/metrics.h"
 #include "src/trace_processor/metrics/sql/amalgamated_sql_metrics.h"
@@ -89,11 +69,9 @@
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/interval_intersect.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/layout_functions.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/math.h"
-#include "src/trace_processor/dejaview_sql/intrinsics/functions/pprof_functions.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/sqlite3_str_split.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/stack_functions.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/structural_tree_partition.h"
-#include "src/trace_processor/dejaview_sql/intrinsics/functions/to_ftrace.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/type_builders.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/utils.h"
 #include "src/trace_processor/dejaview_sql/intrinsics/functions/window_functions.h"
@@ -131,11 +109,6 @@
 #include "src/trace_processor/util/sql_modules.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/trace_type.h"
-
-#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_INSTRUMENTS)
-#include "src/trace_processor/importers/instruments/instruments_xml_tokenizer.h"
-#include "src/trace_processor/importers/instruments/row_parser.h"
-#endif
 
 #include "protos/dejaview/common/builtin_clock.pbzero.h"
 #include "protos/dejaview/trace/clock_snapshot.pbzero.h"
@@ -358,10 +331,6 @@ std::pair<int64_t, int64_t> GetTraceTimestampBoundsNs(
     start_ns = std::min(it.ts(), start_ns);
     end_ns = std::max(it.ts() + it.dur(), end_ns);
   }
-  for (auto it = storage.android_log_table().IterateRows(); it; ++it) {
-    start_ns = std::min(it.ts(), start_ns);
-    end_ns = std::max(it.ts(), end_ns);
-  }
   for (auto it = storage.heap_graph_object_table().IterateRows(); it; ++it) {
     start_ns = std::min(it.graph_sample_ts(), start_ns);
     end_ns = std::max(it.graph_sample_ts(), end_ns);
@@ -392,37 +361,6 @@ std::pair<int64_t, int64_t> GetTraceTimestampBoundsNs(
 
 TraceProcessorImpl::TraceProcessorImpl(const Config& cfg)
     : TraceProcessorStorageImpl(cfg), config_(cfg) {
-  context_.reader_registry->RegisterTraceReader<AndroidLogReader>(
-      kAndroidLogcatTraceType);
-  context_.android_log_event_parser =
-      std::make_unique<AndroidLogEventParserImpl>(&context_);
-
-  context_.reader_registry->RegisterTraceReader<FuchsiaTraceTokenizer>(
-      kFuchsiaTraceType);
-  context_.fuchsia_record_parser =
-      std::make_unique<FuchsiaTraceParser>(&context_);
-
-  context_.reader_registry->RegisterTraceReader<SystraceTraceParser>(
-      kSystraceTraceType);
-  context_.reader_registry->RegisterTraceReader<NinjaLogParser>(
-      kNinjaLogTraceType);
-
-  context_.reader_registry
-      ->RegisterTraceReader<perf_importer::PerfDataTokenizer>(
-          kPerfDataTraceType);
-  context_.perf_record_parser =
-      std::make_unique<perf_importer::RecordParser>(&context_);
-  context_.spe_record_parser =
-      std::make_unique<perf_importer::SpeRecordParserImpl>(&context_);
-
-#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_INSTRUMENTS)
-  context_.reader_registry
-      ->RegisterTraceReader<instruments_importer::InstrumentsXmlTokenizer>(
-          kInstrumentsXmlTraceType);
-  context_.instruments_row_parser =
-      std::make_unique<instruments_importer::RowParser>(&context_);
-#endif
-
   if constexpr (util::IsGzipSupported()) {
     context_.reader_registry->RegisterTraceReader<GzipTraceParser>(
         kGzipTraceType);
@@ -430,32 +368,6 @@ TraceProcessorImpl::TraceProcessorImpl(const Config& cfg)
         kCtraceTraceType);
     context_.reader_registry->RegisterTraceReader<ZipTraceReader>(kZipFile);
   }
-
-  if constexpr (json::IsJsonSupported()) {
-    context_.reader_registry->RegisterTraceReader<JsonTraceTokenizer>(
-        kJsonTraceType);
-    context_.json_trace_parser =
-        std::make_unique<JsonTraceParserImpl>(&context_);
-
-#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
-    context_.reader_registry
-        ->RegisterTraceReader<gecko_importer::GeckoTraceTokenizer>(
-            kGeckoTraceType);
-    context_.gecko_trace_parser =
-        std::make_unique<gecko_importer::GeckoTraceParserImpl>(&context_);
-#endif
-  }
-
-  context_.reader_registry->RegisterTraceReader<art_method::ArtMethodTokenizer>(
-      kArtMethodTraceType);
-  context_.art_method_parser =
-      std::make_unique<art_method::ArtMethodParserImpl>(&context_);
-
-  context_.reader_registry
-      ->RegisterTraceReader<perf_text_importer::PerfTextTraceTokenizer>(
-          kPerfTextTraceType);
-  context_.perf_text_parser =
-      std::make_unique<perf_text_importer::PerfTextTraceParserImpl>(&context_);
 
   if (context_.config.analyze_trace_proto_content) {
     context_.content_analyzer =
@@ -472,12 +384,6 @@ TraceProcessorImpl::TraceProcessorImpl(const Config& cfg)
   }
   pool_.AddFromFileDescriptorSet(kMetricsDescriptor.data(),
                                  kMetricsDescriptor.size(), skip_prefixes);
-  pool_.AddFromFileDescriptorSet(kAllChromeMetricsDescriptor.data(),
-                                 kAllChromeMetricsDescriptor.size(),
-                                 skip_prefixes);
-  pool_.AddFromFileDescriptorSet(kAllWebviewMetricsDescriptor.data(),
-                                 kAllWebviewMetricsDescriptor.size(),
-                                 skip_prefixes);
 
   RegisterAdditionalModules(&context_);
   InitDejaViewSqlEngine();
@@ -762,8 +668,6 @@ void TraceProcessorImpl::InitDejaViewSqlEngine() {
   RegisterFunction<SourceGeq>(engine_.get(), "SOURCE_GEQ", -1);
   RegisterFunction<TablePtrBind>(engine_.get(), "__intrinsic_table_ptr_bind",
                                  -1);
-  RegisterFunction<ExportJson>(engine_.get(), "EXPORT_JSON", 1,
-                               context_.storage.get(), false);
   RegisterFunction<ExtractArg>(engine_.get(), "EXTRACT_ARG", 2,
                                context_.storage.get());
   RegisterFunction<AbsTimeStr>(engine_.get(), "ABS_TIME_STR", 1,
@@ -783,10 +687,6 @@ void TraceProcessorImpl::InitDejaViewSqlEngine() {
   RegisterFunction<Import>(
       engine_.get(), "IMPORT", 1,
       std::make_unique<Import::Context>(Import::Context{engine_.get()}));
-  RegisterFunction<ToFtrace>(
-      engine_.get(), "TO_FTRACE", 1,
-      std::make_unique<ToFtrace::Context>(ToFtrace::Context{
-          context_.storage.get(), SystraceSerializer(&context_)}));
 
   if constexpr (regex::IsRegexSupported()) {
     RegisterFunction<Regex>(engine_.get(), "regexp", 2);
@@ -802,11 +702,6 @@ void TraceProcessorImpl::InitDejaViewSqlEngine() {
   }
   {
     base::Status status = RegisterStackFunctions(engine_.get(), &context_);
-    if (!status.ok())
-      DEJAVIEW_FATAL("%s", status.c_message());
-  }
-  {
-    base::Status status = PprofFunctions::Register(*engine_, &context_);
     if (!status.ok())
       DEJAVIEW_FATAL("%s", status.c_message());
   }
@@ -914,7 +809,6 @@ void TraceProcessorImpl::InitDejaViewSqlEngine() {
   RegisterStaticTable(storage->mutable_machine_table());
   RegisterStaticTable(storage->mutable_arg_table());
   RegisterStaticTable(storage->mutable_raw_table());
-  RegisterStaticTable(storage->mutable_ftrace_event_table());
   RegisterStaticTable(storage->mutable_thread_table());
   RegisterStaticTable(storage->mutable_process_table());
   RegisterStaticTable(storage->mutable_filedescriptor_table());
@@ -974,8 +868,6 @@ void TraceProcessorImpl::InitDejaViewSqlEngine() {
   RegisterStaticTable(storage->mutable_android_motion_events_table());
   RegisterStaticTable(storage->mutable_android_input_event_dispatch_table());
 
-  RegisterStaticTable(storage->mutable_vulkan_memory_allocations_table());
-
   RegisterStaticTable(storage->mutable_graphics_frame_slice_table());
 
   RegisterStaticTable(storage->mutable_expected_frame_timeline_slice_table());
@@ -983,38 +875,10 @@ void TraceProcessorImpl::InitDejaViewSqlEngine() {
 
   RegisterStaticTable(storage->mutable_android_network_packets_table());
 
-  RegisterStaticTable(storage->mutable_v8_isolate_table());
-  RegisterStaticTable(storage->mutable_v8_js_script_table());
-  RegisterStaticTable(storage->mutable_v8_wasm_script_table());
-  RegisterStaticTable(storage->mutable_v8_js_function_table());
-  RegisterStaticTable(storage->mutable_v8_js_code_table());
-  RegisterStaticTable(storage->mutable_v8_internal_code_table());
-  RegisterStaticTable(storage->mutable_v8_wasm_code_table());
-  RegisterStaticTable(storage->mutable_v8_regexp_code_table());
-
   RegisterStaticTable(storage->mutable_jit_code_table());
   RegisterStaticTable(storage->mutable_jit_frame_table());
 
   RegisterStaticTable(storage->mutable_spe_record_table());
-
-  RegisterStaticTable(storage->mutable_inputmethod_clients_table());
-  RegisterStaticTable(storage->mutable_inputmethod_manager_service_table());
-  RegisterStaticTable(storage->mutable_inputmethod_service_table());
-
-  RegisterStaticTable(storage->mutable_surfaceflinger_layers_snapshot_table());
-  RegisterStaticTable(storage->mutable_surfaceflinger_layer_table());
-  RegisterStaticTable(storage->mutable_surfaceflinger_transactions_table());
-
-  RegisterStaticTable(storage->mutable_viewcapture_table());
-
-  RegisterStaticTable(storage->mutable_windowmanager_table());
-
-  RegisterStaticTable(
-      storage->mutable_window_manager_shell_transitions_table());
-  RegisterStaticTable(
-      storage->mutable_window_manager_shell_transition_handlers_table());
-
-  RegisterStaticTable(storage->mutable_protolog_table());
 
   RegisterStaticTable(storage->mutable_metadata_table());
   RegisterStaticTable(storage->mutable_cpu_table());

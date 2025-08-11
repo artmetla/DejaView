@@ -43,7 +43,6 @@
 #include "src/trace_processor/util/profiler_util.h"
 
 #include "protos/dejaview/common/builtin_clock.pbzero.h"
-#include "protos/dejaview/common/perf_events.pbzero.h"
 #include "protos/dejaview/trace/profiling/deobfuscation.pbzero.h"
 #include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
 #include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
@@ -58,7 +57,6 @@ using protozero::ConstBytes;
 ProfileModule::ProfileModule(TraceProcessorContext* context)
     : context_(context) {
   RegisterForField(TracePacket::kStreamingProfilePacketFieldNumber, context);
-  RegisterForField(TracePacket::kPerfSampleFieldNumber, context);
   RegisterForField(TracePacket::kProfilePacketFieldNumber, context);
   RegisterForField(TracePacket::kModuleSymbolsFieldNumber, context);
   // note: deobfuscation mappings also handled by HeapGraphModule.
@@ -91,9 +89,6 @@ void ProfileModule::ParseTracePacketData(
     case TracePacket::kStreamingProfilePacketFieldNumber:
       ParseStreamingProfilePacket(ts, data.sequence_state.get(),
                                   decoder.streaming_profile_packet());
-      return;
-    case TracePacket::kPerfSampleFieldNumber:
-      ParsePerfSample(ts, data.sequence_state.get(), decoder);
       return;
     case TracePacket::kProfilePacketFieldNumber:
       ParseProfilePacket(ts, data.sequence_state.get(),
@@ -191,127 +186,6 @@ void ProfileModule::ParseStreamingProfilePacket(
   }
 }
 
-void ProfileModule::ParsePerfSample(
-    int64_t ts,
-    PacketSequenceStateGeneration* sequence_state,
-    const TracePacket::Decoder& decoder) {
-  using PerfSample = protos::pbzero::PerfSample;
-  const auto& sample_raw = decoder.perf_sample();
-  PerfSample::Decoder sample(sample_raw.data, sample_raw.size);
-
-  uint32_t seq_id = decoder.trusted_packet_sequence_id();
-  PerfSampleTracker::SamplingStreamInfo sampling_stream =
-      context_->perf_sample_tracker->GetSamplingStreamInfo(
-          seq_id, sample.cpu(), sequence_state->GetTracePacketDefaults());
-
-  // Not a sample, but an indication of data loss in the ring buffer shared with
-  // the kernel.
-  if (sample.kernel_records_lost() > 0) {
-    DEJAVIEW_DCHECK(sample.pid() == 0);
-
-    context_->storage->IncrementIndexedStats(
-        stats::perf_cpu_lost_records, static_cast<int>(sample.cpu()),
-        static_cast<int64_t>(sample.kernel_records_lost()));
-    return;
-  }
-
-  // Sample that looked relevant for the tracing session, but had to be skipped.
-  // Either we failed to look up the procfs file descriptors necessary for
-  // remote stack unwinding (not unexpected in most cases), or the unwind queue
-  // was out of capacity (producer lost data on its own).
-  if (sample.has_sample_skipped_reason()) {
-    context_->storage->IncrementStats(stats::perf_samples_skipped);
-
-    if (sample.sample_skipped_reason() ==
-        PerfSample::PROFILER_SKIP_UNWIND_ENQUEUE)
-      context_->storage->IncrementStats(stats::perf_samples_skipped_dataloss);
-
-    return;
-  }
-
-  // Not a sample, but an event from the producer.
-  // TODO(rsavitski): this stat is indexed by the session id, but the older
-  // stats (see above) aren't. The indexing is relevant if a trace contains more
-  // than one profiling data source. So the older stats should be changed to
-  // being indexed as well.
-  if (sample.has_producer_event()) {
-    PerfSample::ProducerEvent::Decoder producer_event(sample.producer_event());
-    if (producer_event.source_stop_reason() ==
-        PerfSample::ProducerEvent::PROFILER_STOP_GUARDRAIL) {
-      context_->storage->SetIndexedStats(
-          stats::perf_guardrail_stop_ts,
-          static_cast<int>(sampling_stream.perf_session_id.value), ts);
-    }
-    return;
-  }
-
-  // Proper sample, populate the |perf_sample| table with everything except the
-  // recorded counter values, which go to |counter|.
-  context_->event_tracker->PushCounter(
-      ts, static_cast<double>(sample.timebase_count()),
-      sampling_stream.timebase_track_id);
-
-  if (sample.has_follower_counts()) {
-    auto track_it = sampling_stream.follower_track_ids.begin();
-    auto track_end = sampling_stream.follower_track_ids.end();
-    for (auto it = sample.follower_counts(); it && track_it != track_end;
-         ++it, ++track_it) {
-      context_->event_tracker->PushCounter(ts, static_cast<double>(*it),
-                                           *track_it);
-    }
-  }
-
-  const UniqueTid utid =
-      context_->process_tracker->UpdateThread(sample.tid(), sample.pid());
-  const UniquePid upid =
-      context_->process_tracker->GetOrCreateProcess(sample.pid());
-
-  StackProfileSequenceState& stack_profile_sequence_state =
-      *sequence_state->GetCustomState<StackProfileSequenceState>();
-  uint64_t callstack_iid = sample.callstack_iid();
-  std::optional<CallsiteId> cs_id =
-      stack_profile_sequence_state.FindOrInsertCallstack(upid, callstack_iid);
-
-  // A failed lookup of the interned callstack can mean either:
-  // (a) This is a counter-only profile without callstacks. Due to an
-  //     implementation quirk, these packets still set callstack_iid
-  //     corresponding to a callstack with no frames. To reliably identify this
-  //     case (without resorting to config parsing) we further need to rely on
-  //     the fact that the implementation (callstack_trie.h) always assigns this
-  //     callstack the id "1". Such callstacks should not occur outside of
-  //     counter-only profiles, as there should always be at least a synthetic
-  //     error frame if the unwinding completely failed.
-  // (b) This is a ring-buffer profile where some of the referenced internings
-  //     have been overwritten, and the build predates perf_sample_defaults and
-  //     SEQ_NEEDS_INCREMENTAL_STATE sequence flag in perf_sample packets.
-  //     Such packets should be discarded.
-  if (!cs_id && callstack_iid != 1) {
-    DEJAVIEW_DLOG("Discarding perf_sample since callstack_iid [%" PRIu64
-                  "] references a missing/partially lost interning according "
-                  "to stack_profile_tracker",
-                  callstack_iid);
-    return;
-  }
-
-  using protos::pbzero::Profiling;
-  TraceStorage* storage = context_->storage.get();
-
-  auto cpu_mode = static_cast<Profiling::CpuMode>(sample.cpu_mode());
-  StringPool::Id cpu_mode_id =
-      storage->InternString(ProfilePacketUtils::StringifyCpuMode(cpu_mode));
-
-  std::optional<StringPool::Id> unwind_error_id;
-  if (sample.has_unwind_error()) {
-    auto unwind_error =
-        static_cast<Profiling::StackUnwindError>(sample.unwind_error());
-    unwind_error_id = storage->InternString(
-        ProfilePacketUtils::StringifyStackUnwindError(unwind_error));
-  }
-  tables::PerfSampleTable::Row sample_row(ts, utid, sample.cpu(), cpu_mode_id,
-                                          cs_id, unwind_error_id,
-                                          sampling_stream.perf_session_id);
-  context_->storage->mutable_perf_sample_table()->Insert(sample_row);
-}
 
 void ProfileModule::ParseProfilePacket(
     int64_t ts,

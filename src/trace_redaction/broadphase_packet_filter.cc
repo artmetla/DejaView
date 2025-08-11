@@ -21,19 +21,12 @@
 #include "src/trace_redaction/proto_util.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
-
 namespace dejaview::trace_redaction {
 
 base::Status BroadphasePacketFilter::Transform(const Context& context,
                                                std::string* packet) const {
   if (context.packet_mask.none()) {
     return base::ErrStatus("FilterTracePacketFields: empty packet mask.");
-  }
-
-  if (context.ftrace_mask.none()) {
-    return base::ErrStatus("FilterTracePacketFields: empty ftrace mask.");
   }
 
   if (!packet || packet->empty()) {
@@ -51,54 +44,12 @@ base::Status BroadphasePacketFilter::Transform(const Context& context,
     // Make sure the id can be references. If it is out of bounds, it is by
     // definition "no set".
     if (field.id() < mask.size() && mask.test(field.id())) {
-      if (field.id() == protos::pbzero::TracePacket::kFtraceEventsFieldNumber) {
-        OnFtraceEvents(context, field.as_bytes(), message->set_ftrace_events());
-      } else {
-        proto_util::AppendField(field, message.get());
-      }
+      proto_util::AppendField(field, message.get());
     }
   }
 
   packet->assign(message.SerializeAsString());
   return base::OkStatus();
-}
-
-void BroadphasePacketFilter::OnFtraceEvents(
-    const Context& context,
-    protozero::ConstBytes bytes,
-    protos::pbzero::FtraceEventBundle* message) const {
-  DEJAVIEW_DCHECK(message);
-
-  protozero::ProtoDecoder decoder(bytes);
-
-  for (auto field = decoder.ReadField(); field.valid();
-       field = decoder.ReadField()) {
-    if (field.id() == protos::pbzero::FtraceEventBundle::kEventFieldNumber) {
-      OnFtraceEvent(context, field.as_bytes(), message->add_event());
-    } else {
-      proto_util::AppendField(field, message);
-    }
-  }
-}
-
-void BroadphasePacketFilter::OnFtraceEvent(
-    const Context& context,
-    protozero::ConstBytes bytes,
-    protos::pbzero::FtraceEvent* message) const {
-  DEJAVIEW_DCHECK(message);
-
-  protozero::ProtoDecoder decoder(bytes);
-
-  const auto& mask = context.ftrace_mask;
-
-  for (auto field = decoder.ReadField(); field.valid();
-       field = decoder.ReadField()) {
-    // Make sure the id can be references. If it is out of bounds, it is by
-    // definition "no set".
-    if (field.id() < mask.size() && mask.test(field.id())) {
-      proto_util::AppendField(field, message);
-    }
-  }
 }
 
 }  // namespace dejaview::trace_redaction

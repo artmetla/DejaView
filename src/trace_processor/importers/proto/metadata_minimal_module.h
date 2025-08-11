@@ -39,14 +39,6 @@ class MetadataMinimalModule : public ProtoImporterModule {
       int64_t packet_timestamp,
       RefPtr<PacketSequenceStateGeneration> state,
       uint32_t field_id) override;
-
- private:
-  void ParseChromeBenchmarkMetadata(ConstBytes);
-  void ParseChromeMetadataPacket(ConstBytes);
-
-  TraceProcessorContext* context_;
-
-  uint32_t chrome_metadata_count_ = 0;
 };
 
 }  // namespace trace_processor

@@ -19,7 +19,7 @@
 
 #include "dejaview/base/status.h"
 #include "dejaview/protozero/field.h"
-#include "src/trace_redaction/redact_sched_events.h"
+#include "src/trace_redaction/filtering.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
 #include "protos/dejaview/trace/ps/process_tree.pbzero.h"

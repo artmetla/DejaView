@@ -14,16 +14,9 @@
 
 import {Time, time} from '../../base/time';
 import {exists} from '../../base/utils';
-import {Actions} from '../../common/actions';
-import {globals} from '../../frontend/globals';
-import {openInOldUIWithSizeCheck} from '../../frontend/legacy_trace_viewer';
 import {Trace} from '../../public/trace';
 import {App} from '../../public/app';
 import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
-import {
-  isLegacyTrace,
-  openFileWithLegacyTraceViewer,
-} from '../../frontend/legacy_trace_viewer';
 import {AppImpl} from '../../core/app_impl';
 import {addQueryResultsTab} from '../../public/lib/query_table/query_result_tab';
 
@@ -93,27 +86,17 @@ group by
 order by total_self_size desc
 limit 100;`;
 
+const EXAMPLE_TRACE_URL =
+  'https://storage.googleapis.com/perfetto-ui-data/59328059e90df3b3d29021f5a8c49ba914867b9b';
+
 class CoreCommandsPlugin implements DejaViewPlugin {
   onActivate(ctx: App) {
     ctx.commands.registerCommand({
-      id: 'dejaview.CoreCommands#ToggleLeftSidebar',
-      name: 'Toggle left sidebar',
+      id: 'dejaview.CoreCommands#OpenExampleTrace',
+      name: 'Open example trace',
       callback: () => {
-        if (globals.state.sidebarVisible) {
-          globals.dispatch(
-            Actions.setSidebar({
-              visible: false,
-            }),
-          );
-        } else {
-          globals.dispatch(
-            Actions.setSidebar({
-              visible: true,
-            }),
-          );
-        }
+        AppImpl.instance.openTraceFromUrl(EXAMPLE_TRACE_URL);
       },
-      defaultHotkey: '!Mod+B',
     });
 
     const input = document.createElement('input');
@@ -123,36 +106,13 @@ class CoreCommandsPlugin implements DejaViewPlugin {
     input.addEventListener('change', onInputElementFileSelectionChanged);
     document.body.appendChild(input);
 
-    const OPEN_TRACE_COMMAND_ID = 'dejaview.CoreCommands#openTrace';
     ctx.commands.registerCommand({
-      id: OPEN_TRACE_COMMAND_ID,
+      id: 'dejaview.CoreCommands#openTrace',
       name: 'Open trace file',
       callback: () => {
-        delete input.dataset['useCatapultLegacyUi'];
         input.click();
       },
       defaultHotkey: '!Mod+O',
-    });
-    ctx.sidebar.addMenuItem({
-      commandId: OPEN_TRACE_COMMAND_ID,
-      group: 'navigation',
-      icon: 'folder_open',
-    });
-
-    const OPEN_LEGACY_TRACE_COMMAND_ID =
-      'dejaview.CoreCommands#openTraceInLegacyUi';
-    ctx.commands.registerCommand({
-      id: OPEN_LEGACY_TRACE_COMMAND_ID,
-      name: 'Open with legacy UI',
-      callback: () => {
-        input.dataset['useCatapultLegacyUi'] = '1';
-        input.click();
-      },
-    });
-    ctx.sidebar.addMenuItem({
-      commandId: OPEN_LEGACY_TRACE_COMMAND_ID,
-      group: 'navigation',
-      icon: 'filter_none',
     });
   }
 
@@ -331,23 +291,7 @@ function onInputElementFileSelectionChanged(e: Event) {
   // Reset the value so onchange will be fired with the same file.
   e.target.value = '';
 
-  if (e.target.dataset['useCatapultLegacyUi'] === '1') {
-    openWithLegacyUi(file);
-    return;
-  }
-
-  globals.logging.logEvent('Trace Actions', 'Open trace from file');
   AppImpl.instance.openTraceFromFile(file);
-}
-
-async function openWithLegacyUi(file: File) {
-  // Switch back to the old catapult UI.
-  globals.logging.logEvent('Trace Actions', 'Open trace in Legacy UI');
-  if (await isLegacyTrace(file)) {
-    openFileWithLegacyTraceViewer(file);
-    return;
-  }
-  openInOldUIWithSizeCheck(file);
 }
 
 export const plugin: PluginDescriptor = {

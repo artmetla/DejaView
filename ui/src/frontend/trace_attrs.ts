@@ -13,17 +13,8 @@
 // limitations under the License.
 
 import m from 'mithril';
-import {assertExists} from '../base/logging';
-import {TraceUrlSource} from '../public/trace_source';
-import {createPermalink} from './permalink';
-import {showModal} from '../widgets/modal';
 import {onClickCopy} from './clipboard';
-import {globals} from './globals';
 import {AppImpl} from '../core/app_impl';
-
-export function isShareable() {
-  return globals.isInternalUser && isDownloadable();
-}
 
 export function isDownloadable() {
   const traceSource = AppImpl.instance.trace?.traceInfo.source;
@@ -37,45 +28,6 @@ export function isDownloadable() {
     return false;
   }
   return true;
-}
-
-export function shareTrace() {
-  const traceSource = assertExists(AppImpl.instance.trace?.traceInfo.source);
-  const traceUrl = (traceSource as TraceUrlSource).url ?? '';
-
-  // If the trace is not shareable (has been pushed via postMessage()) but has
-  // a url, create a pseudo-permalink by echoing back the URL.
-  if (!isShareable()) {
-    const msg = [
-      m(
-        'p',
-        'This trace was opened by an external site and as such cannot ' +
-          'be re-shared preserving the UI state.',
-      ),
-    ];
-    if (traceUrl) {
-      msg.push(m('p', 'By using the URL below you can open this trace again.'));
-      msg.push(m('p', 'Clicking will copy the URL into the clipboard.'));
-      msg.push(createTraceLink(traceUrl, traceUrl));
-    }
-
-    showModal({
-      title: 'Cannot create permalink from external trace',
-      content: m('div', msg),
-    });
-    return;
-  }
-
-  if (!isShareable() || !isTraceLoaded()) return;
-
-  const result = confirm(
-    `Upload UI state and generate a permalink. ` +
-      `The trace will be accessible by anybody with the permalink.`,
-  );
-  if (result) {
-    globals.logging.logEvent('Trace Actions', 'Create permalink');
-    createPermalink({mode: 'APP_STATE'});
-  }
 }
 
 export function createTraceLink(title: string, url: string) {

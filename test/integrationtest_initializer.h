@@ -35,7 +35,6 @@ namespace dejaview::integration_tests {
 
 // Implemented in integrationtest_main.cc
 
-int RegisterHeapprofdEndToEndTestInitializer(void (*fn)(void));
 int RegisterApiIntegrationTestInitializer(void (*fn)(void));
 
 }  // namespace dejaview::integration_tests

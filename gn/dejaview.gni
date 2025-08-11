@@ -12,59 +12,35 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//build_overrides/build.gni")
 import("wasm_vars.gni")
 
 # Summary of our typical build configurations:
 
 # 1. Standalone builds
-#    build_with_chromium = false
 #    is_dejaview_build_generator = false
 #    dejaview_build_standalone = true
-#    dejaview_build_with_android = false
-#    dejaview_build_with_embedder = false
 
 # 2. Android tree builds
-#    build_with_chromium = false
 #    is_dejaview_build_generator = true
 #    dejaview_build_standalone = false
-#    dejaview_build_with_android = true
-#    dejaview_build_with_embedder = false
 
 # 3. Chromium tree builds
-#    build_with_chromium = true
 #    is_dejaview_build_generator = false
 #    dejaview_build_standalone = false
-#    dejaview_build_with_android = false
-#    dejaview_build_with_embedder = true
 
 # 4. Builds in other embedder trees (e.g. V8 standalone)
-#    build_with_chromium = false
 #    is_dejaview_build_generator = false
 #    dejaview_build_standalone = false
-#    dejaview_build_with_android = false
-#    dejaview_build_with_embedder = true
 
 # 5. Amalgamated sources (Client library)
-#    build_with_chromium = false
 #    is_dejaview_build_generator = true
 #    dejaview_build_standalone = false
-#    dejaview_build_with_android = false
-#    dejaview_build_with_embedder = true
 
 # +----------------------------------------------------------------------------+
 # | Toolchain / environment related configuration                              |
 # +----------------------------------------------------------------------------+
 # This section contains a bunch of variables that are related with the toolchain
 # and the build environment. Only tools/gen_xxx should customize them.
-
-# Note that |build_with_chromium| is a global convention used by several
-# projects, set outside of our control.
-
-# Chromium sets this to true in its //build_overrides/build.gni.
-if (!defined(build_with_chromium)) {
-  build_with_chromium = false
-}
 
 if (!defined(is_nacl)) {
   is_nacl = false
@@ -75,32 +51,12 @@ if (!defined(is_gcc)) {
 }
 
 declare_args() {
-  # The Android blueprint file generator set this to true (as well as
-  # is_dejaview_build_generator). This is just about being built in the
-  # Android tree (AOSP and internal) and is NOT related with the target OS.
-  # In standalone Android builds and Chromium Android builds, this is false.
-  dejaview_build_with_android = false
-
   # All the tools/gen_* scripts set this to true. This is mainly used to locate
   # .gni files from //gn rather than //build.
   is_dejaview_build_generator = false
-
-  # This is for override via `gn args` (e.g. for tools/gen_xxx). Embedders
-  # based on GN (e.g. v8) should NOT set this and instead directly sets
-  # dejaview_build_with_embedder=true in their GN files.
-  is_dejaview_embedder = false
 }
 
-# This can be overridden by embedders (e.g. v8) in their .gn(i) files. This must
-# be different from the GN args flag (is_dejaview_embedder) because of the way
-# GN works.
-if (!defined(dejaview_build_with_embedder)) {
-  dejaview_build_with_embedder = build_with_chromium || is_dejaview_embedder
-}
-
-dejaview_build_standalone =
-    !dejaview_build_with_android && !build_with_chromium &&
-    !dejaview_build_with_embedder
+dejaview_build_standalone = true
 
 # Only relevant for GN builds. Sets the path where dejaview lives. This is //
 # for standalone builds and //third_party/dejaview/ in embedders. The embedder
@@ -120,7 +76,7 @@ if (dejaview_build_standalone || is_dejaview_build_generator) {
 # will start the binaries in the system image before the tests are run.
 # In all other cases (i.e. when true), a temporary in-process instance will be
 # brought up by our own integrationtest harness.
-start_daemons_for_testing = !dejaview_build_with_android
+start_daemons_for_testing = true
 
 # +----------------------------------------------------------------------------+
 # | Tunable build variables for embedders                                      |
@@ -130,20 +86,8 @@ start_daemons_for_testing = !dejaview_build_with_android
 # and tools.
 
 dejaview_force_dlog_default = ""
-if (build_with_chromium) {
-  dejaview_force_dlog_default = "off"
-}
 
 declare_args() {
-  # Enables build of platform-wide tracing services (traced, traced_probes)
-  # and executables (dejaview_cmd, trigger_dejaview).
-  # When disabled, only the client library and other auxiliary tools can be
-  # built (for Chromium and other GN embedders).
-  # Note that traced_probes is further conditioned by the GN variable
-  # enable_dejaview_traced_probes, in the declare_args() section below.
-  enable_dejaview_platform_services =
-      dejaview_build_standalone || dejaview_build_with_android
-
   # Allow the embedder to use the IPC layer. In turn this allows to use the
   # system backend in the client library.
   # This includes building things that rely on POSIX sockets, this places
@@ -151,31 +95,13 @@ declare_args() {
   # For now the IPC layer is conservatively not enabled on Chromium+Windows
   # builds.
   enable_dejaview_ipc =
-      !is_nacl && (dejaview_build_standalone || dejaview_build_with_android ||
-                   (build_with_chromium && !is_win) || is_fuchsia)
-
-  # Makes the heap profiling daemon target reachable. It works only on Android,
-  # but is built on Linux as well for test/compiler coverage.
-  # On Android, it requires API level 26 due to libunwindstack.
-  enable_dejaview_heapprofd =
-      dejaview_build_with_android ||
-      (dejaview_build_standalone && is_clang &&
-       (is_linux || (is_android && android_api_level >= 26)))
-
-  # Build the perf event profiler (traced_perf).
-  # TODO(rsavitski): figure out how to make the android-core dependencies build
-  # under gcc (_Atomic and other issues).
-  enable_dejaview_traced_perf =
-      dejaview_build_with_android ||
-      (dejaview_build_standalone && is_clang &&
-       (is_linux || (is_android && android_api_level >= 29)))
+      !is_nacl && (dejaview_build_standalone || is_fuchsia)
 
   # The Trace Processor: offline analytical engine to process traces and compute
   # metrics using a SQL engine.
   if (!defined(enable_dejaview_trace_processor)) {
     enable_dejaview_trace_processor =
-        dejaview_build_standalone || build_with_chromium ||
-        is_dejaview_build_generator
+        dejaview_build_standalone || is_dejaview_build_generator
   }
 
   # Enables base::Watchdog. Is supported only on Linux-based platforms in
@@ -183,18 +109,16 @@ declare_args() {
   # gn/BUILD.gn further restricts this to OS_LINUX || OS_ANDROID when generating
   # the dejaview_build_flags.h header.
   enable_dejaview_watchdog =
-      dejaview_build_with_android ||
       (dejaview_build_standalone && !is_dejaview_build_generator)
 
   # Misc host executable under tools/.
   enable_dejaview_tools =
-      dejaview_build_standalone || dejaview_build_with_android
+      dejaview_build_standalone
 
-  enable_dejaview_unittests = dejaview_build_standalone ||
-                              build_with_chromium || dejaview_build_with_android
+  enable_dejaview_unittests = dejaview_build_standalone
 
   enable_dejaview_integration_tests =
-      dejaview_build_standalone || dejaview_build_with_android
+      dejaview_build_standalone
 
   enable_dejaview_benchmarks = dejaview_build_standalone && !is_win
 
@@ -205,8 +129,7 @@ declare_args() {
   # macro with the current git revision and latest release version from
   # CHANGELOG. If false base/version.h will return "unknown".
   enable_dejaview_version_gen =
-      dejaview_build_standalone || is_dejaview_build_generator ||
-      dejaview_build_with_android
+      dejaview_build_standalone || is_dejaview_build_generator
 
   # Only for local development. When true the binaries (dejaview, traced, ...)
   # are monolithic and don't use a common shared library. This is mainly to
@@ -215,7 +138,7 @@ declare_args() {
   # dllexport/import adds extra complexity for little benefit. Te only reason
   # for monolithic_binaries=false is saving binary size, which matters mainly on
   # Android. See also comments on DEJAVIEW_EXPORT_ENTRYPOINT in compiler.h.
-  monolithic_binaries = !dejaview_build_with_android && (is_win || is_mac)
+  monolithic_binaries = (is_win || is_mac)
 
   # Whether DLOG should be enabled on debug builds (""), all builds ("on"), or
   # none ("off"). We disable it by default for embedders to avoid spamming their
@@ -261,50 +184,21 @@ declare_args() {
       enable_dejaview_version_gen && dejaview_build_standalone &&
       !is_dejaview_build_generator
 
-  # The traced_probes daemon is very Linux-specific, as it depends on ftrace and
-  # various /proc interfaces. There is no point making its code platform-neutral
-  # as it won't do anything useful on Windows.
-  # The only reason why we still build it on Mac OS is to be able to run the
-  # unittests there and making dev on mac less cumbersome. The traced_probes
-  # code happens to build cleanly and for now the mainteinance cost on Mac is
-  # extremely low.
-  enable_dejaview_traced_probes = enable_dejaview_platform_services && !is_win
-
-  # The relay service is enabled when platform services are enabled.
-  # TODO(chinglinyu) check if we can enable on Windows.
-  enable_dejaview_traced_relay = enable_dejaview_platform_services && !is_win
-
   # Whether info-level logging is enabled.
-  dejaview_verbose_logs_enabled =
-      !build_with_chromium || dejaview_force_dlog == "on"
+  dejaview_verbose_logs_enabled = true
 
   # Enables the SQL query layer of trace processor.
-  enable_dejaview_trace_processor_sqlite =
-      enable_dejaview_trace_processor &&
-      (build_with_chromium || !dejaview_build_with_embedder)
+  enable_dejaview_trace_processor_sqlite = enable_dejaview_trace_processor
 
   # Enables the optional SQLite percentile module.
   enable_dejaview_trace_processor_percentile =
       enable_dejaview_trace_processor &&
-      (dejaview_build_standalone || dejaview_build_with_android)
+      (dejaview_build_standalone)
 
   # Enables the REPL interactive prompt in the trace processor.
   enable_dejaview_trace_processor_linenoise =
       dejaview_build_standalone && enable_dejaview_trace_processor &&
-      (is_linux || is_android || is_mac)
-
-  # Enables JSON support in the trace processor. Required for JSON trace import
-  # and export.
-  enable_dejaview_trace_processor_json =
-      enable_dejaview_trace_processor && !dejaview_build_with_android
-
-  # Enables the support for importing profiles from the MacOS Instruments app.
-  # Requires a dependency on libexpat for XML parsing.
-  # Disabled in chromium due to some fuzzer related build failure (b/363347029).
-  enable_dejaview_trace_processor_mac_instruments =
-      enable_dejaview_trace_processor &&
-      (dejaview_build_standalone || dejaview_build_with_android ||
-       is_dejaview_build_generator)
+      (is_linux || is_mac)
 
   # Enables httpd RPC support in the trace processor.
   # Further per-OS conditionals are applied in gn/BUILD.gn.
@@ -312,14 +206,12 @@ declare_args() {
   # enabled on Chromium+Win for now (see a comment there).
   enable_dejaview_trace_processor_httpd =
       enable_dejaview_trace_processor &&
-      (dejaview_build_standalone || dejaview_build_with_android ||
-       (build_with_chromium && !is_win))
+      (dejaview_build_standalone)
 
   # Enables Zlib support. This is used to compress traces (by the tracing
   # service and by the "dejaview" cmdline client) and to decompress traces (by
   # trace_processor).
-  enable_dejaview_zlib =
-      enable_dejaview_trace_processor || enable_dejaview_platform_services
+  enable_dejaview_zlib = enable_dejaview_trace_processor
 
   # Enables function name demangling using sources from llvm. Otherwise
   # trace_processor falls back onto using the c++ runtime demangler, which
@@ -328,19 +220,9 @@ declare_args() {
   # with clang.
   enable_dejaview_llvm_demangle =
       is_clang && enable_dejaview_trace_processor && dejaview_build_standalone
-
-  # Enables gRPC in the DejaView codebase. gRPC significantly increases build
-  # times and the general footprint of DejaView. As it only required for
-  # BigTrace and even then only to build the final ready-to-ship binary, don't
-  # enable this by default.
-  enable_dejaview_grpc = false
 }
 
 declare_args() {
-  # Enables the traceconv tool.
-  enable_dejaview_traceconv =
-      enable_dejaview_tools && enable_dejaview_trace_processor_sqlite
-
   # Allows to build the UI (TypeScript/ HTML / WASM)
   enable_dejaview_ui =
       dejaview_build_standalone && enable_dejaview_trace_processor_sqlite &&
@@ -389,39 +271,8 @@ if (is_win) {
 # | Cross-checks                                                              |
 # +---------------------------------------------------------------------------+
 
-# Exactly one between build_with_android, build_standalone and
-# build_with_embedder must be true.
-assert(dejaview_build_standalone || dejaview_build_with_android ||
-       dejaview_build_with_embedder)
-assert(!(dejaview_build_with_android && dejaview_build_standalone))
-assert(!(dejaview_build_with_embedder && dejaview_build_standalone))
-assert(!(dejaview_build_with_android && dejaview_build_with_embedder))
-
-# If |build_with_chromium| is true then also |dejaview_build_with_embedder|
-# must be true
-assert(!build_with_chromium || dejaview_build_with_embedder)
-
-# If |dejaview_build_with_android| is true then also
-# |is_dejaview_build_generator| must be true.
-assert(!dejaview_build_with_android || is_dejaview_build_generator)
-
-# We should never end up in a state where is_dejaview_embedder=true but
-# dejaview_build_with_embedder=false.
-assert(!is_dejaview_embedder || dejaview_build_with_embedder)
-
-# The monolithic binaries is not supported when building in the Android tree.
-assert(!monolithic_binaries || !dejaview_build_with_android)
-
-# Watchdog must be on in Android builds.
-assert(enable_dejaview_watchdog || !dejaview_build_with_android)
-
 assert(dejaview_force_dlog == "" || dejaview_force_dlog == "on" ||
        dejaview_force_dlog == "off")
-
-# If enable_dejaview_traced_probes is set, enable_dejaview_platform_services
-# must be set as well. Doesn't make sense to build traced_probes without the
-# rest. traced_probes integration tests depend on traced.
-assert(!enable_dejaview_traced_probes || enable_dejaview_platform_services)
 
 # |dejaview_use_pkgconfig| changes the behavior of
 # |dejaview_use_system_protobuf|, so if dejaview_use_pkgconfig is set,

@@ -16,17 +16,9 @@ import m from 'mithril';
 import {copyToClipboard} from '../../base/clipboard';
 import {Icons} from '../../base/semantic_icons';
 import {time, Time} from '../../base/time';
-import {
-  setTimestampFormat,
-  TimestampFormat,
-  timestampFormat,
-} from '../../core/timestamp_format';
-import {raf} from '../../core/raf_scheduler';
 import {Anchor} from '../../widgets/anchor';
-import {MenuDivider, MenuItem, PopupMenu2} from '../../widgets/menu';
+import {MenuItem, PopupMenu2} from '../../widgets/menu';
 import {globals} from '../globals';
-
-// import {MenuItem, PopupMenu2} from './menu';
 
 interface TimestampAttrs {
   // The timestamp to print, this should be the absolute, raw timestamp as
@@ -59,69 +51,18 @@ export class Timestamp implements m.ClassComponent<TimestampAttrs> {
       },
       m(MenuItem, {
         icon: Icons.Copy,
-        label: `Copy raw value`,
+        label: `Copy`,
         onclick: () => {
           copyToClipboard(ts.toString());
         },
       }),
-      m(
-        MenuItem,
-        {
-          label: 'Time format',
-        },
-        menuItemForFormat(TimestampFormat.Timecode, 'Timecode'),
-        menuItemForFormat(TimestampFormat.UTC, 'Realtime (UTC)'),
-        menuItemForFormat(TimestampFormat.TraceTz, 'Realtime (Trace TZ)'),
-        menuItemForFormat(TimestampFormat.Seconds, 'Seconds'),
-        menuItemForFormat(TimestampFormat.Milliseoncds, 'Milliseconds'),
-        menuItemForFormat(TimestampFormat.Microseconds, 'Microseconds'),
-        menuItemForFormat(TimestampFormat.TraceNs, 'Raw'),
-        menuItemForFormat(
-          TimestampFormat.TraceNsLocale,
-          'Raw (with locale-specific formatting)',
-        ),
-      ),
-      attrs.extraMenuItems ? [m(MenuDivider), attrs.extraMenuItems] : null,
     );
   }
 }
 
-export function menuItemForFormat(
-  value: TimestampFormat,
-  label: string,
-): m.Children {
-  return m(MenuItem, {
-    label,
-    active: value === timestampFormat(),
-    onclick: () => {
-      setTimestampFormat(value);
-      raf.scheduleFullRedraw();
-    },
-  });
-}
-
 function renderTimestamp(time: time): m.Children {
-  const fmt = timestampFormat();
   const domainTime = globals.trace.timeline.toDomainTime(time);
-  switch (fmt) {
-    case TimestampFormat.UTC:
-    case TimestampFormat.TraceTz:
-    case TimestampFormat.Timecode:
-      return renderTimecode(domainTime);
-    case TimestampFormat.TraceNs:
-      return domainTime.toString();
-    case TimestampFormat.TraceNsLocale:
-      return domainTime.toLocaleString();
-    case TimestampFormat.Seconds:
-      return Time.formatSeconds(domainTime);
-    case TimestampFormat.Milliseoncds:
-      return Time.formatMilliseconds(domainTime);
-    case TimestampFormat.Microseconds:
-      return Time.formatMicroseconds(domainTime);
-    default:
-      const x: never = fmt;
-      throw new Error(`Invalid timestamp ${x}`);
-  }
+  return domainTime.toString();
 }
 
 export function renderTimecode(time: time): m.Children {

@@ -73,24 +73,6 @@ class ProfilingHeapGraph(TestSuite):
         """,
         out=Path('heap_graph_reference.out'))
 
-  def test_heap_graph_object_2(self):
-    return DiffTestBlueprint(
-        trace=Path('heap_graph_deobfuscate_pkg.textproto'),
-        query="""
-        SELECT o.id,
-               o.type,
-               o.upid,
-               o.graph_sample_ts,
-               o.self_size,
-               o.reference_set_id,
-               o.reachable,
-               c.name AS type_name,
-               c.deobfuscated_name AS deobfuscated_type_name,
-               o.root_type
-        FROM heap_graph_object o JOIN heap_graph_class c ON o.type_id = c.id;
-        """,
-        out=Path('heap_graph_object.out'))
-
   def test_heap_graph_duplicate_flamegraph(self):
     return DiffTestBlueprint(
         trace=TextProto(r"""

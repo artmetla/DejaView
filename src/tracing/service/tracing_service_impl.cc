@@ -37,12 +37,6 @@
 #include <unistd.h>
 #endif
 
-#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && \
-    DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
-#include "src/android_internal/lazy_library_loader.h"    // nogncheck
-#include "src/android_internal/tracing_service_proxy.h"  // nogncheck
-#endif
-
 #if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
     DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
     DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
@@ -55,7 +49,6 @@
 #include "dejaview/base/build_config.h"
 #include "dejaview/base/status.h"
 #include "dejaview/base/task_runner.h"
-#include "dejaview/ext/base/android_utils.h"
 #include "dejaview/ext/base/file_utils.h"
 #include "dejaview/ext/base/metatrace.h"
 #include "dejaview/ext/base/string_utils.h"
@@ -78,7 +71,6 @@
 #include "dejaview/tracing/core/data_source_descriptor.h"
 #include "dejaview/tracing/core/tracing_service_capabilities.h"
 #include "dejaview/tracing/core/tracing_service_state.h"
-#include "src/android_stats/statsd_logging_helper.h"
 #include "src/protozero/filtering/message_filter.h"
 #include "src/protozero/filtering/string_filter.h"
 #include "src/tracing/core/shared_memory_arbiter_impl.h"
@@ -271,19 +263,6 @@ base::ScopedFile CreateTraceFile(const std::string& path, bool overwrite) {
     DEJAVIEW_PLOG("Failed to create %s", path.c_str());
   }
   return fd;
-}
-
-bool ShouldLogEvent(const TraceConfig& cfg) {
-  switch (cfg.statsd_logging()) {
-    case TraceConfig::STATSD_LOGGING_ENABLED:
-      return true;
-    case TraceConfig::STATSD_LOGGING_DISABLED:
-      return false;
-    case TraceConfig::STATSD_LOGGING_UNSPECIFIED:
-      break;
-  }
-  // For backward compatibility with older versions of dejaview_cmd.
-  return cfg.enable_extra_guardrails();
 }
 
 // Appends `data` (which has `size` bytes), to `*packet`. Splits the data in
@@ -597,7 +576,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   DEJAVIEW_DLOG("Enabling tracing for consumer %p, UUID: %s",
                 reinterpret_cast<void*>(consumer),
                 uuid.ToPrettyString().c_str());
-  MaybeLogUploadEvent(cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracing);
   if (cfg.lockdown_mode() == TraceConfig::LOCKDOWN_SET)
     lockdown_mode_ = true;
   if (cfg.lockdown_mode() == TraceConfig::LOCKDOWN_CLEAR)
@@ -609,9 +587,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     TracingSession* tracing_session =
         GetTracingSession(consumer->tracing_session_id_);
     if (tracing_session) {
-      MaybeLogUploadEvent(
-          cfg, uuid,
-          DejaViewStatsdAtom::kTracedEnableTracingExistingTraceSession);
       return DEJAVIEW_SVC_ERR(
           "A Consumer is trying to EnableTracing() but another tracing "
           "session is already active (forgot a call to FreeBuffers() ?)");
@@ -622,8 +597,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
                                        ? kGuardrailsMaxTracingDurationMillis
                                        : kMaxTracingDurationMillis;
   if (cfg.duration_ms() > max_duration_ms) {
-    MaybeLogUploadEvent(cfg, uuid,
-                        DejaViewStatsdAtom::kTracedEnableTracingTooLongTrace);
     return DEJAVIEW_SVC_ERR("Requested too long trace (%" PRIu32
                             "ms  > %" PRIu32 " ms)",
                             cfg.duration_ms(), max_duration_ms);
@@ -634,9 +607,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   if (has_trigger_config &&
       (cfg.trigger_config().trigger_timeout_ms() == 0 ||
        cfg.trigger_config().trigger_timeout_ms() > max_duration_ms)) {
-    MaybeLogUploadEvent(
-        cfg, uuid,
-        DejaViewStatsdAtom::kTracedEnableTracingInvalidTriggerTimeout);
     return DEJAVIEW_SVC_ERR(
         "Traces with START_TRACING triggers must provide a positive "
         "trigger_timeout_ms < 7 days (received %" PRIu32 "ms)",
@@ -646,8 +616,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   // This check has been introduced in May 2023 after finding b/274931668.
   if (static_cast<int>(cfg.trigger_config().trigger_mode()) >
       TraceConfig::TriggerConfig::TriggerMode_MAX) {
-    MaybeLogUploadEvent(
-        cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingInvalidTriggerMode);
     return DEJAVIEW_SVC_ERR(
         "The trace config specified an invalid trigger_mode");
   }
@@ -655,16 +623,12 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   if (cfg.trigger_config().use_clone_snapshot_if_available() &&
       cfg.trigger_config().trigger_mode() !=
           TraceConfig::TriggerConfig::STOP_TRACING) {
-    MaybeLogUploadEvent(
-        cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingInvalidTriggerMode);
     return DEJAVIEW_SVC_ERR(
         "trigger_mode must be STOP_TRACING when "
         "use_clone_snapshot_if_available=true");
   }
 
   if (has_trigger_config && cfg.duration_ms() != 0) {
-    MaybeLogUploadEvent(
-        cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingDurationWithTrigger);
     return DEJAVIEW_SVC_ERR(
         "duration_ms was set, this must not be set for traces with triggers.");
   }
@@ -672,8 +636,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   for (char c : cfg.bugreport_filename()) {
     if (!((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') ||
           (c >= '0' && c <= '9') || c == '-' || c == '_' || c == '.')) {
-      MaybeLogUploadEvent(
-          cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingInvalidBrFilename);
       return DEJAVIEW_SVC_ERR(
           "bugreport_filename contains invalid chars. Use [a-zA-Z0-9-_.]+");
     }
@@ -688,9 +650,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     // STOP_TRACING, we can end up queueing up a lot of TracingServiceEvents and
     // emitting them wildy out of order breaking windowed sorting in trace
     // processor).
-    MaybeLogUploadEvent(
-        cfg, uuid,
-        DejaViewStatsdAtom::kTracedEnableTracingStopTracingWriteIntoFile);
     return DEJAVIEW_SVC_ERR(
         "Specifying trigger mode STOP_TRACING/CLONE_SNAPSHOT and "
         "write_into_file together is unsupported");
@@ -699,9 +658,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   std::unordered_set<std::string> triggers;
   for (const auto& trigger : cfg.trigger_config().triggers()) {
     if (!triggers.insert(trigger.name()).second) {
-      MaybeLogUploadEvent(
-          cfg, uuid,
-          DejaViewStatsdAtom::kTracedEnableTracingDuplicateTriggerName);
       return DEJAVIEW_SVC_ERR("Duplicate trigger name: %s",
                               trigger.name().c_str());
     }
@@ -709,18 +665,12 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
 
   if (cfg.enable_extra_guardrails()) {
     if (cfg.deferred_start()) {
-      MaybeLogUploadEvent(
-          cfg, uuid,
-          DejaViewStatsdAtom::kTracedEnableTracingInvalidDeferredStart);
       return DEJAVIEW_SVC_ERR(
           "deferred_start=true is not supported in unsupervised traces");
     }
     uint64_t buf_size_sum = 0;
     for (const auto& buf : cfg.buffers()) {
       if (buf.size_kb() % 4 != 0) {
-        MaybeLogUploadEvent(
-            cfg, uuid,
-            DejaViewStatsdAtom::kTracedEnableTracingInvalidBufferSize);
         return DEJAVIEW_SVC_ERR(
             "buffers.size_kb must be a multiple of 4, got %" PRIu32,
             buf.size_kb());
@@ -732,9 +682,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
         std::max(kGuardrailsMaxTracingBufferSizeKb,
                  cfg.guardrail_overrides().max_tracing_buffer_size_kb());
     if (buf_size_sum > max_tracing_buffer_size_kb) {
-      MaybeLogUploadEvent(
-          cfg, uuid,
-          DejaViewStatsdAtom::kTracedEnableTracingBufferSizeTooLarge);
       return DEJAVIEW_SVC_ERR("Requested too large trace buffer (%" PRIu64
                               "kB  > %" PRIu32 " kB)",
                               buf_size_sum, max_tracing_buffer_size_kb);
@@ -742,8 +689,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   }
 
   if (cfg.buffers_size() > kMaxBuffersPerConsumer) {
-    MaybeLogUploadEvent(cfg, uuid,
-                        DejaViewStatsdAtom::kTracedEnableTracingTooManyBuffers);
     return DEJAVIEW_SVC_ERR("Too many buffers configured (%d)",
                             cfg.buffers_size());
   }
@@ -754,8 +699,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     size_t num_buffers = static_cast<size_t>(cfg.buffers_size());
     size_t target_buffer = cfg_data_source.config().target_buffer();
     if (target_buffer >= num_buffers) {
-      MaybeLogUploadEvent(
-          cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingOobTargetBuffer);
       return DEJAVIEW_SVC_ERR(
           "Data source \"%s\" specified an out of bounds target_buffer (%zu >= "
           "%zu)",
@@ -769,9 +712,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
       if (kv.second.state == TracingSession::CLONED_READ_ONLY)
         continue;  // Don't consider cloned sessions in uniqueness checks.
       if (kv.second.config.unique_session_name() == name) {
-        MaybeLogUploadEvent(
-            cfg, uuid,
-            DejaViewStatsdAtom::kTracedEnableTracingDuplicateSessionName);
         static const char fmt[] =
             "A trace with this unique session name (%s) already exists";
         // This happens frequently, don't make it an "E"LOG.
@@ -818,10 +758,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
           std::min(semaphore.max_other_session_count(),
                    it->second.smallest_max_other_session_count);
       if (it->second.session_count > max_other_session_count) {
-        MaybeLogUploadEvent(
-            cfg, uuid,
-            DejaViewStatsdAtom::
-                kTracedEnableTracingFailedSessionSemaphoreCheck);
         return DEJAVIEW_SVC_ERR(
             "Semaphore \"%s\" exceeds maximum allowed other session count "
             "(%" PRIu64 " > min(%" PRIu64 ", %" PRIu64 "))",
@@ -852,9 +788,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     if (previous_s == 0) {
       previous_s = now_s;
     } else {
-      MaybeLogUploadEvent(
-          cfg, uuid,
-          DejaViewStatsdAtom::kTracedEnableTracingSessionNameTooRecent);
       return DEJAVIEW_SVC_ERR(
           "A trace with unique session name \"%s\" began less than %" PRId64
           "s ago (%" PRId64 "s)",
@@ -873,9 +806,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     per_uid_limit = kMaxConcurrentTracingSessionsForStatsdUid;
   }
   if (sessions_for_uid >= per_uid_limit) {
-    MaybeLogUploadEvent(
-        cfg, uuid,
-        DejaViewStatsdAtom::kTracedEnableTracingTooManySessionsForUid);
     return DEJAVIEW_SVC_ERR(
         "Too many concurrent tracing sesions (%d) for uid %d limit is %d",
         sessions_for_uid, static_cast<int>(consumer->uid_), per_uid_limit);
@@ -886,9 +816,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
   // instances than free pages in the buffer. This is really a bug in
   // trace_probes and the way it handles stalls in the shmem buffer.
   if (tracing_sessions_.size() >= kMaxConcurrentTracingSessions) {
-    MaybeLogUploadEvent(
-        cfg, uuid,
-        DejaViewStatsdAtom::kTracedEnableTracingTooManyConcurrentSessions);
     return DEJAVIEW_SVC_ERR("Too many concurrent tracing sesions (%zu)",
                             tracing_sessions_.size());
   }
@@ -905,8 +832,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     for (const auto& rule : filt.string_filter_chain().rules()) {
       auto opt_policy = ConvertPolicy(rule.policy());
       if (!opt_policy.has_value()) {
-        MaybeLogUploadEvent(
-            cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingInvalidFilter);
         return DEJAVIEW_SVC_ERR(
             "Trace filter has invalid string filtering rules, aborting");
       }
@@ -919,8 +844,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     const std::string& bytecode =
         bytecode_v2.empty() ? bytecode_v1 : bytecode_v2;
     if (!trace_filter->LoadFilterBytecode(bytecode.data(), bytecode.size())) {
-      MaybeLogUploadEvent(
-          cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingInvalidFilter);
       return DEJAVIEW_SVC_ERR("Trace filter bytecode invalid, aborting");
     }
 
@@ -933,8 +856,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     // the preamble is not there at ReadBuffer time. Hence we change the root of
     // the filtering to start at the Trace.packet level.
     if (!trace_filter->SetFilterRoot({TracePacket::kPacketFieldNumber})) {
-      MaybeLogUploadEvent(
-          cfg, uuid, DejaViewStatsdAtom::kTracedEnableTracingInvalidFilter);
       return DEJAVIEW_SVC_ERR("Failed to set filter root.");
     }
   }
@@ -953,9 +874,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
 
   if (cfg.write_into_file()) {
     if (!fd ^ !cfg.output_path().empty()) {
-      MaybeLogUploadEvent(
-          tracing_session->config, uuid,
-          DejaViewStatsdAtom::kTracedEnableTracingInvalidFdOutputFile);
       tracing_sessions_.erase(tsid);
       return DEJAVIEW_SVC_ERR(
           "When write_into_file==true either a FD needs to be passed or "
@@ -964,9 +882,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
     if (!cfg.output_path().empty()) {
       fd = CreateTraceFile(cfg.output_path(), /*overwrite=*/false);
       if (!fd) {
-        MaybeLogUploadEvent(
-            tracing_session->config, uuid,
-            DejaViewStatsdAtom::kTracedEnableTracingFailedToCreateFile);
         tracing_sessions_.erase(tsid);
         return DEJAVIEW_SVC_ERR("Failed to create the trace file %s",
                                 cfg.output_path().c_str());
@@ -1048,8 +963,6 @@ base::Status TracingServiceImpl::EnableTracing(ConsumerEndpointImpl* consumer,
       buffer_ids_.Free(global_id);
       buffers_.erase(global_id);
     }
-    MaybeLogUploadEvent(tracing_session->config, uuid,
-                        DejaViewStatsdAtom::kTracedEnableTracingOom);
     tracing_sessions_.erase(tsid);
     if (invalid_buffer_config) {
       return DEJAVIEW_SVC_ERR(
@@ -1264,13 +1177,7 @@ void TracingServiceImpl::StartTracing(TracingSessionID tsid) {
     return;
   }
 
-  MaybeLogUploadEvent(tracing_session->config, tracing_session->trace_uuid,
-                      DejaViewStatsdAtom::kTracedStartTracing);
-
   if (tracing_session->state != TracingSession::CONFIGURED) {
-    MaybeLogUploadEvent(
-        tracing_session->config, tracing_session->trace_uuid,
-        DejaViewStatsdAtom::kTracedStartTracingInvalidSessionState);
     DEJAVIEW_ELOG("StartTracing() failed, invalid session state: %d",
                   tracing_session->state);
     return;
@@ -1437,9 +1344,6 @@ void TracingServiceImpl::DisableTracing(TracingSessionID tsid,
     DEJAVIEW_DLOG("DisableTracing() failed, invalid session ID %" PRIu64, tsid);
     return;
   }
-
-  MaybeLogUploadEvent(tracing_session->config, tracing_session->trace_uuid,
-                      DejaViewStatsdAtom::kTracedDisableTracing);
 
   switch (tracing_session->state) {
     // Spurious call to DisableTracing() while already disabled, nothing to do.
@@ -1720,18 +1624,12 @@ void TracingServiceImpl::ActivateTriggers(
               : trigger_probability_dist_(trigger_probability_rand_);
       DEJAVIEW_DCHECK(trigger_rnd >= 0 && trigger_rnd < 1);
       if (trigger_rnd < iter->skip_probability()) {
-        MaybeLogTriggerEvent(tracing_session.config,
-                             DejaViewTriggerAtom::kTracedLimitProbability,
-                             trigger_name);
         continue;
       }
 
       // If we already triggered more times than the limit, silently ignore
       // this trigger.
       if (iter->max_per_24_h() > 0 && count_in_window >= iter->max_per_24_h()) {
-        MaybeLogTriggerEvent(tracing_session.config,
-                             DejaViewTriggerAtom::kTracedLimitMaxPer24h,
-                             trigger_name);
         continue;
       }
       trigger_matched = true;
@@ -1757,9 +1655,6 @@ void TracingServiceImpl::ActivateTriggers(
             break;
 
           trigger_activated = true;
-          MaybeLogUploadEvent(
-              tracing_session.config, tracing_session.trace_uuid,
-              DejaViewStatsdAtom::kTracedTriggerStartTracing, iter->name());
 
           // We override the trace duration to be the trigger's requested
           // value, this ensures that the trace will end after this amount
@@ -1776,9 +1671,6 @@ void TracingServiceImpl::ActivateTriggers(
             break;
 
           trigger_activated = true;
-          MaybeLogUploadEvent(
-              tracing_session.config, tracing_session.trace_uuid,
-              DejaViewStatsdAtom::kTracedTriggerStopTracing, iter->name());
 
           // Now that we've seen a trigger we need to stop, flush, and disable
           // this session after the configured |stop_delay_ms|.
@@ -1797,9 +1689,6 @@ void TracingServiceImpl::ActivateTriggers(
 
         case TraceConfig::TriggerConfig::CLONE_SNAPSHOT:
           trigger_activated = true;
-          MaybeLogUploadEvent(
-              tracing_session.config, tracing_session.trace_uuid,
-              DejaViewStatsdAtom::kTracedTriggerCloneSnapshot, iter->name());
           task_runner_->PostDelayedTask(
               [weak_this, tsid, trigger_name = iter->name()] {
                 if (!weak_this)
@@ -1882,9 +1771,6 @@ void TracingServiceImpl::DisableTracingNotifyConsumerAndFlushFile(
     tracing_session->write_period_ms = 0;
     ReadBuffersIntoFile(tracing_session->id);
   }
-
-  MaybeLogUploadEvent(tracing_session->config, tracing_session->trace_uuid,
-                      DejaViewStatsdAtom::kTracedNotifyTracingDisabled);
 
   if (tracing_session->consumer_maybe_null)
     tracing_session->consumer_maybe_null->NotifyOnTracingDisabled("");
@@ -2824,17 +2710,8 @@ void TracingServiceImpl::FreeBuffers(TracingSessionID tsid) {
 
   DEJAVIEW_LOG("Tracing session %" PRIu64 " ended, total sessions:%zu", tsid,
                tracing_sessions_.size());
-#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD) && \
-    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
-  if (notify_traceur && is_long_trace) {
-    DEJAVIEW_LAZY_LOAD(android_internal::NotifyTraceSessionEnded, notify_fn);
-    if (!notify_fn || !notify_fn(/*session_stolen=*/false))
-      DEJAVIEW_ELOG("Failed to notify Traceur long tracing has ended");
-  }
-#else
   base::ignore_result(notify_traceur);
   base::ignore_result(is_long_trace);
-#endif
 }
 
 void TracingServiceImpl::RegisterDataSource(ProducerID producer_id,
@@ -3884,26 +3761,6 @@ void TracingServiceImpl::MaybeEmitReceivedTriggers(
     SerializeAndAppendPacket(packets, packet.SerializeAsArray());
     ++tracing_session->num_triggers_emitted_into_trace;
   }
-}
-
-void TracingServiceImpl::MaybeLogUploadEvent(const TraceConfig& cfg,
-                                             const base::Uuid& uuid,
-                                             DejaViewStatsdAtom atom,
-                                             const std::string& trigger_name) {
-  if (!ShouldLogEvent(cfg))
-    return;
-
-  DEJAVIEW_DCHECK(uuid);  // The UUID must be set at this point.
-  android_stats::MaybeLogUploadEvent(atom, uuid.lsb(), uuid.msb(),
-                                     trigger_name);
-}
-
-void TracingServiceImpl::MaybeLogTriggerEvent(const TraceConfig& cfg,
-                                              DejaViewTriggerAtom atom,
-                                              const std::string& trigger_name) {
-  if (!ShouldLogEvent(cfg))
-    return;
-  android_stats::MaybeLogTriggerEvent(atom, trigger_name);
 }
 
 size_t TracingServiceImpl::PurgeExpiredAndCountTriggerInWindow(

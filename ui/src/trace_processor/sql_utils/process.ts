@@ -25,8 +25,6 @@ export interface ProcessInfo {
   pid?: number;
   name?: string;
   uid?: number;
-  packageName?: string;
-  versionCode?: number;
 }
 
 export async function getProcessInfo(
@@ -34,16 +32,12 @@ export async function getProcessInfo(
   upid: Upid,
 ): Promise<ProcessInfo> {
   const res = await engine.query(`
-    include dejaview module android.process_metadata;
     select
       p.upid,
       p.pid,
       p.name,
-      p.uid,
-      m.package_name as packageName,
-      m.version_code as versionCode
+      p.uid
     from process p
-    left join android_process_metadata m using (upid)
     where upid = ${upid};
   `);
   const row = res.firstRow({
@@ -51,16 +45,12 @@ export async function getProcessInfo(
     pid: NUM,
     name: STR_NULL,
     uid: NUM_NULL,
-    packageName: STR_NULL,
-    versionCode: NUM_NULL,
   });
   return {
     upid,
     pid: row.pid,
     name: row.name ?? undefined,
     uid: fromNumNull(row.uid),
-    packageName: row.packageName ?? undefined,
-    versionCode: fromNumNull(row.versionCode),
   };
 }
 

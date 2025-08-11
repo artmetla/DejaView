@@ -278,23 +278,6 @@ RAW_TABLE = Table(
                 ''',
         }))
 
-FTRACE_EVENT_TABLE = Table(
-    python_module=__file__,
-    class_name='FtraceEventTable',
-    sql_name='__intrinsic_ftrace_event',
-    parent=RAW_TABLE,
-    columns=[],
-    wrapping_sql_view=WrappingSqlView('ftrace_event'),
-    tabledoc=TableDoc(
-        doc='''
-          Contains all the ftrace events in the trace. This table exists only
-          for debugging purposes and should not be relied on in production
-          usecases (i.e. metrics, standard library etc). Note also that this
-          table might be empty if raw ftrace parsing has been disabled.
-        ''',
-        group='Events',
-        columns={}))
-
 ARG_TABLE = Table(
     python_module=__file__,
     class_name='ArgTable',
@@ -491,7 +474,6 @@ ALL_TABLES = [
     CPU_TABLE,
     EXP_MISSING_CHROME_PROC_TABLE,
     FILEDESCRIPTOR_TABLE,
-    FTRACE_EVENT_TABLE,
     MACHINE_TABLE,
     METADATA_TABLE,
     PROCESS_TABLE,

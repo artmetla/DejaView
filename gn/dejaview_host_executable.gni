@@ -32,8 +32,7 @@ template("dejaview_host_executable") {
     not_needed(invoker, "*", [ "testonly" ])
     _host_target = ":$target_name($host_toolchain)"
     _testonly = defined(invoker.testonly) && invoker.testonly
-    if ((dejaview_build_with_embedder && !build_with_chromium) ||
-        is_dejaview_build_generator) {
+    if (is_dejaview_build_generator) {
       # Don't copy anything in V8 and other GN embedder builds, just add a
       # dependency to the host target. This causes problems on some bots.
       # (See crbug.com/1002599).

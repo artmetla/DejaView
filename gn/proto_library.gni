@@ -75,9 +75,6 @@ template("protozero_library") {
     generator_plugin_label =
         dejaview_root_path + "src/protozero/protoc_plugin:protozero_plugin"
     generator_plugin_suffix = ".pbzero"
-    if (build_with_chromium) {
-      component_build_force_source_set = true
-    }
 
     if (defined(invoker.deps)) {
       deps = invoker.deps
@@ -134,9 +131,6 @@ template("protozero_cpp_library") {
     generator_plugin_label =
         dejaview_root_path + "src/protozero/protoc_plugin:cppgen_plugin"
     generator_plugin_suffix = ".gen"
-    if (build_with_chromium) {
-      component_build_force_source_set = true
-    }
 
     link_deps = [
       "$dejaview_root_path/gn:default_deps",
@@ -219,40 +213,6 @@ template("ipc_library") {
                              "propagate_imports_configs",
                              "import_dirs",
                            ])
-  }
-}
-
-# Generates .grpc.{h,cc} stubs for services defined in .proto files.
-# We require explicit opt-in as gRPC is very heavyweight so we do not
-# want accidental dependencies on this.
-if (enable_dejaview_grpc) {
-  template("dejaview_grpc_library") {
-    proto_library(target_name) {
-      proto_in_dir = dejaview_root_path
-      proto_out_dir = dejaview_root_path
-      propagate_imports_configs = false
-
-      dejaview_root_path = dejaview_root_path
-      generate_cc = false
-      generate_python = false
-      generator_plugin_label =
-          "$dejaview_root_path/buildtools/grpc:grpc_cpp_plugin"
-      generator_plugin_suffix = ".grpc.pb"
-      deps = [ "$dejaview_root_path/buildtools/grpc:grpc++" ]
-      public_configs = [ "$dejaview_root_path/buildtools:grpc_gen_config" ]
-      if (defined(invoker.deps)) {
-        deps += invoker.deps
-      }
-      forward_variables_from(invoker,
-                             [
-                               "defines",
-                               "extra_configs",
-                               "include_dirs",
-                               "sources",
-                               "testonly",
-                               "visibility",
-                             ])
-    }
   }
 }
 

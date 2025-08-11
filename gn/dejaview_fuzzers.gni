@@ -22,15 +22,6 @@ dejaview_fuzzers_targets = [
   "src/protozero/filtering:protozero_message_filter_fuzzer",
   "src/tracing/service:packet_stream_validator_fuzzer",
   "src/trace_processor:trace_processor_fuzzer",
-  "src/traced/probes/ftrace:cpu_reader_fuzzer",
   "test:end_to_end_shared_memory_fuzzer",
   "test:producer_socket_fuzzer",
 ]
-
-if (enable_dejaview_heapprofd) {
-  dejaview_fuzzers_targets += [
-    "src/profiling/memory:shared_ring_buffer_fuzzer",
-    "src/profiling/memory:shared_ring_buffer_write_fuzzer",
-    "src/profiling/memory:unwinding_fuzzer",
-  ]
-}

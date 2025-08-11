@@ -55,7 +55,6 @@ dejaview_unittest_source_set("unittests") {
     "../../../gn:gtest_and_gmock",
     "../../../protos/dejaview/trace:cpp",
     "../../../protos/dejaview/trace:zero",
-    "../../../protos/dejaview/trace/ftrace:cpp",
     "../../../protos/dejaview/trace/dejaview:cpp",
     "../../../src/protozero/filtering:bytecode_generator",
     "../../base",

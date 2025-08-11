@@ -43,21 +43,3 @@ source_set("producer") {
     deps += [ "../../../ipc:client" ]
   }
 }
-
-# Relay port client implementation, used by the relay service.
-source_set("relay") {
-  public_deps = [ "../../../../protos/dejaview/ipc" ]
-  sources = [
-    "relay_ipc_client.cc",
-    "relay_ipc_client.h",
-  ]
-  deps = [
-    "..:common",
-    "../../../../gn:default_deps",
-  ]
-  if (dejaview_component_type == "static_library") {
-    deps += [ "../../../ipc:dejaview_ipc" ]
-  } else {
-    deps += [ "../../../ipc:client" ]
-  }
-}

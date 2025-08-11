@@ -43,29 +43,6 @@ if (enable_dejaview_ui) {
   }
 }
 
-# Depended upon by Chrome to do proto -> JSON conversion of traces.
-# Must be small binary size as all code here needs to be shipped in
-# Chrome.
-source_set("export_json") {
-  sources = [
-    "export_json.cc",
-    "export_json.h",
-  ]
-  deps = [
-    ":storage_minimal",
-    "../../gn:default_deps",
-    "../../include/dejaview/ext/trace_processor:export_json",
-    "../base",
-    "containers",
-    "importers/json:minimal",
-    "storage",
-    "tables",
-    "types",
-    "util",
-  ]
-  public_deps = [ "../../include/dejaview/ext/trace_processor:export_json" ]
-}
-
 source_set("metatrace") {
   sources = [
     "tp_metatrace.cc",
@@ -123,15 +100,9 @@ source_set("storage_minimal") {
     "containers",
     "importers/common",
     "importers/common:parser_types",
-    "importers/ftrace:minimal",
-    "importers/fuchsia:fuchsia_record",
     "importers/memory_tracker:graph_processor",
-    "importers/perf:tracker",
-    "importers/proto:gen_cc_android_track_event_descriptor",
-    "importers/proto:gen_cc_chrome_track_event_descriptor",
     "importers/proto:gen_cc_track_event_descriptor",
     "importers/proto:minimal",
-    "importers/systrace:systrace_line",
     "sorter",
     "storage",
     "tables",
@@ -167,21 +138,10 @@ if (enable_dejaview_trace_processor_sqlite) {
       "../base",
       "../protozero",
       "db",
-      "importers/android_bugreport",
-      "importers/art_method",
       "importers/common",
-      "importers/etw:full",
-      "importers/ftrace:full",
-      "importers/fuchsia:full",
       "importers/gzip:full",
-      "importers/json:full",
-      "importers/json:minimal",
-      "importers/ninja",
-      "importers/perf",
-      "importers/perf_text",
       "importers/proto:full",
       "importers/proto:minimal",
-      "importers/systrace:full",
       "importers/zip:full",
       "metrics",
       "dejaview_sql/engine",
@@ -205,12 +165,6 @@ if (enable_dejaview_trace_processor_sqlite) {
       "../../gn:sqlite",  # iterator_impl.h includes sqlite3.h.
       "../../include/dejaview/trace_processor",
     ]
-    if (enable_dejaview_trace_processor_mac_instruments) {
-      deps += [ "importers/instruments" ]
-    }
-    if (enable_dejaview_trace_processor_json) {
-      deps += [ "importers/gecko" ]
-    }
   }
 
   executable("trace_processor_shell") {
@@ -237,15 +191,13 @@ if (enable_dejaview_trace_processor_sqlite) {
       deps += [ "rpc:httpd" ]
     }
     sources = [ "trace_processor_shell.cc" ]
-    if ((dejaview_build_standalone || build_with_chromium) &&
-        !is_dejaview_build_generator) {
+    if ((dejaview_build_standalone) && !is_dejaview_build_generator) {
       data_deps = [
         # The diff testing framework depends on these descriptors.
         "../../protos/dejaview/metrics:descriptor",
         "../../protos/dejaview/trace:descriptor",
         "../../protos/dejaview/trace:test_extensions_descriptor",
         "../../protos/dejaview/trace_processor:stack_descriptor",
-        "../../protos/third_party/pprof:profile_descriptor",
       ]
     }
   }
@@ -278,23 +230,6 @@ dejaview_unittest_source_set("top_level_unittests") {
     "../../include/dejaview/trace_processor",
     "util:trace_type",
   ]
-
-  if (enable_dejaview_trace_processor_json && !is_win) {
-    # export_json_unittest.cc uses base::TempFile, which is not supported on
-    # windows.
-    sources += [ "export_json_unittest.cc" ]
-    deps += [
-      ":export_json",
-      "../../gn:jsoncpp",
-      "../../include/dejaview/ext/trace_processor:export_json",
-      "containers",
-      "importers/common",
-      "importers/proto:minimal",
-      "storage",
-      "tables",
-      "types",
-    ]
-  }
 }
 
 dejaview_unittest_source_set("unittests") {
@@ -307,24 +242,14 @@ dejaview_unittest_source_set("unittests") {
     "containers:unittests",
     "db:unittests",
     "db/column:unittests",
-    "importers/android_bugreport:unittests",
     "importers/common:unittests",
-    "importers/ftrace:unittests",
-    "importers/fuchsia:unittests",
     "importers/memory_tracker:unittests",
-    "importers/perf:unittests",
     "importers/proto:unittests",
-    "importers/syscalls:unittests",
-    "importers/systrace:unittests",
     "rpc:unittests",
     "sorter:unittests",
     "tables:unittests",
-    "types:unittests",
     "util:unittests",
   ]
-  if (enable_dejaview_trace_processor_json) {
-    deps += [ "importers/json:unittests" ]
-  }
   if (enable_dejaview_trace_processor_sqlite) {
     deps += [
       "dejaview_sql/engine:unittests",
@@ -363,22 +288,6 @@ source_set("integrationtests") {
       "../base",
       "../base:test_support",
       "sqlite",
-    ]
-  }
-}
-
-if (enable_dejaview_trace_processor_json) {
-  source_set("storage_minimal_smoke_tests") {
-    testonly = true
-    sources = [ "storage_minimal_smoke_test.cc" ]
-    deps = [
-      ":export_json",
-      ":storage_minimal",
-      "../../gn:default_deps",
-      "../../gn:gtest_and_gmock",
-      "../../gn:gtest_main",
-      "../../gn:jsoncpp",
-      "../base:test_support",
     ]
   }
 }

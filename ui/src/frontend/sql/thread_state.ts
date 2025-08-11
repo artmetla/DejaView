@@ -75,22 +75,18 @@ export async function breakDownIntervalByThreadState(
   const query = await engine.query(`
     INCLUDE DEJAVIEW MODULE sched.time_in_state;
     INCLUDE DEJAVIEW MODULE sched.states;
-    INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
     SELECT
       sched_state_io_to_human_readable_string(state, io_wait) as state,
       state AS rawState,
-      cluster_type AS clusterType,
       cpu,
       blocked_function AS blockedFunction,
       dur
     FROM sched_time_in_state_and_cpu_for_thread_in_interval(${range.start}, ${range.duration}, ${utid})
-    LEFT JOIN android_cpu_cluster_mapping USING(cpu);
   `);
   const it = query.iter({
     state: STR,
     rawState: STR,
-    clusterType: STR_NULL,
     cpu: NUM_NULL,
     blockedFunction: STR_NULL,
     dur: LONG,
@@ -99,10 +95,6 @@ export async function breakDownIntervalByThreadState(
   for (; it.valid(); it.next()) {
     let currentNode = root;
     currentNode = currentNode.getOrCreateChild(it.state);
-    // If the CPU time is not null, add it to the breakdown.
-    if (it.clusterType !== null) {
-      currentNode = currentNode.getOrCreateChild(it.clusterType);
-    }
     if (it.cpu !== null) {
       currentNode = currentNode.getOrCreateChild(`CPU ${it.cpu}`);
     }

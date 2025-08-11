@@ -412,10 +412,6 @@ class TestCaseRunner:
                                          'metrics')
       metrics_descriptor_paths = [
           os.path.join(metrics_protos_path, 'metrics.descriptor'),
-          os.path.join(metrics_protos_path, 'chrome',
-                       'all_chrome_metrics.descriptor'),
-          os.path.join(metrics_protos_path, 'webview',
-                       'all_webview_metrics.descriptor')
       ]
     result_str = ""
 
@@ -454,8 +450,8 @@ class DiffTestsRunner:
                          override_sql_module_paths))
 
   def run_all_tests(self, metrics_descriptor_paths: List[str],
-                    chrome_extensions: str, test_extensions: str,
-                    winscope_extensions: str, keep_input: bool,
+                    test_extensions: str,
+                    keep_input: bool,
                     rebase: bool) -> TestResults:
     perf_results = []
     failures = []
@@ -465,7 +461,7 @@ class DiffTestsRunner:
     with concurrent.futures.ProcessPoolExecutor() as e:
       fut = [
           e.submit(test.execute,
-                   [chrome_extensions, test_extensions, winscope_extensions],
+                   [test_extensions],
                    metrics_descriptor_paths, keep_input, rebase)
           for test in self.test_runners
       ]

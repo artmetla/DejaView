@@ -52,133 +52,11 @@ class Trace(object):
     self.packet.system_info.utsname.machine = arch
     self.packet.system_info.android_build_fingerprint = fingerprint
 
-  def add_ftrace_packet(self, cpu):
-    self.packet = self.trace.packet.add()
-    self.packet.ftrace_events.cpu = cpu
-
   def add_packet(self, ts=None):
     self.packet = self.trace.packet.add()
     if ts is not None:
       self.packet.timestamp = ts
     return self.packet
-
-  def __add_ftrace_event(self, ts, tid):
-    ftrace = self.packet.ftrace_events.event.add()
-    ftrace.timestamp = ts
-    ftrace.pid = tid
-    return ftrace
-
-  def add_rss_stat(self, ts, tid, member, size, mm_id=None, curr=None):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    rss_stat = ftrace.rss_stat
-    rss_stat.member = member
-    rss_stat.size = size
-    if mm_id is not None:
-      rss_stat.mm_id = mm_id
-    if curr is not None:
-      rss_stat.curr = curr
-
-  def add_ion_event(self, ts, tid, heap_name, len, size=0):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    ion = ftrace.ion_heap_grow
-    ion.heap_name = heap_name
-    ion.len = len
-    ion.total_allocated = size
-
-  def add_oom_score_update(self, ts, oom_score_adj, pid):
-    ftrace = self.__add_ftrace_event(ts, pid)
-    oom_score = ftrace.oom_score_adj_update
-    oom_score.comm = self.proc_map[pid]
-    oom_score.oom_score_adj = oom_score_adj
-    oom_score.pid = pid
-
-  def add_sched(self,
-                ts,
-                prev_pid,
-                next_pid,
-                prev_comm=None,
-                next_comm=None,
-                prev_state=None):
-    ftrace = self.__add_ftrace_event(ts, 0)
-    ss = ftrace.sched_switch
-    ss.prev_comm = prev_comm or self.proc_map[prev_pid]
-    ss.prev_pid = prev_pid
-    ss.next_pid = next_pid
-    ss.next_comm = next_comm or self.proc_map[next_pid]
-    if prev_state:
-      if prev_state == 'R':
-        ss.prev_state = 0
-      elif prev_state == 'S':
-        ss.prev_state = 1
-      elif prev_state == 'U' or prev_state == 'D':
-        ss.prev_state = 2
-      else:
-        raise Exception('Invalid prev state {}'.format(prev_state))
-
-  def add_cpufreq(self, ts, freq, cpu):
-    ftrace = self.__add_ftrace_event(ts, 0)
-    cpufreq = ftrace.cpu_frequency
-    cpufreq.state = freq
-    cpufreq.cpu_id = cpu
-
-  def add_kernel_lmk(self, ts, tid):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    lowmemory_kill = ftrace.lowmemory_kill
-    lowmemory_kill.pid = tid
-
-  def add_sys_enter(self, ts, tid, id):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    sys_enter = ftrace.sys_enter
-    sys_enter.id = id
-
-  def add_sys_exit(self, ts, tid, id, ret):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    sys_exit = ftrace.sys_exit
-    sys_exit.id = id
-    sys_exit.ret = ret
-
-  def add_newtask(self, ts, tid, new_tid, new_comm, flags):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    newtask = ftrace.task_newtask
-    newtask.pid = new_tid
-    newtask.comm = new_comm
-    newtask.clone_flags = flags
-
-  def add_process_free(self, ts, tid, comm, prio):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    sched_process_free = ftrace.sched_process_free
-    sched_process_free.pid = tid
-    sched_process_free.comm = comm
-    sched_process_free.prio = prio
-
-  def add_rename(self, ts, tid, old_comm, new_comm, oom_score_adj):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    task_rename = ftrace.task_rename
-    task_rename.pid = tid
-    task_rename.oldcomm = old_comm
-    task_rename.newcomm = new_comm
-    task_rename.oom_score_adj = oom_score_adj
-
-  def add_print(self, ts, tid, buf):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    print_event = getattr(ftrace, 'print')
-    print_event.buf = buf
-
-  def add_kmalloc(self, ts, tid, bytes_alloc, bytes_req, call_site, gfp_flags,
-                  ptr):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    kmalloc = ftrace.kmalloc
-    kmalloc.bytes_alloc = bytes_alloc
-    kmalloc.bytes_req = bytes_req
-    kmalloc.call_site = call_site
-    kmalloc.gfp_flags = gfp_flags
-    kmalloc.ptr = ptr
-
-  def add_kfree(self, ts, tid, call_site, ptr):
-    ftrace = self.__add_ftrace_event(ts, tid)
-    kfree = ftrace.kfree
-    kfree.call_site = call_site
-    kfree.ptr = ptr
 
   def add_atrace_counter(self, ts, pid, tid, buf, cnt):
     self.add_print(ts, tid, 'C|{}|{}|{}'.format(pid, buf, cnt))
@@ -226,35 +104,6 @@ class Trace(object):
     battery_count.current_avg_ua = curr_avg_ua
     battery_count.voltage_uv = voltage_uv
 
-  def add_binder_transaction(self, transaction_id, ts_start, ts_end, tid, pid,
-                             reply_id, reply_ts_start, reply_ts_end, reply_tid,
-                             reply_pid):
-    # Binder transaction start.
-    ftrace = self.__add_ftrace_event(ts_start, tid)
-    binder_transaction = ftrace.binder_transaction
-    binder_transaction.debug_id = transaction_id
-    binder_transaction.to_proc = reply_pid
-    binder_transaction.to_thread = reply_tid
-    binder_transaction.reply = False
-
-    # Binder reply start
-    ftrace = self.__add_ftrace_event(reply_ts_start, reply_tid)
-    binder_transaction_received = ftrace.binder_transaction_received
-    binder_transaction_received.debug_id = transaction_id
-
-    # Binder reply finish
-    ftrace = self.__add_ftrace_event(reply_ts_end, reply_tid)
-    reply_binder_transaction = ftrace.binder_transaction
-    reply_binder_transaction.debug_id = reply_id
-    reply_binder_transaction.to_proc = pid
-    reply_binder_transaction.to_thread = tid
-    reply_binder_transaction.reply = True
-
-    # Binder transaction finish
-    ftrace = self.__add_ftrace_event(ts_end, tid)
-    reply_binder_transaction_received = ftrace.binder_transaction_received
-    reply_binder_transaction_received.debug_id = reply_id
-
   def add_battery_counters_no_curr_ua(self, ts, charge_uah, cap_prct,
                                       curr_avg_ua, voltage_uv):
     self.packet = self.trace.packet.add()
@@ -277,25 +126,6 @@ class Trace(object):
     energy_data.index = index_val
     energy_data.timestamp_ms = ts
     energy_data.energy = value
-
-  def add_package_list(self, ts, name, uid, version_code):
-    packet = self.add_packet()
-    packet.timestamp = ts
-    plist = packet.packages_list
-    pinfo = plist.packages.add()
-    pinfo.name = name
-    pinfo.uid = uid
-    pinfo.version_code = version_code
-
-  def add_debuggable_package_list(self, ts, name, uid, version_code):
-    packet = self.add_packet()
-    packet.timestamp = ts
-    plist = packet.packages_list
-    pinfo = plist.packages.add()
-    pinfo.name = name
-    pinfo.uid = uid
-    pinfo.version_code = version_code
-    pinfo.debuggable = True
 
   def add_profile_packet(self, ts):
     packet = self.add_packet()
@@ -456,24 +286,12 @@ class Trace(object):
       thread.cpu_freq_indices.append(index)
       thread.cpu_freq_ticks.append(freqs[index])
 
-  def add_gpu_mem_total_ftrace_event(self, ftrace_pid, pid, ts, size):
-    ftrace = self.__add_ftrace_event(ts, ftrace_pid)
-    gpu_mem_total_ftrace_event = ftrace.gpu_mem_total
-    gpu_mem_total_ftrace_event.pid = pid
-    gpu_mem_total_ftrace_event.size = size
-
   def add_gpu_mem_total_event(self, pid, ts, size):
     packet = self.add_packet()
     packet.timestamp = ts
     gpu_mem_total_event = packet.gpu_mem_total_event
     gpu_mem_total_event.pid = pid
     gpu_mem_total_event.size = size
-
-  def add_sched_blocked_reason(self, ts, pid, io_wait, unblock_pid):
-    ftrace = self.__add_ftrace_event(ts, unblock_pid)
-    sched_blocked_reason = ftrace.sched_blocked_reason
-    sched_blocked_reason.pid = pid
-    sched_blocked_reason.io_wait = io_wait
 
   def add_track_event(self,
                       name=None,
@@ -511,23 +329,6 @@ class Trace(object):
       packet.track_descriptor.process.process_name = process_name
     return packet
 
-  def add_chrome_process_track_descriptor(
-      self,
-      process_track,
-      pid=None,
-      process_type=None,
-      host_app_package_name="org.chromium.chrome"):
-    if process_type is None:
-      process_type = self.prototypes.ChromeProcessDescriptor \
-        .ProcessType \
-        .PROCESS_RENDERER
-
-    packet = self.add_process_track_descriptor(process_track, pid=pid)
-    chrome_process = packet.track_descriptor.chrome_process
-    chrome_process.process_type = process_type
-    chrome_process.host_app_package_name = host_app_package_name
-    return packet
-
   def add_thread_track_descriptor(self,
                                   process_track,
                                   thread_track,
@@ -544,27 +345,6 @@ class Trace(object):
       packet.track_descriptor.thread.tid = tid
     if thread_name is not None:
       packet.track_descriptor.thread.thread_name = thread_name
-    return packet
-
-  def add_chrome_thread_track_descriptor(self,
-                                         process_track,
-                                         thread_track,
-                                         trusted_packet_sequence_id=None,
-                                         pid=None,
-                                         tid=None,
-                                         thread_type=None):
-    if thread_type is None:
-      thread_type = self.prototypes.ThreadDescriptor \
-        .ChromeThreadType \
-        .CHROME_THREAD_TYPE_UNSPECIFIED
-
-    packet = self.add_thread_track_descriptor(
-        process_track,
-        thread_track,
-        trusted_packet_sequence_id=trusted_packet_sequence_id,
-        pid=pid,
-        tid=tid)
-    packet.track_descriptor.thread.chrome_thread_type = thread_type
     return packet
 
   def add_trace_packet_defaults(self,
@@ -588,31 +368,6 @@ class Trace(object):
       .BuiltinCounterType \
       .COUNTER_THREAD_TIME_NS
     return packet
-
-  def add_chrome_thread_with_cpu_counter(self,
-                                         process_track,
-                                         thread_track,
-                                         trusted_packet_sequence_id=None,
-                                         counter_track=None,
-                                         pid=None,
-                                         tid=None,
-                                         thread_type=None):
-    self.add_chrome_thread_track_descriptor(
-        process_track,
-        thread_track,
-        trusted_packet_sequence_id=trusted_packet_sequence_id,
-        pid=pid,
-        tid=tid,
-        thread_type=thread_type)
-    self.add_trace_packet_defaults(
-        trusted_packet_sequence_id=trusted_packet_sequence_id,
-        counter_track=counter_track,
-        thread_track=thread_track)
-
-    self.add_counter_track_descriptor(
-        trusted_packet_sequence_id=trusted_packet_sequence_id,
-        counter_track=counter_track,
-        thread_track=thread_track)
 
   def add_track_event_slice_begin(self,
                                   name,
@@ -669,11 +424,6 @@ class Trace(object):
 
     return packet
 
-  def add_rail_mode_slice(self, ts, dur, track, mode):
-    packet = self.add_track_event_slice(
-        "Scheduler.RAILMode", ts=ts, dur=dur, track=track)
-    packet.track_event.chrome_renderer_scheduler_state.rail_mode = mode
-
   def add_latency_info_flow(self,
                             ts,
                             dur,
@@ -689,129 +439,11 @@ class Trace(object):
         dur,
         track=track,
         trusted_sequence_id=trusted_sequence_id)
-    if trace_id is not None:
-      packet.track_event.chrome_latency_info.trace_id = trace_id
-    if step is not None:
-      packet.track_event.chrome_latency_info.step = step
     for flow_id in flow_ids:
       packet.track_event.flow_ids.append(flow_id)
     for flow_id in terminating_flow_ids:
       packet.track_event.terminating_flow_ids.append(flow_id)
     return packet
-
-  def add_input_latency_event_slice(self,
-                                    name,
-                                    ts,
-                                    dur,
-                                    track=None,
-                                    trace_id=None,
-                                    gesture_scroll_id=None,
-                                    touch_id=None,
-                                    is_coalesced=None,
-                                    gets_to_gpu=True):
-    packet = self.add_track_event_slice(
-        "InputLatency::" + name, ts=ts, dur=dur, track=track)
-    latency_info = packet.track_event.chrome_latency_info
-    latency_info.trace_id = trace_id
-    if gesture_scroll_id is not None:
-      latency_info.gesture_scroll_id = gesture_scroll_id
-    if touch_id is not None:
-      latency_info.touch_id = touch_id
-    if gets_to_gpu:
-      component = latency_info.component_info.add()
-      component.component_type = self.prototypes \
-          .ChromeLatencyInfo.ComponentType \
-          .COMPONENT_INPUT_EVENT_GPU_SWAP_BUFFER
-    if is_coalesced is not None:
-      latency_info.is_coalesced = is_coalesced
-    return packet
-
-  def add_chrome_metadata(self, os_name=None):
-    metadata = self.add_packet().chrome_events.metadata.add()
-    if os_name is not None:
-      metadata.name = "os-name"
-      metadata.string_value = os_name
-
-    return metadata
-
-  def add_expected_display_frame_start_event(self, ts, cookie, token, pid):
-    packet = self.add_packet()
-    packet.timestamp = ts
-    event = packet.frame_timeline_event.expected_display_frame_start
-    if token != -1:
-      event.cookie = cookie
-      event.token = token
-      event.pid = pid
-
-  def add_actual_display_frame_start_event(self, ts, cookie, token, pid,
-                                           present_type, on_time_finish,
-                                           gpu_composition, jank_type,
-                                           prediction_type):
-    packet = self.add_packet()
-    packet.timestamp = ts
-    event = packet.frame_timeline_event.actual_display_frame_start
-    if token != -1:
-      event.cookie = cookie
-      event.token = token
-      event.pid = pid
-      event.present_type = present_type
-      event.on_time_finish = on_time_finish
-      event.gpu_composition = gpu_composition
-      event.jank_type = jank_type
-      event.prediction_type = prediction_type
-
-  def add_expected_surface_frame_start_event(self, ts, cookie, token,
-                                             display_frame_token, pid,
-                                             layer_name):
-    packet = self.add_packet()
-    packet.timestamp = ts
-    event = packet.frame_timeline_event.expected_surface_frame_start
-    if token != -1 and display_frame_token != -1:
-      event.cookie = cookie
-      event.token = token
-      event.display_frame_token = display_frame_token
-      event.pid = pid
-      event.layer_name = layer_name
-
-  def add_actual_surface_frame_start_event(self,
-                                           ts,
-                                           cookie,
-                                           token,
-                                           display_frame_token,
-                                           pid,
-                                           layer_name,
-                                           present_type,
-                                           on_time_finish,
-                                           gpu_composition,
-                                           jank_type,
-                                           prediction_type,
-                                           jank_severity_type=None):
-    packet = self.add_packet()
-    packet.timestamp = ts
-    event = packet.frame_timeline_event.actual_surface_frame_start
-    if token != -1 and display_frame_token != -1:
-      event.cookie = cookie
-      event.token = token
-      event.display_frame_token = display_frame_token
-      event.pid = pid
-      event.layer_name = layer_name
-      event.present_type = present_type
-      event.on_time_finish = on_time_finish
-      event.gpu_composition = gpu_composition
-      event.jank_type = jank_type
-      # jank severity type is not available on every trace.
-      # When not set, default to none if no jank; otherwise default to unknown
-      if jank_severity_type is None:
-        event.jank_severity_type = 1 if event.jank_type == 1 else 0
-      else:
-        event.jank_severity_type = jank_severity_type
-      event.prediction_type = prediction_type
-
-  def add_frame_end_event(self, ts, cookie):
-    packet = self.add_packet()
-    packet.timestamp = ts
-    event = packet.frame_timeline_event.frame_end
-    event.cookie = cookie
 
 
 def read_descriptor(file_name):
@@ -852,38 +484,15 @@ def create_trace():
         setattr(res, desc.name, desc.number)
       return res
 
-  ChromeLatencyInfo = namedtuple('ChromeLatencyInfo', [
-      'ComponentType',
-      'Step',
-  ])
-
   Prototypes = namedtuple('Prototypes', [
       'TrackEvent',
-      'ChromeRAILMode',
-      'ChromeLatencyInfo',
-      'ChromeProcessDescriptor',
       'CounterDescriptor',
       'ThreadDescriptor',
   ])
 
-  chrome_latency_info_prototypes = ChromeLatencyInfo(
-      ComponentType=EnumPrototype.from_descriptor(
-          pool.FindEnumTypeByName(
-              'dejaview.protos.ChromeLatencyInfo.LatencyComponentType')),
-      Step=EnumPrototype.from_descriptor(
-          pool.FindEnumTypeByName('dejaview.protos.ChromeLatencyInfo.Step')),
-  )
-
   prototypes = Prototypes(
       TrackEvent=get_message_class(
           pool, pool.FindMessageTypeByName('dejaview.protos.TrackEvent')),
-      ChromeRAILMode=EnumPrototype.from_descriptor(
-          pool.FindEnumTypeByName('dejaview.protos.ChromeRAILMode')),
-      ChromeLatencyInfo=chrome_latency_info_prototypes,
-      ChromeProcessDescriptor=get_message_class(
-          pool,
-          pool.FindMessageTypeByName(
-              'dejaview.protos.ChromeProcessDescriptor')),
       CounterDescriptor=get_message_class(
           pool,
           pool.FindMessageTypeByName('dejaview.protos.CounterDescriptor')),

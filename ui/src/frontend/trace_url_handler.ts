@@ -15,8 +15,6 @@
 import m from 'mithril';
 import {tryGetTrace} from '../core/cache_manager';
 import {showModal} from '../widgets/modal';
-import {loadPermalink} from './permalink';
-import {loadAndroidBugToolInfo} from './android_bug_tool';
 import {Route, Router} from '../core/router';
 import {taskTracker} from './task_tracker';
 import {AppImpl} from '../core/app_impl';
@@ -30,24 +28,12 @@ function getCurrentTraceUrl(): undefined | string {
 }
 
 export function maybeOpenTraceFromRoute(route: Route) {
-  if (route.args.s) {
-    // /?s=xxxx for permalinks.
-    loadPermalink(route.args.s);
-    return;
-  }
-
   const url = route.args.url;
   if (url && url !== getCurrentTraceUrl()) {
     // /?url=https://commondatastorage.googleapis.com/bucket/trace
     // This really works only for GCS because the Content Security Policy
     // forbids any other url.
     loadTraceFromUrl(url);
-    return;
-  }
-
-  if (route.args.openFromAndroidBugTool) {
-    // Handles interaction with the Android Bug Tool extension. See b/163421158.
-    openTraceFromAndroidBugTool();
     return;
   }
 
@@ -233,14 +219,4 @@ function loadTraceFromUrl(url: string) {
   } else {
     AppImpl.instance.openTraceFromUrl(url);
   }
-}
-
-function openTraceFromAndroidBugTool() {
-  const msg = 'Loading trace from ABT extension';
-  AppImpl.instance.omnibox.showStatusMessage(msg);
-  const loadInfo = loadAndroidBugToolInfo();
-  taskTracker.trackPromise(loadInfo, msg);
-  loadInfo
-    .then((info) => AppImpl.instance.openTraceFromFile(info.file))
-    .catch((e) => console.error(e));
 }

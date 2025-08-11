@@ -88,7 +88,6 @@ describe('Router.parseUrl', () => {
     expect(args.p).toBe('1');
     expect(args.s).toBe('3');
     expect(args.url).toBe('4');
-    expect(args.hideSidebar).toBe(false);
     expect(route.fragment).toBe('');
   });
 
@@ -163,23 +162,8 @@ describe('Router.parseFragment', () => {
     expect(args.url).toEqual('http://localhost:1234/aaaa');
   });
 
-  test('openFromAndroidBugTool can be false', () => {
-    const {args} = Router.parseFragment('#!/?openFromAndroidBugTool=false');
-    expect(args.openFromAndroidBugTool).toEqual(false);
-  });
-
-  test('openFromAndroidBugTool can be true', () => {
-    const {args} = Router.parseFragment('#!/?openFromAndroidBugTool=true');
-    expect(args.openFromAndroidBugTool).toEqual(true);
-  });
-
   test('bad modes are coerced to default', () => {
     const {args} = Router.parseFragment('#!/?mode=1234');
     expect(args.mode).toEqual(undefined);
-  });
-
-  test('bad hideSidebar is coerced to default', () => {
-    const {args} = Router.parseFragment('#!/?hideSidebar=helloworld!');
-    expect(args.hideSidebar).toEqual(undefined);
   });
 });

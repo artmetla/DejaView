@@ -18,9 +18,6 @@
 
 #include "dejaview/protozero/field.h"
 
-#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
-
 namespace dejaview::trace_redaction {
 
 base::Status CollectSystemInfo::Begin(Context* context) const {
@@ -36,32 +33,10 @@ base::Status CollectSystemInfo::Begin(Context* context) const {
 base::Status CollectSystemInfo::Collect(
     const protos::pbzero::TracePacket::Decoder& packet,
     Context* context) const {
+  base::ignore_result(packet);
   auto* system_info = &context->system_info.value();
 
   DEJAVIEW_DCHECK(system_info);  // See Begin()
-
-  if (packet.has_ftrace_events()) {
-    return OnFtraceEvents(packet.ftrace_events(), context);
-  }
-
-  return base::OkStatus();
-}
-
-base::Status CollectSystemInfo::OnFtraceEvents(protozero::ConstBytes bytes,
-                                               Context* context) const {
-  protozero::ProtoDecoder decoder(bytes);
-
-  auto cpu =
-      decoder.FindField(protos::pbzero::FtraceEventBundle::kCpuFieldNumber);
-
-  if (!cpu.valid()) {
-    return base::ErrStatus(
-        "BuildSyntheticThreads: missing FtraceEventBundle::kCpu.");
-  }
-
-  if (cpu.valid()) {
-    context->system_info->ReserveCpu(cpu.as_uint32());
-  }
 
   return base::OkStatus();
 }

@@ -14,7 +14,6 @@
 
 import m from 'mithril';
 import {time, Time} from '../base/time';
-import {timestampFormat, TimestampFormat} from '../core/timestamp_format';
 import {
   BACKGROUND_COLOR,
   FOREGROUND_COLOR,
@@ -212,7 +211,7 @@ export class TimeSelectionPanel implements Panel {
   ) {
     const xPos = Math.floor(timescale.timeToPx(ts));
     const domainTime = globals.trace.timeline.toDomainTime(ts);
-    const label = stringifyTimestamp(domainTime);
+    const label = domainTime.toString();
     drawIBar(ctx, xPos, this.getBBoxFromSize(size), label);
   }
 
@@ -246,29 +245,5 @@ export class TimeSelectionPanel implements Panel {
       width: size.width,
       height: size.height,
     };
-  }
-}
-
-function stringifyTimestamp(time: time): string {
-  const fmt = timestampFormat();
-  switch (fmt) {
-    case TimestampFormat.UTC:
-    case TimestampFormat.TraceTz:
-    case TimestampFormat.Timecode:
-      const THIN_SPACE = '\u2009';
-      return Time.toTimecode(time).toString(THIN_SPACE);
-    case TimestampFormat.TraceNs:
-      return time.toString();
-    case TimestampFormat.TraceNsLocale:
-      return time.toLocaleString();
-    case TimestampFormat.Seconds:
-      return Time.formatSeconds(time);
-    case TimestampFormat.Milliseoncds:
-      return Time.formatMilliseconds(time);
-    case TimestampFormat.Microseconds:
-      return Time.formatMicroseconds(time);
-    default:
-      const z: never = fmt;
-      throw new Error(`Invalid timestamp ${z}`);
   }
 }

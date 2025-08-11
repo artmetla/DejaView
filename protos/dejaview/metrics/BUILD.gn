@@ -20,17 +20,7 @@ dejaview_proto_library("@TYPE@") {
     "lite",
     "source_set",
   ]
-  deps = [ "android:@TYPE@" ]
   sources = [ "metrics.proto" ]
-}
-
-dejaview_proto_library("custom_options_@TYPE@") {
-  proto_generators = [
-    "lite",
-    "source_set",
-  ]
-  sources = [ "custom_options.proto" ]
-  import_dirs = [ "${dejaview_protobuf_src_dir}" ]
 }
 
 dejaview_proto_library("descriptor") {

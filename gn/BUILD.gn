@@ -48,7 +48,7 @@ action("gen_buildflags") {
   dejaview_force_dcheck_on = dejaview_force_dcheck == "on"
   dejaview_force_dcheck_off = dejaview_force_dcheck == "off"
 
-  # We can't just use (is_linux || is_android) in dejaview.gni because that
+  # We can't just use (is_linux) in dejaview.gni because that
   # doesn't work in Android Mac host builds. We lose the GN notion of OS once
   # we run the tools/gen_xxx generators.
   if (enable_dejaview_watchdog) {
@@ -59,8 +59,7 @@ action("gen_buildflags") {
   }
 
   # We need local symbolization to run diff tests in chrome.
-  if (enable_dejaview_tools ||
-      (enable_dejaview_trace_processor && build_with_chromium)) {
+  if (enable_dejaview_tools) {
     dejaview_local_symbolizer =
         "DEJAVIEW_BUILDFLAG_DEFINE_DEJAVIEW_OS_LINUX() || " +
         "DEJAVIEW_BUILDFLAG_DEFINE_DEJAVIEW_OS_MAC() ||" +
@@ -70,8 +69,8 @@ action("gen_buildflags") {
   }
   response_file_contents = [
     "--flags",  # Keep this marker first.
-    "DEJAVIEW_ANDROID_BUILD=$dejaview_build_with_android",
-    "DEJAVIEW_CHROMIUM_BUILD=$build_with_chromium",
+    "DEJAVIEW_ANDROID_BUILD=false",
+    "DEJAVIEW_CHROMIUM_BUILD=false",
     "DEJAVIEW_STANDALONE_BUILD=$dejaview_build_standalone",
     "DEJAVIEW_START_DAEMONS=$start_daemons_for_testing",
     "DEJAVIEW_IPC=$enable_dejaview_ipc",
@@ -86,12 +85,12 @@ action("gen_buildflags") {
     "DEJAVIEW_TP_PERCENTILE=$enable_dejaview_trace_processor_percentile",
     "DEJAVIEW_TP_LINENOISE=$enable_dejaview_trace_processor_linenoise",
     "DEJAVIEW_TP_HTTPD=$enable_dejaview_trace_processor_httpd",
-    "DEJAVIEW_TP_JSON=$enable_dejaview_trace_processor_json",
-    "DEJAVIEW_TP_INSTRUMENTS=$enable_dejaview_trace_processor_mac_instruments",
+    "DEJAVIEW_TP_JSON=false",
+    "DEJAVIEW_TP_INSTRUMENTS=false",
     "DEJAVIEW_LOCAL_SYMBOLIZER=$dejaview_local_symbolizer",
     "DEJAVIEW_ZLIB=$enable_dejaview_zlib",
-    "DEJAVIEW_TRACED_PERF=$enable_dejaview_traced_perf",
-    "DEJAVIEW_HEAPPROFD=$enable_dejaview_heapprofd",
+    "DEJAVIEW_TRACED_PERF=false",
+    "DEJAVIEW_HEAPPROFD=false",
     "DEJAVIEW_STDERR_CRASH_DUMP=$enable_dejaview_stderr_crash_dump",
     "DEJAVIEW_X64_CPU_OPT=$enable_dejaview_x64_cpu_opt",
     "DEJAVIEW_LLVM_DEMANGLE=$enable_dejaview_llvm_demangle",
@@ -122,9 +121,6 @@ group("default_deps") {
       "//gn/standalone/libc++:deps",
       "//gn/standalone/sanitizers:deps",
     ]
-    if (is_android) {
-      public_deps += [ "//gn/standalone:check_build_deps_android" ]
-    }
   }
 }
 
@@ -141,11 +137,6 @@ config("default_config") {
     "..",
     "../src/profiling/memory/include",
   ]
-
-  if (build_with_chromium && is_android) {
-    # Included for __android_log_print
-    libs = [ "log" ]
-  }
 }
 
 # This config is propagated to embedders via libdejaview. It's also included in
@@ -202,8 +193,6 @@ group("gtest_main") {
 
   if (dejaview_root_path == "//") {
     public_deps = [ "//buildtools:gtest_main" ]
-  } else if (build_with_chromium) {
-    public_deps = [ "//base/test:run_all_unittests" ]
   } else {
     public_deps = [ "//testing/gtest:gtest_main" ]
   }
@@ -212,7 +201,6 @@ group("gtest_main") {
 # Full protobuf is just for host tools .No binary shipped on device should
 # depend on this.
 protobuf_full_deps_allowlist = [
-  "../buildtools/grpc:*",
   "../src/ipc/protoc_plugin:*",
   "../src/protozero/protoc_plugin:*",
   "../src/protozero/filtering:filter_util",
@@ -335,7 +323,7 @@ if (enable_dejaview_benchmarks) {
 
 # Libbacktrace, used for printing stack traces from crash handler, only in
 # standalone debug builds.
-if (dejaview_build_standalone && (is_linux || is_android)) {
+if (dejaview_build_standalone && is_linux) {
   group("libbacktrace") {
     public_deps = [ "//buildtools:libbacktrace" ]
   }
@@ -346,54 +334,19 @@ if (enable_dejaview_trace_processor_sqlite) {
     if (dejaview_root_path == "//") {
       public_deps = [ "//buildtools:sqlite" ]
     } else {
-      if (build_with_chromium) {
-        public_deps = [ "//third_party/sqlite:sqlite_dev" ]
-      } else {
-        public_deps = [ "//third_party/sqlite:sqlite" ]
-      }
+      public_deps = [ "//third_party/sqlite:sqlite" ]
       public_configs = [ ":sqlite_third_party_include_path" ]
     }
   }
 }
 
 config("sqlite_third_party_include_path") {
-  if (build_with_chromium) {
-    include_dirs = [ "//third_party/sqlite/dev" ]
-  } else {
-    include_dirs = [ "//third_party/sqlite" ]
-  }
+  include_dirs = [ "//third_party/sqlite" ]
 }
 
-if (enable_dejaview_trace_processor_mac_instruments) {
-  group("expat") {
-    if (dejaview_root_path == "//") {
-      public_deps = [ "//buildtools:expat" ]
-    } else {
-      public_deps = [ "//third_party/expat:expat" ]
-    }
-  }
-}
-
-if (enable_dejaview_trace_processor_json) {
-  group("jsoncpp") {
-    if (dejaview_root_path == "//") {
-      public_configs = [ "//buildtools:jsoncpp_config" ]
-      public_deps = [ "//buildtools:jsoncpp" ]
-    } else {
-      public_deps = [ "//third_party/jsoncpp:jsoncpp" ]
-    }
-  }
-}
-
-if (enable_dejaview_grpc) {
-  group("grpc") {
-    public_configs = [ "//buildtools:grpc_public_config" ]
-    public_deps = [ "//buildtools/grpc:grpc++" ]
-  }
-
-  group("cpp_httplib") {
-    public_deps = [ "//buildtools:cpp_httplib" ]
-  }
+group("jsoncpp") {
+  public_configs = [ "//buildtools:jsoncpp_config" ]
+  public_deps = [ "//buildtools:jsoncpp" ]
 }
 
 if (enable_dejaview_trace_processor_linenoise) {
@@ -403,21 +356,6 @@ if (enable_dejaview_trace_processor_linenoise) {
     public_deps = [ "//buildtools:linenoise" ]
   }
 }  # if (enable_dejaview_trace_processor_linenoise)
-
-# Only used by src/profiling in standalone and android builds.
-if (enable_dejaview_heapprofd || enable_dejaview_traced_perf) {
-  group("libunwindstack") {
-    public_configs = [ "//buildtools:libunwindstack_config" ]
-    public_deps = [ "//buildtools:libunwindstack" ]
-  }
-}
-
-# Used by src/profiling/perf for perf_regs.h.
-if (enable_dejaview_traced_perf) {
-  group("bionic_kernel_uapi_headers") {
-    public_configs = [ "//buildtools:bionic_kernel_uapi_headers" ]
-  }
-}
 
 config("system_zlib_config") {
   libs = [ "z" ]

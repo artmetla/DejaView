@@ -40,8 +40,6 @@ def CheckChange(input, output):
         x,
         files_to_check='.*',
         files_to_skip=[
-            'Android[.]bp',
-            "buildtools/grpc/BUILD.gn",
             '.*[.]json$',
             '.*[.]sql$',
             '.*[.]out$',
@@ -75,18 +73,13 @@ def CheckChange(input, output):
   results += RunAndReportIfLong(CheckIncludeViolations, input, output)
   results += RunAndReportIfLong(CheckIncludePaths, input, output)
   results += RunAndReportIfLong(CheckProtoComments, input, output)
-  results += RunAndReportIfLong(CheckBuild, input, output)
-  results += RunAndReportIfLong(CheckAndroidBlueprint, input, output)
   results += RunAndReportIfLong(CheckBinaryDescriptors, input, output)
   results += RunAndReportIfLong(CheckMergedTraceConfigProto, input, output)
-  results += RunAndReportIfLong(CheckProtoEventList, input, output)
   results += RunAndReportIfLong(CheckBannedCpp, input, output)
   results += RunAndReportIfLong(CheckBadCppPatterns, input, output)
   results += RunAndReportIfLong(CheckSqlModules, input, output)
   results += RunAndReportIfLong(CheckSqlMetrics, input, output)
-  results += RunAndReportIfLong(CheckTestData, input, output)
   results += RunAndReportIfLong(CheckAmalgamatedPythonTools, input, output)
-  results += RunAndReportIfLong(CheckChromeStdlib, input, output)
   results += RunAndReportIfLong(CheckAbsolutePathsInGn, input, output)
   return results
 
@@ -97,55 +90,6 @@ def CheckChangeOnUpload(input_api, output_api):
 
 def CheckChangeOnCommit(input_api, output_api):
   return CheckChange(input_api, output_api)
-
-
-def CheckBuild(input_api, output_api):
-  # The script invocation doesn't work on Windows.
-  if input_api.is_windows:
-    return []
-
-  tool = 'tools/gen_bazel'
-
-  # If no GN files were modified, bail out.
-  def build_file_filter(x):
-    return input_api.FilterSourceFile(
-        x, files_to_check=('.*BUILD[.]gn$', '.*[.]gni$', 'BUILD\.extras', tool))
-
-  if not input_api.AffectedSourceFiles(build_file_filter):
-    return []
-  if subprocess.call([tool, '--check-only']):
-    return [
-        output_api.PresubmitError('Bazel BUILD(s) are out of date. Run ' +
-                                  tool + ' to update them.')
-    ]
-  return []
-
-
-def CheckAndroidBlueprint(input_api, output_api):
-  # The script invocation doesn't work on Windows.
-  if input_api.is_windows:
-    return []
-
-  tool = 'tools/gen_android_bp'
-
-  # If no GN files were modified, bail out.
-  def build_file_filter(x):
-    return input_api.FilterSourceFile(
-        x,
-        files_to_check=('.*BUILD[.]gn$', '.*[.]gni$', tool),
-        # Do not require Android.bp to be regenerated for chrome
-        # stdlib changes.
-        files_to_skip=(
-            'src/trace_processor/dejaview_sql/stdlib/chrome/BUILD.gn'))
-
-  if not input_api.AffectedSourceFiles(build_file_filter):
-    return []
-  if subprocess.call([tool, '--check-only']):
-    return [
-        output_api.PresubmitError('Android build files are out of date. ' +
-                                  'Run ' + tool + ' to update them.')
-    ]
-  return []
 
 
 def CheckIncludeGuards(input_api, output_api):
@@ -278,27 +222,6 @@ def CheckIncludePaths(input_api, output_api):
   ]
 
 
-def CheckBinaryDescriptors(input_api, output_api):
-  # The script invocation doesn't work on Windows.
-  if input_api.is_windows:
-    return []
-
-  tool = 'tools/gen_binary_descriptors'
-
-  def file_filter(x):
-    return input_api.FilterSourceFile(
-        x, files_to_check=['protos/dejaview/.*[.]proto$', '.*[.]h', tool])
-
-  if not input_api.AffectedSourceFiles(file_filter):
-    return []
-  if subprocess.call([tool, '--check-only']):
-    return [
-        output_api.PresubmitError('Please run ' + tool +
-                                  ' to update binary descriptors.')
-    ]
-  return []
-
-
 def CheckMergedTraceConfigProto(input_api, output_api):
   # The script invocation doesn't work on Windows.
   if input_api.is_windows:
@@ -318,21 +241,6 @@ def CheckMergedTraceConfigProto(input_api, output_api):
             'dejaview_config.proto or dejaview_trace.proto is out of ' +
             'date. Please run ' + tool + ' to update it.')
     ]
-  return []
-
-
-# Prevent removing or changing lines in event_list.
-def CheckProtoEventList(input_api, output_api):
-  for f in input_api.AffectedFiles():
-    if f.LocalPath() != 'src/tools/ftrace_proto_gen/event_list':
-      continue
-    if any((not new_line.startswith('removed')) and new_line != old_line
-           for old_line, new_line in zip(f.OldContents(), f.NewContents())):
-      return [
-          output_api.PresubmitError(
-              'event_list only has two supported changes: '
-              'appending a new line, and replacing a line with removed.')
-      ]
   return []
 
 
@@ -390,77 +298,6 @@ def CheckSqlMetrics(input_api, output_api):
     return []
   if subprocess.call([tool]):
     return [output_api.PresubmitError(tool + ' failed')]
-  return []
-
-
-def CheckTestData(input_api, output_api):
-  # The script invocation doesn't work on Windows.
-  if input_api.is_windows:
-    return []
-
-  tool = 'tools/test_data'
-  if subprocess.call([tool, 'status', '--quiet']):
-    return [
-        output_api.PresubmitError(
-            '//test/data is out of sync. Run ' + tool + ' status for more. \n'
-            'If you rebaselined UI tests or added a new test trace, run:'
-            '`tools/test_data upload`. Otherwise run `tools/install-build-deps`'
-            ' or `tools/test_data download --overwrite` to sync local test_data'
-        )
-    ]
-  return []
-
-
-def CheckChromeStdlib(input_api, output_api):
-  stdlib_paths = ("src/trace_processor/dejaview_sql/stdlib/chrome/",
-                  "test/data/chrome/",
-                  "test/trace_processor/diff_tests/stdlib/chrome/")
-
-  def chrome_stdlib_file_filter(x):
-    return input_api.FilterSourceFile(x, files_to_check=stdlib_paths)
-
-  # Only check chrome stdlib files
-  if not any(input_api.AffectedFiles(file_filter=chrome_stdlib_file_filter)):
-    return []
-
-  # Always allow Copybara service to make changes to chrome stdlib
-  if input_api.change.COPYBARA_IMPORT:
-    return []
-
-  if input_api.change.CHROME_STDLIB_MANUAL_ROLL:
-    return []
-
-  message = (
-      'Files under {0} and {1} '
-      'are rolled from the Chromium repository by a '
-      'Copybara service.\nYou should not modify these in '
-      'the DejaView repository, please make your changes '
-      'in Chromium instead.\n'
-      'If you want to do a manual roll, you must specify '
-      'CHROME_STDLIB_MANUAL_ROLL=<reason> in the CL description.').format(
-          *stdlib_paths)
-  return [output_api.PresubmitError(message)]
-
-
-def CheckAmalgamatedPythonTools(input_api, output_api):
-  # The script invocation doesn't work on Windows.
-  if input_api.is_windows:
-    return []
-
-  tool = 'tools/gen_amalgamated_python_tools'
-
-  # If no GN files were modified, bail out.
-  def build_file_filter(x):
-    return input_api.FilterSourceFile(x, files_to_check=('python/.*$', tool))
-
-  if not input_api.AffectedSourceFiles(build_file_filter):
-    return []
-  if subprocess.call([tool, '--check-only']):
-    return [
-        output_api.PresubmitError(
-            'amalgamated python tools/ are out of date. ' + 'Run ' + tool +
-            ' to update them.')
-    ]
   return []
 
 

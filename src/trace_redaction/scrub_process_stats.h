@@ -19,7 +19,7 @@
 
 #include <memory>
 
-#include "src/trace_redaction/redact_sched_events.h"
+#include "src/trace_redaction/filtering.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
 namespace dejaview::trace_redaction {

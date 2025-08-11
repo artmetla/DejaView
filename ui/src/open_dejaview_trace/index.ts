@@ -35,9 +35,6 @@ interface OpenTraceOptions {
   // some features are disabled.
   mode: 'embedded' | undefined;
 
-  // Hides the sidebar in the opened dejaview UI.
-  hideSidebar?: boolean;
-
   ts?: string;
 
   dur?: string;

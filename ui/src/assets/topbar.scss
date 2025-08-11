@@ -15,8 +15,7 @@
 @import "widgets/theme";
 
 @mixin omnibox-width() {
-  width: 90%;
-  max-width: 600px;
+  width: 100%;
 }
 
 .topbar {
@@ -30,6 +29,19 @@
   display: flex;
   justify-content: center;
   align-items: center;
+  .topbar-button {
+    z-index: 5;
+    height: var(--topbar-height);
+    width: 48px;
+    overflow: hidden;
+    @include transition(0.25s);
+    > button {
+      vertical-align: middle;
+    }
+    &:hover {
+      color: #777;
+    }
+  }
   .omnibox {
     @include omnibox-width();
     @include transition(0.25s);
@@ -39,6 +51,7 @@
     border-radius: $pf-border-radius;
     background-color: white;
     border: solid 1px transparent;
+    margin: 0px 20px;
     &:focus-within {
       border-color: $pf-colour-thin-border;
       box-shadow: 1px 1px 8px rgba(0, 0, 0, 0.2);
@@ -71,8 +84,6 @@
     &.query-mode {
       background-color: #111;
       border-radius: 0;
-      width: 100%;
-      max-width: 100%;
       margin-top: 0;
       border-left: 1px solid #404854;
       height: var(--topbar-height);
@@ -261,12 +272,6 @@
   width: fit-content;
   padding: 3px;
   border-radius: 3px;
-}
-
-.hide-sidebar {
-  .query-mode {
-    padding-left: 48px;
-  }
 }
 
 .pf-omnibox-dropdown {

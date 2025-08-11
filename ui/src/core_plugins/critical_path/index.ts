@@ -21,7 +21,6 @@ import {Trace} from '../../public/trace';
 import {THREAD_STATE_TRACK_KIND} from '../../public/track_kinds';
 import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {asUtid, Utid} from '../../trace_processor/sql_utils/core_types';
-import {addQueryResultsTab} from '../../public/lib/query_table/query_result_tab';
 import {showModal} from '../../widgets/modal';
 import {Optional} from '../../base/utils';
 import {
@@ -284,30 +283,6 @@ class CriticalPath implements DejaViewPlugin {
           criticalPathSliceColumns,
           criticalPathsliceColumnNames,
         );
-      },
-    });
-
-    ctx.commands.registerCommand({
-      id: 'dejaview.CriticalPathPprof_AreaSelection',
-      name: 'Critical path pprof (over area selection)',
-      callback: async () => {
-        const trackUtid = getFirstUtidOfSelectionOrVisibleWindow(ctx);
-        const window = await getTimeSpanOfSelectionOrVisibleWindow(ctx);
-        if (trackUtid === 0) {
-          return showModalErrorAreaSelectionRequired();
-        }
-        addQueryResultsTab(ctx, {
-          query: `
-              INCLUDE DEJAVIEW MODULE sched.thread_executing_span_with_slice;
-              SELECT *
-                FROM
-                  _thread_executing_span_critical_path_graph(
-                  "criical_path",
-                    ${trackUtid},
-                    ${window.start},
-                    ${window.end} - ${window.start}) cr`,
-          title: 'Critical path',
-        });
       },
     });
   }

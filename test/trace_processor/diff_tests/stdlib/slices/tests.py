@@ -133,27 +133,3 @@ class Slices(TestSuite):
         "LatencyInfo.Flow",1035865510385036,126000,4
         "RenderWidgetHostImpl::UserInputStarted",1035865510511036,7000,5
       """))
-
-  def test_thread_slice_cpu_time(self):
-    return DiffTestBlueprint(
-        trace=DataPath('example_android_trace_30s.pb'),
-        query="""
-        INCLUDE DEJAVIEW MODULE slices.cpu_time;
-
-        SELECT id, cpu_time
-        FROM thread_slice_cpu_time
-        LIMIT 10;
-        """,
-        out=Csv("""
-        "id","cpu_time"
-        0,178646
-        1,119740
-        2,58073
-        3,98698
-        4,121979
-        5,45000
-        6,35104
-        7,33333
-        8,46926
-        9,17865
-        """))

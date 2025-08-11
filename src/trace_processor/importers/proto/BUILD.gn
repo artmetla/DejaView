@@ -16,36 +16,20 @@ import("../../../../gn/dejaview_cc_proto_descriptor.gni")
 
 source_set("minimal") {
   sources = [
-    "active_chrome_processes_tracker.cc",
-    "active_chrome_processes_tracker.h",
     "args_parser.cc",
     "args_parser.h",
-    "chrome_string_lookup.cc",
-    "chrome_string_lookup.h",
-    "chrome_system_probes_module.cc",
-    "chrome_system_probes_module.h",
-    "chrome_system_probes_parser.cc",
-    "chrome_system_probes_parser.h",
     "default_modules.cc",
     "default_modules.h",
-    "jit_tracker.cc",
-    "jit_tracker.h",
     "memory_tracker_snapshot_module.cc",
     "memory_tracker_snapshot_module.h",
     "memory_tracker_snapshot_parser.cc",
     "memory_tracker_snapshot_parser.h",
     "metadata_minimal_module.cc",
     "metadata_minimal_module.h",
-    "multi_machine_trace_manager.cc",
-    "multi_machine_trace_manager.h",
-    "network_trace_module.cc",
-    "network_trace_module.h",
     "packet_analyzer.cc",
     "packet_analyzer.h",
     "packet_sequence_state_builder.h",
     "packet_sequence_state_generation.cc",
-    "perf_sample_tracker.cc",
-    "perf_sample_tracker.h",
     "profile_module.cc",
     "profile_module.h",
     "profile_packet_sequence_state.cc",
@@ -77,13 +61,8 @@ source_set("minimal") {
     "../../../../protos/dejaview/common:zero",
     "../../../../protos/dejaview/config:zero",
     "../../../../protos/dejaview/trace:zero",
-    "../../../../protos/dejaview/trace/android:zero",
-    "../../../../protos/dejaview/trace/chrome:zero",
-    "../../../../protos/dejaview/trace/etw:zero",
-    "../../../../protos/dejaview/trace/ftrace:zero",
     "../../../../protos/dejaview/trace/interned_data:zero",
     "../../../../protos/dejaview/trace/dejaview:zero",
-    "../../../../protos/dejaview/trace/power:zero",
     "../../../../protos/dejaview/trace/profiling:zero",
     "../../../../protos/dejaview/trace/ps:zero",
     "../../../../protos/dejaview/trace/sys_stats:zero",
@@ -103,9 +82,6 @@ source_set("minimal") {
     "../../util:trace_blob_view_reader",
     "../common",
     "../common:parser_types",
-    "../etw:minimal",
-    "../ftrace:minimal",
-    "../json:minimal",
     "../memory_tracker:graph_processor",
   ]
 }
@@ -114,38 +90,14 @@ source_set("full") {
   sources = [
     "additional_modules.cc",
     "additional_modules.h",
-    "android_camera_event_module.cc",
-    "android_camera_event_module.h",
-    "android_probes_module.cc",
-    "android_probes_module.h",
-    "android_probes_parser.cc",
-    "android_probes_parser.h",
-    "android_probes_tracker.cc",
-    "android_probes_tracker.h",
     "content_analyzer.cc",
     "content_analyzer.h",
-    "frame_timeline_event_parser.cc",
-    "frame_timeline_event_parser.h",
-    "gpu_event_parser.cc",
-    "gpu_event_parser.h",
-    "graphics_event_module.cc",
-    "graphics_event_module.h",
-    "graphics_frame_event_parser.cc",
-    "graphics_frame_event_parser.h",
     "heap_graph_module.cc",
     "heap_graph_module.h",
     "heap_graph_tracker.cc",
     "heap_graph_tracker.h",
     "metadata_module.cc",
     "metadata_module.h",
-    "pigweed_detokenizer.cc",
-    "pigweed_detokenizer.h",
-    "pixel_modem_module.cc",
-    "pixel_modem_module.h",
-    "pixel_modem_parser.cc",
-    "pixel_modem_parser.h",
-    "statsd_module.cc",
-    "statsd_module.h",
     "string_encoding_utils.cc",
     "string_encoding_utils.h",
     "system_probes_module.cc",
@@ -154,18 +106,9 @@ source_set("full") {
     "system_probes_parser.h",
     "translation_table_module.cc",
     "translation_table_module.h",
-    "v8_module.cc",
-    "v8_module.h",
-    "v8_sequence_state.cc",
-    "v8_sequence_state.h",
-    "v8_tracker.cc",
-    "v8_tracker.h",
-    "vulkan_memory_tracker.cc",
-    "vulkan_memory_tracker.h",
   ]
   deps = [
     ":gen_cc_config_descriptor",
-    ":gen_cc_statsd_atoms_descriptor",
     ":gen_cc_trace_descriptor",
     ":minimal",
     ":packet_sequence_state_generation_hdr",
@@ -174,14 +117,9 @@ source_set("full") {
     "../../../../protos/dejaview/common:zero",
     "../../../../protos/dejaview/config:zero",
     "../../../../protos/dejaview/trace:zero",
-    "../../../../protos/dejaview/trace/android:zero",
-    "../../../../protos/dejaview/trace/chrome:zero",
-    "../../../../protos/dejaview/trace/gpu:zero",
     "../../../../protos/dejaview/trace/interned_data:zero",
-    "../../../../protos/dejaview/trace/power:zero",
     "../../../../protos/dejaview/trace/profiling:zero",
     "../../../../protos/dejaview/trace/ps:zero",
-    "../../../../protos/dejaview/trace/statsd:zero",
     "../../../../protos/dejaview/trace/sys_stats:zero",
     "../../../../protos/dejaview/trace/system_info:zero",
     "../../../../protos/dejaview/trace/translation:zero",
@@ -197,10 +135,6 @@ source_set("full") {
     "../../util:proto_to_args_parser",
     "../common",
     "../common:parser_types",
-    "../etw:full",
-    "../ftrace:full",
-    "../syscalls:full",
-    "winscope:full",
   ]
 }
 
@@ -235,11 +169,6 @@ source_set("packet_sequence_state_generation_hdr") {
   ]
 }
 
-dejaview_cc_proto_descriptor("gen_cc_statsd_atoms_descriptor") {
-  descriptor_name = "atoms.descriptor"
-  descriptor_path = "atoms.descriptor"
-}
-
 dejaview_cc_proto_descriptor("gen_cc_trace_descriptor") {
   descriptor_name = "trace.descriptor"
   descriptor_target = "../../../../protos/dejaview/trace:descriptor"
@@ -250,17 +179,6 @@ dejaview_cc_proto_descriptor("gen_cc_track_event_descriptor") {
   descriptor_target = "../../../../protos/dejaview/trace/track_event:descriptor"
 }
 
-dejaview_cc_proto_descriptor("gen_cc_chrome_track_event_descriptor") {
-  descriptor_name = "chrome_track_event.descriptor"
-  descriptor_target = "../../../../protos/third_party/chromium:descriptor"
-}
-
-dejaview_cc_proto_descriptor("gen_cc_android_track_event_descriptor") {
-  descriptor_name = "android_track_event.descriptor"
-  descriptor_target =
-      "../../../../protos/dejaview/trace/android:android_track_event_descriptor"
-}
-
 dejaview_cc_proto_descriptor("gen_cc_config_descriptor") {
   descriptor_name = "config.descriptor"
   descriptor_target = "../../../../protos/dejaview/config:descriptor"
@@ -269,11 +187,7 @@ dejaview_cc_proto_descriptor("gen_cc_config_descriptor") {
 source_set("unittests") {
   testonly = true
   sources = [
-    "active_chrome_processes_tracker_unittest.cc",
     "heap_graph_tracker_unittest.cc",
-    "jit_tracker_unittest.cc",
-    "network_trace_module_unittest.cc",
-    "perf_sample_tracker_unittest.cc",
     "profile_packet_sequence_state_unittest.cc",
     "proto_trace_parser_impl_unittest.cc",
     "proto_trace_reader_unittest.cc",
@@ -291,9 +205,6 @@ source_set("unittests") {
     "../../../../protos/dejaview/config:zero",
     "../../../../protos/dejaview/trace:non_minimal_cpp",
     "../../../../protos/dejaview/trace:zero",
-    "../../../../protos/dejaview/trace/android:zero",
-    "../../../../protos/dejaview/trace/chrome:zero",
-    "../../../../protos/dejaview/trace/ftrace:zero",
     "../../../../protos/dejaview/trace/interned_data:zero",
     "../../../../protos/dejaview/trace/profiling:cpp",
     "../../../../protos/dejaview/trace/profiling:zero",
@@ -311,6 +222,5 @@ source_set("unittests") {
     "../../util:descriptors",
     "../../util:profiler_util",
     "../common",
-    "../ftrace:full",
   ]
 }

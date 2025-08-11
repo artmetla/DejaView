@@ -17,9 +17,6 @@ import("../../../../gn/proto_library.gni")
 dejaview_proto_library("@TYPE@") {
   sources = [ "interned_data.proto" ]
   deps = [
-    "../android:@TYPE@",
-    "../chrome:@TYPE@",
-    "../gpu:@TYPE@",
     "../profiling:@TYPE@",
     "../track_event:@TYPE@",
   ]

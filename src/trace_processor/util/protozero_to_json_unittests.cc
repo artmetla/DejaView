@@ -24,13 +24,7 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/dejaview/trace/track_event/chrome_compositor_scheduler_state.pbzero.h"
 #include "protos/dejaview/trace/track_event/track_event.pbzero.h"
-
-#if DEJAVIEW_BUILDFLAG(DEJAVIEW_STANDALONE_BUILD)
-#include "protos/dejaview/metrics/chrome/all_chrome_metrics.pb.h"  // nogncheck
-#include "src/trace_processor/metrics/all_chrome_metrics.descriptor.h"  // nogncheck
-#endif
 
 namespace dejaview {
 namespace trace_processor {
@@ -81,78 +75,6 @@ TEST(ProtozeroToJsonTest, CustomDescriptorPoolBasic) {
             ProtozeroToJson(pool, ".dejaview.protos.TrackEvent", binary_proto,
                             kNone));
 }
-
-TEST(ProtozeroToJsonTest, CustomDescriptorPoolNestedMsg) {
-  using dejaview::protos::pbzero::TrackEvent;
-  protozero::HeapBuffered<TrackEvent> msg{kChunkSize, kChunkSize};
-  msg->set_track_uuid(4);
-  auto* state = msg->set_cc_scheduler_state();
-  state->set_deadline_us(7);
-  auto* machine = state->set_state_machine();
-  auto* minor_state = machine->set_minor_state();
-  minor_state->set_commit_count(8);
-  state->set_observing_begin_frame_source(true);
-  msg->set_timestamp_delta_us(3);
-  auto binary_proto = msg.SerializeAsArray();
-
-  DescriptorPool pool;
-  auto status = pool.AddFromFileDescriptorSet(kTrackEventDescriptor.data(),
-                                              kTrackEventDescriptor.size());
-  ASSERT_TRUE(status.ok());
-
-  EXPECT_EQ(R"({
-  "track_uuid": 4,
-  "cc_scheduler_state": {
-    "deadline_us": 7,
-    "state_machine": {
-      "minor_state": {
-        "commit_count": 8
-      }
-    },
-    "observing_begin_frame_source": true
-  },
-  "timestamp_delta_us": 3
-})",
-            ProtozeroToJson(pool, ".dejaview.protos.TrackEvent", binary_proto,
-                            kPretty));
-
-  EXPECT_EQ(
-      R"({"track_uuid":4,"cc_scheduler_state":{"deadline_us":7,"state_machine":{"minor_state":{"commit_count":8}},"observing_begin_frame_source":true},"timestamp_delta_us":3})",
-      ProtozeroToJson(pool, ".dejaview.protos.TrackEvent", binary_proto,
-                      kNone));
-}
-
-// This test depends on the CustomOptions message in descriptor.proto which
-// is very tricky to point to on the non-standalone build.
-#if DEJAVIEW_BUILDFLAG(DEJAVIEW_STANDALONE_BUILD)
-TEST(ProtozeroToJsonTest, CustomDescriptorPoolAnnotations) {
-  using dejaview::protos::TestChromeMetric;
-  TestChromeMetric msg;
-  msg.set_test_value(1);
-  auto binary_proto = msg.SerializeAsString();
-  protozero::ConstBytes binary_proto_bytes{
-      reinterpret_cast<const uint8_t*>(binary_proto.data()),
-      binary_proto.size()};
-
-  DescriptorPool pool;
-  auto status = pool.AddFromFileDescriptorSet(
-      kAllChromeMetricsDescriptor.data(), kAllChromeMetricsDescriptor.size());
-  ASSERT_TRUE(status.ok());
-
-  EXPECT_EQ(R"({
-  "test_value": 1,
-  "__annotations": {
-    "test_value": {
-      "__field_options": {
-        "unit": "count_smallerIsBetter"
-      }
-    }
-  }
-})",
-            ProtozeroToJson(pool, ".dejaview.protos.TestChromeMetric",
-                            binary_proto_bytes, kPretty | kInlineAnnotations));
-}
-#endif
 
 // Sets up a descriptor pool with all the messages from
 // "src/protozero/test/example_proto/test_messages.proto"

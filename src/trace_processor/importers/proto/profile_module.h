@@ -58,11 +58,6 @@ class ProfileModule : public ProtoImporterModule {
       PacketSequenceStateGeneration*,
       protozero::ConstBytes streaming_profile_packet);
 
-  // perf event profiling:
-  void ParsePerfSample(int64_t ts,
-                       PacketSequenceStateGeneration* sequence_state,
-                       const protos::pbzero::TracePacket::Decoder& decoder);
-
   // heap profiling:
   void ParseProfilePacket(int64_t ts,
                           PacketSequenceStateGeneration*,

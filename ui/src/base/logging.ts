@@ -146,8 +146,7 @@ export function reportError(err: ErrorEvent | PromiseRejectionEvent | {}) {
     }
   }
   // Invoke all the handlers registered through addErrorHandler.
-  // There are usually two handlers registered, one for the UI (error_dialog.ts)
-  // and one for Analytics (analytics.ts).
+  // There is usually one handler registered, one for the UI (error_dialog.ts).
   for (const handler of errorHandlers) {
     handler({
       errType,

@@ -41,10 +41,5 @@ dejaview_unittest_source_set("unittests") {
     "../../../gn:gtest_and_gmock",
   ]
   sources = [ "sha1_unittest.cc" ]
-
-  # The HTTP server unittests cannot be run in parallel. Chromium runs tests
-  # in parallel on some bots so exclude all of these ones.
-  if (!build_with_chromium) {
-    sources += [ "http_server_unittest.cc" ]
-  }
+  sources += [ "http_server_unittest.cc" ]
 }

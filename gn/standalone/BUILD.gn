@@ -179,7 +179,7 @@ config("default") {
   ldflags = []
   libs = []
 
-  if ((is_android || is_linux) && !is_wasm) {
+  if (is_linux && !is_wasm) {
     ldflags += [
       "-Wl,--build-id",
       "-Wl,-z,max-page-size=16384",
@@ -341,36 +341,6 @@ config("default") {
       libs += [ "dl" ]
     }
   }
-
-  if (is_android) {
-    asmflags += [ "--target=$android_abi_target" ]
-    cflags += [
-      "--sysroot=$android_compile_sysroot",
-      "-DANDROID",
-      "-D__ANDROID_API__=${android_api_level}",
-      "--target=$android_abi_target",
-    ]
-    cflags_cc += [ "-isystem$android_compile_sysroot/c++/v1" ]
-
-    android_lib_dir = "$android_compile_sysroot/usr/lib/$android_abi_target/$android_api_level"
-    ldflags += [
-      "-Wl,-z,nocopyreloc",
-      "--sysroot=$android_compile_sysroot",
-      "-B${android_lib_dir}",
-      "--target=$android_abi_target",
-      "-Wl,--no-undefined",
-      "-Wl,-z,noexecstack",
-      "-Wl,-z,relro",
-      "-Wl,-z,now",
-      "-Wl,--warn-shared-textrel",
-      "-Wl,--fatal-warnings",
-
-      # From NDK docs: "although the option uses the name "libstdc++" for
-      # historical reasons, this is correct for libc++ as well.
-      "-static-libstdc++",
-    ]
-    lib_dirs = [ android_lib_dir ]
-  }
 }
 
 config("debug_noopt") {
@@ -380,7 +350,7 @@ config("debug_noopt") {
   } else {
     cflags = [ "-O0" ]
   }
-  if (is_android || is_linux) {
+  if (is_linux) {
     cflags += [ "-funwind-tables" ]
   }
 }
@@ -392,8 +362,6 @@ config("release") {
       "/O2",
       "/Zc:inline",
     ]
-  } else if (is_android) {
-    cflags = [ "-O2" ]
   } else if (is_fuzzer) {
     cflags = [ "-O1" ]
   } else {
@@ -427,7 +395,7 @@ config("release") {
 }
 
 config("shared_library") {
-  if (is_android || is_linux) {
+  if (is_linux) {
     ldflags = [ "-fPIC" ]
   }
 }
@@ -439,7 +407,7 @@ config("executable") {
   # Instead on Linux there isn't any need and they break ASan (goo.gl/paFR6K).
   # The OSS-Fuzz provided AFL library is not PIC, so we we cannot use -fPIE
   # for the fuzzer executables.
-  if ((is_android || is_linux) && !is_wasm && !is_fuzzer) {
+  if ((is_linux) && !is_wasm && !is_fuzzer) {
     asmflags = [ "-fPIE" ]
     cflags = [ "-fPIE" ]
     ldflags += [ "-pie" ]
@@ -455,16 +423,6 @@ config("executable") {
       "-Wl,-rpath=\$ORIGIN/.",
       "-Wl,-rpath-link=.",
     ]
-  }
-}
-
-# This config is only added to certain leaf target types (see BUILDCONFIG.gn).
-# This allows us to remove the config (and thus the dependency) on a per-target
-# basis. If the config was applied to source_sets, then they would unavoidably
-# carry the dependency onto liblog to the final target.
-config("android_liblog") {
-  if (is_android) {
-    libs = [ "log" ]
   }
 }
 

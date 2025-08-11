@@ -80,29 +80,6 @@ class DynamicTables(TestSuite):
         10000,"event_depth_2"
         """))
 
-  # Connected/Following/Perceeding flow table.
-  def test_connected_flow(self):
-    return DiffTestBlueprint(
-        trace=Path('connected_flow_data.json'),
-        query=Path('connected_flow_test.sql'),
-        out=Path('connected_flow.out'))
-
-  # Annotated callstacks.
-  def test_perf_sample_sc_annotated_callstack(self):
-    return DiffTestBlueprint(
-        trace=DataPath('perf_sample_sc.pb'),
-        query="""
-        SELECT eac.id, eac.depth, eac.frame_id, eac.annotation,
-               spf.name
-        FROM experimental_annotated_callstack eac
-        JOIN perf_sample ps
-          ON (eac.start_id = ps.callsite_id)
-        JOIN stack_profile_frame spf
-          ON (eac.frame_id = spf.id)
-        ORDER BY eac.start_id ASC, eac.depth ASC;
-        """,
-        out=Path('perf_sample_sc_annotated_callstack.out'))
-
   # ABS_TIME_STR function
   def test_various_clocks_abs_time_str(self):
     return DiffTestBlueprint(

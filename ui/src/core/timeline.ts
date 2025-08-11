@@ -19,7 +19,6 @@ import {Area} from '../public/selection';
 import {raf} from './raf_scheduler';
 import {HighPrecisionTime} from '../base/high_precision_time';
 import {Timeline} from '../public/timeline';
-import {timestampFormat, TimestampFormat} from './timestamp_format';
 import {TraceInfo} from '../public/trace_info';
 
 interface Range {
@@ -141,24 +140,7 @@ export class TimelineImpl implements Timeline {
 
   // Offset between t=0 and the configured time domain.
   timestampOffset(): time {
-    const fmt = timestampFormat();
-    switch (fmt) {
-      case TimestampFormat.Timecode:
-      case TimestampFormat.Seconds:
-      case TimestampFormat.Milliseoncds:
-      case TimestampFormat.Microseconds:
-        return this.traceInfo.start;
-      case TimestampFormat.TraceNs:
-      case TimestampFormat.TraceNsLocale:
-        return Time.ZERO;
-      case TimestampFormat.UTC:
-        return this.traceInfo.utcOffset;
-      case TimestampFormat.TraceTz:
-        return this.traceInfo.traceTzOffset;
-      default:
-        const x: never = fmt;
-        throw new Error(`Unsupported format ${x}`);
-    }
+    return Time.ZERO;
   }
 
   // Convert absolute time to domain time.

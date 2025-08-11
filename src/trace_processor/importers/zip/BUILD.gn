@@ -25,7 +25,6 @@ source_set("full") {
     "../../util:trace_type",
     "../../util:util",
     "../../util:zip_reader",
-    "../android_bugreport",
     "../common",
     "../proto:minimal",
   ]

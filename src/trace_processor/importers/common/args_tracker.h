@@ -120,53 +120,9 @@ class ArgsTracker {
     return AddArgsTo(context_->storage->mutable_flow_table(), id);
   }
 
-  BoundInserter AddArgsTo(tables::InputMethodClientsTable::Id id) {
-    return AddArgsTo(context_->storage->mutable_inputmethod_clients_table(),
-                     id);
-  }
-
-  BoundInserter AddArgsTo(tables::InputMethodServiceTable::Id id) {
-    return AddArgsTo(context_->storage->mutable_inputmethod_service_table(),
-                     id);
-  }
-
-  BoundInserter AddArgsTo(tables::InputMethodManagerServiceTable::Id id) {
-    return AddArgsTo(
-        context_->storage->mutable_inputmethod_manager_service_table(), id);
-  }
-
   BoundInserter AddArgsTo(tables::MemorySnapshotNodeTable::Id id) {
     return AddArgsTo(context_->storage->mutable_memory_snapshot_node_table(),
                      id);
-  }
-
-  BoundInserter AddArgsTo(tables::SurfaceFlingerLayersSnapshotTable::Id id) {
-    return AddArgsTo(
-        context_->storage->mutable_surfaceflinger_layers_snapshot_table(), id);
-  }
-
-  BoundInserter AddArgsTo(tables::SurfaceFlingerLayerTable::Id id) {
-    return AddArgsTo(context_->storage->mutable_surfaceflinger_layer_table(),
-                     id);
-  }
-
-  BoundInserter AddArgsTo(tables::SurfaceFlingerTransactionsTable::Id id) {
-    return AddArgsTo(
-        context_->storage->mutable_surfaceflinger_transactions_table(), id);
-  }
-
-  BoundInserter AddArgsTo(tables::ViewCaptureTable::Id id) {
-    return AddArgsTo(context_->storage->mutable_viewcapture_table(), id);
-  }
-
-  BoundInserter AddArgsTo(tables::WindowManagerTable::Id id) {
-    return AddArgsTo(context_->storage->mutable_windowmanager_table(), id);
-  }
-
-  BoundInserter AddArgsTo(tables::WindowManagerShellTransitionsTable::Id id) {
-    return AddArgsTo(
-        context_->storage->mutable_window_manager_shell_transitions_table(),
-        id);
   }
 
   BoundInserter AddArgsTo(tables::AndroidKeyEventsTable::Id id) {
@@ -193,11 +149,6 @@ class ArgsTracker {
     auto* table = context_->storage->mutable_track_table();
     uint32_t row = table->FindById(id)->ToRowNumber().row_number();
     return BoundInserter(this, table->mutable_source_arg_set_id(), row);
-  }
-
-  BoundInserter AddArgsTo(VulkanAllocId id) {
-    return AddArgsTo(
-        context_->storage->mutable_vulkan_memory_allocations_table(), id);
   }
 
   BoundInserter AddArgsTo(UniquePid id) {

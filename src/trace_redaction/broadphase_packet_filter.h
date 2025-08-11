@@ -19,9 +19,6 @@
 
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
-
 namespace dejaview::trace_redaction {
 
 // Execute a broad-phase filter here and defer a narrow-phase filter via other
@@ -39,15 +36,6 @@ class BroadphasePacketFilter : public TransformPrimitive {
  public:
   base::Status Transform(const Context& context,
                          std::string* packet) const override;
-
- private:
-  void OnFtraceEvents(const Context& context,
-                      protozero::ConstBytes bytes,
-                      protos::pbzero::FtraceEventBundle* message) const;
-
-  void OnFtraceEvent(const Context& context,
-                     protozero::ConstBytes bytes,
-                     protos::pbzero::FtraceEvent* message) const;
 };
 
 }  // namespace dejaview::trace_redaction

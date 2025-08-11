@@ -27,7 +27,7 @@ export class PluginsPage implements m.ClassComponent<PageAttrs> {
     const pluginManager = AppImpl.instance.plugins;
     const registeredPlugins = pluginManager.getRegisteredPlugins();
     return m(
-      '.pf-plugins-page',
+      '.pf-plugins-page .page',
       m('h1', 'Plugins'),
       pluginManager.needsRestart &&
         m(

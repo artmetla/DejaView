@@ -51,24 +51,14 @@ std::optional<TraceSorter::SortingMode> GetMinimumSortingMode(
     TraceType trace_type,
     const TraceProcessorContext& context) {
   switch (trace_type) {
-    case kNinjaLogTraceType:
-    case kSystraceTraceType:
     case kGzipTraceType:
     case kCtraceTraceType:
       return std::nullopt;
 
-    case kPerfDataTraceType:
-    case kInstrumentsXmlTraceType:
-      return TraceSorter::SortingMode::kDefault;
-
     case kUnknownTraceType:
     case kJsonTraceType:
-    case kFuchsiaTraceType:
     case kZipFile:
     case kAndroidLogcatTraceType:
-    case kGeckoTraceType:
-    case kArtMethodTraceType:
-    case kPerfTextTraceType:
       return TraceSorter::SortingMode::kFullSort;
 
     case kProtoTraceType:
@@ -114,10 +104,10 @@ base::Status ForwardingTraceParser::Init(const TraceBlobView& blob) {
   DEJAVIEW_DLOG("%s trace detected", TraceTypeToString(trace_type_));
   UpdateSorterForTraceType(trace_type_);
 
-  // TODO(b/334978369) Make sure kProtoTraceType and kSystraceTraceType are
+  // TODO(b/334978369) Make sure kProtoTraceType is
   // parsed first so that we do not get issues with
   // SetPidZeroIsUpidZeroIdleProcess()
-  if (trace_type_ == kProtoTraceType || trace_type_ == kSystraceTraceType) {
+  if (trace_type_ == kProtoTraceType) {
     context_->process_tracker->SetPidZeroIsUpidZeroIdleProcess();
   }
 

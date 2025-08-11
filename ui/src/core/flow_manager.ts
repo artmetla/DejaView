@@ -57,30 +57,6 @@ export class FlowManager {
   private initialize() {
     if (this._initialized) return;
     this._initialized = true;
-    // Create |CHROME_CUSTOME_SLICE_NAME| helper, which combines slice name
-    // and args for some slices (scheduler tasks and mojo messages) for more
-    // helpful messages.
-    // In the future, it should be replaced with this a more scalable and
-    // customisable solution.
-    // Note that a function here is significantly faster than a join.
-    this.engine.query(`
-      SELECT CREATE_FUNCTION(
-        'CHROME_CUSTOM_SLICE_NAME(slice_id LONG)',
-        'STRING',
-        'select case
-           when name="Receive mojo message" then
-            printf("Receive mojo message (interface=%s, hash=%s)",
-              EXTRACT_ARG(arg_set_id,
-                          "chrome_mojo_event_info.mojo_interface_tag"),
-              EXTRACT_ARG(arg_set_id, "chrome_mojo_event_info.ipc_hash"))
-           when name="ThreadControllerImpl::RunTask" or
-                name="ThreadPool_RunTask" then
-            printf("RunTask(posted_from=%s:%s)",
-             EXTRACT_ARG(arg_set_id, "task.posted_from.file_name"),
-             EXTRACT_ARG(arg_set_id, "task.posted_from.function_name"))
-         end
-         from slice where id=$slice_id'
-    );`);
   }
 
   async queryFlowEvents(query: string, callback: (flows: Flow[]) => void) {
@@ -91,7 +67,6 @@ export class FlowManager {
       beginSliceId: NUM,
       beginTrackId: NUM,
       beginSliceName: STR_NULL,
-      beginSliceChromeCustomName: STR_NULL,
       beginSliceCategory: STR_NULL,
       beginSliceStartTs: LONG,
       beginSliceEndTs: LONG,
@@ -101,7 +76,6 @@ export class FlowManager {
       endSliceId: NUM,
       endTrackId: NUM,
       endSliceName: STR_NULL,
-      endSliceChromeCustomName: STR_NULL,
       endSliceCategory: STR_NULL,
       endSliceStartTs: LONG,
       endSliceEndTs: LONG,
@@ -135,7 +109,6 @@ export class FlowManager {
         trackId: it.beginTrackId,
         sliceId: asSliceSqlId(it.beginSliceId),
         sliceName: nullToStr(it.beginSliceName),
-        sliceChromeCustomName: nullToUndefined(it.beginSliceChromeCustomName),
         sliceCategory: nullToStr(it.beginSliceCategory),
         sliceStartTs: Time.fromRaw(it.beginSliceStartTs),
         sliceEndTs: Time.fromRaw(it.beginSliceEndTs),
@@ -148,7 +121,6 @@ export class FlowManager {
         trackId: it.endTrackId,
         sliceId: asSliceSqlId(it.endSliceId),
         sliceName: nullToStr(it.endSliceName),
-        sliceChromeCustomName: nullToUndefined(it.endSliceChromeCustomName),
         sliceCategory: nullToStr(it.endSliceCategory),
         sliceStartTs: Time.fromRaw(it.endSliceStartTs),
         sliceEndTs: Time.fromRaw(it.endSliceEndTs),
@@ -323,13 +295,11 @@ export class FlowManager {
 
     const query = `
     -- Include slices.flow to initialise indexes on 'flow.slice_in' and 'flow.slice_out'.
-    INCLUDE DEJAVIEW MODULE slices.flow;
 
     select
       f.slice_out as beginSliceId,
       t1.track_id as beginTrackId,
       t1.name as beginSliceName,
-      CHROME_CUSTOM_SLICE_NAME(t1.slice_id) as beginSliceChromeCustomName,
       t1.category as beginSliceCategory,
       t1.ts as beginSliceStartTs,
       (t1.ts+t1.dur) as beginSliceEndTs,
@@ -339,7 +309,6 @@ export class FlowManager {
       f.slice_in as endSliceId,
       t2.track_id as endTrackId,
       t2.name as endSliceName,
-      CHROME_CUSTOM_SLICE_NAME(t2.slice_id) as endSliceChromeCustomName,
       t2.category as endSliceCategory,
       t2.ts as endSliceStartTs,
       (t2.ts+t2.dur) as endSliceEndTs,
@@ -392,7 +361,6 @@ export class FlowManager {
       f.slice_out as beginSliceId,
       t1.track_id as beginTrackId,
       t1.name as beginSliceName,
-      CHROME_CUSTOM_SLICE_NAME(t1.slice_id) as beginSliceChromeCustomName,
       t1.category as beginSliceCategory,
       t1.ts as beginSliceStartTs,
       (t1.ts+t1.dur) as beginSliceEndTs,
@@ -402,7 +370,6 @@ export class FlowManager {
       f.slice_in as endSliceId,
       t2.track_id as endTrackId,
       t2.name as endSliceName,
-      CHROME_CUSTOM_SLICE_NAME(t2.slice_id) as endSliceChromeCustomName,
       t2.category as endSliceCategory,
       t2.ts as endSliceStartTs,
       (t2.ts+t2.dur) as endSliceEndTs,

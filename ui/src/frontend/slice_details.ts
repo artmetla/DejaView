@@ -113,18 +113,6 @@ export function renderDetails(
           left: 'User ID',
           right: slice.process.uid,
         }),
-      slice.process &&
-        slice.process.packageName &&
-        m(TreeNode, {
-          left: 'Package name',
-          right: slice.process.packageName,
-        }),
-      slice.process &&
-        exists(slice.process.versionCode) &&
-        m(TreeNode, {
-          left: 'Version code',
-          right: slice.process.versionCode,
-        }),
       m(TreeNode, {
         left: 'SQL ID',
         right: m(SqlRef, {table: 'slice', id: slice.id}),

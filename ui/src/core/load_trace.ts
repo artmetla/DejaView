@@ -15,11 +15,7 @@
 import {assertExists, assertTrue} from '../base/logging';
 import {time, Time, TimeSpan} from '../base/time';
 import {cacheTrace} from './cache_manager';
-import {
-  getEnabledMetatracingCategories,
-  isMetatracingEnabled,
-} from './metatracing';
-import {featureFlags, Flag} from './feature_flags';
+import {featureFlags} from './feature_flags';
 import {Engine, EngineBase} from '../trace_processor/engine';
 import {HttpRpcEngine} from '../trace_processor/http_rpc_engine';
 import {
@@ -27,7 +23,6 @@ import {
   LONG_NULL,
   NUM,
   NUM_NULL,
-  QueryError,
   STR,
   STR_NULL,
 } from '../trace_processor/query_result';
@@ -39,43 +34,13 @@ import {
   TraceStream,
 } from '../core/trace_stream';
 import {decideTracks} from './track_decider';
-import {
-  deserializeAppStatePhase1,
-  deserializeAppStatePhase2,
-} from './state_serialization';
 import {TraceInfo} from '../public/trace_info';
 import {AppImpl} from './app_impl';
 import {raf} from './raf_scheduler';
 import {TraceImpl} from './trace_impl';
-import {SerializedAppState} from '../public/state_serialization_schema';
 import {TraceSource} from '../public/trace_source';
 import {ThreadDesc} from '../public/threads';
 import {Router} from '../core/router';
-
-const METRICS = [
-  'android_ion',
-  'android_lmk',
-  'android_surfaceflinger',
-  'android_batt',
-  'android_other_traces',
-  'chrome_dropped_frames',
-  // TODO(289365196): Reenable:
-  // 'chrome_long_latency',
-  'android_trusty_workqueues',
-];
-const FLAGGED_METRICS: Array<[Flag, string]> = METRICS.map((m) => {
-  const id = `forceMetric${m}`;
-  let name = m.split('_').join(' ');
-  name = name[0].toUpperCase() + name.slice(1);
-  name = 'Metric: ' + name;
-  const flag = featureFlags.register({
-    id,
-    name,
-    description: `Overrides running the '${m}' metric at import time.`,
-    defaultValue: true,
-  });
-  return [flag, m];
-});
 
 const ENABLE_CHROME_RELIABLE_RANGE_ZOOM_FLAG = featureFlags.register({
   id: 'enableChromeReliableRangeZoom',
@@ -177,10 +142,6 @@ async function createEngine(
     });
   }
   engine.onResponseReceived = () => raf.scheduleFullRedraw();
-
-  if (isMetatracingEnabled()) {
-    engine.enableMetatrace(assertExists(getEnabledMetatracingCategories()));
-  }
   return engine;
 }
 
@@ -190,14 +151,12 @@ async function loadTraceIntoEngine(
   engine: EngineBase,
 ): Promise<TraceImpl> {
   let traceStream: TraceStream | undefined;
-  let serializedAppState: SerializedAppState | undefined;
   if (traceSource.type === 'FILE') {
     traceStream = new TraceFileStream(traceSource.file);
   } else if (traceSource.type === 'ARRAY_BUFFER') {
     traceStream = new TraceBufferStream(traceSource.buffer);
   } else if (traceSource.type === 'URL') {
     traceStream = new TraceHttpStream(traceSource.url);
-    serializedAppState = traceSource.serializedAppState;
   } else if (traceSource.type === 'HTTP_RPC') {
     traceStream = undefined;
   } else {
@@ -231,9 +190,6 @@ async function loadTraceIntoEngine(
     assertTrue(engine instanceof HttpRpcEngine);
     await engine.restoreInitialTables();
   }
-  for (const p of app.extraSqlPackages) {
-    await engine.registerSqlPackages(p);
-  }
 
   const traceDetails = await getTraceInfo(engine, traceSource);
   const trace = TraceImpl.createInstanceForCore(app, engine, traceDetails);
@@ -256,10 +212,6 @@ async function loadTraceIntoEngine(
   await includeSummaryTables(trace);
 
   await defineMaxLayoutDepthSqlFunction(engine);
-
-  if (serializedAppState !== undefined) {
-    deserializeAppStatePhase1(serializedAppState, trace);
-  }
 
   await app.plugins.onTraceLoad(trace, (id) => {
     updateStatus(app, `Running plugin: ${id}`);
@@ -286,14 +238,6 @@ async function loadTraceIntoEngine(
         text: 'Reliable Range Start',
       });
     }
-  }
-
-  if (serializedAppState !== undefined) {
-    // Wait that plugins have completed their actions and then proceed with
-    // the final phase of app state restore.
-    // TODO(primiano): this can probably be removed once we refactor tracks
-    // to be URI based and can deal with non-existing URIs.
-    deserializeAppStatePhase2(serializedAppState, trace);
   }
 
   await trace.plugins.onTraceReady();
@@ -400,123 +344,6 @@ async function initialiseHelperViews(trace: TraceImpl) {
   for (const it = metricsResult.iter({name: STR}); it.valid(); it.next()) {
     availableMetrics.push(it.name);
   }
-
-  const availableMetricsSet = new Set<string>(availableMetrics);
-  for (const [flag, metric] of FLAGGED_METRICS) {
-    if (!flag.get() || !availableMetricsSet.has(metric)) {
-      continue;
-    }
-
-    updateStatus(trace, `Computing ${metric} metric`);
-
-    try {
-      // We don't care about the actual result of metric here as we are just
-      // interested in the annotation tracks.
-      await engine.computeMetric([metric], 'proto');
-    } catch (e) {
-      if (e instanceof QueryError) {
-        trace.addLoadingError('MetricError: ' + e.message);
-        continue;
-      } else {
-        throw e;
-      }
-    }
-
-    updateStatus(trace, `Inserting data for ${metric} metric`);
-    try {
-      const result = await engine.query(`pragma table_info(${metric}_event)`);
-      let hasSliceName = false;
-      let hasDur = false;
-      let hasUpid = false;
-      let hasValue = false;
-      let hasGroupName = false;
-      const it = result.iter({name: STR});
-      for (; it.valid(); it.next()) {
-        const name = it.name;
-        hasSliceName = hasSliceName || name === 'slice_name';
-        hasDur = hasDur || name === 'dur';
-        hasUpid = hasUpid || name === 'upid';
-        hasValue = hasValue || name === 'value';
-        hasGroupName = hasGroupName || name === 'group_name';
-      }
-
-      const upidColumnSelect = hasUpid ? 'upid' : '0 AS upid';
-      const upidColumnWhere = hasUpid ? 'upid' : '0';
-      const groupNameColumn = hasGroupName
-        ? 'group_name'
-        : 'NULL AS group_name';
-      if (hasSliceName && hasDur) {
-        await engine.query(`
-            INSERT INTO annotation_slice_track(
-              name, __metric_name, upid, group_name)
-            SELECT DISTINCT
-              track_name,
-              '${metric}' as metric_name,
-              ${upidColumnSelect},
-              ${groupNameColumn}
-            FROM ${metric}_event
-            WHERE track_type = 'slice'
-          `);
-        await engine.query(`
-            INSERT INTO annotation_slice(
-              track_id, ts, dur, thread_dur, depth, cat, name
-            )
-            SELECT
-              t.id AS track_id,
-              ts,
-              dur,
-              NULL as thread_dur,
-              0 AS depth,
-              a.track_name as cat,
-              slice_name AS name
-            FROM ${metric}_event a
-            JOIN annotation_slice_track t
-            ON a.track_name = t.name AND t.__metric_name = '${metric}'
-            ORDER BY t.id, ts
-          `);
-      }
-
-      if (hasValue) {
-        const minMax = await engine.query(`
-            SELECT
-              IFNULL(MIN(value), 0) as minValue,
-              IFNULL(MAX(value), 0) as maxValue
-            FROM ${metric}_event
-            WHERE ${upidColumnWhere} != 0`);
-        const row = minMax.firstRow({minValue: NUM, maxValue: NUM});
-        await engine.query(`
-            INSERT INTO annotation_counter_track(
-              name, __metric_name, min_value, max_value, upid)
-            SELECT DISTINCT
-              track_name,
-              '${metric}' as metric_name,
-              CASE ${upidColumnWhere} WHEN 0 THEN NULL ELSE ${row.minValue} END,
-              CASE ${upidColumnWhere} WHEN 0 THEN NULL ELSE ${row.maxValue} END,
-              ${upidColumnSelect}
-            FROM ${metric}_event
-            WHERE track_type = 'counter'
-          `);
-        await engine.query(`
-            INSERT INTO annotation_counter(id, track_id, ts, value)
-            SELECT
-              -1 as id,
-              t.id AS track_id,
-              ts,
-              value
-            FROM ${metric}_event a
-            JOIN annotation_counter_track t
-            ON a.track_name = t.name AND t.__metric_name = '${metric}'
-            ORDER BY t.id, ts
-          `);
-      }
-    } catch (e) {
-      if (e instanceof QueryError) {
-        trace.addLoadingError('MetricError: ' + e.message);
-      } else {
-        throw e;
-      }
-    }
-  }
 }
 
 async function includeSummaryTables(trace: TraceImpl) {
@@ -540,17 +367,6 @@ async function includeSummaryTables(trace: TraceImpl) {
 function updateStatus(traceOrApp: TraceImpl | AppImpl, msg: string): void {
   const showUntilDismissed = 0;
   traceOrApp.omnibox.showStatusMessage(msg, showUntilDismissed);
-}
-
-async function computeFtraceBounds(engine: Engine): Promise<TimeSpan | null> {
-  const result = await engine.query(`
-    SELECT min(ts) as start, max(ts) as end FROM ftrace_event;
-  `);
-  const {start, end} = result.firstRow({start: LONG_NULL, end: LONG_NULL});
-  if (start !== null && end !== null) {
-    return new TimeSpan(Time.fromRaw(start), Time.fromRaw(end));
-  }
-  return null;
 }
 
 async function computeTraceReliableRangeStart(engine: Engine): Promise<time> {
@@ -584,13 +400,6 @@ async function computeVisibleTime(
   if (!isJsonTrace && ENABLE_CHROME_RELIABLE_RANGE_ZOOM_FLAG.get()) {
     const reliableRangeStart = await computeTraceReliableRangeStart(engine);
     visibleStart = Time.max(visibleStart, reliableRangeStart);
-  }
-
-  // Move start of visible window to the first ftrace event
-  const ftraceBounds = await computeFtraceBounds(engine);
-  if (ftraceBounds !== null) {
-    // Avoid moving start of visible window past its end!
-    visibleStart = Time.min(ftraceBounds.start, visibleEnd);
   }
   return new TimeSpan(visibleStart, visibleEnd);
 }
@@ -692,9 +501,6 @@ async function getTraceInfo(
 
   const traceType = await getTraceType(engine);
 
-  const hasFtrace =
-    (await engine.query(`select * from ftrace_event limit 1`)).numRows() > 0;
-
   const uuidRes = await engine.query(`select str_value as uuid from metadata
     where name = 'trace_uuid'`);
   // trace_uuid can be missing from the TP tables if the trace is empty or in
@@ -714,7 +520,6 @@ async function getTraceInfo(
     importErrors: await getTraceErrors(engine),
     source: traceSource,
     traceType,
-    hasFtrace,
     uuid,
     cached,
   };

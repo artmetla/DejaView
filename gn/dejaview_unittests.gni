@@ -24,11 +24,9 @@ dejaview_unittests_targets = [
   "src/tracing/core:unittests",
   "src/tracing/service:unittests",
   "src/tracing:unittests",
-  "src/profiling:unittests",
-  "src/profiling/symbolizer:unittests",
 ]
 
-if ((is_linux || is_android) && !dejaview_build_with_embedder) {
+if (is_linux) {
   # This test depends on pthread and can't run on non-Linux-based OS.
   dejaview_unittests_targets += [ "test/sanitizers:unittests" ]
 }
@@ -44,45 +42,12 @@ if (enable_dejaview_ipc) {
   ]
 }
 
-if (enable_dejaview_platform_services) {
-  dejaview_unittests_targets += [
-    "src/dejaview_cmd:unittests",
-    "src/traced/service:unittests",
-    "src/kernel_utils:unittests",
-  ]
-  if (enable_dejaview_traced_probes) {
-    dejaview_unittests_targets += [
-      "src/traced/probes:unittests",
-      "src/kallsyms:unittests",
-    ]
-  }
-}
-
-if (enable_dejaview_heapprofd || enable_dejaview_traced_perf) {
-  dejaview_unittests_targets += [ "src/profiling/common:unittests" ]
-}
-
-if (enable_dejaview_heapprofd) {
-  dejaview_unittests_targets += [
-    "src/profiling/memory:unittests",
-    "src/profiling/memory:ring_buffer_unittests",
-  ]
-}
-
-if (enable_dejaview_traced_perf) {
-  dejaview_unittests_targets += [ "src/profiling/perf:producer_unittests" ]
-}
-
 if (enable_dejaview_trace_processor) {
   dejaview_unittests_targets += [ "src/trace_processor:unittests" ]
 
   if (enable_dejaview_trace_processor_sqlite) {
     dejaview_unittests_targets += [ "src/trace_processor/metrics:unittests" ]
   }
-}
-
-if (enable_dejaview_traced_relay) {
-  dejaview_unittests_targets += [ "src/traced_relay:unittests" ]
 }
 
 dejaview_unittests_targets += [ "src/trace_redaction:unittests" ]

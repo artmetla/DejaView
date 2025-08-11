@@ -25,9 +25,6 @@ export const ROUTE_SCHEMA = z
 
     // These are transient and are really set only on startup.
 
-    // Are we loading a trace via ABT.
-    openFromAndroidBugTool: z.boolean().optional().catch(undefined),
-
     // For permalink hash.
     s: z.string().optional().catch(undefined),
 
@@ -50,9 +47,6 @@ export const ROUTE_SCHEMA = z
     // For the 'mode' of the UI. For example when the mode is 'embedded'
     // some features are disabled.
     mode: z.enum(['embedded']).optional().catch(undefined),
-
-    // Should we hide the sidebar?
-    hideSidebar: z.boolean().optional().catch(undefined),
 
     // A comma-separated list of plugins to enable for the current session.
     enablePlugins: z.string().optional().catch(undefined),

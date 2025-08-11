@@ -18,6 +18,7 @@ import {
   ComputeMetricArgs,
   ComputeMetricResult,
   DebugArgs,
+  DebuggerIoArgs,
   DisableAndReadMetatraceResult,
   EnableMetatraceArgs,
   MetatraceCategories,
@@ -134,6 +135,9 @@ export abstract class EngineBase implements Engine, Disposable {
   private _numRequestsPending = 0;
   private _failed: Optional<string> = undefined;
   private icountUpdate_?: (currentIcount?: number) => void;
+  private debuggerStdout_?: (buf: Uint8Array) => void;
+  private debuggerStarted_?: () => void;
+  private debuggerStopped_?: () => void;
 
   // TraceController sets this to raf.scheduleFullRedraw().
   onResponseReceived?: () => void;
@@ -293,6 +297,16 @@ export abstract class EngineBase implements Engine, Disposable {
           }
         }
         break;
+      case TPM.TPM_DEBUGGER_IO:
+        const debuggerIoResult = assertExists(rpc.debuggerIoResult);
+        if (this.debuggerStarted_ && debuggerIoResult.started) {
+          this.debuggerStarted_();
+        } else if (this.debuggerStopped_ && debuggerIoResult.stopped) {
+          this.debuggerStopped_();
+        } else if (this.debuggerStdout_ && debuggerIoResult.stdout) {
+          this.debuggerStdout_(debuggerIoResult.stdout);
+        }
+        break;
       default:
         console.log(
           'Unexpected TraceProcessor response received: ',
@@ -376,6 +390,35 @@ export abstract class EngineBase implements Engine, Disposable {
 
     this.rpcSendRequest(rpc);
     return result;
+  }
+
+  sendToDebugger(buf: Uint8Array) {
+    const rpc = TraceProcessorRpc.create();
+    rpc.request = TPM.TPM_DEBUGGER_IO;
+    const args = (rpc.debuggerIoArgs = new DebuggerIoArgs());
+    args.input = buf;
+    this.rpcSendRequest(rpc);
+  }
+
+  resizeDebugger(rows: number, cols: number) {
+    const rpc = TraceProcessorRpc.create();
+    rpc.request = TPM.TPM_DEBUGGER_IO;
+    const args = (rpc.debuggerIoArgs = new DebuggerIoArgs());
+    args.rows = rows;
+    args.cols = cols;
+    this.rpcSendRequest(rpc);
+  }
+
+  setOnDebuggerStdout(debuggerStdoutUpdate: (buf: Uint8Array) => void) {
+    this.debuggerStdout_ = debuggerStdoutUpdate;
+  }
+
+  setOnDebuggerStarted(debuggerStarted: () => void) {
+    this.debuggerStarted_ = debuggerStarted;
+  }
+
+  setOnDebuggerStopped(debuggerStopped: () => void) {
+    this.debuggerStopped_ = debuggerStopped;
   }
 
   // Resets the trace processor state by destroying any table/views created by
@@ -631,6 +674,26 @@ export class EngineProxy implements Engine, Disposable {
 
   debug(targetIcount: number, icountUpdate: (currentIcount?: number) => void) {
     return this.engine.debug(targetIcount, icountUpdate);
+  }
+
+  setOnDebuggerStdout(debuggerStdoutUpdate: (buf: Uint8Array) => void) {
+    this.engine.setOnDebuggerStdout(debuggerStdoutUpdate);
+  }
+
+  setOnDebuggerStarted(debuggerStarted: () => void) {
+    this.engine.setOnDebuggerStarted(debuggerStarted);
+  }
+
+  setOnDebuggerStopped(debuggerStopped: () => void) {
+    this.engine.setOnDebuggerStopped(debuggerStopped);
+  }
+
+  resizeDebugger(rows: number, cols: number) {
+    this.engine.resizeDebugger(rows, cols);
+  }
+
+  sendToDebugger(data: Uint8Array) {
+    this.engine.sendToDebugger(data);
   }
 
   get numRequestsPending() {

@@ -34,6 +34,7 @@ export const defaultPlugins = [
   'dejaview.CpuSlices',
   'dejaview.CriticalPath',
   'dejaview.DebugTracks',
+  'dejaview.Debugger',
   'dejaview.Frames',
   'dejaview.FtraceRaw',
   'dejaview.HeapProfile',

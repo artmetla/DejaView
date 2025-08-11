@@ -416,6 +416,24 @@ export class ThreadSliceDetailsPanel implements TrackEventDetailsPanel {
   }
 
   private renderContextButton(sliceInfo: SliceDetails): m.Children {
+    const debugButton = m(Button, {
+      icon: '',
+      label: "Debug",
+      onclick: () => {
+        globals.trace.engine.debug(
+          Number(sliceInfo.ts),
+          (currentIcount?: number) => {
+            if (currentIcount != undefined) {
+              globals.trace.timeline.debugCursorTimestamp = Time.fromRaw(
+                BigInt(currentIcount),
+              );
+            } else {
+              globals.trace.timeline.debugCursorTimestamp = undefined;
+            }
+          },
+        );
+      },
+    });
     const contextMenuItems = getSliceContextMenuItems(sliceInfo);
     if (contextMenuItems.length > 0) {
       const trigger = m(Button, {
@@ -423,15 +441,15 @@ export class ThreadSliceDetailsPanel implements TrackEventDetailsPanel {
         label: 'Contextual Options',
         rightIcon: Icons.ContextMenu,
       });
-      return m(
+      return [debugButton, m(
         PopupMenu2,
         {trigger},
         contextMenuItems.map(({name, run}) =>
           m(MenuItem, {label: name, onclick: () => run(sliceInfo, this.trace)}),
         ),
-      );
+      )];
     } else {
-      return undefined;
+      return debugButton;
     }
   }
 }

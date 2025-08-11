@@ -28,6 +28,7 @@
 @import "viz_page";
 @import "widgets_page";
 @import "plugins_page";
+@import "../../node_modules/@xterm/xterm/css/xterm";
 
 // Widgets - keep these sorted (they should NOT have any inter-dependencies)
 @import "widgets/anchor";

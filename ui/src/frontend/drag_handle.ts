@@ -120,7 +120,7 @@ export class DragHandle implements m.ClassComponent<DragHandleAttrs> {
     const cmd = globals.commandManager.registerCommand({
       id: 'dejaview.ToggleDrawer',
       name: 'Toggle drawer',
-      defaultHotkey: 'Q',
+      defaultHotkey: 'A',
       callback: () => {
         this.toggleVisibility();
       },

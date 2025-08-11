@@ -19,13 +19,13 @@ from python.generators.diff_tests.testing import DiffTestBlueprint
 from python.generators.diff_tests.testing import TestSuite
 
 
-class PerfettoTable(TestSuite):
+class DejaViewTable(TestSuite):
 
   def test_create_table(self):
     return DiffTestBlueprint(
         trace=TextProto(r''),
         query="""
-        CREATE PERFETTO TABLE foo AS SELECT 42 as a;
+        CREATE DEJAVIEW TABLE foo AS SELECT 42 as a;
 
         SELECT * FROM foo;
         """,
@@ -38,8 +38,8 @@ class PerfettoTable(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(r''),
         query="""
-        CREATE PERFETTO TABLE foo AS SELECT 42 as a;
-        CREATE OR REPLACE PERFETTO TABLE foo AS SELECT 43 as a;
+        CREATE DEJAVIEW TABLE foo AS SELECT 42 as a;
+        CREATE OR REPLACE DEJAVIEW TABLE foo AS SELECT 43 as a;
 
         SELECT * FROM foo;
         """,
@@ -48,7 +48,7 @@ class PerfettoTable(TestSuite):
         43
         """))
 
-  def test_create_perfetto_table_double_metric_run(self):
+  def test_create_dejaview_table_double_metric_run(self):
     return DiffTestBlueprint(
         trace=TextProto(r''),
         query="""
@@ -64,27 +64,27 @@ class PerfettoTable(TestSuite):
         2,"bigger"
         """))
 
-  def test_perfetto_table_info_static_table(self):
+  def test_dejaview_table_info_static_table(self):
     return DiffTestBlueprint(
         trace=DataPath('android_boot.pftrace'),
         query="""
-        SELECT * FROM perfetto_table_info('counter');
+        SELECT * FROM dejaview_table_info('counter');
         """,
         out=Csv("""
         "id","type","name","col_type","nullable","sorted"
-        0,"perfetto_table_info","id","id",0,1
-        1,"perfetto_table_info","type","string",0,0
-        2,"perfetto_table_info","ts","int64",0,1
-        3,"perfetto_table_info","track_id","uint32",0,0
-        4,"perfetto_table_info","value","double",0,0
-        5,"perfetto_table_info","arg_set_id","uint32",1,0
+        0,"dejaview_table_info","id","id",0,1
+        1,"dejaview_table_info","type","string",0,0
+        2,"dejaview_table_info","ts","int64",0,1
+        3,"dejaview_table_info","track_id","uint32",0,0
+        4,"dejaview_table_info","value","double",0,0
+        5,"dejaview_table_info","arg_set_id","uint32",1,0
         """))
 
-  def test_perfetto_table_info_runtime_table(self):
+  def test_dejaview_table_info_runtime_table(self):
     return DiffTestBlueprint(
         trace=TextProto(''),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT * FROM
         (SELECT 2 AS c
         UNION
@@ -93,22 +93,22 @@ class PerfettoTable(TestSuite):
         SELECT 1 AS c)
         ORDER BY c desc;
 
-        SELECT * from perfetto_table_info('foo');
+        SELECT * from dejaview_table_info('foo');
         """,
         out=Csv("""
         "id","type","name","col_type","nullable","sorted"
-        0,"perfetto_table_info","c","int64",0,0
+        0,"dejaview_table_info","c","int64",0,0
         """))
 
-  def test_create_perfetto_table_nullable_column(self):
+  def test_create_dejaview_table_nullable_column(self):
     return DiffTestBlueprint(
         trace=DataPath('android_boot.pftrace'),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT thread_ts FROM slice
         WHERE thread_ts IS NOT NULL;
 
-        SELECT nullable FROM perfetto_table_info('foo')
+        SELECT nullable FROM dejaview_table_info('foo')
         WHERE name = 'thread_ts';
         """,
         out=Csv("""
@@ -116,14 +116,14 @@ class PerfettoTable(TestSuite):
         0
         """))
 
-  def test_create_perfetto_table_nullable_column(self):
+  def test_create_dejaview_table_nullable_column(self):
     return DiffTestBlueprint(
         trace=DataPath('android_boot.pftrace'),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT dur FROM slice ORDER BY dur;
 
-        SELECT sorted FROM perfetto_table_info('foo')
+        SELECT sorted FROM dejaview_table_info('foo')
         WHERE name = 'dur';
         """,
         out=Csv("""
@@ -131,18 +131,18 @@ class PerfettoTable(TestSuite):
         1
         """))
 
-  def test_create_perfetto_table_id_column(self):
+  def test_create_dejaview_table_id_column(self):
     return DiffTestBlueprint(
         trace=TextProto(''),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT 2 AS c
         UNION
         SELECT 4
         UNION
         SELECT 6;
 
-        SELECT col_type FROM perfetto_table_info('foo')
+        SELECT col_type FROM dejaview_table_info('foo')
         WHERE name = 'c';
         """,
         out=Csv("""
@@ -181,7 +181,7 @@ class PerfettoTable(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(''),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         WITH data(a, b) AS (
           VALUES
             -- Needed to defeat any id/sorted detection.
@@ -286,7 +286,7 @@ class PerfettoTable(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        CREATE PERFETTO MACRO max(col ColumnName)
+        CREATE DEJAVIEW MACRO max(col ColumnName)
         RETURNS TableOrSubquery AS (
           SELECT id, $col
           FROM slice
@@ -309,7 +309,7 @@ class PerfettoTable(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        CREATE PERFETTO MACRO min(col ColumnName)
+        CREATE DEJAVIEW MACRO min(col ColumnName)
         RETURNS TableOrSubquery AS (
           SELECT id, $col
           FROM slice
@@ -328,12 +328,12 @@ class PerfettoTable(TestSuite):
         0,3111,460,0
         """))
 
-  def test_create_perfetto_index(self):
+  def test_create_dejaview_index(self):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        CREATE PERFETTO INDEX foo ON __intrinsic_slice(track_id);
-        CREATE PERFETTO INDEX foo_name ON __intrinsic_slice(name);
+        CREATE DEJAVIEW INDEX foo ON __intrinsic_slice(track_id);
+        CREATE DEJAVIEW INDEX foo_name ON __intrinsic_slice(name);
 
         SELECT
           COUNT() FILTER (WHERE track_id > 10) AS track_idx,
@@ -345,11 +345,11 @@ class PerfettoTable(TestSuite):
         20717,7098
         """))
 
-  def test_create_perfetto_index_multiple_cols(self):
+  def test_create_dejaview_index_multiple_cols(self):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        CREATE PERFETTO INDEX foo ON __intrinsic_slice(track_id, name);
+        CREATE DEJAVIEW INDEX foo ON __intrinsic_slice(track_id, name);
 
         SELECT
           MIN(track_id) AS min_track_id,
@@ -362,12 +362,12 @@ class PerfettoTable(TestSuite):
         13,"virtual bool art::ElfOatFile::Load(const std::string &, bool, bool, bool, art::MemMap *, std::string *)"
         """))
 
-  def test_create_perfetto_index_multiple_smoke(self):
+  def test_create_dejaview_index_multiple_smoke(self):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        CREATE PERFETTO INDEX idx ON __intrinsic_slice(track_id, name);
-        CREATE PERFETTO TABLE bar AS SELECT * FROM slice;
+        CREATE DEJAVIEW INDEX idx ON __intrinsic_slice(track_id, name);
+        CREATE DEJAVIEW TABLE bar AS SELECT * FROM slice;
 
        SELECT (
           SELECT count()
@@ -385,12 +385,12 @@ class PerfettoTable(TestSuite):
         39,39
         """))
 
-  def test_create_or_replace_perfetto_index(self):
+  def test_create_or_replace_dejaview_index(self):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        CREATE PERFETTO INDEX idx ON __intrinsic_slice(track_id, name);
-        CREATE OR REPLACE PERFETTO INDEX idx ON __intrinsic_slice(name);
+        CREATE DEJAVIEW INDEX idx ON __intrinsic_slice(track_id, name);
+        CREATE OR REPLACE DEJAVIEW INDEX idx ON __intrinsic_slice(name);
 
        SELECT MAX(id) FROM slice WHERE track_id = 13;
         """,
@@ -399,12 +399,12 @@ class PerfettoTable(TestSuite):
         20745
         """))
 
-  def test_create_or_replace_perfetto_index(self):
+  def test_create_or_replace_dejaview_index(self):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        CREATE PERFETTO INDEX idx ON __intrinsic_slice(track_id, name);
-        DROP PERFETTO INDEX idx ON __intrinsic_slice;
+        CREATE DEJAVIEW INDEX idx ON __intrinsic_slice(track_id, name);
+        DROP DEJAVIEW INDEX idx ON __intrinsic_slice;
 
         SELECT MAX(id) FROM slice WHERE track_id = 13;
         """,

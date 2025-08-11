@@ -23,12 +23,12 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/protozero/field.h"
-#include "protos/perfetto/trace/android/gpu_mem_event.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/protozero/field.h"
+#include "protos/dejaview/trace/android/gpu_mem_event.pbzero.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -43,16 +43,16 @@
 #include "src/trace_processor/tables/track_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/common/gpu_counter_descriptor.pbzero.h"
-#include "protos/perfetto/trace/gpu/gpu_counter_event.pbzero.h"
-#include "protos/perfetto/trace/gpu/gpu_log.pbzero.h"
-#include "protos/perfetto/trace/gpu/gpu_render_stage_event.pbzero.h"
-#include "protos/perfetto/trace/gpu/vulkan_api_event.pbzero.h"
-#include "protos/perfetto/trace/gpu/vulkan_memory_event.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/common/gpu_counter_descriptor.pbzero.h"
+#include "protos/dejaview/trace/gpu/gpu_counter_event.pbzero.h"
+#include "protos/dejaview/trace/gpu/gpu_log.pbzero.h"
+#include "protos/dejaview/trace/gpu/gpu_render_stage_event.pbzero.h"
+#include "protos/dejaview/trace/gpu/vulkan_api_event.pbzero.h"
+#include "protos/dejaview/trace/gpu/vulkan_memory_event.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -146,7 +146,7 @@ void GpuEventParser::ParseGpuCounterEvent(int64_t ts, ConstBytes blob) {
   for (auto it = descriptor.specs(); it; ++it) {
     protos::pbzero::GpuCounterDescriptor_GpuCounterSpec::Decoder spec(*it);
     if (!spec.has_counter_id()) {
-      PERFETTO_ELOG("Counter spec missing counter id");
+      DEJAVIEW_ELOG("Counter spec missing counter id");
       context_->storage->IncrementStats(stats::gpu_counters_invalid_spec);
       continue;
     }
@@ -200,7 +200,7 @@ void GpuEventParser::ParseGpuCounterEvent(int64_t ts, ConstBytes blob) {
       }
     } else {
       // Either counter spec was repeated or it came after counter data.
-      PERFETTO_ELOG("Duplicated counter spec found. (counter_id=%d, name=%s)",
+      DEJAVIEW_ELOG("Duplicated counter spec found. (counter_id=%d, name=%s)",
                     counter_id, name.ToStdString().c_str());
       context_->storage->IncrementStats(stats::gpu_counters_invalid_spec);
     }
@@ -446,7 +446,7 @@ void GpuEventParser::ParseGpuRenderStageEvent(
           id = 1024;
           context_->storage->IncrementStats(
               stats::gpu_render_stage_parser_errors);
-          PERFETTO_ELOG("Invalid hw_queue_id.");
+          DEJAVIEW_ELOG("Invalid hw_queue_id.");
         } else {
           writer.AppendInt(event.hw_queue_id());
         }
@@ -779,4 +779,4 @@ void GpuEventParser::ParseGpuMemTotalEvent(int64_t ts, ConstBytes blob) {
       ts, static_cast<double>(gpu_mem_total.size()), track);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

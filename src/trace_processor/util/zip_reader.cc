@@ -25,24 +25,24 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/util/gzip_utils.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/streaming_line_reader.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 #include <zconf.h>
 #include <zlib.h>
 #endif
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 
 namespace {
 
@@ -121,14 +121,14 @@ base::Status ZipReader::Parse(TraceBlobView tbv) {
 }
 
 base::Status ZipReader::TryParseHeader() {
-  PERFETTO_CHECK(cur_.hdr.signature == 0);
+  DEJAVIEW_CHECK(cur_.hdr.signature == 0);
 
   std::optional<TraceBlobView> hdr =
       reader_.SliceOff(reader_.start_offset(), kZipFileHdrSize);
   if (!hdr) {
     return base::OkStatus();
   }
-  PERFETTO_CHECK(reader_.PopFrontBytes(kZipFileHdrSize));
+  DEJAVIEW_CHECK(reader_.PopFrontBytes(kZipFileHdrSize));
 
   const uint8_t* hdr_it = hdr->data();
   cur_.hdr.signature = ReadAndAdvance<uint32_t>(&hdr_it);
@@ -164,7 +164,7 @@ base::Status ZipReader::TryParseHeader() {
   cur_.hdr.uncompressed_size = ReadAndAdvance<uint32_t>(&hdr_it);
   cur_.hdr.fname_len = ReadAndAdvance<uint16_t>(&hdr_it);
   cur_.hdr.extra_field_len = ReadAndAdvance<uint16_t>(&hdr_it);
-  PERFETTO_DCHECK(static_cast<size_t>(hdr_it - hdr->data()) == kZipFileHdrSize);
+  DEJAVIEW_DCHECK(static_cast<size_t>(hdr_it - hdr->data()) == kZipFileHdrSize);
 
   // We support only up to version 2.0 (20). Higher versions define
   // more advanced features that we don't support (zip64 extensions,
@@ -199,14 +199,14 @@ base::Status ZipReader::TryParseFilename() {
     cur_.parse_state = FileParseState::kSkipBytes;
     return base::OkStatus();
   }
-  PERFETTO_CHECK(cur_.hdr.fname.empty());
+  DEJAVIEW_CHECK(cur_.hdr.fname.empty());
 
   std::optional<TraceBlobView> fname_tbv =
       reader_.SliceOff(reader_.start_offset(), cur_.hdr.fname_len);
   if (!fname_tbv) {
     return base::OkStatus();
   }
-  PERFETTO_CHECK(reader_.PopFrontBytes(cur_.hdr.fname_len));
+  DEJAVIEW_CHECK(reader_.PopFrontBytes(cur_.hdr.fname_len));
   cur_.hdr.fname = std::string(reinterpret_cast<const char*>(fname_tbv->data()),
                                cur_.hdr.fname_len);
   cur_.parse_state = FileParseState::kSkipBytes;
@@ -221,11 +221,11 @@ base::Status ZipReader::TrySkipBytes() {
 
   size_t avail = reader_.avail();
   if (avail < cur_.ignore_bytes_after_fname) {
-    PERFETTO_CHECK(reader_.PopFrontBytes(avail));
+    DEJAVIEW_CHECK(reader_.PopFrontBytes(avail));
     cur_.ignore_bytes_after_fname -= avail;
     return base::OkStatus();
   }
-  PERFETTO_CHECK(reader_.PopFrontBytes(cur_.ignore_bytes_after_fname));
+  DEJAVIEW_CHECK(reader_.PopFrontBytes(cur_.ignore_bytes_after_fname));
   cur_.ignore_bytes_after_fname = 0;
   cur_.parse_state = FileParseState::kCompressedData;
   return base::OkStatus();
@@ -247,7 +247,7 @@ base::Status ZipReader::TryParseCompressedData() {
     if (!data_descriptor) {
       return base::OkStatus();
     }
-    PERFETTO_CHECK(reader_.PopFrontBytes(kDataDescriptorSize));
+    DEJAVIEW_CHECK(reader_.PopFrontBytes(kDataDescriptorSize));
 
     const auto* desc_it = data_descriptor->data();
     auto desc_sig = ReadAndAdvance<uint32_t>(&desc_it);
@@ -261,37 +261,37 @@ base::Status ZipReader::TryParseCompressedData() {
     cur_.hdr.compressed_size = ReadAndAdvance<uint32_t>(&desc_it);
     cur_.hdr.uncompressed_size = ReadAndAdvance<uint32_t>(&desc_it);
   } else {
-    PERFETTO_CHECK(!cur_.compressed);
+    DEJAVIEW_CHECK(!cur_.compressed);
     std::optional<TraceBlobView> raw_compressed =
         reader_.SliceOff(reader_.start_offset(), cur_.hdr.compressed_size);
     if (!raw_compressed) {
       return base::OkStatus();
     }
     cur_.compressed = *std::move(raw_compressed);
-    PERFETTO_CHECK(reader_.PopFrontBytes(cur_.hdr.compressed_size));
+    DEJAVIEW_CHECK(reader_.PopFrontBytes(cur_.hdr.compressed_size));
   }
 
   // We have accumulated the whole header, file name and compressed payload.
-  PERFETTO_CHECK(cur_.compressed);
-  PERFETTO_CHECK(cur_.hdr.fname.size() == cur_.hdr.fname_len);
-  PERFETTO_CHECK(cur_.compressed->size() == cur_.hdr.compressed_size);
-  PERFETTO_CHECK(cur_.ignore_bytes_after_fname == 0);
+  DEJAVIEW_CHECK(cur_.compressed);
+  DEJAVIEW_CHECK(cur_.hdr.fname.size() == cur_.hdr.fname_len);
+  DEJAVIEW_CHECK(cur_.compressed->size() == cur_.hdr.compressed_size);
+  DEJAVIEW_CHECK(cur_.ignore_bytes_after_fname == 0);
 
   files_.emplace_back();
   files_.back().hdr_ = std::move(cur_.hdr);
   files_.back().compressed_data_ = *std::move(cur_.compressed);
   cur_ = FileParseState();  // Reset the parsing state for the next file.
   return base::OkStatus();
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util
 
 base::StatusOr<std::optional<TraceBlobView>>
 ZipReader::TryParseUnsizedCompressedData() {
-  PERFETTO_CHECK(cur_.hdr.compression == kDeflate);
+  DEJAVIEW_CHECK(cur_.hdr.compression == kDeflate);
 
   auto start = reader_.start_offset() + cur_.decompressor_bytes_fed;
   auto end = reader_.end_offset();
   auto slice = reader_.SliceOff(start, end - start);
-  PERFETTO_CHECK(slice);
+  DEJAVIEW_CHECK(slice);
   auto res_code = cur_.decompressor.FeedAndExtract(slice->data(), slice->size(),
                                                    [](const uint8_t*, size_t) {
                                                      // Intentionally do
@@ -311,15 +311,15 @@ ZipReader::TryParseUnsizedCompressedData() {
           "Failed decompressing stream in ZIP file at offset 0x%zx",
           reader_.start_offset());
     case GzipDecompressor::ResultCode::kOk:
-      PERFETTO_FATAL("Unexpected result code");
+      DEJAVIEW_FATAL("Unexpected result code");
     case GzipDecompressor::ResultCode::kEof:
       break;
   }
   cur_.decompressor_bytes_fed += slice->size() - cur_.decompressor.AvailIn();
   auto raw_compressed =
       reader_.SliceOff(reader_.start_offset(), cur_.decompressor_bytes_fed);
-  PERFETTO_CHECK(raw_compressed);
-  PERFETTO_CHECK(reader_.PopFrontBytes(cur_.decompressor_bytes_fed));
+  DEJAVIEW_CHECK(raw_compressed);
+  DEJAVIEW_CHECK(reader_.PopFrontBytes(cur_.decompressor_bytes_fed));
   return {std::move(raw_compressed)};
 }
 
@@ -350,7 +350,7 @@ base::Status ZipFile::Decompress(std::vector<uint8_t>* out_data) const {
     return base::OkStatus();
   }
 
-  PERFETTO_DCHECK(hdr_.compression == kDeflate);
+  DEJAVIEW_DCHECK(hdr_.compression == kDeflate);
   GzipDecompressor dec(GzipDecompressor::InputMode::kRawDeflate);
   dec.Feed(compressed_data_.data(), hdr_.compressed_size);
 
@@ -363,7 +363,7 @@ base::Status ZipFile::Decompress(std::vector<uint8_t>* out_data) const {
   }
   out_data->resize(dec_res.bytes_written);
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
   const auto* crc_data = reinterpret_cast<const ::Bytef*>(out_data->data());
   auto crc_len = static_cast<::uInt>(out_data->size());
   auto actual_crc32 = static_cast<uint32_t>(::crc32(0u, crc_data, crc_len));
@@ -389,7 +389,7 @@ base::Status ZipFile::DecompressLines(LinesCallback callback) const {
     return base::OkStatus();
   }
 
-  PERFETTO_DCHECK(hdr_.compression == kDeflate);
+  DEJAVIEW_DCHECK(hdr_.compression == kDeflate);
   GzipDecompressor dec(GzipDecompressor::InputMode::kRawDeflate);
   dec.Feed(compressed_data_.data(), hdr_.compressed_size);
 
@@ -403,7 +403,7 @@ base::Status ZipFile::DecompressLines(LinesCallback callback) const {
       return base::ErrStatus("zlib decompression error on %s (%d)",
                              name().c_str(), static_cast<int>(dec_res.ret));
     }
-    PERFETTO_DCHECK(dec_res.bytes_written <= kChunkSize);
+    DEJAVIEW_DCHECK(dec_res.bytes_written <= kChunkSize);
     line_reader.EndWrite(dec_res.bytes_written);
   } while (dec_res.ret == ResultCode::kOk);
   return base::OkStatus();
@@ -412,7 +412,7 @@ base::Status ZipFile::DecompressLines(LinesCallback callback) const {
 // Common logic for both Decompress() and DecompressLines().
 base::Status ZipFile::DoDecompressionChecks() const {
   if (hdr_.compression == kNoCompression) {
-    PERFETTO_CHECK(hdr_.compressed_size == hdr_.uncompressed_size);
+    DEJAVIEW_CHECK(hdr_.compressed_size == hdr_.uncompressed_size);
     return base::OkStatus();
   }
   if (hdr_.compression != kDeflate) {
@@ -422,7 +422,7 @@ base::Status ZipFile::DoDecompressionChecks() const {
   if (!IsGzipSupported()) {
     return base::ErrStatus(
         "Cannot open zip file. Gzip is not enabled in the current build. "
-        "Rebuild with enable_perfetto_zlib=true");
+        "Rebuild with enable_dejaview_zlib=true");
   }
   return base::OkStatus();
 }
@@ -459,4 +459,4 @@ std::string ZipFile::GetDatetimeStr() const {
   return buf;
 }
 
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util

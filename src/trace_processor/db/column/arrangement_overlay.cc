@@ -24,16 +24,16 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 void ArrangementOverlay::Flatten(uint32_t* start,
                                  const uint32_t* end,
@@ -70,7 +70,7 @@ RangeOrBitVector ArrangementOverlay::ChainImpl::SearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Range in) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "ArrangementOverlay::ChainImpl::Search");
 
   if (does_arrangement_order_storage_ && op != FilterOp::kGlob &&
@@ -93,7 +93,7 @@ RangeOrBitVector ArrangementOverlay::ChainImpl::SearchValidated(
   }
 
   const auto& arrangement = *arrangement_;
-  PERFETTO_DCHECK(in.end <= arrangement.size());
+  DEJAVIEW_DCHECK(in.end <= arrangement.size());
   const auto [min_i, max_i] =
       std::minmax_element(arrangement.begin() + static_cast<int32_t>(in.start),
                           arrangement.begin() + static_cast<int32_t>(in.end));
@@ -108,7 +108,7 @@ RangeOrBitVector ArrangementOverlay::ChainImpl::SearchValidated(
     }
   } else {
     BitVector storage_bitvector = std::move(storage_result).TakeIfBitVector();
-    PERFETTO_DCHECK(storage_bitvector.size() == *max_i + 1);
+    DEJAVIEW_DCHECK(storage_bitvector.size() == *max_i + 1);
 
     // After benchmarking, it turns out this complexity *is* actually worthwhile
     // and has a noticable impact on the performance of this function in real
@@ -141,7 +141,7 @@ void ArrangementOverlay::ChainImpl::IndexSearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "ArrangementOverlay::ChainImpl::IndexSearch");
 
   for (auto& i : indices.tokens) {
@@ -165,7 +165,7 @@ void ArrangementOverlay::ChainImpl::StableSort(Token* start,
 }
 
 void ArrangementOverlay::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "ArrangementOverlay::ChainImpl::Distinct");
   // TODO(mayzner): Utilize `does_arrangmeent_order_storage_`.
   std::unordered_set<uint32_t> s;
@@ -184,7 +184,7 @@ void ArrangementOverlay::ChainImpl::Distinct(Indices& indices) const {
 
 std::optional<Token> ArrangementOverlay::ChainImpl::MaxElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "ArrangementOverlay::ChainImpl::MaxElement");
   for (auto& i : indices.tokens) {
     i.index = (*arrangement_)[i.index];
@@ -199,7 +199,7 @@ std::optional<Token> ArrangementOverlay::ChainImpl::MaxElement(
 
 std::optional<Token> ArrangementOverlay::ChainImpl::MinElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "ArrangementOverlay::ChainImpl::MinElement");
   for (auto& i : indices.tokens) {
     i.index = (*arrangement_)[i.index];
@@ -217,4 +217,4 @@ SqlValue ArrangementOverlay::ChainImpl::Get_AvoidUsingBecauseSlow(
   return inner_->Get_AvoidUsingBecauseSlow((*arrangement_)[index]);
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

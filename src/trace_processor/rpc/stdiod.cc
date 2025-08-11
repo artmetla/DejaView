@@ -21,24 +21,24 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/rpc/rpc.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <unistd.h>
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) && !defined(STDIN_FILENO)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) && !defined(STDIN_FILENO)
 #define STDIN_FILENO 0
 #define STDOUT_FILENO 1
 #endif
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 base::Status RunStdioRpcServer(std::unique_ptr<TraceProcessor> tp) {
   Rpc rpc(std::move(tp));
@@ -54,7 +54,7 @@ base::Status RunStdioRpcServer(std::unique_ptr<TraceProcessor> tp) {
     rpc.SetRpcResponseFunction([](const void* ptr, uint32_t size) {
       ssize_t ret = base::WriteAll(STDOUT_FILENO, ptr, size);
       if (ret < 0 || static_cast<uint32_t>(ret) != size) {
-        PERFETTO_FATAL("Failed to write response");
+        DEJAVIEW_FATAL("Failed to write response");
       }
     });
     rpc.OnRpcRequest(buffer, static_cast<size_t>(ret));
@@ -62,4 +62,4 @@ base::Status RunStdioRpcServer(std::unique_ptr<TraceProcessor> tp) {
   }
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

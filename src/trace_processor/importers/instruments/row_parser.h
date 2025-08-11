@@ -17,14 +17,14 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_ROW_PARSER_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_ROW_PARSER_H_
 
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/importers/common/virtual_memory_mapping.h"
 #include "src/trace_processor/importers/instruments/row.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::instruments_importer {
+namespace dejaview::trace_processor::instruments_importer {
 
 class RowDataTracker;
 
@@ -49,6 +49,6 @@ class RowParser : public InstrumentsRowParser {
   base::FlatHashMap<UniquePid, DummyMemoryMapping*> dummy_mappings_;
 };
 
-}  // namespace perfetto::trace_processor::instruments_importer
+}  // namespace dejaview::trace_processor::instruments_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_ROW_PARSER_H_

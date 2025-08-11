@@ -21,10 +21,10 @@
 #include <string>
 #include <string_view>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 
-namespace perfetto::trace_processor::sqlite {
+namespace dejaview::trace_processor::sqlite {
 
 // Helper class which abstracts away management of per-vtab state of an SQLite
 // virtual table module.
@@ -83,7 +83,7 @@ class ModuleStateManager {
       const char* const* argv,
       std::unique_ptr<typename Module::State> state) {
     auto it_and_inserted = state_by_name_.Insert(argv[2], nullptr);
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         it_and_inserted.second ||
         (it_and_inserted.first && it_and_inserted.first->get()->disconnected));
 
@@ -100,7 +100,7 @@ class ModuleStateManager {
   // Lifecycle method to be called from Module::Connect.
   [[nodiscard]] PerVtabState* OnConnect(const char* const* argv) {
     auto* ptr = state_by_name_.Find(argv[2]);
-    PERFETTO_CHECK(ptr);
+    DEJAVIEW_CHECK(ptr);
     ptr->get()->disconnected = false;
     return ptr->get();
   }
@@ -108,13 +108,13 @@ class ModuleStateManager {
   // Lifecycle method to be called from Module::Disconnect.
   static void OnDisconnect(PerVtabState* state) {
     auto* ptr = state->manager->state_by_name_.Find(state->table_name);
-    PERFETTO_CHECK(ptr);
+    DEJAVIEW_CHECK(ptr);
     ptr->get()->disconnected = true;
   }
 
   // Lifecycle method to be called from Module::Destroy.
   static void OnDestroy(PerVtabState* state) {
-    PERFETTO_CHECK(state->manager->state_by_name_.Erase(state->table_name));
+    DEJAVIEW_CHECK(state->manager->state_by_name_.Erase(state->table_name));
   }
 
   // Method to be called from module callbacks to extract the module state
@@ -137,6 +137,6 @@ class ModuleStateManager {
   base::FlatHashMap<std::string, std::unique_ptr<PerVtabState>> state_by_name_;
 };
 
-}  // namespace perfetto::trace_processor::sqlite
+}  // namespace dejaview::trace_processor::sqlite
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_MODULE_LIFECYCLE_MANAGER_H_

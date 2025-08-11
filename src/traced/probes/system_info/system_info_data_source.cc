@@ -18,16 +18,16 @@
 
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
 
-#include "protos/perfetto/trace/system_info/cpu_info.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/system_info/cpu_info.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -99,7 +99,7 @@ void SystemInfoDataSource::Start() {
     std::string line = std::string(line_start, line_end);
     line_start = line_end + 1;
     if (line.empty() && !cpu_index.empty()) {
-      PERFETTO_DCHECK(cpu_index == std::to_string(next_cpu_index));
+      DEJAVIEW_DCHECK(cpu_index == std::to_string(next_cpu_index));
 
       auto* cpu = cpu_info->add_cpus();
       cpu->set_processor(default_processor);
@@ -129,7 +129,7 @@ void SystemInfoDataSource::Start() {
           identifier->set_part(part.value());
           identifier->set_revision(revision.value());
         } else {
-          PERFETTO_ILOG(
+          DEJAVIEW_ILOG(
               "Failed to parse Arm specific fields from /proc/cpuinfo");
         }
       }
@@ -181,4 +181,4 @@ std::string SystemInfoDataSource::ReadFile(std::string path) {
   return contents;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

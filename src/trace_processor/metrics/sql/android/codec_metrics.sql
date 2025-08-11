@@ -14,17 +14,17 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE linux.cpu.utilization.thread;
-INCLUDE PERFETTO MODULE linux.cpu.utilization.slice;
-INCLUDE PERFETTO MODULE slices.with_context;
-INCLUDE PERFETTO MODULE slices.cpu_time;
+INCLUDE DEJAVIEW MODULE linux.cpu.utilization.thread;
+INCLUDE DEJAVIEW MODULE linux.cpu.utilization.slice;
+INCLUDE DEJAVIEW MODULE slices.with_context;
+INCLUDE DEJAVIEW MODULE slices.cpu_time;
 
 SELECT RUN_METRIC('android/android_cpu.sql');
 SELECT RUN_METRIC('android/power_drain_in_watts.sql');
 
 -- Attaching thread proto with media thread name
 DROP VIEW IF EXISTS core_type_proto_per_thread_name;
-CREATE PERFETTO VIEW core_type_proto_per_thread_name AS
+CREATE DEJAVIEW VIEW core_type_proto_per_thread_name AS
 SELECT
 utid,
 thread.name AS thread_name,
@@ -37,7 +37,7 @@ GROUP BY thread.name;
 
 -- All process that has codec thread
 DROP TABLE IF EXISTS android_codec_process;
-CREATE PERFETTO TABLE android_codec_process AS
+CREATE DEJAVIEW TABLE android_codec_process AS
 SELECT
   utid,
   upid,
@@ -50,7 +50,7 @@ GROUP BY process_name, thread.name;
 
 -- Getting cpu cycles for the threads
 DROP VIEW IF EXISTS cpu_cycles_runtime;
-CREATE PERFETTO VIEW cpu_cycles_runtime AS
+CREATE DEJAVIEW VIEW cpu_cycles_runtime AS
 SELECT
   utid,
   megacycles,
@@ -68,7 +68,7 @@ JOIN core_type_proto_per_thread_name using(utid);
 
 -- Utility function to trim codec trace string: extract the string demilited
 -- by the limiter.
-CREATE OR REPLACE PERFETTO FUNCTION extract_codec_string(slice_name STRING, limiter STRING)
+CREATE OR REPLACE DEJAVIEW FUNCTION extract_codec_string(slice_name STRING, limiter STRING)
 RETURNS STRING AS
 SELECT CASE
   -- Delimit with the first occurrence
@@ -95,7 +95,7 @@ INSERT INTO trace_trait_table VALUES
 
 -- View to hold slice ids(sid) and the assigned slice ids for codec slices.
 DROP TABLE IF EXISTS codec_slices;
-CREATE PERFETTO TABLE codec_slices AS
+CREATE DEJAVIEW TABLE codec_slices AS
 WITH
   __codec_slices AS (
     SELECT DISTINCT
@@ -120,7 +120,7 @@ JOIN _codec_slices b USING(codec_string);
 
 -- Combine slice and and cpu dur and cycles info
 DROP TABLE IF EXISTS codec_slice_cpu_running;
-CREATE PERFETTO TABLE codec_slice_cpu_running AS
+CREATE DEJAVIEW TABLE codec_slice_cpu_running AS
 SELECT
   codec_string,
   MIN(ts) AS ts,
@@ -139,14 +139,14 @@ GROUP BY codec_slice_idx, cc.thread_name, cc.process_name;
 -- POWER consumed during codec use.
 -- Create a map for the distinct power names.
 DROP TABLE IF EXISTS power_rail_name_mapping;
-CREATE PERFETTO TABLE power_rail_name_mapping AS
+CREATE DEJAVIEW TABLE power_rail_name_mapping AS
 SELECT DISTINCT name,
   ROW_NUMBER() OVER() AS idx
 FROM drain_in_watts GROUP by name;
 
 -- Extract power data for the codec running duration.
 DROP TABLE IF EXISTS mapped_drain_in_watts;
-CREATE PERFETTO TABLE mapped_drain_in_watts AS
+CREATE DEJAVIEW TABLE mapped_drain_in_watts AS
 WITH
   start_ts AS (
     SELECT MIN(ts) AS ts
@@ -166,14 +166,14 @@ JOIN end_ts
 WHERE d.ts >= start_ts.ts AND d.ts <= end_ts.ts;
 
 -- Get the total energy for the time of run.
-CREATE OR REPLACE PERFETTO FUNCTION get_energy_duration()
+CREATE OR REPLACE DEJAVIEW FUNCTION get_energy_duration()
 RETURNS DOUBLE AS
 SELECT  CAST(((MAx(ts + dur) - MIN(ts)) / 1e6) AS INT64) AS total_duration_ms
 FROM mapped_drain_in_watts;
 
 -- Get the subssytem based power breakdown
 DROP TABLE IF EXISTS mapped_drain_in_watts_with_subsystem;
-CREATE PERFETTO TABLE mapped_drain_in_watts_with_subsystem AS
+CREATE DEJAVIEW TABLE mapped_drain_in_watts_with_subsystem AS
 WITH
    total_duration_ms AS (
      SELECT CAST(((MAx(ts + dur) - MIN(ts)) / 1e6) AS INT64) AS total_dur FROM mapped_drain_in_watts
@@ -194,7 +194,7 @@ GROUP BY subsystem;
 
 -- Generate proto for the trace
 DROP VIEW IF EXISTS metrics_per_slice_type;
-CREATE PERFETTO VIEW metrics_per_slice_type AS
+CREATE DEJAVIEW VIEW metrics_per_slice_type AS
 SELECT
   process_name,
   codec_string,
@@ -208,7 +208,7 @@ FROM codec_slice_cpu_running;
 
 -- Generating codec framework cpu metric
 DROP VIEW IF EXISTS codec_metrics_output;
-CREATE PERFETTO VIEW codec_metrics_output AS
+CREATE DEJAVIEW VIEW codec_metrics_output AS
 SELECT AndroidCodecMetrics(
   'cpu_usage', (
     SELECT RepeatedField(

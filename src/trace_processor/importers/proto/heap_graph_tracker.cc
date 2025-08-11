@@ -31,15 +31,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
-#include "protos/perfetto/trace/profiling/heap_graph.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
+#include "protos/dejaview/trace/profiling/heap_graph.pbzero.h"
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/util/profiler_util.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -436,7 +436,7 @@ void HeapGraphTracker::AddInternedFieldName(uint32_t seq_id,
 void HeapGraphTracker::SetPacketIndex(uint32_t seq_id, uint64_t index) {
   SequenceState& sequence_state = GetOrCreateSequence(seq_id);
   bool dropped_packet = false;
-  // perfetto_hprof starts counting at index = 0.
+  // dejaview_hprof starts counting at index = 0.
   if (!sequence_state.prev_index && index != 0) {
     dropped_packet = true;
   }
@@ -448,10 +448,10 @@ void HeapGraphTracker::SetPacketIndex(uint32_t seq_id, uint64_t index) {
   if (dropped_packet) {
     sequence_state.truncated = true;
     if (sequence_state.prev_index) {
-      PERFETTO_ELOG("Missing packets between %" PRIu64 " and %" PRIu64,
+      DEJAVIEW_ELOG("Missing packets between %" PRIu64 " and %" PRIu64,
                     *sequence_state.prev_index, index);
     } else {
-      PERFETTO_ELOG("Invalid first packet index %" PRIu64 " (!= 0)", index);
+      DEJAVIEW_ELOG("Invalid first packet index %" PRIu64 " (!= 0)", index);
     }
 
     storage_->IncrementIndexedStats(
@@ -548,7 +548,7 @@ void HeapGraphTracker::FinalizeProfile(uint32_t seq_id) {
                   current_type->field_name_ids[field_offset_in_cls++];
               auto* ptr = sequence_state.interned_fields.Find(field_id);
               if (!ptr) {
-                PERFETTO_DLOG("Invalid field id.");
+                DEJAVIEW_DLOG("Invalid field id.");
                 storage_->IncrementIndexedStats(
                     stats::heap_graph_malformed_packet,
                     static_cast<int>(sequence_state.current_upid));
@@ -794,7 +794,7 @@ void HeapGraphTracker::GetChildren(ObjectTable::RowReference object,
       storage_, object,
       [object, &children, is_ignored_reference,
        this](ReferenceTable::RowReference ref) {
-        PERFETTO_CHECK(ref.owner_id() == object.id());
+        DEJAVIEW_CHECK(ref.owner_id() == object.id());
         auto opt_owned = ref.owned_id();
         if (!opt_owned) {
           return true;
@@ -916,7 +916,7 @@ void HeapGraphTracker::FindPathFromRoot(ObjectTable::RowReference row_ref,
     if (!opt_class_name_id) {
       opt_class_name_id = type_row_ref.name();
     }
-    PERFETTO_CHECK(opt_class_name_id);
+    DEJAVIEW_CHECK(opt_class_name_id);
     StringId class_name_id = *opt_class_name_id;
     std::optional<StringId> root_type = object_row_ref.root_type();
     if (root_type) {
@@ -970,7 +970,7 @@ void HeapGraphTracker::FindPathFromRoot(ObjectTable::RowReference row_ref,
 
     // We have already handled this node and just need to get its i-th child.
     if (!children.empty()) {
-      PERFETTO_CHECK(i < children.size());
+      DEJAVIEW_CHECK(i < children.size());
       ObjectTable::Id child = children[i];
       auto child_row_ref =
           *storage_->mutable_heap_graph_object_table()->FindById(child);
@@ -979,8 +979,8 @@ void HeapGraphTracker::FindPathFromRoot(ObjectTable::RowReference row_ref,
 
       int32_t child_distance = child_row_ref.root_distance();
       int32_t n_distance = object_row_ref.root_distance();
-      PERFETTO_CHECK(n_distance >= 0);
-      PERFETTO_CHECK(child_distance >= 0);
+      DEJAVIEW_CHECK(n_distance >= 0);
+      DEJAVIEW_CHECK(child_distance >= 0);
 
       bool visited = path->visited.count(child);
 
@@ -1056,7 +1056,7 @@ HeapGraphTracker::BuildFlamegraph(const int64_t current_ts,
   // i = 1 is to skip the artifical root node.
   for (size_t i = 1; i < init_path.nodes.size(); ++i) {
     const PathFromRoot::Node& node = init_path.nodes[i];
-    PERFETTO_CHECK(node.parent_id < i);
+    DEJAVIEW_CHECK(node.parent_id < i);
     std::optional<FlamegraphId> parent_id;
     if (node.parent_id != 0)
       parent_id = node_to_id[node.parent_id];
@@ -1131,4 +1131,4 @@ StringId HeapGraphTracker::InternTypeKindString(
 
 HeapGraphTracker::~HeapGraphTracker() = default;
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/tracing_tls.h"
-#include "perfetto/tracing/tracing.h"
-#include "perfetto/tracing/tracing_backend.h"
+#include "dejaview/tracing/internal/tracing_tls.h"
+#include "dejaview/tracing/tracing.h"
+#include "dejaview/tracing/tracing_backend.h"
 
 // This translation unit contains the definitions for the destructor of pure
 // virtual interfaces for the src/public:public target. The alternative would be
 // introducing a one-liner .cc file for each pure virtual interface, which is
 // overkill. This is for compliance with -Wweak-vtables.
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 TracingTLS::~TracingTLS() {
@@ -49,4 +49,4 @@ TracingProducerBackend::~TracingProducerBackend() = default;
 TracingConsumerBackend::~TracingConsumerBackend() = default;
 TracingBackend::~TracingBackend() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

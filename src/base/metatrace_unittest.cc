@@ -20,15 +20,15 @@
 #include <deque>
 #include <thread>
 
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/thread_annotations.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/thread_annotations.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
-namespace m = ::perfetto::metatrace;
+namespace m = ::dejaview::metatrace;
 using ::testing::Invoke;
 
 class MetatraceTest : public ::testing::Test {
@@ -178,7 +178,7 @@ TEST_F(MetatraceTest, InterleavedReadWrites) {
       // type_and_id marker and the value being valid. Fixing this properly
       // would require making all accesses to the metatrace object as
       // std::atomic and read them with memory_order_relaxed, which is overkill.
-      PERFETTO_ANNOTATE_BENIGN_RACE_SIZED(&it->counter_value, sizeof(int), "")
+      DEJAVIEW_ANNOTATE_BENIGN_RACE_SIZED(&it->counter_value, sizeof(int), "")
       int32_t counter_value = it->counter_value;
       EXPECT_EQ(counter_value, last + 1);
       last = counter_value;
@@ -261,4 +261,4 @@ TEST_F(MetatraceTest, ThreadRaces) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

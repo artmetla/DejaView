@@ -22,11 +22,11 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/sys_types.h"  // For ssize_t on Windows.
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/sys_types.h"  // For ssize_t on Windows.
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -128,4 +128,4 @@ TEST(StreamingLineReaderTest, RandomWrite) {
 }  // namespace
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

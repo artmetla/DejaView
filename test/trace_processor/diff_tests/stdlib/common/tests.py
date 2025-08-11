@@ -27,7 +27,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(0, 2, 1, 2) AS dur
         """,
         out=Csv("""
@@ -41,7 +41,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(1, 2, 0, 2) AS dur
         """,
         out=Csv("""
@@ -55,7 +55,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(0, 3, 1, 1) AS dur
         """,
         out=Csv("""
@@ -69,7 +69,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(1, 1, 0, 3) AS dur
         """,
         out=Csv("""
@@ -83,7 +83,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(0, 1, 2, 1) AS dur
         """,
         out=Csv("""
@@ -97,7 +97,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(2, 1, 0, 1) AS dur
         """,
         out=Csv("""
@@ -111,7 +111,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(0, -1, 0, 1) AS dur
         """,
         out=Csv("""
@@ -125,7 +125,7 @@ class StdlibCommon(TestSuite):
 
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
         SELECT SPANS_OVERLAPPING_DUR(0, 1, 0, -1) AS dur
         """,
         out=Csv("""

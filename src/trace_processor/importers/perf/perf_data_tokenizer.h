@@ -24,13 +24,13 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/circular_queue.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/circular_queue.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/perf/aux_data_tokenizer.h"
 #include "src/trace_processor/importers/perf/aux_stream_manager.h"
@@ -40,7 +40,7 @@
 #include "src/trace_processor/importers/perf/perf_session.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 class TraceProcessorContext;
 
@@ -120,6 +120,6 @@ class PerfDataTokenizer : public ChunkedTraceReader {
 
 }  // namespace perf_importer
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_PERF_DATA_TOKENIZER_H_

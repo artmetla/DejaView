@@ -16,14 +16,14 @@
 
 #include "src/profiling/memory/client_api_factory.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/watchdog.h"
-#include "perfetto/heap_profile.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/watchdog.h"
+#include "dejaview/heap_profile.h"
+#include "dejaview/tracing/default_socket.h"
 #include "src/profiling/common/proc_utils.h"
 #include "src/profiling/memory/client.h"
 #include "src/profiling/memory/heap_profile_internal.h"
@@ -45,7 +45,7 @@
 // * For each profiling session, send a new socket from the client to the
 //   service. This happens in CreateClient.
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -55,11 +55,11 @@ bool MonitorFdOnce() {
   char buf[1];
   ssize_t r = g_client_sock->Receive(buf, sizeof(buf));
   if (r == 0) {
-    PERFETTO_ELOG("Server disconneced.");
+    DEJAVIEW_ELOG("Server disconneced.");
     return false;
   }
   if (r < 0) {
-    PERFETTO_PLOG("Receive failed.");
+    DEJAVIEW_PLOG("Receive failed.");
     return true;
   }
   AHeapProfile_initSession(malloc, free);
@@ -82,7 +82,7 @@ void StartHeapprofdIfStatic() {
   std::string cmdline;
 
   if (!GetCmdlineForPID(pid, &cmdline)) {
-    PERFETTO_ELOG("Failed to get cmdline.");
+    DEJAVIEW_ELOG("Failed to get cmdline.");
   }
 
   g_client_sock = new base::UnixSocketRaw();
@@ -93,24 +93,24 @@ void StartHeapprofdIfStatic() {
       base::SockFamily::kUnix, base::SockType::kStream);
 
   if (!cli_sock || !srv_sock) {
-    PERFETTO_ELOG("Failed to create socket pair.");
+    DEJAVIEW_ELOG("Failed to create socket pair.");
     return;
   }
   pid_t f = fork();
 
   if (f == -1) {
-    PERFETTO_PLOG("fork");
+    DEJAVIEW_PLOG("fork");
     return;
   }
 
   if (f != 0) {
     int wstatus;
-    if (PERFETTO_EINTR(waitpid(f, &wstatus, 0)) == -1)
-      PERFETTO_PLOG("waitpid");
+    if (DEJAVIEW_EINTR(waitpid(f, &wstatus, 0)) == -1)
+      DEJAVIEW_PLOG("waitpid");
 
     *g_client_sock = std::move(cli_sock);
 
-    const char* w = getenv("PERFETTO_HEAPPROFD_BLOCKING_INIT");
+    const char* w = getenv("DEJAVIEW_HEAPPROFD_BLOCKING_INIT");
     if (w && w[0] == '1') {
       g_client_sock->DcheckIsBlocking(true);
       MonitorFdOnce();
@@ -124,7 +124,7 @@ void StartHeapprofdIfStatic() {
   daemon(/* nochdir= */ 0, /* noclose= */ 1);
 
   // On debug builds, we want to turn on crash reporting for heapprofd.
-#if PERFETTO_BUILDFLAG(PERFETTO_STDERR_CRASH_DUMP)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_STDERR_CRASH_DUMP)
   base::EnableStacktraceOnCrashForDebug();
 #endif
 
@@ -158,12 +158,12 @@ void StartHeapprofdIfStatic() {
         char buf[1];
         ssize_t r = srv_sock.Receive(buf, sizeof(buf), &fd, 1);
         if (r == 0) {
-          PERFETTO_LOG("Child disconnected.");
+          DEJAVIEW_LOG("Child disconnected.");
           producer.TerminateWhenDone();
           task_runner.RemoveFileDescriptorWatch(srv_sock.fd());
         }
         if (r == -1 && !base::IsAgain(errno)) {
-          PERFETTO_PLOG("Receive");
+          DEJAVIEW_PLOG("Receive");
         }
         if (fd) {
           producer.AdoptSocket(std::move(fd));
@@ -178,11 +178,11 @@ void StartHeapprofdIfStatic() {
 // This is called by AHeapProfile_initSession (client_api.cc) to construct a
 // client.
 std::shared_ptr<Client> ConstructClient(
-    UnhookedAllocator<perfetto::profiling::Client> unhooked_allocator) {
+    UnhookedAllocator<dejaview::profiling::Client> unhooked_allocator) {
   if (!g_client_sock)
     return nullptr;
 
-  std::shared_ptr<perfetto::profiling::Client> client;
+  std::shared_ptr<dejaview::profiling::Client> client;
   base::UnixSocketRaw srv_session_sock;
   base::UnixSocketRaw client_session_sock;
 
@@ -190,16 +190,16 @@ std::shared_ptr<Client> ConstructClient(
       base::UnixSocketRaw::CreatePairPosix(base::SockFamily::kUnix,
                                            base::SockType::kStream);
   if (!client_session_sock || !srv_session_sock) {
-    PERFETTO_ELOG("Failed to create socket pair.");
+    DEJAVIEW_ELOG("Failed to create socket pair.");
     return nullptr;
   }
   base::ScopedFile srv_fd = srv_session_sock.ReleaseFd();
   int fd = srv_fd.get();
   // Send the session socket to the service.
   g_client_sock->Send(" ", 1, &fd, 1);
-  return perfetto::profiling::Client::CreateAndHandshake(
+  return dejaview::profiling::Client::CreateAndHandshake(
       std::move(client_session_sock), unhooked_allocator);
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

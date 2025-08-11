@@ -19,22 +19,22 @@
 #include <mutex>
 #include <thread>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/shared_memory_arbiter.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/shared_memory_arbiter.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/ipc/client_impl.h"
 #include "src/tracing/ipc/producer/producer_ipc_client_impl.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 const MaybeUnboundBufferID kStartupTargetBufferReservationId = 1;
@@ -51,9 +51,9 @@ void FakeProducer::Connect(const char* socket_name,
                            std::function<void()> on_create_data_source_instance,
                            std::unique_ptr<SharedMemory> shm,
                            std::unique_ptr<SharedMemoryArbiter> shm_arbiter) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   endpoint_ = ProducerIPCClient::Connect(
-      socket_name, this, "android.perfetto.FakeProducer", task_runner_,
+      socket_name, this, "android.dejaview.FakeProducer", task_runner_,
       TracingService::ProducerSMBScrapingMode::kDefault,
       /*shared_memory_size_hint_bytes=*/0,
       /*shared_memory_page_size_hint_bytes=*/4096, std::move(shm),
@@ -64,7 +64,7 @@ void FakeProducer::Connect(const char* socket_name,
 }
 
 void FakeProducer::OnConnect() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   DataSourceDescriptor descriptor;
   descriptor.set_name(name_);
   endpoint_->RegisterDataSource(descriptor);
@@ -76,8 +76,8 @@ void FakeProducer::OnConnect() {
 }
 
 void FakeProducer::OnDisconnect() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
-  PERFETTO_FATAL("Producer unexpectedly disconnected from the service");
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_FATAL("Producer unexpectedly disconnected from the service");
 }
 
 void FakeProducer::SetupDataSource(DataSourceInstanceID,
@@ -87,7 +87,7 @@ void FakeProducer::SetupDataSource(DataSourceInstanceID,
 
 void FakeProducer::StartDataSource(DataSourceInstanceID,
                                    const DataSourceConfig& source_config) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (trace_writer_) {
     // Startup tracing was already active, just bind the target buffer.
     endpoint_->MaybeSharedMemoryArbiter()->BindStartupTargetBuffer(
@@ -107,7 +107,7 @@ void FakeProducer::StartDataSource(DataSourceInstanceID,
 }
 
 void FakeProducer::StopDataSource(DataSourceInstanceID) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   trace_writer_.reset();
 }
 
@@ -119,7 +119,7 @@ void FakeProducer::ProduceStartupEventBatch(
   task_runner_->PostTask([this, config, arbiter, callback] {
     SetupFromConfig(config);
 
-    PERFETTO_CHECK(!trace_writer_);
+    DEJAVIEW_CHECK(!trace_writer_);
     trace_writer_ =
         arbiter->CreateStartupTraceWriter(kStartupTargetBufferReservationId);
 
@@ -162,7 +162,7 @@ void FakeProducer::Flush(FlushRequestID flush_request_id,
                          const DataSourceInstanceID*,
                          size_t num_data_sources,
                          FlushFlags) {
-  PERFETTO_DCHECK(num_data_sources > 0);
+  DEJAVIEW_DCHECK(num_data_sources > 0);
   if (trace_writer_)
     trace_writer_->Flush();
   endpoint_->NotifyFlushComplete(flush_request_id);
@@ -185,8 +185,8 @@ void FakeProducer::SetupFromConfig(const protos::gen::TestConfig& config) {
 }
 
 void FakeProducer::EmitEventBatchOnTaskRunner(std::function<void()> callback) {
-  PERFETTO_CHECK(trace_writer_);
-  PERFETTO_CHECK(message_size_ > 1);
+  DEJAVIEW_CHECK(trace_writer_);
+  DEJAVIEW_CHECK(message_size_ > 1);
   std::unique_ptr<char, base::FreeDeleter> payload(
       static_cast<char*>(malloc(message_size_)));
   memset(payload.get(), '.', message_size_);
@@ -200,7 +200,7 @@ void FakeProducer::EmitEventBatchOnTaskRunner(std::function<void()> callback) {
         max_messages_per_second_ == 0
             ? messages_to_emit
             : std::min(max_messages_per_second_, messages_to_emit);
-    PERFETTO_DCHECK(messages_to_emit >= messages_in_minibatch);
+    DEJAVIEW_DCHECK(messages_to_emit >= messages_in_minibatch);
 
     for (uint32_t i = 0; i < messages_in_minibatch; i++) {
       auto handle = trace_writer_->NewTracePacket();
@@ -226,4 +226,4 @@ void FakeProducer::EmitEventBatchOnTaskRunner(std::function<void()> callback) {
   }
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

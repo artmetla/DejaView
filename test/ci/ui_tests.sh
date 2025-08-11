@@ -44,12 +44,12 @@ set +x
 if [ -d ${OUT_PATH}/ui-test-artifacts ]; then
   cp -a ${OUT_PATH}/ui-test-artifacts /ci/artifacts/ui-test-artifacts
   echo "UI integration test report with screnshots:"
-  echo "https://storage.googleapis.com/perfetto-ci-artifacts/$PERFETTO_TEST_JOB/ui-test-artifacts/index.html"
+  echo "https://storage.googleapis.com/perfetto-ci-artifacts/$DEJAVIEW_TEST_JOB/ui-test-artifacts/index.html"
   echo ""
   echo "To download locally the changed screenshots run:"
-  echo "tools/download_changed_screenshots.py $PERFETTO_TEST_JOB"
+  echo "tools/download_changed_screenshots.py $DEJAVIEW_TEST_JOB"
   echo ""
-  echo "Perfetto UI build for this CL"
-  echo "https://storage.googleapis.com/perfetto-ci-artifacts/$PERFETTO_TEST_JOB/ui/index.html"
+  echo "DejaView UI build for this CL"
+  echo "https://storage.googleapis.com/perfetto-ci-artifacts/$DEJAVIEW_TEST_JOB/ui/index.html"
   exit $RES
 fi

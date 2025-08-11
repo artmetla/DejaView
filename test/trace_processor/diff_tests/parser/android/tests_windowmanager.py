@@ -25,7 +25,7 @@ class WindowManager(TestSuite):
     return DiffTestBlueprint(
         trace=Path('windowmanager.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.winscope.windowmanager;
+        INCLUDE DEJAVIEW MODULE android.winscope.windowmanager;
         SELECT
           ts
         FROM
@@ -41,7 +41,7 @@ class WindowManager(TestSuite):
     return DiffTestBlueprint(
         trace=Path('windowmanager.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.winscope.windowmanager;
+        INCLUDE DEJAVIEW MODULE android.winscope.windowmanager;
         SELECT
           args.key, args.display_value
         FROM

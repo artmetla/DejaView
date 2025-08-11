@@ -18,16 +18,16 @@
 
 // This source file can be built in two ways:
 // 1. As part of the regular GN build, against standard includes.
-// 2. To test that the amalgmated SDK works, against the perfetto.h source.
-#if defined(PERFETTO_SDK_EXAMPLE_USE_INTERNAL_HEADERS)
-#include "perfetto/tracing.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/trace_config.h"
-#include "perfetto/tracing/data_source.h"
-#include "perfetto/tracing/tracing.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
+// 2. To test that the amalgmated SDK works, against the dejaview.h source.
+#if defined(DEJAVIEW_SDK_EXAMPLE_USE_INTERNAL_HEADERS)
+#include "dejaview/tracing.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/trace_config.h"
+#include "dejaview/tracing/data_source.h"
+#include "dejaview/tracing/tracing.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
 #else
-#include <perfetto.h>
+#include <dejaview.h>
 #endif
 
 #include <fstream>
@@ -36,8 +36,8 @@
 namespace {
 
 // The definition of our custom data source. Instances of this class will be
-// automatically created and destroyed by Perfetto.
-class CustomDataSource : public perfetto::DataSource<CustomDataSource> {
+// automatically created and destroyed by DejaView.
+class CustomDataSource : public dejaview::DataSource<CustomDataSource> {
  public:
   void OnSetup(const SetupArgs&) override {
     // Use this callback to apply any custom configuration to your data source
@@ -49,37 +49,37 @@ class CustomDataSource : public perfetto::DataSource<CustomDataSource> {
   void OnStop(const StopArgs&) override {}
 };
 
-void InitializePerfetto() {
-  perfetto::TracingInitArgs args;
+void InitializeDejaView() {
+  dejaview::TracingInitArgs args;
   // The backends determine where trace events are recorded. For this example we
   // are going to use the in-process tracing service, which only includes in-app
   // events.
-  args.backends = perfetto::kInProcessBackend;
-  perfetto::Tracing::Initialize(args);
+  args.backends = dejaview::kInProcessBackend;
+  dejaview::Tracing::Initialize(args);
 
   // Register our custom data source. Only the name is required, but other
   // properties can be advertised too.
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("com.example.custom_data_source");
   CustomDataSource::Register(dsd);
 }
 
-std::unique_ptr<perfetto::TracingSession> StartTracing() {
+std::unique_ptr<dejaview::TracingSession> StartTracing() {
   // The trace config defines which types of data sources are enabled for
   // recording. In this example we enable the custom data source we registered
   // above.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("com.example.custom_data_source");
 
-  auto tracing_session = perfetto::Tracing::NewTrace();
+  auto tracing_session = dejaview::Tracing::NewTrace();
   tracing_session->Setup(cfg);
   tracing_session->StartBlocking();
   return tracing_session;
 }
 
-void StopTracing(std::unique_ptr<perfetto::TracingSession> tracing_session) {
+void StopTracing(std::unique_ptr<dejaview::TracingSession> tracing_session) {
   // Flush to make sure the last written event ends up in the trace.
   CustomDataSource::Trace(
       [](CustomDataSource::TraceContext ctx) { ctx.Flush(); });
@@ -89,14 +89,14 @@ void StopTracing(std::unique_ptr<perfetto::TracingSession> tracing_session) {
   std::vector<char> trace_data(tracing_session->ReadTraceBlocking());
 
   // Write the result into a file.
-  // Note: To save memory with longer traces, you can tell Perfetto to write
+  // Note: To save memory with longer traces, you can tell DejaView to write
   // directly into a file by passing a file descriptor into Setup() above.
   std::ofstream output;
   const char* filename = "example_custom_data_source.pftrace";
   output.open(filename, std::ios::out | std::ios::binary);
   output.write(&trace_data[0], static_cast<std::streamsize>(trace_data.size()));
   output.close();
-  PERFETTO_LOG(
+  DEJAVIEW_LOG(
       "Trace written in %s file. To read this trace in "
       "text form, run `./tools/traceconv text %s`",
       filename, filename);
@@ -104,11 +104,11 @@ void StopTracing(std::unique_ptr<perfetto::TracingSession> tracing_session) {
 
 }  // namespace
 
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
 
 int main(int, const char**) {
-  InitializePerfetto();
+  InitializeDejaView();
   auto tracing_session = StartTracing();
 
   // Write an event using our custom data source.

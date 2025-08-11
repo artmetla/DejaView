@@ -104,24 +104,24 @@ test('generateStartTracing', () => {
   testArray[0] = 65;
   const generatedCmd = adbController.generateStartTracingCommand(testArray);
   expect(generatedCmd).toBe(
-    `echo '${btoa('A')}' | base64 -d | perfetto -c - -o DEST`,
+    `echo '${btoa('A')}' | base64 -d | dejaview -c - -o DEST`,
   );
 });
 
 test('tracingEndedSuccessfully', () => {
   expect(
     adbController.tracingEndedSuccessfully(
-      'Connected to the Perfetto traced service, starting tracing for 10000 ms\nWrote 564 bytes into /data/misc/perfetto-traces/trace',
+      'Connected to the DejaView traced service, starting tracing for 10000 ms\nWrote 564 bytes into /data/misc/dejaview-traces/trace',
     ),
   ).toBe(true);
   expect(
     adbController.tracingEndedSuccessfully(
-      'Connected to the Perfetto traced service, starting tracing for 10000 ms',
+      'Connected to the DejaView traced service, starting tracing for 10000 ms',
     ),
   ).toBe(false);
   expect(
     adbController.tracingEndedSuccessfully(
-      'Connected to the Perfetto traced service, starting tracing for 0 ms',
+      'Connected to the DejaView traced service, starting tracing for 0 ms',
     ),
   ).toBe(false);
 });

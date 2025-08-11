@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/tracing_backend_fake.h"
+#include "dejaview/tracing/internal/tracing_backend_fake.h"
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 namespace {
@@ -166,4 +166,4 @@ std::unique_ptr<ConsumerEndpoint> TracingBackendFake::ConnectConsumer(
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

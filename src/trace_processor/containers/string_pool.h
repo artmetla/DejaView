@@ -27,15 +27,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Interns strings in a string pool and hands out compact StringIds which can
 // be used to retrieve the string in O(1).
@@ -63,21 +63,21 @@ class StringPool {
     }
 
     constexpr uint32_t large_string_index() const {
-      PERFETTO_DCHECK(is_large_string());
+      DEJAVIEW_DCHECK(is_large_string());
       return id & ~kLargeStringFlagBitMask;
     }
 
     constexpr uint32_t raw_id() const { return id; }
 
     static constexpr Id LargeString(size_t index) {
-      PERFETTO_DCHECK(index <= static_cast<uint32_t>(index));
-      PERFETTO_DCHECK(!(index & kLargeStringFlagBitMask));
+      DEJAVIEW_DCHECK(index <= static_cast<uint32_t>(index));
+      DEJAVIEW_DCHECK(!(index & kLargeStringFlagBitMask));
       return Id(kLargeStringFlagBitMask | static_cast<uint32_t>(index));
     }
 
     static constexpr Id BlockString(size_t index, uint32_t offset) {
-      PERFETTO_DCHECK(index < (1u << (kNumBlockIndexBits + 1)));
-      PERFETTO_DCHECK(offset < (1u << (kNumBlockOffsetBits + 1)));
+      DEJAVIEW_DCHECK(index < (1u << (kNumBlockIndexBits + 1)));
+      DEJAVIEW_DCHECK(offset < (1u << (kNumBlockOffsetBits + 1)));
       return Id(~kLargeStringFlagBitMask &
                 (static_cast<uint32_t>(index << kNumBlockOffsetBits) |
                  (offset & kBlockOffsetBitMask)));
@@ -133,7 +133,7 @@ class StringPool {
     auto it_and_inserted = string_index_.Insert(hash, Id());
     Id* id = it_and_inserted.first;
     if (!it_and_inserted.second) {
-      PERFETTO_DCHECK(Get(*id) == str);
+      DEJAVIEW_DCHECK(Get(*id) == str);
       return *id;
     }
     *id = InsertString(str, hash);
@@ -147,7 +147,7 @@ class StringPool {
     auto hash = str.Hash();
     Id* id = string_index_.Find(hash);
     if (id) {
-      PERFETTO_DCHECK(Get(*id) == str);
+      DEJAVIEW_DCHECK(Get(*id) == str);
       return *id;
     }
     return std::nullopt;
@@ -199,7 +199,7 @@ class StringPool {
         base::StringView str);
 
     uint32_t OffsetOf(const uint8_t* ptr) const {
-      PERFETTO_DCHECK(Get(0) < ptr &&
+      DEJAVIEW_DCHECK(Get(0) < ptr &&
                       ptr <= Get(static_cast<uint32_t>(size_ - 1)));
       return static_cast<uint32_t>(ptr - Get(0));
     }
@@ -257,13 +257,13 @@ class StringPool {
   const uint8_t* IdToPtr(Id id) const {
     // If the MSB is set, the ID represents an index into |large_strings_|, so
     // shouldn't be converted into a block pointer.
-    PERFETTO_DCHECK(!id.is_large_string());
+    DEJAVIEW_DCHECK(!id.is_large_string());
 
     size_t block_index = id.block_index();
     uint32_t block_offset = id.block_offset();
 
-    PERFETTO_DCHECK(block_index < blocks_.size());
-    PERFETTO_DCHECK(block_offset < blocks_[block_index].pos());
+    DEJAVIEW_DCHECK(block_index < blocks_.size());
+    DEJAVIEW_DCHECK(block_offset < blocks_[block_index].pos());
 
     return blocks_[block_index].Get(block_offset);
   }
@@ -275,8 +275,8 @@ class StringPool {
     uint64_t value = 0;
     const uint8_t* str_ptr = protozero::proto_utils::ParseVarInt(
         ptr, ptr + kMaxMetadataSize, &value);
-    PERFETTO_DCHECK(str_ptr != ptr);
-    PERFETTO_DCHECK(value < std::numeric_limits<uint32_t>::max());
+    DEJAVIEW_DCHECK(str_ptr != ptr);
+    DEJAVIEW_DCHECK(value < std::numeric_limits<uint32_t>::max());
     *size = static_cast<uint32_t>(value);
     return str_ptr;
   }
@@ -292,9 +292,9 @@ class StringPool {
   // Lookup a string in the |large_strings_| vector. |id| should have the MSB
   // set.
   NullTermStringView GetLargeString(Id id) const {
-    PERFETTO_DCHECK(id.is_large_string());
+    DEJAVIEW_DCHECK(id.is_large_string());
     size_t index = id.large_string_index();
-    PERFETTO_DCHECK(index < large_strings_.size());
+    DEJAVIEW_DCHECK(index < large_strings_.size());
     const std::string* str = large_strings_[index].get();
     return {str->c_str(), str->size()};
   }
@@ -316,11 +316,11 @@ class StringPool {
       string_index_{/*initial_capacity=*/4096u};
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 template <>
-struct std::hash<::perfetto::trace_processor::StringPool::Id> {
-  using argument_type = ::perfetto::trace_processor::StringPool::Id;
+struct std::hash<::dejaview::trace_processor::StringPool::Id> {
+  using argument_type = ::dejaview::trace_processor::StringPool::Id;
   using result_type = size_t;
 
   result_type operator()(const argument_type& r) const {

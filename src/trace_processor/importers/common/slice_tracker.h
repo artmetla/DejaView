@@ -19,12 +19,12 @@
 
 #include <stdint.h>
 
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/slice_translation_table.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class ArgsTracker;
@@ -83,7 +83,7 @@ class SliceTracker {
       Table* table,
       typename Table::Row row,
       SetArgsCallback args_callback = SetArgsCallback()) {
-    PERFETTO_DCHECK(row.dur >= 0);
+    DEJAVIEW_DCHECK(row.dur >= 0);
     if (row.name) {
       row.name = context_->slice_translation_table->TranslateName(*row.name);
     }
@@ -185,6 +185,6 @@ class SliceTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_SLICE_TRACKER_H_

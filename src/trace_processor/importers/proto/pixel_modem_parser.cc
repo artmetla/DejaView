@@ -19,15 +19,15 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/proto/pigweed_detokenizer.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -126,4 +126,4 @@ base::Status PixelModemParser::ParseEvent(int64_t ts,
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

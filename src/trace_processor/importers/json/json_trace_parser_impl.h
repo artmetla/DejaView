@@ -29,7 +29,7 @@ namespace Json {
 class Value;
 }
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -51,6 +51,6 @@ class JsonTraceParserImpl : public JsonTraceParser {
   void MaybeAddFlow(TrackId track_id, const Json::Value& event);
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_JSON_JSON_TRACE_PARSER_IMPL_H_

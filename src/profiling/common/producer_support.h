@@ -21,9 +21,9 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/tracing/core/forward_decls.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 bool CanProfile(const DataSourceConfig& ds_config,
@@ -36,6 +36,6 @@ bool CanProfileAndroid(const DataSourceConfig& ds_config,
                        const std::string& packages_list_path);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_COMMON_PRODUCER_SUPPORT_H_

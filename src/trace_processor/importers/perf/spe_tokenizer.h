@@ -20,15 +20,15 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/aux_data_tokenizer.h"
 #include "src/trace_processor/importers/perf/aux_record.h"
 #include "src/trace_processor/importers/perf/aux_stream_manager.h"
 #include "src/trace_processor/importers/perf/perf_session.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 class TraceProcessorContext;
 namespace perf_importer {
 
@@ -64,6 +64,6 @@ class SpeTokenizer : public AuxDataTokenizer {
 using SpeTokenizerFactory = SimpleAuxDataTokenizerFactory<SpeTokenizer>;
 
 }  // namespace perf_importer
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_SPE_TOKENIZER_H_

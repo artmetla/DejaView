@@ -18,15 +18,15 @@
 
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/tracing/service/metatrace_writer.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // static
 const ProbesDataSource::Descriptor MetatraceDataSource::descriptor = {
@@ -60,4 +60,4 @@ void MetatraceDataSource::Flush(FlushRequestID,
   metatrace_writer_->WriteAllAndFlushTraceWriter(std::move(callback));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

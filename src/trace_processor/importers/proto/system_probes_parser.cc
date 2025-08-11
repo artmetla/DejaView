@@ -19,11 +19,11 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/traced/sys_stats_counters.h"
-#include "perfetto/protozero/proto_decoder.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/traced/sys_stats_counters.h"
+#include "dejaview/protozero/proto_decoder.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
@@ -35,11 +35,11 @@
 #include "src/trace_processor/storage/metadata.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/ps/process_stats.pbzero.h"
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
-#include "protos/perfetto/trace/system_info.pbzero.h"
-#include "protos/perfetto/trace/system_info/cpu_info.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/ps/process_stats.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/system_info.pbzero.h"
+#include "protos/dejaview/trace/system_info/cpu_info.pbzero.h"
 
 namespace {
 
@@ -49,7 +49,7 @@ bool IsSupportedDiskStatDevice(const std::string& device_name) {
 
 }  // namespace
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -300,8 +300,8 @@ void SystemProbesParser::ParseSysStats(int64_t ts, ConstBytes blob) {
   for (auto it = sys_stats.meminfo(); it; ++it) {
     protos::pbzero::SysStats::MeminfoValue::Decoder mi(*it);
     auto key = static_cast<size_t>(mi.key());
-    if (PERFETTO_UNLIKELY(key >= meminfo_strs_id_.size())) {
-      PERFETTO_ELOG("MemInfo key %zu is not recognized.", key);
+    if (DEJAVIEW_UNLIKELY(key >= meminfo_strs_id_.size())) {
+      DEJAVIEW_ELOG("MemInfo key %zu is not recognized.", key);
       context_->storage->IncrementStats(stats::meminfo_unknown_keys);
       continue;
     }
@@ -339,8 +339,8 @@ void SystemProbesParser::ParseSysStats(int64_t ts, ConstBytes blob) {
   for (auto it = sys_stats.vmstat(); it; ++it) {
     protos::pbzero::SysStats::VmstatValue::Decoder vm(*it);
     auto key = static_cast<size_t>(vm.key());
-    if (PERFETTO_UNLIKELY(key >= vmstat_strs_id_.size())) {
-      PERFETTO_ELOG("VmStat key %zu is not recognized.", key);
+    if (DEJAVIEW_UNLIKELY(key >= vmstat_strs_id_.size())) {
+      DEJAVIEW_ELOG("VmStat key %zu is not recognized.", key);
       context_->storage->IncrementStats(stats::vmstat_unknown_keys);
       continue;
     }
@@ -352,8 +352,8 @@ void SystemProbesParser::ParseSysStats(int64_t ts, ConstBytes blob) {
 
   for (auto it = sys_stats.cpu_stat(); it; ++it) {
     protos::pbzero::SysStats::CpuTimes::Decoder ct(*it);
-    if (PERFETTO_UNLIKELY(!ct.has_cpu_id())) {
-      PERFETTO_ELOG("CPU field not found in CpuTimes");
+    if (DEJAVIEW_UNLIKELY(!ct.has_cpu_id())) {
+      DEJAVIEW_ELOG("CPU field not found in CpuTimes");
       context_->storage->IncrementStats(stats::invalid_cpu_times);
       continue;
     }
@@ -466,8 +466,8 @@ void SystemProbesParser::ParseSysStats(int64_t ts, ConstBytes blob) {
     protos::pbzero::SysStats::PsiSample::Decoder psi(*it);
 
     auto resource = static_cast<size_t>(psi.resource());
-    if (PERFETTO_UNLIKELY(resource >= sys_stats_psi_resource_names_.size())) {
-      PERFETTO_ELOG("PsiResource type %zu is not recognized.", resource);
+    if (DEJAVIEW_UNLIKELY(resource >= sys_stats_psi_resource_names_.size())) {
+      DEJAVIEW_ELOG("PsiResource type %zu is not recognized.", resource);
       context_->storage->IncrementStats(stats::psi_unknown_resource);
       continue;
     }
@@ -735,7 +735,7 @@ void SystemProbesParser::ParseSystemInfo(ConstBytes blob) {
     if (arch != Architecture::kUnknown) {
       syscall_tracker->SetArchitecture(arch);
     } else {
-      PERFETTO_ELOG("Unknown architecture %s. Syscall traces will not work.",
+      DEJAVIEW_ELOG("Unknown architecture %s. Syscall traces will not work.",
                     machine.ToStdString().c_str());
     }
 
@@ -946,4 +946,4 @@ void SystemProbesParser::ParseCpuInfo(ConstBytes blob) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -22,13 +22,13 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/overlay_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 // Overlay which introduces the layer of nullability. Specifically, spreads out
 // the storage with nulls using a BitVector.
@@ -81,6 +81,6 @@ class NullOverlay final : public OverlayLayer {
   const BitVector* non_null_ = nullptr;
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_NULL_OVERLAY_H_

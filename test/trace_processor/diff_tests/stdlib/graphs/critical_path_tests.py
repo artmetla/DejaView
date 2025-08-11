@@ -24,7 +24,7 @@ class CriticalPathTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.critical_path;
+          INCLUDE DEJAVIEW MODULE graphs.critical_path;
 
           WITH edge AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -46,7 +46,7 @@ class CriticalPathTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.critical_path;
+          INCLUDE DEJAVIEW MODULE graphs.critical_path;
 
           WITH edge(source_node_id, dest_node_id) AS (
             values(8, 7), (7, 6), (6, 5), (6, 4), (4, 1), (5, 3), (3, 0)
@@ -72,7 +72,7 @@ class CriticalPathTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.critical_path;
+          INCLUDE DEJAVIEW MODULE graphs.critical_path;
 
           WITH edge(source_node_id, dest_node_id) AS (
             values(8, 7), (7, 6), (6, 5), (6, 4), (4, 1), (5, 3), (3, 0)

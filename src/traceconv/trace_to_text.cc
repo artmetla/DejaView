@@ -16,27 +16,27 @@
 
 #include "src/traceconv/trace_to_text.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/protozero/proto_ring_buffer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/protozero/proto_ring_buffer.h"
 #include "src/traceconv/trace.descriptor.h"
 #include "src/traceconv/winscope.descriptor.h"
 #include "src/traceconv/utils.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/gzip_utils.h"
 #include "src/trace_processor/util/protozero_to_text.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 namespace {
 
-using perfetto::trace_processor::DescriptorPool;
+using dejaview::trace_processor::DescriptorPool;
 using trace_processor::TraceType;
 using trace_processor::util::GzipDecompressor;
 
@@ -78,7 +78,7 @@ class OnlineTraceToText {
 std::string OnlineTraceToText::TracePacketToText(protozero::ConstBytes packet,
                                                  uint32_t indent_depth) {
   namespace pb0_to_text = trace_processor::protozero_to_text;
-  return pb0_to_text::ProtozeroToText(pool_, ".perfetto.protos.TracePacket",
+  return pb0_to_text::ProtozeroToText(pool_, ".dejaview.protos.TracePacket",
                                       packet, pb0_to_text::kIncludeNewLines,
                                       indent_depth);
 }
@@ -102,7 +102,7 @@ void OnlineTraceToText::PrintCompressedPackets(protozero::ConstBytes packets) {
         "config";
     WriteToOutput(output_, kErrMsg);
     static bool log_once = [] {
-      PERFETTO_ELOG("%s", kErrMsg);
+      DEJAVIEW_ELOG("%s", kErrMsg);
       return true;
     }();
     base::ignore_result(log_once);
@@ -115,7 +115,7 @@ void OnlineTraceToText::Feed(const uint8_t* data, size_t len) {
   while (true) {
     auto token = ring_buffer_.ReadMessage();
     if (token.fatal_framing_error) {
-      PERFETTO_ELOG("Failed to tokenize trace packet");
+      DEJAVIEW_ELOG("Failed to tokenize trace packet");
       ok_ = false;
       return;
     }
@@ -126,7 +126,7 @@ void OnlineTraceToText::Feed(const uint8_t* data, size_t len) {
     }
 
     if (token.field_id != protos::pbzero::Trace::kPacketFieldNumber) {
-      PERFETTO_ELOG("Skipping invalid field");
+      DEJAVIEW_ELOG("Skipping invalid field");
       continue;
     }
     protos::pbzero::TracePacket::Decoder decoder(token.start, token.len);
@@ -160,7 +160,7 @@ class InputReader {
       return false;
     input_->read(reinterpret_cast<char*>(data), std::streamsize(len_limit));
     if (input_->bad() || (input_->fail() && !input_->eof())) {
-      PERFETTO_ELOG("Failed while reading trace");
+      DEJAVIEW_ELOG("Failed while reading trace");
       ok_ = false;
       return false;
     }
@@ -208,10 +208,10 @@ bool TraceToText(std::istream* input, std::ostream* output) {
     } while (input_reader.Read(buffer.get(), &buffer_len, kMaxMsgSize));
     return input_reader.ok();
   } else {
-    PERFETTO_ELOG("Unrecognised file.");
+    DEJAVIEW_ELOG("Unrecognised file.");
     return false;
   }
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

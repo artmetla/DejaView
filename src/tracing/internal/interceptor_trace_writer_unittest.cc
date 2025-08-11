@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/interceptor_trace_writer.h"
+#include "dejaview/tracing/internal/interceptor_trace_writer.h"
 
-#include "perfetto/tracing/interceptor.h"
+#include "dejaview/tracing/interceptor.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 namespace {
 
@@ -208,4 +208,4 @@ TEST_F(InterceptorTraceWriterTest, FlushCallback) {
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

@@ -20,20 +20,20 @@
 #include <sys/types.h>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/trace/power/battery_counters.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/power/battery_counters.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr uint32_t kDefaultPollIntervalMs = 1000;
@@ -79,7 +79,7 @@ size_t LinuxPowerSysfsDataSource::BatteryInfo::num_batteries() const {
 std::optional<int64_t>
 LinuxPowerSysfsDataSource::BatteryInfo::GetChargeCounterUah(
     size_t battery_idx) {
-  PERFETTO_CHECK(battery_idx < sysfs_battery_subdirs_.size());
+  DEJAVIEW_CHECK(battery_idx < sysfs_battery_subdirs_.size());
   return ReadFileAsInt64(power_supply_dir_path_ + "/" +
                          sysfs_battery_subdirs_[battery_idx] + "/charge_now");
 }
@@ -87,28 +87,28 @@ LinuxPowerSysfsDataSource::BatteryInfo::GetChargeCounterUah(
 std::optional<int64_t>
 LinuxPowerSysfsDataSource::BatteryInfo::GetEnergyCounterUah(
     size_t battery_idx) {
-  PERFETTO_CHECK(battery_idx < sysfs_battery_subdirs_.size());
+  DEJAVIEW_CHECK(battery_idx < sysfs_battery_subdirs_.size());
   return ReadFileAsInt64(power_supply_dir_path_ + "/" +
                          sysfs_battery_subdirs_[battery_idx] + "/energy_now");
 }
 
 std::optional<int64_t> LinuxPowerSysfsDataSource::BatteryInfo::GetVoltageUv(
     size_t battery_idx) {
-  PERFETTO_CHECK(battery_idx < sysfs_battery_subdirs_.size());
+  DEJAVIEW_CHECK(battery_idx < sysfs_battery_subdirs_.size());
   return ReadFileAsInt64(power_supply_dir_path_ + "/" +
                          sysfs_battery_subdirs_[battery_idx] + "/voltage_now");
 }
 
 std::optional<int64_t>
 LinuxPowerSysfsDataSource::BatteryInfo::GetCapacityPercent(size_t battery_idx) {
-  PERFETTO_CHECK(battery_idx < sysfs_battery_subdirs_.size());
+  DEJAVIEW_CHECK(battery_idx < sysfs_battery_subdirs_.size());
   return ReadFileAsInt64(power_supply_dir_path_ + "/" +
                          sysfs_battery_subdirs_[battery_idx] + "/capacity");
 }
 
 std::optional<int64_t> LinuxPowerSysfsDataSource::BatteryInfo::GetCurrentNowUa(
     size_t battery_idx) {
-  PERFETTO_CHECK(battery_idx < sysfs_battery_subdirs_.size());
+  DEJAVIEW_CHECK(battery_idx < sysfs_battery_subdirs_.size());
   return ReadFileAsInt64(power_supply_dir_path_ + "/" +
                          sysfs_battery_subdirs_[battery_idx] + "/current_now");
 }
@@ -116,14 +116,14 @@ std::optional<int64_t> LinuxPowerSysfsDataSource::BatteryInfo::GetCurrentNowUa(
 std::optional<int64_t>
 LinuxPowerSysfsDataSource::BatteryInfo::GetAverageCurrentUa(
     size_t battery_idx) {
-  PERFETTO_CHECK(battery_idx < sysfs_battery_subdirs_.size());
+  DEJAVIEW_CHECK(battery_idx < sysfs_battery_subdirs_.size());
   return ReadFileAsInt64(power_supply_dir_path_ + "/" +
                          sysfs_battery_subdirs_[battery_idx] + "/current_avg");
 }
 
 std::string LinuxPowerSysfsDataSource::BatteryInfo::GetBatteryName(
     size_t battery_idx) {
-  PERFETTO_CHECK(battery_idx < sysfs_battery_subdirs_.size());
+  DEJAVIEW_CHECK(battery_idx < sysfs_battery_subdirs_.size());
   return sysfs_battery_subdirs_[battery_idx];
 }
 
@@ -206,4 +206,4 @@ void LinuxPowerSysfsDataSource::Flush(FlushRequestID,
   writer_->Flush(callback);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -18,16 +18,16 @@
 
 #include <string>
 
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_redaction/proto_util.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ps/process_stats.pbzero.h"
+#include "protos/dejaview/trace/ps/process_stats.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status ScrubProcessStats::Transform(const Context& context,
                                           std::string* packet) const {
@@ -55,7 +55,7 @@ base::Status ScrubProcessStats::Transform(const Context& context,
   // timestamp is located at the trace packet.
   auto time_field = packet_decoder.FindField(
       protos::pbzero::TracePacket::kTimestampFieldNumber);
-  PERFETTO_DCHECK(time_field.valid());
+  DEJAVIEW_DCHECK(time_field.valid());
 
   auto ts = time_field.as_uint64();
 
@@ -98,15 +98,15 @@ base::Status ScrubProcessStats::OnProcess(
     uint64_t ts,
     protozero::Field field,
     protos::pbzero::ProcessStats* message) const {
-  PERFETTO_DCHECK(field.id() ==
+  DEJAVIEW_DCHECK(field.id() ==
                   protos::pbzero::ProcessStats::kProcessesFieldNumber);
 
   protozero::ProtoDecoder decoder(field.as_bytes());
   auto pid =
       decoder.FindField(protos::pbzero::ProcessStats::Process::kPidFieldNumber);
-  PERFETTO_DCHECK(pid.valid());
+  DEJAVIEW_DCHECK(pid.valid());
 
-  PERFETTO_DCHECK(filter_);
+  DEJAVIEW_DCHECK(filter_);
   if (filter_->Includes(context, ts, pid.as_int32())) {
     proto_util::AppendField(field, message);
   }
@@ -114,4 +114,4 @@ base::Status ScrubProcessStats::OnProcess(
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

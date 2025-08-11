@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 import("../../../gn/test.gni")
 
 source_set("symbolizer") {
-  public_deps = [ "../../../include/perfetto/ext/base" ]
+  public_deps = [ "../../../include/dejaview/ext/base" ]
   deps = [ "../../../gn:default_deps" ]
   sources = [
     "breakpad_parser.cc",
@@ -37,18 +37,18 @@ source_set("symbolizer") {
   ]
 }
 
-if (enable_perfetto_trace_processor) {
+if (enable_dejaview_trace_processor) {
   source_set("symbolize_database") {
     public_deps = [
       ":symbolizer",
-      "../../../include/perfetto/ext/base",
+      "../../../include/dejaview/ext/base",
     ]
     deps = [
       "../../../gn:default_deps",
-      "../../../include/perfetto/protozero",
-      "../../../include/perfetto/trace_processor:trace_processor",
-      "../../../protos/perfetto/trace:zero",
-      "../../../protos/perfetto/trace/profiling:zero",
+      "../../../include/dejaview/protozero",
+      "../../../include/dejaview/trace_processor:trace_processor",
+      "../../../protos/dejaview/trace:zero",
+      "../../../protos/dejaview/trace/profiling:zero",
       "../../trace_processor/util:build_id",
     ]
     sources = [
@@ -58,7 +58,7 @@ if (enable_perfetto_trace_processor) {
   }
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":symbolizer",

@@ -173,13 +173,13 @@ function openBufferWithLegacyTraceViewer(
 }
 
 export function openInOldUIWithSizeCheck(trace: Blob) {
-  // Perfetto traces smaller than 50mb can be safely opened in the legacy UI.
+  // DejaView traces smaller than 50mb can be safely opened in the legacy UI.
   if (trace.size < 1024 * 1024 * 50) {
     convertToJson(trace, openBufferWithLegacyTraceViewer);
     return;
   }
 
-  // Give the user the option to truncate larger perfetto traces.
+  // Give the user the option to truncate larger dejaview traces.
   const size = Math.round(trace.size / (1024 * 1024));
   showModal({
     title: 'Legacy UI may fail to open this trace',

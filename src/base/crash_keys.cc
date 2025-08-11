@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/crash_keys.h"
+#include "dejaview/ext/base/crash_keys.h"
 
 #include <string.h>
 
 #include <atomic>
 #include <cinttypes>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -44,7 +44,7 @@ void CrashKey::Register() {
 
   uint32_t slot = g_num_keys.fetch_add(1);
   if (slot >= kMaxKeys) {
-    PERFETTO_LOG("Too many crash keys registered");
+    DEJAVIEW_LOG("Too many crash keys registered");
     return;
   }
   g_keys[slot].store(this);
@@ -88,10 +88,10 @@ size_t SerializeCrashKeys(char* dst, size_t len) {
       continue;  // Can happen if we hit this between the add and the store.
     written += key->ToString(dst + written, len - written);
   }
-  PERFETTO_DCHECK(written <= len);
-  PERFETTO_DCHECK(len == 0 || dst[written] == '\0');
+  DEJAVIEW_DCHECK(written <= len);
+  DEJAVIEW_DCHECK(len == 0 || dst[written] == '\0');
   return written;
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

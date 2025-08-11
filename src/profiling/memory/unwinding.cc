@@ -44,17 +44,17 @@
 
 #include <procinfo/process_map.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/thread_task_runner.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/thread_task_runner.h"
 
 #include "src/profiling/memory/unwound_messages.h"
 #include "src/profiling/memory/wire_protocol.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -123,7 +123,7 @@ bool DoUnwind(WireMessage* msg, UnwindingMetadata* metadata, AllocRecord* out) {
   std::unique_ptr<unwindstack::Regs> regs(CreateRegsFromRawData(
       alloc_metadata->arch, alloc_metadata->register_data));
   if (regs == nullptr) {
-    PERFETTO_DLOG("Unable to construct unwindstack::Regs");
+    DEJAVIEW_DLOG("Unable to construct unwindstack::Regs");
     unwindstack::FrameData frame_data{};
     frame_data.function_name = "ERROR READING REGISTERS";
 
@@ -142,7 +142,7 @@ bool DoUnwind(WireMessage* msg, UnwindingMetadata* metadata, AllocRecord* out) {
 
   unwindstack::Unwinder unwinder(kMaxFrames, &metadata->fd_maps, regs.get(),
                                  mems);
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   unwinder.SetJitDebug(metadata->GetJitDebug(regs->Arch()));
   unwinder.SetDexFiles(metadata->GetDexFiles(regs->Arch()));
 #endif
@@ -153,17 +153,17 @@ bool DoUnwind(WireMessage* msg, UnwindingMetadata* metadata, AllocRecord* out) {
     if (attempt > 0) {
       if (metadata->last_maps_reparse_time + kMapsReparseInterval >
           base::GetWallTimeMs()) {
-        PERFETTO_DLOG("Skipping reparse due to rate limit.");
+        DEJAVIEW_DLOG("Skipping reparse due to rate limit.");
         break;
       }
-      PERFETTO_DLOG("Reparsing maps");
+      DEJAVIEW_DLOG("Reparsing maps");
       metadata->ReparseMaps();
       metadata->last_maps_reparse_time = base::GetWallTimeMs();
       // Regs got invalidated by libuwindstack's speculative jump.
       // Reset.
       ReadFromRawData(regs.get(), alloc_metadata->register_data);
       out->reparsed_map = true;
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
       unwinder.SetJitDebug(metadata->GetJitDebug(regs->Arch()));
       unwinder.SetDexFiles(metadata->GetDexFiles(regs->Arch()));
 #endif
@@ -183,7 +183,7 @@ bool DoUnwind(WireMessage* msg, UnwindingMetadata* metadata, AllocRecord* out) {
   }
 
   if (error_code != unwindstack::ERROR_NONE) {
-    PERFETTO_DLOG("Unwinding error %" PRIu8, error_code);
+    DEJAVIEW_DLOG("Unwinding error %" PRIu8, error_code);
     unwindstack::FrameData frame_data{};
     frame_data.function_name =
         "ERROR " + StringifyLibUnwindstackError(error_code);
@@ -222,7 +222,7 @@ void UnwindingWorker::OnDisconnect(base::UnixSocket* self) {
   pid_t peer_pid = self->peer_pid_linux();
   auto it = client_data_.find(peer_pid);
   if (it == client_data_.end()) {
-    PERFETTO_DFATAL_OR_ELOG("Disconnected unexpected socket.");
+    DEJAVIEW_DFATAL_OR_ELOG("Disconnected unexpected socket.");
     return;
   }
 
@@ -264,7 +264,7 @@ void UnwindingWorker::FinishDisconnect(
     if (lock.locked())
       stats = shmem.GetStats(lock);
     else
-      PERFETTO_ELOG("Failed to log shmem to get stats.");
+      DEJAVIEW_ELOG("Failed to log shmem to get stats.");
   }
   DataSourceInstanceID ds_id = client_data.data_source_instance_id;
 
@@ -317,7 +317,7 @@ void UnwindingWorker::BatchUnwindJob(pid_t peer_pid) {
   if (it == client_data_.end()) {
     // This can happen if the client disconnected before the buffer was fully
     // handled.
-    PERFETTO_DLOG("Unexpected data.");
+    DEJAVIEW_DLOG("Unexpected data.");
     return;
   }
   ClientData& client_data = it->second;
@@ -352,7 +352,7 @@ void UnwindingWorker::BatchUnwindJob(pid_t peer_pid) {
   // new data is written to the shared memory buffer.
   // If we do neither of these things, we will not read from the shared memory
   // buffer again.
-  PERFETTO_CHECK(job_reposted || reader_paused);
+  DEJAVIEW_CHECK(job_reposted || reader_paused);
 }
 
 void UnwindingWorker::DrainJob(pid_t peer_pid) {
@@ -400,7 +400,7 @@ void UnwindingWorker::HandleBuffer(UnwindingWorker* self,
   // char* has stronger guarantees regarding aliasing.
   // see https://timsong-cpp.github.io/cppwp/n3337/basic.lval#10.8
   if (!ReceiveWireMessage(reinterpret_cast<char*>(buf.data), buf.size, &msg)) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to receive wire message.");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to receive wire message.");
     return;
   }
 
@@ -435,7 +435,7 @@ void UnwindingWorker::HandleBuffer(UnwindingWorker* self,
     rec.entry.heap_name[sizeof(rec.entry.heap_name) - 1] = '\0';
     delegate->PostHeapNameRecord(self, std::move(rec));
   } else {
-    PERFETTO_DFATAL_OR_ELOG("Invalid record type.");
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid record type.");
   }
 }
 
@@ -560,4 +560,4 @@ void AllocRecordArena::Enable() {
 UnwindingWorker::Delegate::~Delegate() = default;
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 
 #include <forward_list>
 #include <unordered_map>
@@ -22,7 +22,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -220,4 +220,4 @@ TEST(StringViewTest, HashCollisions) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

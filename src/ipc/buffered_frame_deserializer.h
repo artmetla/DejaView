@@ -22,11 +22,11 @@
 #include <list>
 #include <memory>
 
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/ipc/basic_types.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/ipc/basic_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos {
 namespace gen {
@@ -36,7 +36,7 @@ class IPCFrame;
 
 namespace ipc {
 
-using Frame = ::perfetto::protos::gen::IPCFrame;
+using Frame = ::dejaview::protos::gen::IPCFrame;
 
 // Deserializes incoming frames, taking care of buffering and tokenization.
 // Used by both host and client to decode incoming frames.
@@ -106,7 +106,7 @@ class BufferedFrameDeserializer {
   // buffer previously returned by BeginReceive() (the return value of recv()).
   // Returns false if a header > |max_capacity| is received, in which case the
   // caller is expected to shutdown the socket and terminate the ipc.
-  bool EndReceive(size_t recv_size) PERFETTO_WARN_UNUSED_RESULT;
+  bool EndReceive(size_t recv_size) DEJAVIEW_WARN_UNUSED_RESULT;
 
   // Decodes and returns the next decoded frame in the buffer if any, nullptr
   // if no further frames have been decoded.
@@ -136,6 +136,6 @@ class BufferedFrameDeserializer {
 };
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_IPC_BUFFERED_FRAME_DESERIALIZER_H_

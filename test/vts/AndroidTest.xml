@@ -13,16 +13,16 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<!-- The Android.mk file that defines these target lives in /external/perfetto/cts -->
-<configuration description="Config for VTS Perfetto test cases">
+<!-- The Android.mk file that defines these target lives in /external/dejaview/cts -->
+<configuration description="Config for VTS DejaView test cases">
     <option name="test-suite-tag" value="vts" />
     <target_preparer class="com.android.compatibility.common.tradefed.targetprep.FilePusher">
         <option name="cleanup" value="true" />
-        <option name="push" value="VtsPerfettoTestCases->/data/local/tmp/VtsPerfettoTestCases" />
+        <option name="push" value="VtsDejaViewTestCases->/data/local/tmp/VtsDejaViewTestCases" />
     </target_preparer>
     <test class="com.android.tradefed.testtype.GTest" >
         <option name="native-test-device-path" value="/data/local/tmp" />
-        <option name="module-name" value="VtsPerfettoTestCases" />
+        <option name="module-name" value="VtsDejaViewTestCases" />
         <option name="runtime-hint" value="0m5s" />
         <!-- test-timeout unit is ms -->
         <option name="native-test-timeout" value="10000" />

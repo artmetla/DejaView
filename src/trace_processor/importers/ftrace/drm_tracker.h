@@ -20,12 +20,12 @@
 #include <deque>
 #include <memory>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -112,6 +112,6 @@ class DrmTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_DRM_TRACKER_H_

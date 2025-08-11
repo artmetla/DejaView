@@ -16,10 +16,10 @@
 
 #include "src/profiling/common/interning_output.h"
 
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 namespace {
 // Flags used to distinguish distinct types of interned strings.
@@ -28,7 +28,7 @@ constexpr int kDumpedMappingPath = 1 << 1;
 constexpr int kDumpedFunctionName = 1 << 2;
 }  // namespace
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // static
@@ -174,4 +174,4 @@ void InterningOutputTracker::ClearHistory() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -1,7 +1,7 @@
 #!/bin/bash
 # Rough script for screenrecord and trace
 # ./screenrecordtest [time limit in seconds - 180 seconds maximum]
-# Runs screenrecord along with a perfetto trace
+# Runs screenrecord along with a dejaview trace
 
 set -e
 
@@ -13,9 +13,9 @@ fi
 timems=`expr $time \* 1000`
 adb shell screenrecord --time-limit $time "/sdcard/tracescr.mp4" & SCRN=$!
 
-adb shell perfetto \
+adb shell dejaview \
   -c - --txt \
-  -o /data/misc/perfetto-traces/trace \
+  -o /data/misc/dejaview-traces/trace \
 <<<"
 
 buffers: {
@@ -43,4 +43,4 @@ duration_ms: $timems
 wait $SCRN
 
 adb pull "/sdcard/tracescr.mp4"
-adb pull "/data/misc/perfetto-traces/trace"
+adb pull "/data/misc/dejaview-traces/trace"

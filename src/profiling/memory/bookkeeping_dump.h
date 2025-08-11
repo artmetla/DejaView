@@ -21,17 +21,17 @@
 #include <functional>
 #include <set>
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/profiling/common/interner.h"
 #include "src/profiling/common/interning_output.h"
 #include "src/profiling/memory/bookkeeping.h"
 
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 class DumpState {
@@ -111,6 +111,6 @@ class DumpState {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_BOOKKEEPING_DUMP_H_

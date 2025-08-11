@@ -1,7 +1,7 @@
 {
   "art-mainline-presubmit": [
     {
-      "name": "CtsPerfettoTestCases",
+      "name": "CtsDejaViewTestCases",
       "options": [
         {
           "include-filter": "HeapprofdJavaCtsTest*"
@@ -11,17 +11,17 @@
   ],
   "presubmit": [
     {
-      "name": "CtsPerfettoTestCases"
+      "name": "CtsDejaViewTestCases"
     },
     // Additional presubmit tests that explicitly exercise
-    // Perfetto's backend
+    // DejaView's backend
     {
       "name": "libsurfaceflinger_unittest"
     }
   ],
   "mainline-presubmit": [
     {
-      "name": "CtsPerfettoTestCases[com.google.android.art.apex]",
+      "name": "CtsDejaViewTestCases[com.google.android.art.apex]",
       "options": [
         {
           "include-filter": "HeapprofdJavaCtsTest*"
@@ -31,12 +31,12 @@
   ],
   "hwasan-presubmit": [
     {
-      "name": "CtsPerfettoTestCases"
+      "name": "CtsDejaViewTestCases"
     }
   ],
   "postsubmit": [
     {
-      "name": "libtracing_perfetto_tests"
+      "name": "libtracing_dejaview_tests"
     }
   ]
 }

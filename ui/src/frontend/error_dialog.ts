@@ -18,7 +18,7 @@ import {EXTENSION_URL} from '../common/recordingV2/recording_utils';
 import {GcsUploader} from '../common/gcs_uploader';
 import {RECORDING_V2_FLAG} from '../core/feature_flags';
 import {raf} from '../core/raf_scheduler';
-import {VERSION} from '../gen/perfetto_version';
+import {VERSION} from '../gen/dejaview_version';
 import {getCurrentModalKey, showModal} from '../widgets/modal';
 import {globals} from './globals';
 import {AppImpl} from '../core/app_impl';
@@ -321,13 +321,13 @@ function showUnknownFileError() {
       'div',
       m(
         'p',
-        "The file opened doesn't look like a Perfetto trace or any " +
-          'other format recognized by the Perfetto TraceProcessor.',
+        "The file opened doesn't look like a DejaView trace or any " +
+          'other format recognized by the DejaView TraceProcessor.',
       ),
       m('p', 'Formats supported:'),
       m(
         'ul',
-        m('li', 'Perfetto protobuf trace'),
+        m('li', 'DejaView protobuf trace'),
         m('li', 'chrome://tracing JSON'),
         m('li', 'Android systrace'),
         m('li', 'Fuchsia trace'),
@@ -431,12 +431,12 @@ export function showNoDeviceSelected(): void {
 
 export function showExtensionNotInstalled(): void {
   showModal({
-    title: 'Perfetto Chrome extension not installed',
+    title: 'DejaView Chrome extension not installed',
     content: m(
       'div',
       m(
         '.note',
-        `To trace Chrome from the Perfetto UI, you need to install our `,
+        `To trace Chrome from the DejaView UI, you need to install our `,
         m('a', {href: EXTENSION_URL, target: '_blank'}, 'Chrome extension'),
         ' and then reload this page.',
       ),
@@ -460,7 +460,7 @@ export function showIssueParsingTheTracedResponse(message: string): void {
   showModal({
     title:
       'A problem was encountered while connecting to' +
-      ' the Perfetto tracing service',
+      ' the DejaView tracing service',
     content: m('div', m('span', message), m('br')),
   });
 }
@@ -473,7 +473,7 @@ export function showFailedToPushBinary(message: string): void {
       m(
         'span',
         'This can happen if your Android device has an OS version lower ' +
-          'than Q. Perfetto tried to push the latest version of its ' +
+          'than Q. DejaView tried to push the latest version of its ' +
           'embedded binary but failed.',
       ),
       m('br'),

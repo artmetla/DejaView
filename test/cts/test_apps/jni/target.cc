@@ -57,7 +57,7 @@ void ReportCycle(const char* path) {
   rename(tmppath.c_str(), path);
 }
 
-__attribute__((noreturn)) void perfetto_test_allocations(
+__attribute__((noreturn)) void dejaview_test_allocations(
     const char* report_cycle_path) {
   for (;;) {
     for (size_t j = 0; j < 20; j++) {
@@ -74,7 +74,7 @@ __attribute__((noreturn)) void perfetto_test_allocations(
 }
 
 // Runs continuously as a target for the sampling perf profiler tests.
-__attribute__((noreturn)) void perfetto_busy_wait() {
+__attribute__((noreturn)) void dejaview_busy_wait() {
   for (volatile unsigned i = 0;; i++) {
   }
 }
@@ -82,17 +82,17 @@ __attribute__((noreturn)) void perfetto_busy_wait() {
 }  // namespace
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_cts_app_MainActivity_runNative(
+Java_android_dejaview_cts_app_MainActivity_runNative(
     JNIEnv* env,
     jclass,
     jstring jreport_cycle_path) {
   const char* path = env->GetStringUTFChars(jreport_cycle_path, NULL);
-  perfetto_test_allocations(path);
+  dejaview_test_allocations(path);
   env->ReleaseStringUTFChars(jreport_cycle_path, NULL);
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_cts_app_BusyWaitActivity_runNativeBusyWait(JNIEnv*,
+Java_android_dejaview_cts_app_BusyWaitActivity_runNativeBusyWait(JNIEnv*,
                                                                  jclass) {
-  perfetto_busy_wait();
+  dejaview_busy_wait();
 }

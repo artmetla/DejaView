@@ -22,13 +22,13 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 
 // We include this intentionally instead of forward declaring to allow
 // for an easy find/replace transformation when moving to Google3.
 #include <google/protobuf/descriptor.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 
 // Represents an allow-list for proto messages, fields and enums.
@@ -55,6 +55,6 @@ base::Status AllowlistFromFieldList(
     Allowlist& allowlist);
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TOOLS_PROTO_MERGER_ALLOWLIST_H_

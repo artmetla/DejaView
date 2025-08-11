@@ -39,5 +39,5 @@ data_sources: {
 
 The counter_ids correspond to the ones described in `GpuCounterSpec` in the data source descriptor.
 
-See the full configuration options in [gpu\_counter\_config.proto](/protos/perfetto/config/gpu/gpu_counter_config.proto)
+See the full configuration options in [gpu\_counter\_config.proto](/protos/dejaview/config/gpu/gpu_counter_config.proto)
 

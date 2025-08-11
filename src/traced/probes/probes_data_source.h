@@ -19,11 +19,11 @@
 
 #include <functional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/tracing/core/forward_decls.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Base class for all data sources in traced_probes.
 class ProbesDataSource {
@@ -52,7 +52,7 @@ class ProbesDataSource {
   // Only data sources that opt in via DataSourceDescriptor should receive this
   // call.
   virtual void ClearIncrementalState() {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "ClearIncrementalState received by data source that doesn't provide "
         "its own implementation.");
   }
@@ -66,6 +66,6 @@ class ProbesDataSource {
   ProbesDataSource& operator=(const ProbesDataSource&) = delete;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_PROBES_DATA_SOURCE_H_

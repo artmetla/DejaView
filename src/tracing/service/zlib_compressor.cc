@@ -16,16 +16,16 @@
 
 #include "src/tracing/service/zlib_compressor.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 #error "Zlib must be enabled to compile this file."
 #endif
 
 #include <zlib.h>
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -44,7 +44,7 @@ Preamble GetPreamble(size_t sz) {
   preamble.size =
       static_cast<uint32_t>(reinterpret_cast<uintptr_t>(ptr) -
                             reinterpret_cast<uintptr_t>(preamble.buf.data()));
-  PERFETTO_DCHECK(preamble.size < preamble.buf.size());
+  DEJAVIEW_DCHECK(preamble.size < preamble.buf.size());
   return preamble;
 }
 
@@ -83,12 +83,12 @@ class ZlibPacketCompressor {
 ZlibPacketCompressor::ZlibPacketCompressor() {
   memset(&stream_, 0, sizeof(stream_));
   int status = deflateInit(&stream_, 6);
-  PERFETTO_CHECK(status == Z_OK);
+  DEJAVIEW_CHECK(status == Z_OK);
 }
 
 ZlibPacketCompressor::~ZlibPacketCompressor() {
   int status = deflateEnd(&stream_);
-  PERFETTO_CHECK(status == Z_OK);
+  DEJAVIEW_CHECK(status == Z_OK);
 }
 
 void ZlibPacketCompressor::PushPacket(const TracePacket& packet) {
@@ -111,7 +111,7 @@ void ZlibPacketCompressor::PushData(const void* data, uint32_t size) {
       NewOutputSlice();
     }
     int status = deflate(&stream_, Z_NO_FLUSH);
-    PERFETTO_CHECK(status == Z_OK);
+    DEJAVIEW_CHECK(status == Z_OK);
   }
 }
 
@@ -120,7 +120,7 @@ TracePacket ZlibPacketCompressor::Finish() {
     int status = deflate(&stream_, Z_FINISH);
     if (status == Z_STREAM_END)
       break;
-    PERFETTO_CHECK(status == Z_OK || status == Z_BUF_ERROR);
+    DEJAVIEW_CHECK(status == Z_OK || status == Z_BUF_ERROR);
     NewOutputSlice();
   }
 
@@ -170,4 +170,4 @@ void ZlibCompressFn(std::vector<TracePacket>* packets) {
   packets->push_back(std::move(packet));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

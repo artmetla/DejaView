@@ -16,15 +16,15 @@
 
 #include "src/kallsyms/kernel_symbol_map.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/proto_utils.h"
 
 #include <stdio.h>
 
@@ -35,7 +35,7 @@
 #include <unordered_map>
 #include <utility>
 
-namespace perfetto {
+namespace dejaview {
 
 // On a Pixel 3 this gives an avg. lookup time of 600 ns and a memory usage
 // of 1.1 MB for 65k symbols. See go/kallsyms-parser-bench.
@@ -58,7 +58,7 @@ template <typename Lambda /* void(uint64_t, char, base::StringView) */>
 void ForEachSym(const std::string& kallsyms_path, Lambda fn) {
   base::ScopedFile fd = base::OpenFile(kallsyms_path.c_str(), O_RDONLY);
   if (!fd) {
-    PERFETTO_PLOG("Cannot open %s", kallsyms_path.c_str());
+    DEJAVIEW_PLOG("Cannot open %s", kallsyms_path.c_str());
     return;
   }
 
@@ -83,7 +83,7 @@ void ForEachSym(const std::string& kallsyms_path, Lambda fn) {
     char* buf = static_cast<char*>(buffer.Get());
     auto rsize = base::Read(*fd, buf, kBufSize);
     if (rsize < 0) {
-      PERFETTO_PLOG("read(%s) failed", kallsyms_path.c_str());
+      DEJAVIEW_PLOG("read(%s) failed", kallsyms_path.c_str());
       return;
     }
     if (rsize == 0)
@@ -102,7 +102,7 @@ void ForEachSym(const std::string& kallsyms_path, Lambda fn) {
           } else if (c == '\0') {
             return;
           } else {
-            PERFETTO_ELOG("kallsyms parser error: chr 0x%x @ off=%zu", c, i);
+            DEJAVIEW_ELOG("kallsyms parser error: chr 0x%x @ off=%zu", c, i);
             return;
           }
           break;
@@ -198,11 +198,11 @@ TokenId KernelSymbolMap::TokenTable::Add(const std::string& token) {
   buf_.resize(prev_size + token_size);
   char* tok_wptr = &buf_[prev_size];
   for (size_t i = 0; i < token_size - 1; i++) {
-    PERFETTO_DCHECK((token.at(i) & 0x80) == 0);  // |token| must be ASCII only.
+    DEJAVIEW_DCHECK((token.at(i) & 0x80) == 0);  // |token| must be ASCII only.
     *(tok_wptr++) = token.at(i) & 0x7f;
   }
   *(tok_wptr++) = static_cast<char>(token.at(token_size - 1) | 0x80);
-  PERFETTO_DCHECK(tok_wptr == buf_.data() + buf_.size());
+  DEJAVIEW_DCHECK(tok_wptr == buf_.data() + buf_.size());
   return id;
 }
 
@@ -217,10 +217,10 @@ base::StringView KernelSymbolMap::TokenTable::Lookup(TokenId id) {
   // store only one position every kTokenIndexSampling. From there, the token
   // can be found with a linear scan of at most kTokenIndexSampling steps.
   size_t index_off = id / kTokenIndexSampling;
-  PERFETTO_DCHECK(index_off < index_.size());
+  DEJAVIEW_DCHECK(index_off < index_.size());
   TokenId cur_id = static_cast<TokenId>(index_off * kTokenIndexSampling);
   uint32_t begin = index_[index_off];
-  PERFETTO_DCHECK(begin == 0 || buf_[begin - 1] & 0x80);
+  DEJAVIEW_DCHECK(begin == 0 || buf_[begin - 1] & 0x80);
   const size_t buf_size = buf_.size();
   for (uint32_t off = begin; off < buf_size; ++off) {
     // Advance |off| until the end of the token (which has the MSB set).
@@ -235,7 +235,7 @@ base::StringView KernelSymbolMap::TokenTable::Lookup(TokenId id) {
 }
 
 size_t KernelSymbolMap::Parse(const std::string& kallsyms_path) {
-  PERFETTO_METATRACE_SCOPED(TAG_PRODUCER, KALLSYMS_PARSE);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PRODUCER, KALLSYMS_PARSE);
   using SymAddr = uint64_t;
 
   struct TokenInfo {
@@ -327,7 +327,7 @@ size_t KernelSymbolMap::Parse(const std::string& kallsyms_path) {
       tokens_by_freq[tok_idx++] = &kv;
 
     auto comparer = [](TokenMapPtr a, TokenMapPtr b) {
-      PERFETTO_DCHECK(a && b);
+      DEJAVIEW_DCHECK(a && b);
       return b->second.count < a->second.count;
     };
     std::sort(tokens_by_freq.begin(), tokens_by_freq.end(), comparer);
@@ -364,12 +364,12 @@ size_t KernelSymbolMap::Parse(const std::string& kallsyms_path) {
     const size_t sym_num = num_syms_++;
     if (sym_num % kSymIndexSampling == 0)
       index_.emplace_back(std::make_pair(sym_rel_addr, size_before));
-    PERFETTO_DCHECK(sym_addr >= prev_sym_addr);
+    DEJAVIEW_DCHECK(sym_addr >= prev_sym_addr);
     uint32_t delta = static_cast<uint32_t>(sym_addr - prev_sym_addr);
     wptr = protozero::proto_utils::WriteVarInt(delta, wptr);
     // Append all the token ids.
     for (it = sym_start; it != sym_end;) {
-      PERFETTO_DCHECK(it->addr == sym_addr);
+      DEJAVIEW_DCHECK(it->addr == sym_addr);
       TokenMapPtr const token_map_entry = it->token_map_entry;
       const TokenInfo& token_info = token_map_entry->second;
       TokenId token_id = token_info.id << 1;
@@ -385,12 +385,12 @@ size_t KernelSymbolMap::Parse(const std::string& kallsyms_path) {
   base::MaybeReleaseAllocatorMemToOS();  // For Scudo, b/170217718.
 
   if (num_syms_ == 0) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Failed to parse kallsyms. Kernel functions will not be symbolized. On "
         "Linux this requires either running traced_probes as root or manually "
         "lowering /proc/sys/kernel/kptr_restrict");
   } else {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Loaded %zu kalllsyms entries. Mem usage: %zu B (addresses) + %zu B "
         "(tokens), total: %zu B",
         num_syms_, addr_bytes(), tokens_.size_bytes(), size_bytes());
@@ -442,7 +442,7 @@ std::string KernelSymbolMap::Lookup(uint64_t sym_addr) {
   if (!next_rdptr)
     return "";
 
-  PERFETTO_DCHECK(sym_rel_addr >= sym_start_addr);
+  DEJAVIEW_DCHECK(sym_rel_addr >= sym_start_addr);
 
   // If this address is too far from the start of the symbol, this is likely
   // a pointer to something else (e.g. some vmalloc struct) and we just picked
@@ -471,4 +471,4 @@ std::string KernelSymbolMap::Lookup(uint64_t sym_addr) {
   return sym_name;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -25,7 +25,7 @@
 #include "src/trace_redaction/trace_redactor.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 namespace {
 // Every thread in the package stars before the trace and ends after the
 // trace, allowing any time to be used for the query. This time is the
@@ -105,4 +105,4 @@ TEST_F(ProcessThreadTimelineIntegrationTest,
   }
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

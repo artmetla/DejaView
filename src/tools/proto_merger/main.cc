@@ -20,18 +20,18 @@
 #include <google/protobuf/compiler/importer.h>
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/version.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/version.h"
 #include "src/tools/proto_merger/allowlist.h"
 #include "src/tools/proto_merger/proto_file.h"
 #include "src/tools/proto_merger/proto_file_serializer.h"
 #include "src/tools/proto_merger/proto_merger.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 namespace {
 
@@ -49,7 +49,7 @@ void MultiFileErrorCollectorImpl::AddError(const std::string& filename,
                                            int line,
                                            int column,
                                            const std::string& message) {
-  PERFETTO_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
+  DEJAVIEW_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
                 message.c_str());
 }
 
@@ -57,7 +57,7 @@ void MultiFileErrorCollectorImpl::AddWarning(const std::string& filename,
                                              int line,
                                              int column,
                                              const std::string& message) {
-  PERFETTO_ELOG("Warning %s %d:%d: %s", filename.c_str(), line, column,
+  DEJAVIEW_ELOG("Warning %s %d:%d: %s", filename.c_str(), line, column,
                 message.c_str());
 }
 
@@ -100,14 +100,14 @@ const char kUsage[] =
 
 Example usage:
 
-# Updating logs proto from Perfetto repo (must be run in G3):
+# Updating logs proto from DejaView repo (must be run in G3):
   proto_merger \
-    -u third_party/perfetto/protos/perfetto/trace/perfetto_trace.proto \
+    -u third_party/dejaview/protos/dejaview/trace/dejaview_trace.proto \
     -U . \
-    -i <path to logs proto>/perfetto_log.proto \
+    -i <path to logs proto>/dejaview_log.proto \
     -I . \
     --allowlist /tmp/allowlist.txt \
-    -r perfetto.protos.Trace \
+    -r dejaview.protos.Trace \
     --output /tmp/output.proto
 )";
 
@@ -189,34 +189,34 @@ int Main(int argc, char** argv) {
   }
 
   if (input.empty()) {
-    PERFETTO_ELOG("Input proto (--input) should be specified");
+    DEJAVIEW_ELOG("Input proto (--input) should be specified");
     return 1;
   }
 
   if (input_include.empty()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Input include directory (--input-include) should be specified");
     return 1;
   }
 
   if (upstream.empty()) {
-    PERFETTO_ELOG("Upstream proto (--upstream) should be specified");
+    DEJAVIEW_ELOG("Upstream proto (--upstream) should be specified");
     return 1;
   }
 
   if (upstream_include.empty()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Upstream include directory (--upstream-include) should be specified");
     return 1;
   }
 
   if (output.empty()) {
-    PERFETTO_ELOG("Output file (--output) should be specified");
+    DEJAVIEW_ELOG("Output file (--output) should be specified");
     return 1;
   }
 
   if (!allowlist.empty() && upstream_root_message.empty()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Need to specifiy upstream root message (--upstream-root-message) when "
         "specifying allowlist");
     return 1;
@@ -224,7 +224,7 @@ int Main(int argc, char** argv) {
 
   std::string input_contents;
   if (!base::ReadFile(input_include + "/" + input, &input_contents)) {
-    PERFETTO_ELOG("Failed to read input");
+    DEJAVIEW_ELOG("Failed to read input");
     return 1;
   }
 
@@ -248,14 +248,14 @@ int Main(int argc, char** argv) {
   if (!allowlist.empty()) {
     std::string allowlist_contents;
     if (!base::ReadFile(allowlist, &allowlist_contents)) {
-      PERFETTO_ELOG("Failed to read allowlist");
+      DEJAVIEW_ELOG("Failed to read allowlist");
       return 1;
     }
 
     auto* desc = upstream_proto.importer->pool()->FindMessageTypeByName(
         upstream_root_message);
     if (!desc) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Failed to find root message descriptor in upstream proto file");
       return 1;
     }
@@ -263,7 +263,7 @@ int Main(int argc, char** argv) {
     auto field_list = base::SplitString(allowlist_contents, "\n");
     base::Status status = AllowlistFromFieldList(*desc, field_list, allowed);
     if (!status.ok()) {
-      PERFETTO_ELOG("Failed creating allowlist: %s", status.c_message());
+      DEJAVIEW_ELOG("Failed creating allowlist: %s", status.c_message());
       return 1;
     }
   }
@@ -272,14 +272,14 @@ int Main(int argc, char** argv) {
   base::Status status =
       MergeProtoFiles(input_file, upstream_file, allowed, merged);
   if (!status.ok()) {
-    PERFETTO_ELOG("Failed merging protos: %s", status.c_message());
+    DEJAVIEW_ELOG("Failed merging protos: %s", status.c_message());
     return 1;
   }
 
   base::ScopedFile output_file(
       base::OpenFile(output, O_CREAT | O_WRONLY | O_TRUNC, 0664));
   if (!output_file) {
-    PERFETTO_ELOG("Failed opening output file: %s", output.c_str());
+    DEJAVIEW_ELOG("Failed opening output file: %s", output.c_str());
     return 1;
   }
   std::string out = ProtoFileToDotProto(merged);
@@ -290,8 +290,8 @@ int Main(int argc, char** argv) {
 
 }  // namespace
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  return perfetto::proto_merger::Main(argc, argv);
+  return dejaview::proto_merger::Main(argc, argv);
 }

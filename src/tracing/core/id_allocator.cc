@@ -16,12 +16,12 @@
 
 #include "src/tracing/core/id_allocator.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 
 IdAllocatorGeneric::IdAllocatorGeneric(uint32_t max_id) : max_id_(max_id) {
-  PERFETTO_DCHECK(max_id > 1);
+  DEJAVIEW_DCHECK(max_id > 1);
 }
 
 IdAllocatorGeneric::~IdAllocatorGeneric() = default;
@@ -50,7 +50,7 @@ uint32_t IdAllocatorGeneric::AllocateGeneric() {
 
 void IdAllocatorGeneric::FreeGeneric(uint32_t id) {
   if (id == 0 || id >= ids_.size() || !ids_[id]) {
-    PERFETTO_DFATAL("Invalid id.");
+    DEJAVIEW_DFATAL("Invalid id.");
     return;
   }
   ids_[id] = false;
@@ -64,4 +64,4 @@ bool IdAllocatorGeneric::IsEmpty() const {
   return true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

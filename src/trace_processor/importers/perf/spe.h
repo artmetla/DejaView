@@ -24,10 +24,10 @@
 
 #include <cstddef>
 #include <cstdint>
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
 
-namespace perfetto::trace_processor::perf_importer::spe {
+namespace dejaview::trace_processor::perf_importer::spe {
 
 // Test whether a given bit is set. e.g.
 // IsBitSet<1>(0b0010) == true
@@ -151,7 +151,7 @@ constexpr uint16_t PKT_DATA_SOURCE_PAYLOAD_DRAM = 0b0000'1110;
 // returning the `kUnknown` value.
 template <typename T>
 T ToEnum(uint8_t val) {
-  if (PERFETTO_LIKELY(val < static_cast<uint8_t>(T::kMax))) {
+  if (DEJAVIEW_LIKELY(val < static_cast<uint8_t>(T::kMax))) {
     return static_cast<T>(val);
   }
   return T::kUnknown;
@@ -179,7 +179,7 @@ inline bool IsExtendedHeader(uint8_t byte) {
 class ShortHeader {
  public:
   explicit ShortHeader(uint8_t byte) : byte_0_(byte) {
-    PERFETTO_DCHECK(!IsExtendedHeader(byte));
+    DEJAVIEW_DCHECK(!IsExtendedHeader(byte));
   }
 
   inline bool IsPadding() { return byte_0_ == SHORT_HEADER_PADDING; }
@@ -195,7 +195,7 @@ class ShortHeader {
   }
 
   AddressIndex GetAddressIndex() const {
-    PERFETTO_DCHECK(IsAddressPacket());
+    DEJAVIEW_DCHECK(IsAddressPacket());
     return ToEnum<AddressIndex>(index());
   }
 
@@ -204,7 +204,7 @@ class ShortHeader {
   }
 
   CounterIndex GetCounterIndex() const {
-    PERFETTO_DCHECK(IsCounterPacket());
+    DEJAVIEW_DCHECK(IsCounterPacket());
     return ToEnum<CounterIndex>(index());
   }
 
@@ -223,7 +223,7 @@ class ShortHeader {
   }
 
   DataSource GetDataSource(uint64_t payload) {
-    PERFETTO_DCHECK(IsDataSourcePacket());
+    DEJAVIEW_DCHECK(IsDataSourcePacket());
     switch (payload) {
       case PKT_DATA_SOURCE_PAYLOAD_L1D:
         return DataSource::kL1D;
@@ -253,7 +253,7 @@ class ShortHeader {
   }
 
   OperationClass GetOperationClass() const {
-    PERFETTO_DCHECK(IsOperationTypePacket());
+    DEJAVIEW_DCHECK(IsOperationTypePacket());
     switch (byte_0_ & PKT_OP_TYPE_HEADER_CLASS_MASK) {
       case PKT_OP_TYPE_HEADER_CLASS_OTHER:
         return OperationClass::kOther;
@@ -276,7 +276,7 @@ class ShortHeader {
   }
 
   uint8_t GetPayloadSize() const {
-    PERFETTO_DCHECK(!IsExtendedHeader(byte_0_));
+    DEJAVIEW_DCHECK(!IsExtendedHeader(byte_0_));
     if (!HasPayload()) {
       return 0;
     }
@@ -296,7 +296,7 @@ class ExtendedHeader {
  public:
   ExtendedHeader(uint8_t byte_0, uint8_t byte_1)
       : byte_0_(byte_0), short_header_(byte_1) {
-    PERFETTO_DCHECK(IsExtendedHeader(byte_0));
+    DEJAVIEW_DCHECK(IsExtendedHeader(byte_0));
   }
 
   bool IsAddressPacket() const { return short_header_.IsAddressPacket(); }
@@ -400,6 +400,6 @@ struct DataPhysicalAddress {
   uint64_t address;
 };
 
-}  // namespace perfetto::trace_processor::perf_importer::spe
+}  // namespace dejaview::trace_processor::perf_importer::spe
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_SPE_H_

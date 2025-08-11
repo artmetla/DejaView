@@ -32,7 +32,7 @@ source_set("art_method") {
   deps = [
     ":art_method_event",
     "../../../../gn:default_deps",
-    "../../../../protos/perfetto/common:zero",
+    "../../../../protos/dejaview/common:zero",
     "../../../base",
     "../../containers",
     "../../importers/common",

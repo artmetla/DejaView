@@ -22,8 +22,8 @@
 #include <optional>
 #include <tuple>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/small_vector.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/small_vector.h"
 #include "src/trace_processor/db/column.h"
 #include "src/trace_processor/db/typed_column.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
@@ -31,7 +31,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ArgsTracker::ArgsTracker(TraceProcessorContext* context) : context_(context) {}
 
@@ -154,8 +154,8 @@ ArgsTracker::CompactArgSet ArgsTracker::ToCompactArgSet(
     uint32_t row_number) && {
   CompactArgSet compact_args;
   for (const auto& arg : args_) {
-    PERFETTO_DCHECK(arg.column == &column);
-    PERFETTO_DCHECK(arg.row == row_number);
+    DEJAVIEW_DCHECK(arg.column == &column);
+    DEJAVIEW_DCHECK(arg.row == row_number);
     compact_args.emplace_back(arg.ToCompactArg());
   }
   args_.clear();
@@ -178,4 +178,4 @@ ArgsTracker::BoundInserter::BoundInserter(ArgsTracker* args_tracker,
 
 ArgsTracker::BoundInserter::~BoundInserter() = default;
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -155,7 +155,7 @@ export async function getTableRowCount(
 export {SqlValue};
 
 /**
- * Asynchronously creates a 'perfetto' table using the given engine and returns
+ * Asynchronously creates a 'dejaview' table using the given engine and returns
  * an disposable object to handle its cleanup.
  *
  * @param engine - The database engine to execute the query.
@@ -165,22 +165,22 @@ export {SqlValue};
  *
  * @example
  * const engine = new Engine();
- * const tableName = 'my_perfetto_table';
+ * const tableName = 'my_dejaview_table';
  * const expression = 'SELECT * FROM source_table';
  *
- * const table = await createPerfettoTable(engine, tableName, expression);
+ * const table = await createDejaViewTable(engine, tableName, expression);
  *
  * // Use the table...
  *
  * // Cleanup the table when done
  * await table[Symbol.asyncDispose]();
  */
-export async function createPerfettoTable(
+export async function createDejaViewTable(
   engine: Engine,
   tableName: string,
   expression: string,
 ): Promise<AsyncDisposable> {
-  await engine.query(`CREATE PERFETTO TABLE ${tableName} AS ${expression}`);
+  await engine.query(`CREATE DEJAVIEW TABLE ${tableName} AS ${expression}`);
   return {
     [Symbol.asyncDispose]: async () => {
       await engine.tryQuery(`DROP TABLE IF EXISTS ${tableName}`);
@@ -236,7 +236,7 @@ export async function createVirtualTable(
 }
 
 /**
- * Asynchronously creates a 'perfetto' index using the given engine and returns
+ * Asynchronously creates a 'dejaview' index using the given engine and returns
  * an disposable object to handle its cleanup.
  *
  * @param engine - The database engine to execute the query.
@@ -246,25 +246,25 @@ export async function createVirtualTable(
  *
  * @example
  * const engine = new Engine();
- * const indexName = 'my_perfetto_index';
- * const expression = 'my_perfetto_table(foo)';
+ * const indexName = 'my_dejaview_index';
+ * const expression = 'my_dejaview_table(foo)';
  *
- * const index = await createPerfettoIndex(engine, indexName, expression);
+ * const index = await createDejaViewIndex(engine, indexName, expression);
  *
  * // Use the index...
  *
  * // Cleanup the index when done
  * await index[Symbol.asyncDispose]();
  */
-export async function createPerfettoIndex(
+export async function createDejaViewIndex(
   engine: Engine,
   indexName: string,
   expression: string,
 ): Promise<AsyncDisposable> {
-  await engine.query(`create perfetto index ${indexName} on ${expression}`);
+  await engine.query(`create dejaview index ${indexName} on ${expression}`);
   return {
     [Symbol.asyncDispose]: async () => {
-      await engine.tryQuery(`drop perfetto index ${indexName}`);
+      await engine.tryQuery(`drop dejaview index ${indexName}`);
     },
   };
 }

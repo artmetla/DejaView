@@ -17,13 +17,13 @@
 #include "src/trace_processor/importers/proto/vulkan_memory_tracker.h"
 
 #include <string>
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 VulkanMemoryTracker::VulkanMemoryTracker(TraceProcessorContext* context)
@@ -120,4 +120,4 @@ StringId VulkanMemoryTracker::FindMemoryTypeCounterString(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

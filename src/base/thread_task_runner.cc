@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#include "perfetto/ext/base/thread_task_runner.h"
+#include "dejaview/ext/base/thread_task_runner.h"
 
 #include <condition_variable>
 #include <functional>
 #include <mutex>
 #include <thread>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/thread_utils.h"
-#include "perfetto/ext/base/unix_task_runner.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/thread_utils.h"
+#include "dejaview/ext/base/unix_task_runner.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/prctl.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 ThreadTaskRunner::ThreadTaskRunner(ThreadTaskRunner&& other) noexcept
@@ -48,10 +48,10 @@ ThreadTaskRunner& ThreadTaskRunner::operator=(ThreadTaskRunner&& other) {
 
 ThreadTaskRunner::~ThreadTaskRunner() {
   if (task_runner_) {
-    PERFETTO_CHECK(!task_runner_->QuitCalled());
+    DEJAVIEW_CHECK(!task_runner_->QuitCalled());
     task_runner_->Quit();
 
-    PERFETTO_DCHECK(thread_.joinable());
+    DEJAVIEW_DCHECK(thread_.joinable());
   }
   if (thread_.joinable())
     thread_.join();
@@ -138,4 +138,4 @@ bool ThreadTaskRunner::RunsTasksOnCurrentThread() const {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

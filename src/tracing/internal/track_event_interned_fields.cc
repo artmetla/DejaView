@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/track_event_interned_fields.h"
+#include "dejaview/tracing/internal/track_event_interned_fields.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 InternedEventCategory::~InternedEventCategory() = default;
@@ -68,4 +68,4 @@ void InternedDebugAnnotationValueTypeName::Add(
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

@@ -15,7 +15,7 @@
 --
 
 DROP VIEW IF EXISTS android_package_list_output;
-CREATE PERFETTO VIEW android_package_list_output AS
+CREATE DEJAVIEW VIEW android_package_list_output AS
 SELECT AndroidPackageList(
   'packages', (
     SELECT RepeatedField(AndroidPackageList_Package(

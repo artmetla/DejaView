@@ -27,7 +27,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ScopedActiveTraceFile TraceFileTracker::StartNewFile() {
   tables::TraceFileTable::Row row;
@@ -58,8 +58,8 @@ ScopedActiveTraceFile TraceFileTracker::StartNewFile(const std::string& name,
 
 void TraceFileTracker::EndFile(
     const tables::TraceFileTable::ConstRowReference& row) {
-  PERFETTO_CHECK(!ancestors_.empty());
-  PERFETTO_CHECK(ancestors_.back() == row.id());
+  DEJAVIEW_CHECK(!ancestors_.empty());
+  DEJAVIEW_CHECK(ancestors_.back() == row.id());
 
   // First file (root)
   if (row.id().value == 0) {
@@ -71,4 +71,4 @@ void TraceFileTracker::EndFile(
   ancestors_.pop_back();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

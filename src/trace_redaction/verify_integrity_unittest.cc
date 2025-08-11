@@ -18,12 +18,12 @@
 #include "src/base/test/status_matchers.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/trace_stats.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/common/trace_stats.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 // The trace packet uid must be less than or equal to 9999 (nobody). If it is
@@ -344,4 +344,4 @@ TEST_F(VerifyIntegrityUnitTest, ValidPacketProcessStats) {
   ASSERT_OK(Verify(packet));
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

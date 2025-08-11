@@ -15,11 +15,11 @@
 import {TrackNode} from '../../public/workspace';
 import {CPU_FREQ_TRACK_KIND} from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {NUM, NUM_NULL} from '../../trace_processor/query_result';
 import {CpuFreqTrack} from './cpu_freq_track';
 
-class CpuFreq implements PerfettoPlugin {
+class CpuFreq implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const {engine} = ctx;
 
@@ -92,6 +92,6 @@ class CpuFreq implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.CpuFreq',
+  pluginId: 'dejaview.CpuFreq',
   plugin: CpuFreq,
 };

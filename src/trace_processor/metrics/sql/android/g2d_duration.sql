@@ -14,7 +14,7 @@
 -- limitations under the License.
 
 DROP VIEW IF EXISTS raw_g2d_{{g2d_type}}_spans;
-CREATE PERFETTO VIEW raw_g2d_{{g2d_type}}_spans AS
+CREATE DEJAVIEW VIEW raw_g2d_{{g2d_type}}_spans AS
 SELECT
   ts,
   pct.name AS track_name,
@@ -27,21 +27,21 @@ WHERE pct.name GLOB 'g2d_frame_{{g2d_type}}*';
 
 
 DROP VIEW IF EXISTS g2d_{{g2d_type}}_spans;
-CREATE PERFETTO VIEW g2d_{{g2d_type}}_spans AS
+CREATE DEJAVIEW VIEW g2d_{{g2d_type}}_spans AS
 SELECT ts, track_name, dur
 FROM raw_g2d_{{g2d_type}}_spans
 WHERE g2d_value = 1 AND next_g2d_value = 0;
 
 
 DROP VIEW IF EXISTS g2d_{{g2d_type}}_errors;
-CREATE PERFETTO VIEW g2d_{{g2d_type}}_errors AS
+CREATE DEJAVIEW VIEW g2d_{{g2d_type}}_errors AS
 SELECT ts, track_name, g2d_value
 FROM raw_g2d_{{g2d_type}}_spans
 WHERE (g2d_value = 1 AND next_g2d_value = 1) OR (prev_g2d_value = 0 AND g2d_value = 0);
 
 
 DROP VIEW IF EXISTS g2d_{{g2d_type}}_instances;
-CREATE PERFETTO VIEW g2d_{{g2d_type}}_instances AS
+CREATE DEJAVIEW VIEW g2d_{{g2d_type}}_instances AS
 SELECT
   G2dMetrics_G2dInstance(
     'name', g.track_name,
@@ -55,7 +55,7 @@ FROM g2d_{{g2d_type}}_spans g GROUP BY g.track_name;
 
 
 DROP VIEW IF EXISTS {{output_table}};
-CREATE PERFETTO VIEW {{output_table}} AS
+CREATE DEJAVIEW VIEW {{output_table}} AS
 SELECT
   G2dMetrics_G2dMetric(
     'instances', (SELECT RepeatedField(instance) FROM g2d_{{g2d_type}}_instances),

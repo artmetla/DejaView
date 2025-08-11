@@ -22,7 +22,7 @@
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 AnnotatedCallsites::AnnotatedCallsites(const TraceProcessorContext* context)
@@ -202,4 +202,4 @@ AnnotatedCallsites::MapType AnnotatedCallsites::ClassifyMap(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

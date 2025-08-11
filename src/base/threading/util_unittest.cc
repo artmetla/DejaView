@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/threading/util.h"
+#include "dejaview/ext/base/threading/util.h"
 
 #include <optional>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/platform_handle.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/event_fd.h"
-#include "perfetto/ext/base/threading/channel.h"
-#include "perfetto/ext/base/threading/poll.h"
-#include "perfetto/ext/base/threading/stream.h"
-#include "perfetto/ext/base/threading/thread_pool.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/base/waitable_event.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/platform_handle.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/event_fd.h"
+#include "dejaview/ext/base/threading/channel.h"
+#include "dejaview/ext/base/threading/poll.h"
+#include "dejaview/ext/base/threading/stream.h"
+#include "dejaview/ext/base/threading/thread_pool.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/waitable_event.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -39,7 +39,7 @@ int WaitForFutureReady(base::Future<int>& stream,
                        PollContext& ctx) {
   auto res = stream.Poll(&ctx);
   for (; res.IsPending(); res = stream.Poll(&ctx)) {
-    PERFETTO_CHECK(interested.size() == 1);
+    DEJAVIEW_CHECK(interested.size() == 1);
     base::BlockUntilReadableFd(*interested.begin());
     interested = {};
   }
@@ -52,7 +52,7 @@ std::optional<int> WaitForStreamReady(
     PollContext& ctx) {
   auto res = stream.PollNext(&ctx);
   for (; res.IsPending(); res = stream.PollNext(&ctx)) {
-    PERFETTO_CHECK(interested.size() == 1);
+    DEJAVIEW_CHECK(interested.size() == 1);
     base::BlockUntilReadableFd(*interested.begin());
     interested = {};
   }
@@ -148,4 +148,4 @@ TEST(UtilUnittest, RunOnceOnThreadPool) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

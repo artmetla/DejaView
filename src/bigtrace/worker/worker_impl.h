@@ -18,11 +18,11 @@
 
 #include <unordered_map>
 
-#include "protos/perfetto/bigtrace/worker.grpc.pb.h"
-#include "protos/perfetto/bigtrace/worker.pb.h"
+#include "protos/dejaview/bigtrace/worker.grpc.pb.h"
+#include "protos/dejaview/bigtrace/worker.pb.h"
 #include "src/bigtrace/worker/repository_policies/trace_processor_loader.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 class WorkerImpl final : public protos::BigtraceWorker::Service {
  public:
@@ -40,6 +40,6 @@ class WorkerImpl final : public protos::BigtraceWorker::Service {
       registry_;
 };
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 #endif  // SRC_BIGTRACE_WORKER_WORKER_IMPL_H_

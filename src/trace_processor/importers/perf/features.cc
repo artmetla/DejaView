@@ -19,17 +19,17 @@
 #include <cstdint>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 #include "src/trace_processor/importers/perf/reader.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor::perf_importer::feature {
+namespace dejaview::trace_processor::perf_importer::feature {
 namespace {
 
 struct BuildIdRecord {
@@ -139,7 +139,7 @@ util::Status ParseSimpleperfMetaInfoEntry(
     return ParseEventTypeInfo(std::move(entry.second), out);
   }
 
-  PERFETTO_CHECK(
+  DEJAVIEW_CHECK(
       out.entries.Insert(std::move(entry.first), std::move(entry.second))
           .second);
   return util::OkStatus();
@@ -293,4 +293,4 @@ base::StatusOr<std::vector<std::string>> ParseCmdline(TraceBlobView bytes) {
   return std::move(args);
 }
 
-}  // namespace perfetto::trace_processor::perf_importer::feature
+}  // namespace dejaview::trace_processor::perf_importer::feature

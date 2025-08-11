@@ -14,10 +14,10 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.io;
+INCLUDE DEJAVIEW MODULE android.io;
 
 DROP VIEW IF EXISTS android_io_output;
-CREATE PERFETTO VIEW android_io_output AS
+CREATE DEJAVIEW VIEW android_io_output AS
 SELECT AndroidIo(
     'f2fs_counter_stats', (
         SELECT RepeatedField(

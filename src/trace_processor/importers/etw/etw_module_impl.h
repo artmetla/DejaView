@@ -24,9 +24,9 @@
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceBlobView;
@@ -47,7 +47,7 @@ class EtwModuleImpl : public EtwModule {
                          const TracePacketData& data) override {
     util::Status res = parser_.ParseEtwEvent(cpu, ts, data);
     if (!res.ok()) {
-      PERFETTO_ELOG("%s", res.message().c_str());
+      DEJAVIEW_ELOG("%s", res.message().c_str());
     }
   }
 
@@ -57,6 +57,6 @@ class EtwModuleImpl : public EtwModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ETW_ETW_MODULE_IMPL_H_

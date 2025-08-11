@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/importers/fuchsia/fuchsia_trace_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace fuchsia_trace_utils {
 
@@ -88,7 +88,7 @@ Variadic ArgValue::ToStorageVariadic(TraceStorage* storage) const {
     case ArgType::kUnknown:
       return Variadic::String(storage->InternString("unknown"));
   }
-  PERFETTO_FATAL("Not reached");  // Make GCC happy.
+  DEJAVIEW_FATAL("Not reached");  // Make GCC happy.
 }
 
 size_t RecordCursor::WordIndex() {
@@ -205,4 +205,4 @@ bool RecordCursor::ReadWords(size_t num_words, const uint8_t** data_out) {
 
 }  // namespace fuchsia_trace_utils
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

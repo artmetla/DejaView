@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ChunkedTraceReader::~ChunkedTraceReader() {}
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

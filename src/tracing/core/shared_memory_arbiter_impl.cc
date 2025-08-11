@@ -20,16 +20,16 @@
 #include <limits>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
 #include "src/tracing/core/null_trace_writer.h"
 #include "src/tracing/core/trace_writer_impl.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using Chunk = SharedMemoryABI::Chunk;
 
@@ -40,7 +40,7 @@ static_assert(sizeof(BufferID) == sizeof(uint16_t),
 
 MaybeUnboundBufferID MakeTargetBufferIdForReservation(uint16_t reservation_id) {
   // Reservation IDs are stored in the upper bits.
-  PERFETTO_CHECK(reservation_id > 0);
+  DEJAVIEW_CHECK(reservation_id > 0);
   return static_cast<MaybeUnboundBufferID>(reservation_id) << 16;
 }
 
@@ -114,7 +114,7 @@ Chunk SharedMemoryArbiterImpl::GetNewChunk(
       // buffer reservations were bound, but to avoid raciness between the
       // creation of startup writers and binding, we categorically forbid kStall
       // mode.
-      PERFETTO_DCHECK(was_always_bound_ ||
+      DEJAVIEW_DCHECK(was_always_bound_ ||
                       buffer_exhausted_policy == BufferExhaustedPolicy::kDrop);
 
       task_runner_runs_on_current_thread =
@@ -164,7 +164,7 @@ Chunk SharedMemoryArbiterImpl::GetNewChunk(
           if (!chunk.is_valid())
             continue;
           if (stall_count > kLogAfterNStalls) {
-            PERFETTO_LOG("Recovered from stall after %d iterations",
+            DEJAVIEW_LOG("Recovered from stall after %d iterations",
                          stall_count);
           }
 
@@ -181,21 +181,21 @@ Chunk SharedMemoryArbiterImpl::GetNewChunk(
     }  // scoped_lock
 
     if (buffer_exhausted_policy == BufferExhaustedPolicy::kDrop) {
-      PERFETTO_DLOG("Shared memory buffer exhausted, returning invalid Chunk!");
+      DEJAVIEW_DLOG("Shared memory buffer exhausted, returning invalid Chunk!");
       return Chunk();
     }
 
     // Stalling is not supported if we were ever unbound (see earlier comment).
-    PERFETTO_CHECK(was_always_bound_);
+    DEJAVIEW_CHECK(was_always_bound_);
 
     // All chunks are taken (either kBeingWritten by us or kBeingRead by the
     // Service).
     if (stall_count++ == kLogAfterNStalls) {
-      PERFETTO_LOG("Shared memory buffer overrun! Stalling");
+      DEJAVIEW_LOG("Shared memory buffer overrun! Stalling");
     }
 
     if (stall_count == kAssertAtNStalls) {
-      PERFETTO_FATAL(
+      DEJAVIEW_FATAL(
           "Shared memory buffer max stall count exceeded; possible deadlock");
     }
 
@@ -206,7 +206,7 @@ Chunk SharedMemoryArbiterImpl::GetNewChunk(
     // concurrently grab, fill and commit any chunks purged by the service, it
     // is possible that the SMB remains full and the IPC thread remains stalled,
     // needing to flush the concurrently queued up commits again. This is
-    // particularly likely with in-process perfetto service where the IPC thread
+    // particularly likely with in-process dejaview service where the IPC thread
     // is the service thread. To avoid remaining stalled forever in such a
     // situation, we attempt to flush periodically after every N stalls.
     if (stall_count % kFlushCommitsAfterEveryNStalls == 0 &&
@@ -232,7 +232,7 @@ void SharedMemoryArbiterImpl::ReturnCompletedChunk(
     Chunk chunk,
     MaybeUnboundBufferID target_buffer,
     PatchList* patch_list) {
-  PERFETTO_DCHECK(chunk.is_valid());
+  DEJAVIEW_DCHECK(chunk.is_valid());
   const WriterID writer_id = chunk.writer_id();
   UpdateCommitDataRequest(std::move(chunk), writer_id, target_buffer,
                           patch_list);
@@ -241,7 +241,7 @@ void SharedMemoryArbiterImpl::ReturnCompletedChunk(
 void SharedMemoryArbiterImpl::SendPatches(WriterID writer_id,
                                           MaybeUnboundBufferID target_buffer,
                                           PatchList* patch_list) {
-  PERFETTO_DCHECK(!patch_list->empty() && patch_list->front().is_patched());
+  DEJAVIEW_DCHECK(!patch_list->empty() && patch_list->front().is_patched());
   UpdateCommitDataRequest(Chunk(), writer_id, target_buffer, patch_list);
 }
 
@@ -274,7 +274,7 @@ void SharedMemoryArbiterImpl::UpdateCommitDataRequest(
     CommitDataRequest::ChunksToMove* ctm = nullptr;  // Set if chunk is valid.
     // If a valid chunk is specified, return it and attach it to the request.
     if (chunk.is_valid()) {
-      PERFETTO_DCHECK(chunk.writer_id() == writer_id);
+      DEJAVIEW_DCHECK(chunk.writer_id() == writer_id);
       uint8_t chunk_idx = chunk.chunk_idx();
       bytes_pending_commit_ += chunk.size();
       size_t page_idx;
@@ -432,16 +432,16 @@ bool SharedMemoryArbiterImpl::TryDirectPatchLocked(
   size_t page_idx;
   uint8_t chunk_idx;
   std::tie(page_idx, chunk_idx) = shmem_abi_.GetPageAndChunkIndex(chunk);
-  PERFETTO_DCHECK(shmem_abi_.GetChunkState(page_idx, chunk_idx) ==
+  DEJAVIEW_DCHECK(shmem_abi_.GetChunkState(page_idx, chunk_idx) ==
                   SharedMemoryABI::ChunkState::kChunkBeingWritten);
   auto chunk_begin = chunk.payload_begin();
   uint8_t* ptr = chunk_begin + patch.offset;
-  PERFETTO_CHECK(ptr <= chunk.end() - SharedMemoryABI::kPacketHeaderSize);
+  DEJAVIEW_CHECK(ptr <= chunk.end() - SharedMemoryABI::kPacketHeaderSize);
   // DCHECK that we are writing into a zero-filled size field and not into
   // valid data. It relies on ScatteredStreamWriter::ReserveBytes() to
   // zero-fill reservations in debug builds.
   const char zero[SharedMemoryABI::kPacketHeaderSize]{};
-  PERFETTO_DCHECK(memcmp(ptr, &zero, SharedMemoryABI::kPacketHeaderSize) == 0);
+  DEJAVIEW_DCHECK(memcmp(ptr, &zero, SharedMemoryABI::kPacketHeaderSize) == 0);
 
   memcpy(ptr, &patch.size_field[0], SharedMemoryABI::kPacketHeaderSize);
 
@@ -525,7 +525,7 @@ void SharedMemoryArbiterImpl::FlushPendingCommitDataRequests(
           ReplaceCommitPlaceholderBufferIdsLocked();
       // We're |fully_bound_|, thus all writers are bound and all placeholders
       // should have been replaced.
-      PERFETTO_DCHECK(all_placeholders_replaced);
+      DEJAVIEW_DCHECK(all_placeholders_replaced);
 
       // In order to allow patching in the producer we delay the kChunkComplete
       // transition and keep batched chunks in the kChunkBeingWritten state.
@@ -553,7 +553,7 @@ void SharedMemoryArbiterImpl::FlushPendingCommitDataRequests(
           // 2. free the chunk as the service won't be able to do this.
           auto chunk =
               shmem_abi_.GetChunkUnchecked(ctm.page(), layout, ctm.chunk());
-          PERFETTO_CHECK(chunk.is_valid());
+          DEJAVIEW_CHECK(chunk.is_valid());
           ctm.set_data(chunk.begin(), chunk.size());
           shmem_abi_.ReleaseChunkAsFree(std::move(chunk));
         }
@@ -585,7 +585,7 @@ bool SharedMemoryArbiterImpl::TryShutdown() {
 std::unique_ptr<TraceWriter> SharedMemoryArbiterImpl::CreateTraceWriter(
     BufferID target_buffer,
     BufferExhaustedPolicy buffer_exhausted_policy) {
-  PERFETTO_CHECK(target_buffer > 0);
+  DEJAVIEW_CHECK(target_buffer > 0);
   return CreateTraceWriterInternal(target_buffer, buffer_exhausted_policy);
 }
 
@@ -599,15 +599,15 @@ std::unique_ptr<TraceWriter> SharedMemoryArbiterImpl::CreateStartupTraceWriter(
 void SharedMemoryArbiterImpl::BindToProducerEndpoint(
     TracingService::ProducerEndpoint* producer_endpoint,
     base::TaskRunner* task_runner) {
-  PERFETTO_DCHECK(producer_endpoint && task_runner);
-  PERFETTO_DCHECK(task_runner->RunsTasksOnCurrentThread());
+  DEJAVIEW_DCHECK(producer_endpoint && task_runner);
+  DEJAVIEW_DCHECK(task_runner->RunsTasksOnCurrentThread());
 
   bool should_flush = false;
   std::function<void()> flush_callback;
   {
     std::lock_guard<std::mutex> scoped_lock(lock_);
-    PERFETTO_CHECK(!fully_bound_);
-    PERFETTO_CHECK(!producer_endpoint_ && !task_runner_);
+    DEJAVIEW_CHECK(!fully_bound_);
+    DEJAVIEW_CHECK(!producer_endpoint_ && !task_runner_);
 
     producer_endpoint_ = producer_endpoint;
     task_runner_ = task_runner;
@@ -621,7 +621,7 @@ void SharedMemoryArbiterImpl::BindToProducerEndpoint(
     // the producer cannot feasibly know the target buffer for any future
     // session yet.
     for (const auto& entry : pending_writers_) {
-      PERFETTO_CHECK(IsReservationTargetBufferId(entry.second));
+      DEJAVIEW_CHECK(IsReservationTargetBufferId(entry.second));
     }
 
     // If all buffer reservations are bound, we can flush pending commits.
@@ -642,14 +642,14 @@ void SharedMemoryArbiterImpl::BindToProducerEndpoint(
 void SharedMemoryArbiterImpl::BindStartupTargetBuffer(
     uint16_t target_buffer_reservation_id,
     BufferID target_buffer_id) {
-  PERFETTO_DCHECK(target_buffer_id > 0);
+  DEJAVIEW_DCHECK(target_buffer_id > 0);
 
   std::unique_lock<std::mutex> scoped_lock(lock_);
 
   // We should already be bound to an endpoint.
-  PERFETTO_CHECK(producer_endpoint_);
-  PERFETTO_CHECK(task_runner_);
-  PERFETTO_CHECK(task_runner_->RunsTasksOnCurrentThread());
+  DEJAVIEW_CHECK(producer_endpoint_);
+  DEJAVIEW_CHECK(task_runner_);
+  DEJAVIEW_CHECK(task_runner_->RunsTasksOnCurrentThread());
 
   BindStartupTargetBufferImpl(std::move(scoped_lock),
                               target_buffer_reservation_id, target_buffer_id);
@@ -690,10 +690,10 @@ void SharedMemoryArbiterImpl::BindStartupTargetBufferImpl(
     uint16_t target_buffer_reservation_id,
     BufferID target_buffer_id) {
   // We should already be bound to an endpoint if the target buffer is valid.
-  PERFETTO_DCHECK((producer_endpoint_ && task_runner_) ||
+  DEJAVIEW_DCHECK((producer_endpoint_ && task_runner_) ||
                   target_buffer_id == kInvalidBufferId);
 
-  PERFETTO_DLOG("Binding startup target buffer reservation %" PRIu16
+  DEJAVIEW_DLOG("Binding startup target buffer reservation %" PRIu16
                 " to buffer %" PRIu16,
                 target_buffer_reservation_id, target_buffer_id);
 
@@ -706,7 +706,7 @@ void SharedMemoryArbiterImpl::BindStartupTargetBufferImpl(
 
   TargetBufferReservation& reservation =
       target_buffer_reservations_[reserved_id];
-  PERFETTO_CHECK(!reservation.resolved);
+  DEJAVIEW_CHECK(!reservation.resolved);
   reservation.resolved = true;
   reservation.target_buffer = target_buffer_id;
 
@@ -808,7 +808,7 @@ std::unique_ptr<TraceWriter> SharedMemoryArbiterImpl::CreateTraceWriterInternal(
     if (!id)
       return std::unique_ptr<TraceWriter>(new NullTraceWriter());
 
-    PERFETTO_DCHECK(!pending_writers_.count(id));
+    DEJAVIEW_DCHECK(!pending_writers_.count(id));
 
     if (IsReservationTargetBufferId(target_buffer)) {
       // If the reservation is new, mark it as unbound in
@@ -831,7 +831,7 @@ std::unique_ptr<TraceWriter> SharedMemoryArbiterImpl::CreateTraceWriterInternal(
       was_always_bound_ = false;
     } else if (target_buffer != kInvalidBufferId) {
       // Trace writer is bound, so arbiter should be bound to an endpoint, too.
-      PERFETTO_CHECK(producer_endpoint_ && task_runner_);
+      DEJAVIEW_CHECK(producer_endpoint_ && task_runner_);
       task_runner_to_register_on = task_runner_;
     }
 
@@ -840,9 +840,9 @@ std::unique_ptr<TraceWriter> SharedMemoryArbiterImpl::CreateTraceWriterInternal(
     bool uses_drop_policy =
         buffer_exhausted_policy == BufferExhaustedPolicy::kDrop;
     all_writers_have_drop_policy_ &= uses_drop_policy;
-    PERFETTO_DCHECK(fully_bound_ || uses_drop_policy);
-    PERFETTO_CHECK(fully_bound_ || all_writers_have_drop_policy_);
-    PERFETTO_CHECK(was_always_bound_ || uses_drop_policy);
+    DEJAVIEW_DCHECK(fully_bound_ || uses_drop_policy);
+    DEJAVIEW_CHECK(fully_bound_ || all_writers_have_drop_policy_);
+    DEJAVIEW_CHECK(was_always_bound_ || uses_drop_policy);
   }  // scoped_lock
 
   // We shouldn't post tasks while locked. |task_runner_to_register_on|
@@ -900,7 +900,7 @@ bool SharedMemoryArbiterImpl::ReplaceCommitPlaceholderBufferIdsLocked() {
     if (!IsReservationTargetBufferId(chunk.target_buffer()))
       continue;
     const auto it = target_buffer_reservations_.find(chunk.target_buffer());
-    PERFETTO_DCHECK(it != target_buffer_reservations_.end());
+    DEJAVIEW_DCHECK(it != target_buffer_reservations_.end());
     if (!it->second.resolved) {
       all_placeholders_replaced = false;
       continue;
@@ -911,7 +911,7 @@ bool SharedMemoryArbiterImpl::ReplaceCommitPlaceholderBufferIdsLocked() {
     if (!IsReservationTargetBufferId(chunk.target_buffer()))
       continue;
     const auto it = target_buffer_reservations_.find(chunk.target_buffer());
-    PERFETTO_DCHECK(it != target_buffer_reservations_.end());
+    DEJAVIEW_DCHECK(it != target_buffer_reservations_.end());
     if (!it->second.resolved) {
       all_placeholders_replaced = false;
       continue;
@@ -923,7 +923,7 @@ bool SharedMemoryArbiterImpl::ReplaceCommitPlaceholderBufferIdsLocked() {
 
 bool SharedMemoryArbiterImpl::UpdateFullyBoundLocked() {
   if (!producer_endpoint_) {
-    PERFETTO_DCHECK(!fully_bound_);
+    DEJAVIEW_DCHECK(!fully_bound_);
     return false;
   }
   // We're fully bound if all target buffer reservations have a valid associated
@@ -938,4 +938,4 @@ bool SharedMemoryArbiterImpl::UpdateFullyBoundLocked() {
   return fully_bound_;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

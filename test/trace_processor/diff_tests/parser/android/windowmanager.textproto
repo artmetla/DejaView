@@ -34,7 +34,7 @@ packet {
   first_packet_on_sequence: true
   timestamp: 558296470731
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.windowmanager] {
+    [dejaview.protos.WinscopeExtensionsImpl.windowmanager] {
       elapsed_realtime_nanos: 558296470731
       where: "trace.enable"
       window_manager_service {
@@ -4075,7 +4075,7 @@ packet {
   first_packet_on_sequence: true
   timestamp: 558884171862
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.windowmanager] {
+    [dejaview.protos.WinscopeExtensionsImpl.windowmanager] {
       elapsed_realtime_nanos: 558884171862
       where: "WindowAnimator"
       window_manager_service {

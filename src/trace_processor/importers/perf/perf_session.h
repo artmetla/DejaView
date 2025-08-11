@@ -25,17 +25,17 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 #include "src/trace_processor/importers/perf/perf_event_attr.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -139,6 +139,6 @@ class PerfSession : public RefCounted {
 };
 
 }  // namespace perf_importer
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_PERF_SESSION_H_

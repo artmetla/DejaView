@@ -23,7 +23,7 @@ SELECT RUN_METRIC('android/process_counter_span_view.sql',
   'counter_name', 'GPU Memory');
 
 DROP VIEW IF EXISTS proc_gpu_memory_view;
-CREATE PERFETTO VIEW proc_gpu_memory_view AS
+CREATE DEJAVIEW VIEW proc_gpu_memory_view AS
 SELECT
   upid,
   MAX(proc_gpu_memory_val) AS mem_max,
@@ -34,7 +34,7 @@ FROM proc_gpu_memory_span
 GROUP BY upid;
 
 DROP VIEW IF EXISTS agg_proc_gpu_view;
-CREATE PERFETTO VIEW agg_proc_gpu_view AS
+CREATE DEJAVIEW VIEW agg_proc_gpu_view AS
 SELECT
   name,
   MAX(mem_max) AS mem_max,
@@ -46,7 +46,7 @@ JOIN proc_gpu_memory_view
 GROUP BY name;
 
 DROP VIEW IF EXISTS proc_gpu_view;
-CREATE PERFETTO VIEW proc_gpu_view AS
+CREATE DEJAVIEW VIEW proc_gpu_view AS
 SELECT
   AndroidGpuMetric_Process(
     'name', name,
@@ -61,7 +61,7 @@ SELECT RUN_METRIC('android/gpu_counter_span_view.sql',
   'counter_name', 'gpufreq');
 
 DROP VIEW IF EXISTS metrics_per_freq_view;
-CREATE PERFETTO VIEW metrics_per_freq_view AS
+CREATE DEJAVIEW VIEW metrics_per_freq_view AS
 WITH
 total_dur_per_freq AS (
   SELECT
@@ -88,7 +88,7 @@ SELECT
 FROM total_dur_per_freq f LEFT JOIN total_dur_per_gpu g USING (gpu_id);
 
 DROP VIEW IF EXISTS gpu_freq_metrics_view;
-CREATE PERFETTO VIEW gpu_freq_metrics_view AS
+CREATE DEJAVIEW VIEW gpu_freq_metrics_view AS
 SELECT
   AndroidGpuMetric_FrequencyMetric(
     'gpu_id', gpu_id,
@@ -102,7 +102,7 @@ FROM gpu_freq_span
 GROUP BY gpu_id;
 
 DROP VIEW IF EXISTS android_gpu_output;
-CREATE PERFETTO VIEW android_gpu_output AS
+CREATE DEJAVIEW VIEW android_gpu_output AS
 SELECT AndroidGpuMetric(
   'processes', (SELECT RepeatedField(proto) FROM proc_gpu_view),
   'mem_max', CAST(MAX(global_gpu_memory_val) AS INT64),

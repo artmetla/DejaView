@@ -17,17 +17,17 @@
 #include "src/traced/probes/android_system_property/android_system_property_data_source.h"
 #include <optional>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/config/android/android_system_property_config.pbzero.h"
-#include "protos/perfetto/trace/android/android_system_property.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/android/android_system_property_config.pbzero.h"
+#include "protos/dejaview/trace/android/android_system_property.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // static
 const AndroidSystemPropertyDataSource::Descriptor
@@ -52,7 +52,7 @@ AndroidSystemPropertyDataSource::AndroidSystemPropertyDataSource(
       ds_config.android_system_property_config_raw());
   poll_period_ms_ = cfg.poll_ms();
   if (poll_period_ms_ > 0 && poll_period_ms_ < 100) {
-    PERFETTO_ILOG("poll_ms %" PRIu32
+    DEJAVIEW_ILOG("poll_ms %" PRIu32
                   " is less than minimum of 100ms. Increasing to 100ms.",
                   poll_period_ms_);
     poll_period_ms_ = 100;
@@ -62,7 +62,7 @@ AndroidSystemPropertyDataSource::AndroidSystemPropertyDataSource(
     if (base::StartsWith(name, REQUIRED_NAME_PREFIX)) {
       property_names_.push_back(name);
     } else {
-      PERFETTO_ELOG("Property %s lacks required prefix %s", name.c_str(),
+      DEJAVIEW_ELOG("Property %s lacks required prefix %s", name.c_str(),
                     REQUIRED_NAME_PREFIX);
     }
   }
@@ -117,12 +117,12 @@ void AndroidSystemPropertyDataSource::WriteState() {
   writer_->Flush();
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 const std::optional<std::string> AndroidSystemPropertyDataSource::ReadProperty(
     const std::string& name) {
   std::string value = base::GetAndroidProp(name.c_str());
   if (value.empty()) {
-    PERFETTO_LOG("Unable to read %s", name.c_str());
+    DEJAVIEW_LOG("Unable to read %s", name.c_str());
     return std::nullopt;
   }
   return std::make_optional(value);
@@ -130,7 +130,7 @@ const std::optional<std::string> AndroidSystemPropertyDataSource::ReadProperty(
 #else
 const std::optional<std::string> AndroidSystemPropertyDataSource::ReadProperty(
     const std::string&) {
-  PERFETTO_ELOG("Android System Properties only supported on Android.");
+  DEJAVIEW_ELOG("Android System Properties only supported on Android.");
   return std::nullopt;
 }
 #endif
@@ -140,4 +140,4 @@ void AndroidSystemPropertyDataSource::Flush(FlushRequestID,
   writer_->Flush(callback);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,7 +21,7 @@
 *.pyc
 *.sock
 *.swp
-/*.pftrace
+/*.dvtrace
 /bazel-*
 /compile_commands.json
 /fuzz_out/

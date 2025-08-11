@@ -18,20 +18,20 @@
 
 #include <ostream>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/tracing/service/trace_buffer.h"
 
 using protozero::proto_utils::ParseVarInt;
 using protozero::proto_utils::WriteVarInt;
 
-namespace perfetto {
+namespace dejaview {
 
 FakePacketFragment::FakePacketFragment(size_t size, char prefix) {
   // |size| has to be at least == 1, because one byte will be taken just by the
   // varint header.
-  PERFETTO_CHECK(size >= 1);
+  DEJAVIEW_CHECK(size >= 1);
 
   // Finding the |payload_size| from |size| is quite tricky:
   // A packet with 127 bytes of payload requires:
@@ -74,7 +74,7 @@ FakePacketFragment::FakePacketFragment(size_t size, char prefix) {
 
 FakePacketFragment::FakePacketFragment(const void* payload,
                                        size_t payload_size) {
-  PERFETTO_CHECK(payload_size <= 4096 - 2);
+  DEJAVIEW_CHECK(payload_size <= 4096 - 2);
   payload_.assign(reinterpret_cast<const char*>(payload), payload_size);
   uint8_t* end = WriteVarInt(payload_.size(), &header_[0]);
   header_size_ = static_cast<size_t>(end - &header_[0]);
@@ -94,7 +94,7 @@ size_t FakePacketFragment::GetSizeHeader() const {
 bool FakePacketFragment::operator==(const FakePacketFragment& o) const {
   if (payload_ != o.payload_)
     return false;
-  PERFETTO_CHECK(GetSizeHeader() == o.GetSizeHeader());
+  DEJAVIEW_CHECK(GetSizeHeader() == o.GetSizeHeader());
   return true;
 }
 
@@ -107,12 +107,12 @@ FakeChunk::FakeChunk(TraceBuffer* t, ProducerID p, WriterID w, ChunkID c)
     : trace_buffer_{t}, producer_id{p}, writer_id{w}, chunk_id{c} {}
 
 FakeChunk& FakeChunk::AddPacket(size_t size, char seed, uint8_t packet_flag) {
-  PERFETTO_DCHECK(size <= 4096);
-  PERFETTO_CHECK(
+  DEJAVIEW_DCHECK(size <= 4096);
+  DEJAVIEW_CHECK(
       !(packet_flag &
         SharedMemoryABI::ChunkHeader::kFirstPacketContinuesFromPrevChunk) ||
       num_packets == 0);
-  PERFETTO_CHECK(
+  DEJAVIEW_CHECK(
       !(flags & SharedMemoryABI::ChunkHeader::kLastPacketContinuesOnNextChunk));
   flags |= packet_flag;
   FakePacketFragment(size, seed).CopyInto(&data);
@@ -137,7 +137,7 @@ FakeChunk& FakeChunk::SetFlags(uint8_t flags_to_set) {
 }
 
 FakeChunk& FakeChunk::ClearBytes(size_t offset, size_t len) {
-  PERFETTO_DCHECK(offset + len <= data.size());
+  DEJAVIEW_DCHECK(offset + len <= data.size());
   memset(data.data() + offset, 0, len);
   return *this;
 }
@@ -148,7 +148,7 @@ FakeChunk& FakeChunk::SetUID(uid_t u) {
 }
 
 FakeChunk& FakeChunk::PadTo(size_t chunk_size) {
-  PERFETTO_CHECK(chunk_size >=
+  DEJAVIEW_CHECK(chunk_size >=
                  data.size() + TraceBuffer::InlineChunkHeaderSize);
   size_t padding_size =
       chunk_size - (data.size() + TraceBuffer::InlineChunkHeaderSize);
@@ -164,4 +164,4 @@ size_t FakeChunk::CopyIntoTraceBuffer(bool chunk_complete) {
   return data.size() + TraceBuffer::InlineChunkHeaderSize;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

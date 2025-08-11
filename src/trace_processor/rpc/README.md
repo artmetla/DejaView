@@ -1,6 +1,6 @@
 # TraceProcessor RPC
 
-This directory contains the RPC interfaces to use the Perfetto Trace Processor
+This directory contains the RPC interfaces to use the DejaView Trace Processor
 remotely (i.e. not just in-process). It consists of two targets:
 
 ## `wasm_bridge`

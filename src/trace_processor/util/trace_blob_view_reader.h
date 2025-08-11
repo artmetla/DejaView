@@ -24,12 +24,12 @@
 #include <optional>
 #include <string_view>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/circular_queue.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/circular_queue.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 
 // Helper class which handles all the complexity of reading pieces of data which
 // span across multiple TraceBlobView chunks. It takes care of:
@@ -61,7 +61,7 @@ class TraceBlobViewReader {
     // If false is returned, the state of the iterator is not changed.
     bool MaybeAdvance(size_t delta) {
       file_offset_ += delta;
-      if (PERFETTO_LIKELY(file_offset_ < iter_->end_offset())) {
+      if (DEJAVIEW_LIKELY(file_offset_ < iter_->end_offset())) {
         return true;
       }
       if (file_offset_ == end_offset_) {
@@ -89,13 +89,13 @@ class TraceBlobViewReader {
       }
       std::optional<TraceBlobView> tbv =
           reader_->SliceOff(begin, file_offset() - begin);
-      PERFETTO_CHECK(tbv);
-      PERFETTO_CHECK(MaybeAdvance(1));
+      DEJAVIEW_CHECK(tbv);
+      DEJAVIEW_CHECK(MaybeAdvance(1));
       return tbv;
     }
 
     uint8_t operator*() const {
-      PERFETTO_DCHECK(file_offset_ < iter_->end_offset());
+      DEJAVIEW_DCHECK(file_offset_ < iter_->end_offset());
       return iter_->data.data()[file_offset_ - iter_->start_offset];
     }
 
@@ -200,6 +200,6 @@ class TraceBlobViewReader {
   size_t end_offset_ = 0;
 };
 
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_TRACE_BLOB_VIEW_READER_H_

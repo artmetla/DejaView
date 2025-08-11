@@ -15,7 +15,7 @@
 import {AppImpl} from '../../core/app_impl';
 import {globals} from '../../frontend/globals';
 import {App} from '../../public/app';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 
 const EXAMPLE_ANDROID_TRACE_URL =
   'https://storage.googleapis.com/perfetto-misc/example_android_trace_15s';
@@ -28,10 +28,10 @@ function openTraceUrl(url: string): void {
   AppImpl.instance.openTraceFromUrl(url);
 }
 
-class ExampleTracesPlugin implements PerfettoPlugin {
+class ExampleTracesPlugin implements DejaViewPlugin {
   onActivate(ctx: App) {
     const OPEN_EXAMPLE_ANDROID_TRACE_COMMAND_ID =
-      'perfetto.CoreCommands#openExampleAndroidTrace';
+      'dejaview.CoreCommands#openExampleAndroidTrace';
     ctx.commands.registerCommand({
       id: OPEN_EXAMPLE_ANDROID_TRACE_COMMAND_ID,
       name: 'Open Android example',
@@ -46,7 +46,7 @@ class ExampleTracesPlugin implements PerfettoPlugin {
     });
 
     const OPEN_EXAMPLE_CHROME_TRACE_COMMAND_ID =
-      'perfetto.CoreCommands#openExampleChromeTrace';
+      'dejaview.CoreCommands#openExampleChromeTrace';
     ctx.commands.registerCommand({
       id: OPEN_EXAMPLE_CHROME_TRACE_COMMAND_ID,
       name: 'Open Chrome example',
@@ -63,6 +63,6 @@ class ExampleTracesPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.ExampleTraces',
+  pluginId: 'dejaview.ExampleTraces',
   plugin: ExampleTracesPlugin,
 };

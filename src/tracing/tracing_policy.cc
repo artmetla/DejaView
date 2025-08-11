@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/tracing_policy.h"
+#include "dejaview/tracing/tracing_policy.h"
 
-namespace perfetto {
+namespace dejaview {
 
 TracingPolicy::~TracingPolicy() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

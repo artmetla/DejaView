@@ -15,13 +15,13 @@
 # limitations under the License.
 
 
-# Periodically arms a perfetto trace config for mm_events
+# Periodically arms a dejaview trace config for mm_events
 # The config is triggered by the mm_events kmem_activity trigger
-# This script gets executed as a oneshot service from perfetto.rc
+# This script gets executed as a oneshot service from dejaview.rc
 # when persist.mm_events.enabled is set to true.
 
 DEFAULT_TRACE_CONFIG=<<EOF
-unique_session_name: "perfetto_mm_events_session"
+unique_session_name: "dejaview_mm_events_session"
 
 bugreport_score: 100
 
@@ -99,17 +99,17 @@ BACKOFF_MULTIPLIER=2
 CONSECUTIVE_FAILURES=0
 FAILURES_THRESHOLD=10
 
-# Keep the mm events perfetto trace config armed
+# Keep the mm events dejaview trace config armed
 while :
 do
     sleep $SLEEP
 
     # If an alternate vendor trace config exists use that instead of the default.
     if [ -f "$VENDOR_TRACE_CONFIG" ]; then
-        /system/bin/perfetto -c "$VENDOR_TRACE_CONFIG" --txt -o /dev/null
+        /system/bin/dejaview -c "$VENDOR_TRACE_CONFIG" --txt -o /dev/null
         EXIT_CODE=$?
     else
-        echo "$DEFAULT_TRACE_CONFIG" | /system/bin/perfetto -c - --txt -o /dev/null
+        echo "$DEFAULT_TRACE_CONFIG" | /system/bin/dejaview -c - --txt -o /dev/null
         EXIT_CODE=$?
     fi
 

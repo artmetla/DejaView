@@ -17,9 +17,9 @@
 #ifndef SRC_TRACE_PROCESSOR_CONTAINERS_NULL_TERM_STRING_VIEW_H_
 #define SRC_TRACE_PROCESSOR_CONTAINERS_NULL_TERM_STRING_VIEW_H_
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // A string-like object that refers to a non-owned piece of memory which is
@@ -42,7 +42,7 @@ class NullTermStringView : public base::StringView {
   // Note: This string MUST be null terminated i.e. data[size] == '\0' MUST hold
   // for this constructor to be valid.
   NullTermStringView(const char* data, size_t size) : StringView(data, size) {
-    PERFETTO_DCHECK(data[size] == '\0');
+    DEJAVIEW_DCHECK(data[size] == '\0');
   }
 
   // This instead has to be explicit, as creating a NullTermStringView out of a
@@ -55,6 +55,6 @@ class NullTermStringView : public base::StringView {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_CONTAINERS_NULL_TERM_STRING_VIEW_H_

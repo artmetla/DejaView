@@ -33,22 +33,22 @@
 #include <google/protobuf/io/zero_copy_stream_impl.h>
 #include <google/protobuf/text_format.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/version.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/version.h"
 
-#include "perfetto/trace_processor/metatrace_config.h"
-#include "perfetto/trace_processor/read_trace.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/trace_processor/metatrace_config.h"
+#include "dejaview/trace_processor/read_trace.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/metrics/all_chrome_metrics.descriptor.h"
 #include "src/trace_processor/metrics/all_webview_metrics.descriptor.h"
 #include "src/trace_processor/metrics/metrics.descriptor.h"
@@ -58,9 +58,9 @@
 #include "src/trace_processor/util/sql_modules.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/trace_processor/trace_processor.pbzero.h"
+#include "protos/dejaview/trace_processor/trace_processor.pbzero.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_HTTPD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_HTTPD)
 #include "src/trace_processor/rpc/httpd.h"
 #endif
 #include "src/profiling/deobfuscator.h"
@@ -68,43 +68,43 @@
 #include "src/profiling/symbolizer/symbolize_database.h"
 #include "src/profiling/symbolizer/symbolizer.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
-#define PERFETTO_HAS_SIGNAL_H() 1
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
+#define DEJAVIEW_HAS_SIGNAL_H() 1
 #else
-#define PERFETTO_HAS_SIGNAL_H() 0
+#define DEJAVIEW_HAS_SIGNAL_H() 0
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_LINENOISE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_LINENOISE)
 #include <linenoise.h>
 #include <pwd.h>
 #include <sys/types.h>
 #endif
 
-#if PERFETTO_HAS_SIGNAL_H()
+#if DEJAVIEW_HAS_SIGNAL_H()
 #include <signal.h>
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <io.h>
 #define ftruncate _chsize
 #else
 #include <dirent.h>
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_LINENOISE) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_LINENOISE) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <unistd.h>  // For getuid() in GetConfigPath().
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
 TraceProcessor* g_tp;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_LINENOISE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_LINENOISE)
 
 bool EnsureDir(const std::string& path) {
   return base::Mkdir(path) || errno == EEXIST;
@@ -116,12 +116,12 @@ bool EnsureFile(const std::string& path) {
 
 std::string GetConfigPath() {
   const char* homedir = getenv("HOME");
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   if (homedir == nullptr)
     homedir = getpwuid(getuid())->pw_dir;
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   if (homedir == nullptr)
     homedir = getenv("USERPROFILE");
 #endif
@@ -130,18 +130,18 @@ std::string GetConfigPath() {
   return std::string(homedir) + "/.config";
 }
 
-std::string GetPerfettoPath() {
+std::string GetDejaViewPath() {
   std::string config = GetConfigPath();
   if (config.empty())
     return "";
-  return config + "/perfetto";
+  return config + "/dejaview";
 }
 
 std::string GetHistoryPath() {
-  std::string perfetto = GetPerfettoPath();
-  if (perfetto.empty())
+  std::string dejaview = GetDejaViewPath();
+  if (dejaview.empty())
     return "";
-  return perfetto + "/.trace_processor_shell_history";
+  return dejaview + "/.trace_processor_shell_history";
 }
 
 void SetupLineEditor() {
@@ -150,11 +150,11 @@ void SetupLineEditor() {
 
   bool success = !GetHistoryPath().empty();
   success = success && EnsureDir(GetConfigPath());
-  success = success && EnsureDir(GetPerfettoPath());
+  success = success && EnsureDir(GetDejaViewPath());
   success = success && EnsureFile(GetHistoryPath());
   success = success && linenoiseHistoryLoad(GetHistoryPath().c_str()) != -1;
   if (!success) {
-    PERFETTO_PLOG("Could not load history from %s", GetHistoryPath().c_str());
+    DEJAVIEW_PLOG("Could not load history from %s", GetHistoryPath().c_str());
   }
 }
 
@@ -199,7 +199,7 @@ ScopedLine GetLine(const char* prompt) {
   return line;
 }
 
-#endif  // PERFETTO_TP_LINENOISE
+#endif  // DEJAVIEW_TP_LINENOISE
 
 base::Status PrintStats() {
   auto it = g_tp->ExecuteQuery(
@@ -255,36 +255,36 @@ base::Status PrintStats() {
 }
 
 base::Status ExportTraceToDatabase(const std::string& output_name) {
-  PERFETTO_CHECK(output_name.find('\'') == std::string::npos);
+  DEJAVIEW_CHECK(output_name.find('\'') == std::string::npos);
   {
     base::ScopedFile fd(base::OpenFile(output_name, O_CREAT | O_RDWR, 0600));
     if (!fd)
       return base::ErrStatus("Failed to create file: %s", output_name.c_str());
     int res = ftruncate(fd.get(), 0);
-    PERFETTO_CHECK(res == 0);
+    DEJAVIEW_CHECK(res == 0);
   }
 
   std::string attach_sql =
-      "ATTACH DATABASE '" + output_name + "' AS perfetto_export";
+      "ATTACH DATABASE '" + output_name + "' AS dejaview_export";
   auto attach_it = g_tp->ExecuteQuery(attach_sql);
   bool attach_has_more = attach_it.Next();
-  PERFETTO_DCHECK(!attach_has_more);
+  DEJAVIEW_DCHECK(!attach_has_more);
 
   base::Status status = attach_it.Status();
   if (!status.ok())
     return base::ErrStatus("%s", status.c_message());
 
   // Export real and virtual tables.
-  auto tables_it = g_tp->ExecuteQuery("SELECT name FROM perfetto_tables");
+  auto tables_it = g_tp->ExecuteQuery("SELECT name FROM dejaview_tables");
   while (tables_it.Next()) {
     std::string table_name = tables_it.Get(0).string_value;
-    PERFETTO_CHECK(!base::Contains(table_name, '\''));
-    std::string export_sql = "CREATE TABLE perfetto_export." + table_name +
+    DEJAVIEW_CHECK(!base::Contains(table_name, '\''));
+    std::string export_sql = "CREATE TABLE dejaview_export." + table_name +
                              " AS SELECT * FROM " + table_name;
 
     auto export_it = g_tp->ExecuteQuery(export_sql);
     bool export_has_more = export_it.Next();
-    PERFETTO_DCHECK(!export_has_more);
+    DEJAVIEW_DCHECK(!export_has_more);
 
     status = export_it.Status();
     if (!status.ok())
@@ -302,13 +302,13 @@ base::Status ExportTraceToDatabase(const std::string& output_name) {
     // View statements are of the form "CREATE VIEW name AS stmt". We need to
     // rewrite name to point to the exported db.
     const std::string kPrefix = "CREATE VIEW ";
-    PERFETTO_CHECK(sql.find(kPrefix) == 0);
-    sql = sql.substr(0, kPrefix.size()) + "perfetto_export." +
+    DEJAVIEW_CHECK(sql.find(kPrefix) == 0);
+    sql = sql.substr(0, kPrefix.size()) + "dejaview_export." +
           sql.substr(kPrefix.size());
 
     auto export_it = g_tp->ExecuteQuery(sql);
     bool export_has_more = export_it.Next();
-    PERFETTO_DCHECK(!export_has_more);
+    DEJAVIEW_DCHECK(!export_has_more);
 
     status = export_it.Status();
     if (!status.ok())
@@ -318,9 +318,9 @@ base::Status ExportTraceToDatabase(const std::string& output_name) {
   if (!status.ok())
     return base::ErrStatus("%s", status.c_message());
 
-  auto detach_it = g_tp->ExecuteQuery("DETACH DATABASE perfetto_export");
+  auto detach_it = g_tp->ExecuteQuery("DETACH DATABASE dejaview_export");
   bool detach_has_more = attach_it.Next();
-  PERFETTO_DCHECK(!detach_has_more);
+  DEJAVIEW_DCHECK(!detach_has_more);
   status = detach_it.Status();
   return status.ok() ? base::OkStatus()
                      : base::ErrStatus("%s", status.c_message());
@@ -328,11 +328,11 @@ base::Status ExportTraceToDatabase(const std::string& output_name) {
 
 class ErrorPrinter : public google::protobuf::io::ErrorCollector {
   void AddError(int line, int col, const std::string& msg) override {
-    PERFETTO_ELOG("%d:%d: %s", line, col, msg.c_str());
+    DEJAVIEW_ELOG("%d:%d: %s", line, col, msg.c_str());
   }
 
   void AddWarning(int line, int col, const std::string& msg) override {
-    PERFETTO_ILOG("%d:%d: %s", line, col, msg.c_str());
+    DEJAVIEW_ILOG("%d:%d: %s", line, col, msg.c_str());
   }
 };
 
@@ -574,7 +574,7 @@ base::Status RunQueriesWithoutOutput(const std::string& sql_query) {
 
 base::Status RunQueriesAndPrintResult(const std::string& sql_query,
                                       FILE* output) {
-  PERFETTO_DLOG("Executing query: %s", sql_query.c_str());
+  DEJAVIEW_DLOG("Executing query: %s", sql_query.c_str());
   auto query_start = std::chrono::steady_clock::now();
 
   auto it = g_tp->ExecuteQuery(sql_query);
@@ -600,7 +600,7 @@ base::Status RunQueriesAndPrintResult(const std::string& sql_query,
     fprintf(output, "\n");
   }
   if (it.ColumnCount() == 0) {
-    PERFETTO_DCHECK(!has_more);
+    DEJAVIEW_DCHECK(!has_more);
     return base::OkStatus();
   }
 
@@ -616,7 +616,7 @@ base::Status RunQueriesAndPrintResult(const std::string& sql_query,
   PrintQueryResultAsCsv(query_result.value(), output);
 
   auto dur = query_end - query_start;
-  PERFETTO_ILOG(
+  DEJAVIEW_ILOG(
       "Query execution time: %" PRIi64 " ms",
       static_cast<int64_t>(
           std::chrono::duration_cast<std::chrono::milliseconds>(dur).count()));
@@ -691,7 +691,7 @@ metatrace::MetatraceCategories ParseMetatraceCategories(std::string s) {
     } else if (cur == "api") {
       result = static_cast<Cat>(result | Cat::API_TIMELINE);
     } else {
-      PERFETTO_ELOG("Unknown metatrace category %s", cur.data());
+      DEJAVIEW_ELOG("Unknown metatrace category %s", cur.data());
       exit(1);
     }
   }
@@ -732,7 +732,7 @@ struct CommandLineOptions {
 };
 
 void PrintUsage(char** argv) {
-  PERFETTO_ELOG(R"(
+  DEJAVIEW_ELOG(R"(
 Interactive trace processor shell.
 Usage: %s [FLAGS] trace_file.pb
 
@@ -926,10 +926,10 @@ CommandLineOptions ParseCommandLineOptions(int argc, char** argv) {
     }
 
     if (option == 'D') {
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_HTTPD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_HTTPD)
       command_line_options.enable_httpd = true;
 #else
-      PERFETTO_FATAL("HTTP RPC module not supported in this build");
+      DEJAVIEW_FATAL("HTTP RPC module not supported in this build");
 #endif
       continue;
     }
@@ -1079,7 +1079,7 @@ void ExtendPoolWithBinaryDescriptor(
     int size,
     const std::vector<std::string>& skip_prefixes) {
   google::protobuf::FileDescriptorSet desc_set;
-  PERFETTO_CHECK(desc_set.ParseFromArray(data, size));
+  DEJAVIEW_CHECK(desc_set.ParseFromArray(data, size));
   for (const auto& file_desc : desc_set.file()) {
     if (base::StartsWithAny(file_desc.name(), skip_prefixes))
       continue;
@@ -1100,8 +1100,8 @@ base::Status LoadTrace(const std::string& trace_file_path, double* size_mb) {
   }
 
   std::unique_ptr<profiling::Symbolizer> symbolizer =
-      profiling::LocalSymbolizerOrDie(profiling::GetPerfettoBinaryPath(),
-                                      getenv("PERFETTO_SYMBOLIZER_MODE"));
+      profiling::LocalSymbolizerOrDie(profiling::GetDejaViewBinaryPath(),
+                                      getenv("DEJAVIEW_SYMBOLIZER_MODE"));
 
   if (symbolizer) {
     profiling::SymbolizeDatabase(
@@ -1110,7 +1110,7 @@ base::Status LoadTrace(const std::string& trace_file_path, double* size_mb) {
           memcpy(buf.get(), trace_proto.data(), trace_proto.size());
           auto status = g_tp->Parse(std::move(buf), trace_proto.size());
           if (!status.ok()) {
-            PERFETTO_DFATAL_OR_ELOG("Failed to parse: %s",
+            DEJAVIEW_DFATAL_OR_ELOG("Failed to parse: %s",
                                     status.message().c_str());
             return;
           }
@@ -1118,7 +1118,7 @@ base::Status LoadTrace(const std::string& trace_file_path, double* size_mb) {
     g_tp->Flush();
   }
 
-  auto maybe_map = profiling::GetPerfettoProguardMapPath();
+  auto maybe_map = profiling::GetDejaViewProguardMapPath();
   if (!maybe_map.empty()) {
     profiling::ReadProguardMapsToDeobfuscationPackets(
         maybe_map, [](const std::string& trace_proto) {
@@ -1126,7 +1126,7 @@ base::Status LoadTrace(const std::string& trace_file_path, double* size_mb) {
           memcpy(buf.get(), trace_proto.data(), trace_proto.size());
           auto status = g_tp->Parse(std::move(buf), trace_proto.size());
           if (!status.ok()) {
-            PERFETTO_DFATAL_OR_ELOG("Failed to parse: %s",
+            DEJAVIEW_DFATAL_OR_ELOG("Failed to parse: %s",
                                     status.message().c_str());
             return;
           }
@@ -1476,7 +1476,7 @@ base::Status LoadMetricsAndExtensionsSql(
 }
 
 void PrintShellUsage() {
-  PERFETTO_ELOG(
+  DEJAVIEW_ELOG(
       "Available commands:\n"
       ".quit, .q         Exit the shell.\n"
       ".help             This text.\n"
@@ -1521,18 +1521,18 @@ base::Status StartInteractiveShell(const InteractiveOptions& options) {
         PrintShellUsage();
       } else if (strcmp(command, "dump") == 0 && strlen(arg)) {
         if (!ExportTraceToDatabase(arg).ok())
-          PERFETTO_ELOG("Database export failed");
+          DEJAVIEW_ELOG("Database export failed");
       } else if (strcmp(command, "reset") == 0) {
         g_tp->RestoreInitialTables();
       } else if (strcmp(command, "read") == 0 && strlen(arg)) {
         base::Status status = RunQueriesFromFile(arg, true);
         if (!status.ok()) {
-          PERFETTO_ELOG("%s", status.c_message());
+          DEJAVIEW_ELOG("%s", status.c_message());
         }
       } else if (strcmp(command, "width") == 0 && strlen(arg)) {
         std::optional<uint32_t> width = base::CStringToUInt32(arg);
         if (!width) {
-          PERFETTO_ELOG("Invalid column width specified");
+          DEJAVIEW_ELOG("Invalid column width specified");
           continue;
         }
         column_width = *width;
@@ -1540,11 +1540,11 @@ base::Status StartInteractiveShell(const InteractiveOptions& options) {
         base::Status status =
             LoadMetricsAndExtensionsSql(options.metrics, options.extensions);
         if (!status.ok()) {
-          PERFETTO_ELOG("%s", status.c_message());
+          DEJAVIEW_ELOG("%s", status.c_message());
         }
       } else if (strcmp(command, "run-metrics") == 0) {
         if (options.metrics.empty()) {
-          PERFETTO_ELOG("No metrics specified on command line");
+          DEJAVIEW_ELOG("No metrics specified on command line");
           continue;
         }
 
@@ -1641,7 +1641,7 @@ base::Status TraceProcessorMain(int argc, char** argv) {
     for (const auto& flag_pair : options.dev_flags) {
       auto kv = base::SplitString(flag_pair, "=");
       if (kv.size() != 2) {
-        PERFETTO_ELOG("Ignoring unknown dev flag format %s", flag_pair.c_str());
+        DEJAVIEW_ELOG("Ignoring unknown dev flag format %s", flag_pair.c_str());
         continue;
       }
       config.dev_flags.emplace(kv[0], kv[1]);
@@ -1695,13 +1695,13 @@ base::Status TraceProcessorMain(int argc, char** argv) {
     t_load = base::GetWallTimeNs() - t_load_start;
 
     double t_load_s = static_cast<double>(t_load.count()) / 1E9;
-    PERFETTO_ILOG("Trace loaded: %.2f MB in %.2fs (%.1f MB/s)", size_mb,
+    DEJAVIEW_ILOG("Trace loaded: %.2f MB in %.2fs (%.1f MB/s)", size_mb,
                   t_load_s, size_mb / t_load_s);
 
     RETURN_IF_ERROR(PrintStats());
   }
 
-#if PERFETTO_HAS_SIGNAL_H()
+#if DEJAVIEW_HAS_SIGNAL_H()
   // Set up interrupt signal to allow the user to abort query.
   signal(SIGINT, [](int) { g_tp->InterruptQuery(); });
 #endif
@@ -1746,7 +1746,7 @@ base::Status TraceProcessorMain(int argc, char** argv) {
   }
 
   if (options.enable_httpd) {
-#if PERFETTO_HAS_SIGNAL_H()
+#if DEJAVIEW_HAS_SIGNAL_H()
     if (options.metatrace_path.empty()) {
       // Restore the default signal handler to allow the user to terminate
       // httpd server via Ctrl-C.
@@ -1761,11 +1761,11 @@ base::Status TraceProcessorMain(int argc, char** argv) {
     }
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_HTTPD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_HTTPD)
     RunHttpRPCServer(std::move(tp), options.port_number);
-    PERFETTO_FATAL("Should never return");
+    DEJAVIEW_FATAL("Should never return");
 #else
-    PERFETTO_FATAL("HTTP not available");
+    DEJAVIEW_FATAL("HTTP not available");
 #endif
   }
 
@@ -1789,10 +1789,10 @@ base::Status TraceProcessorMain(int argc, char** argv) {
 }  // namespace
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  auto status = perfetto::trace_processor::TraceProcessorMain(argc, argv);
+  auto status = dejaview::trace_processor::TraceProcessorMain(argc, argv);
   if (!status.ok()) {
     fprintf(stderr, "%s\n", status.c_message());
     return 1;

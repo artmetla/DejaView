@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {PerfettoPlugin} from '../public/plugin';
+import {DejaViewPlugin} from '../public/plugin';
 import {AppImpl} from './app_impl';
 import {
   createFakeTraceImpl,
@@ -20,7 +20,7 @@ import {
 } from './fake_trace_impl';
 import {PluginManager} from './plugin_manager';
 
-function makeMockPlugin(): PerfettoPlugin {
+function makeMockPlugin(): DejaViewPlugin {
   return {
     onActivate: jest.fn(),
     onTraceLoad: jest.fn(),
@@ -28,7 +28,7 @@ function makeMockPlugin(): PerfettoPlugin {
   };
 }
 
-let mockPlugin: PerfettoPlugin;
+let mockPlugin: DejaViewPlugin;
 let manager: PluginManager;
 
 describe('PluginManger', () => {

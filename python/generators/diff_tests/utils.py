@@ -55,7 +55,7 @@ class ColorFormatter:
 
 def get_env(root_dir):
   env = {
-      'PERFETTO_BINARY_PATH': os.path.join(root_dir, 'test', 'data'),
+      'DEJAVIEW_BINARY_PATH': os.path.join(root_dir, 'test', 'data'),
   }
   if sys.platform.startswith('linux'):
     env['PATH'] = os.path.join(root_dir, 'buildtools', 'linux64', 'clang',
@@ -94,7 +94,7 @@ def create_message_factory(descriptor_file_paths, proto_type):
 
 def create_metrics_message_factory(metrics_descriptor_paths):
   return create_message_factory(metrics_descriptor_paths,
-                                'perfetto.protos.TraceMetrics')
+                                'dejaview.protos.TraceMetrics')
 
 
 def read_descriptor(file_name):
@@ -111,7 +111,7 @@ def serialize_textproto_trace(trace_descriptor_path, extension_descriptor_paths,
                               text_proto_path, out_stream):
   proto = create_message_factory([trace_descriptor_path] +
                                  extension_descriptor_paths,
-                                 'perfetto.protos.Trace')()
+                                 'dejaview.protos.Trace')()
 
   with open(text_proto_path, 'r') as text_proto_file:
     text_format.Merge(text_proto_file.read(), proto)
@@ -141,7 +141,7 @@ def get_trace_descriptor_path(out_path: str, trace_descriptor: str):
   if trace_descriptor:
     return trace_descriptor
 
-  path = ['gen', 'protos', 'perfetto', 'trace', 'trace.descriptor']
+  path = ['gen', 'protos', 'dejaview', 'trace', 'trace.descriptor']
   trace_descriptor_path = os.path.join(out_path, *path)
   if not os.path.exists(trace_descriptor_path):
     trace_descriptor_path = os.path.join(out_path, 'gcc_like_host', *path)
@@ -153,7 +153,7 @@ def modify_trace(trace_descriptor_path, extension_descriptor_paths,
                  in_trace_path, out_trace_path, modifier):
   trace_proto = create_message_factory([trace_descriptor_path] +
                                        extension_descriptor_paths,
-                                       'perfetto.protos.Trace')()
+                                       'dejaview.protos.Trace')()
 
   with open(in_trace_path, "rb") as f:
     # This may raise DecodeError when |in_trace_path| isn't protobuf.

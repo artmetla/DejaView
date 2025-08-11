@@ -12,15 +12,15 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../../gn/perfetto.gni")
+import("../../../../gn/dejaview.gni")
 import("../../../../gn/test.gni")
 
 source_set("graph_processor") {
   deps = [ "../../../../gn:default_deps" ]
   public_deps = [
-    "../../../../include/perfetto/base",
-    "../../../../include/perfetto/ext/base",
-    "../../../../include/perfetto/ext/trace_processor/importers/memory_tracker",
+    "../../../../include/dejaview/base",
+    "../../../../include/dejaview/ext/base",
+    "../../../../include/dejaview/ext/trace_processor/importers/memory_tracker",
   ]
   sources = [
     "graph.cc",
@@ -31,7 +31,7 @@ source_set("graph_processor") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [
     "graph_processor_unittest.cc",

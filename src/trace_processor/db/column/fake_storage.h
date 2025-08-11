@@ -24,12 +24,12 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 // Fake implementation of DataLayerChain which can be used in unittests.
 class FakeStorageChain : public DataLayerChain {
@@ -110,6 +110,6 @@ class FakeStorageChain : public DataLayerChain {
   BitVector bit_vector_;
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_FAKE_STORAGE_H_

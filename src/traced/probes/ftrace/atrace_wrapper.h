@@ -20,7 +20,7 @@
 #include <string>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 
 class AtraceWrapper {
  public:
@@ -45,6 +45,6 @@ class AtraceWrapperImpl : public AtraceWrapper {
                  std::string* atrace_errors) override;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_ATRACE_WRAPPER_H_

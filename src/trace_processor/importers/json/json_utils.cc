@@ -16,23 +16,23 @@
 
 #include "src/trace_processor/importers/json/json_utils.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
 #include <limits>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 #include <json/reader.h>
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace json {
 
 std::optional<int64_t> CoerceToTs(const Json::Value& value) {
-  PERFETTO_DCHECK(IsJsonSupported());
+  DEJAVIEW_DCHECK(IsJsonSupported());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   switch (static_cast<size_t>(value.type())) {
     case Json::realValue:
       return static_cast<int64_t>(value.asDouble() * 1000.0);
@@ -45,15 +45,15 @@ std::optional<int64_t> CoerceToTs(const Json::Value& value) {
       return std::nullopt;
   }
 #else
-  perfetto::base::ignore_result(value);
+  dejaview::base::ignore_result(value);
   return std::nullopt;
 #endif
 }
 
 std::optional<int64_t> CoerceToTs(const std::string& s) {
-  PERFETTO_DCHECK(IsJsonSupported());
+  DEJAVIEW_DCHECK(IsJsonSupported());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   // 's' is formatted as a JSON Number, in microseconds
   // goal: reformat 's' to be as an int, in nanoseconds
   std::string s_as_ns = s;
@@ -86,15 +86,15 @@ std::optional<int64_t> CoerceToTs(const std::string& s) {
 
   return base::StringToInt64(s_as_ns);
 #else
-  perfetto::base::ignore_result(s);
+  dejaview::base::ignore_result(s);
   return std::nullopt;
 #endif
 }
 
 std::optional<int64_t> CoerceToInt64(const Json::Value& value) {
-  PERFETTO_DCHECK(IsJsonSupported());
+  DEJAVIEW_DCHECK(IsJsonSupported());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   switch (static_cast<size_t>(value.type())) {
     case Json::realValue:
     case Json::uintValue:
@@ -113,15 +113,15 @@ std::optional<int64_t> CoerceToInt64(const Json::Value& value) {
       return std::nullopt;
   }
 #else
-  perfetto::base::ignore_result(value);
+  dejaview::base::ignore_result(value);
   return std::nullopt;
 #endif
 }
 
 std::optional<uint32_t> CoerceToUint32(const Json::Value& value) {
-  PERFETTO_DCHECK(IsJsonSupported());
+  DEJAVIEW_DCHECK(IsJsonSupported());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   std::optional<int64_t> result = CoerceToInt64(value);
   if (!result.has_value())
     return std::nullopt;
@@ -130,15 +130,15 @@ std::optional<uint32_t> CoerceToUint32(const Json::Value& value) {
     return std::nullopt;
   return static_cast<uint32_t>(n);
 #else
-  perfetto::base::ignore_result(value);
+  dejaview::base::ignore_result(value);
   return std::nullopt;
 #endif
 }
 
 std::optional<Json::Value> ParseJsonString(base::StringView raw_string) {
-  PERFETTO_DCHECK(IsJsonSupported());
+  DEJAVIEW_DCHECK(IsJsonSupported());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   Json::CharReaderBuilder b;
   auto reader = std::unique_ptr<Json::CharReader>(b.newCharReader());
 
@@ -148,7 +148,7 @@ std::optional<Json::Value> ParseJsonString(base::StringView raw_string) {
              ? std::make_optional(std::move(value))
              : std::nullopt;
 #else
-  perfetto::base::ignore_result(raw_string);
+  dejaview::base::ignore_result(raw_string);
   return std::nullopt;
 #endif
 }
@@ -158,9 +158,9 @@ bool AddJsonValueToArgs(const Json::Value& value,
                         base::StringView key,
                         TraceStorage* storage,
                         ArgsTracker::BoundInserter* inserter) {
-  PERFETTO_DCHECK(IsJsonSupported());
+  DEJAVIEW_DCHECK(IsJsonSupported());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   if (value.isObject()) {
     auto it = value.begin();
     bool inserted = false;
@@ -220,20 +220,20 @@ bool AddJsonValueToArgs(const Json::Value& value,
       return true;
     case Json::ValueType::objectValue:
     case Json::ValueType::arrayValue:
-      PERFETTO_FATAL("Non-leaf types handled above");
+      DEJAVIEW_FATAL("Non-leaf types handled above");
       break;
   }
   return false;
 #else
-  perfetto::base::ignore_result(value);
-  perfetto::base::ignore_result(flat_key);
-  perfetto::base::ignore_result(key);
-  perfetto::base::ignore_result(storage);
-  perfetto::base::ignore_result(inserter);
+  dejaview::base::ignore_result(value);
+  dejaview::base::ignore_result(flat_key);
+  dejaview::base::ignore_result(key);
+  dejaview::base::ignore_result(storage);
+  dejaview::base::ignore_result(inserter);
   return false;
 #endif
 }
 
 }  // namespace json
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

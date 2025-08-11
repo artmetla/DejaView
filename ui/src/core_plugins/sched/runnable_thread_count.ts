@@ -32,7 +32,7 @@ export class RunnableThreadCountTrack extends BaseCounterTrack {
 
   async onInit() {
     await this.engine.query(
-      `INCLUDE PERFETTO MODULE sched.thread_level_parallelism`,
+      `INCLUDE DEJAVIEW MODULE sched.thread_level_parallelism`,
     );
   }
 

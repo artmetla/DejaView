@@ -22,11 +22,11 @@
 #include "src/trace_redaction/prune_package_list.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/android/packages_list.gen.h"
-#include "protos/perfetto/trace/ps/process_tree.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/android/packages_list.gen.h"
+#include "protos/dejaview/trace/ps/process_tree.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 using PackageList = protos::gen::PackagesList;
@@ -181,4 +181,4 @@ TEST(PrunePackageListTest, RemovesPackagesInfoFromPackageList) {
   ASSERT_EQ(kPackageName, after_packet.packages_list().packages().at(0).name());
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

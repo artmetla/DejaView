@@ -21,7 +21,7 @@ import {
 } from '../../trace_processor/query_result';
 import {Trace} from '../../public/trace';
 import {COUNTER_TRACK_KIND} from '../../public/track_kinds';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {getThreadUriPrefix, getTrackName} from '../../public/utils';
 import {CounterOptions} from '../../frontend/base_counter_track';
 import {TraceProcessorCounterTrack} from './trace_processor_counter_track';
@@ -111,7 +111,7 @@ function getDefaultCounterOptions(name: string): Partial<CounterOptions> {
   return options;
 }
 
-class CounterPlugin implements PerfettoPlugin {
+class CounterPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     await this.addCounterTracks(ctx);
     await this.addGpuFrequencyTracks(ctx);
@@ -423,6 +423,6 @@ class CounterPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.Counter',
+  pluginId: 'dejaview.Counter',
   plugin: CounterPlugin,
 };

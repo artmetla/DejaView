@@ -17,17 +17,17 @@
 SELECT RUN_METRIC('android/cpu_info.sql');
 
 -- Create the base tables and views containing the launch spans.
-INCLUDE PERFETTO MODULE android.startup.startups;
+INCLUDE DEJAVIEW MODULE android.startup.startups;
 
 -- TTID and TTFD
-INCLUDE PERFETTO MODULE android.startup.time_to_display;
+INCLUDE DEJAVIEW MODULE android.startup.time_to_display;
 
 SELECT RUN_METRIC('android/process_metadata.sql');
 
 -- Define the helper functions which will be used throught the remainder
 -- of the metric.
 SELECT RUN_METRIC('android/startup/slice_functions.sql');
-INCLUDE PERFETTO MODULE intervals.overlap;
+INCLUDE DEJAVIEW MODULE intervals.overlap;
 
 -- Define helper functions related to slow start reasons
 SELECT RUN_METRIC('android/startup/slow_start_reasons.sql');
@@ -49,7 +49,7 @@ SELECT RUN_METRIC('android/startup/gc_slices.sql');
 -- Define helper functions for system state.
 SELECT RUN_METRIC('android/startup/system_state.sql');
 
-CREATE OR REPLACE PERFETTO FUNCTION _is_spans_overlapping(
+CREATE OR REPLACE DEJAVIEW FUNCTION _is_spans_overlapping(
   ts1 LONG,
   ts_end1 LONG,
   ts2 LONG,
@@ -61,7 +61,7 @@ SELECT (IIF($ts1 < $ts2, $ts2, $ts1)
 -- Returns the slices for forked processes. Never present in hot starts.
 -- Prefer this over process start_ts, since the process might have
 -- been preforked.
-CREATE OR REPLACE PERFETTO FUNCTION zygote_fork_for_launch(startup_id INT)
+CREATE OR REPLACE DEJAVIEW FUNCTION zygote_fork_for_launch(startup_id INT)
 RETURNS TABLE(ts INT, dur INT) AS
 SELECT slice.ts, slice.dur
 FROM android_startups l
@@ -73,7 +73,7 @@ JOIN slice ON (
 WHERE l.startup_id = $startup_id AND slice.name GLOB 'Start proc: *';
 
 -- Returns the fully drawn slice proto given a launch id.
-CREATE OR REPLACE PERFETTO FUNCTION report_fully_drawn_for_launch(startup_id INT)
+CREATE OR REPLACE DEJAVIEW FUNCTION report_fully_drawn_for_launch(startup_id INT)
 RETURNS PROTO AS
 SELECT
   startup_slice_proto(report_fully_drawn_ts - launch_ts)
@@ -93,7 +93,7 @@ FROM (
 );
 
 -- Given a launch id and GLOB for a slice name, returns the N longest slice name and duration.
-CREATE OR REPLACE PERFETTO FUNCTION get_long_slices_for_launch(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_long_slices_for_launch(
   startup_id INT, slice_name STRING, top_n INT)
 RETURNS TABLE(slice_name STRING, slice_dur INT) AS
 SELECT slice_name, slice_dur
@@ -103,14 +103,14 @@ ORDER BY slice_dur DESC
 LIMIT $top_n;
 
 -- Returns the number of CPUs.
-CREATE OR REPLACE PERFETTO FUNCTION get_number_of_cpus()
+CREATE OR REPLACE DEJAVIEW FUNCTION get_number_of_cpus()
 RETURNS INT AS
 SELECT COUNT(DISTINCT cpu)
 FROM core_type_per_cpu;
 
 -- Define the view
 DROP VIEW IF EXISTS startup_view;
-CREATE PERFETTO VIEW startup_view AS
+CREATE DEJAVIEW VIEW startup_view AS
 SELECT
   AndroidStartupMetric_Startup(
     'startup_id',launches.startup_id,
@@ -522,7 +522,7 @@ SELECT
 FROM android_startups launches;
 
 DROP VIEW IF EXISTS android_startup_output;
-CREATE PERFETTO VIEW android_startup_output AS
+CREATE DEJAVIEW VIEW android_startup_output AS
 SELECT
   AndroidStartupMetric(
     'startup', (

@@ -130,7 +130,7 @@ async function getChromeCauseTracks(
   threadName: CauseThread,
 ): Promise<EventLatencyCauseThreadTracks[]> {
   const queryResult = await engine.query(`
-      INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_cause_utils;
+      INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_cause_utils;
 
       SELECT DISTINCT
         utid,

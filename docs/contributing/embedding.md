@@ -1,10 +1,10 @@
-# Embedding Perfetto
+# Embedding DejaView
 
 ## Trace Processor
 
 ### Building
 
-As with all components in Perfetto, the trace processor can be built in several build systems:
+As with all components in DejaView, the trace processor can be built in several build systems:
 
 - GN (the native system)
 - Bazel
@@ -12,7 +12,7 @@ As with all components in Perfetto, the trace processor can be built in several 
 
 The trace processor is exposed as a static library `//:trace_processor` to Bazel and `src/trace_processor:trace_processor` in GN; it is not exposed to Android (but patches to add support for this are welcome).
 
-The trace processor is also built as a WASM target `src/trace_processor:trace_processor_wasm` for the Perfetto UI; patches for adding support for other supported build systems are welcome.
+The trace processor is also built as a WASM target `src/trace_processor:trace_processor_wasm` for the DejaView UI; patches for adding support for other supported build systems are welcome.
 
 The trace processor is also built as a shell binary, `trace_processor_shell` which backs the `trace_processor` tool described in other parts of the documentation. This is exposed as the `trace_processor_shell` target to Android, `//:trace_processor_shell` to Bazel and `src/trace_processor:trace_processor_shell` in GN.
 
@@ -20,13 +20,13 @@ The trace processor is also built as a shell binary, `trace_processor_shell` whi
 
 The trace processor library is structured around the `TraceProcessor` class; all API methods exposed by trace processor are member functions on this class.
 
-The C++ header for this class is split between two files:  [include/perfetto/trace_processor/trace_processor_storage.h](/include/perfetto/trace_processor/trace_processor_storage.h) and [include/perfetto/trace_processor/trace_processor.h](/include/perfetto/trace_processor/trace_processor.h).
+The C++ header for this class is split between two files:  [include/dejaview/trace_processor/trace_processor_storage.h](/include/dejaview/trace_processor/trace_processor_storage.h) and [include/dejaview/trace_processor/trace_processor.h](/include/dejaview/trace_processor/trace_processor.h).
 
 ### Reading traces
 
 To ingest a trace into trace processor, the `Parse` function can be called multiple times to with chunks of the trace and `NotifyEndOfFile` can be called at the end.
 
-As this is a common task, a helper function `ReadTrace` is provided in [include/perfetto/trace_processor/read_trace.h](/include/perfetto/trace_processor/read_trace.h). This will read a trace file directly from the filesystem and calls into appropriate `TraceProcessor`functions to perform parsing.
+As this is a common task, a helper function `ReadTrace` is provided in [include/dejaview/trace_processor/read_trace.h](/include/dejaview/trace_processor/read_trace.h). This will read a trace file directly from the filesystem and calls into appropriate `TraceProcessor`functions to perform parsing.
 
 ### Executing queries
 

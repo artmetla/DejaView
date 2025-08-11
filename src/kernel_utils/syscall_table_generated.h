@@ -6,7 +6,7 @@
 
 #include "src/kernel_utils/syscall_table.h"
 
-namespace perfetto {
+namespace dejaview {
 
 constexpr char kAllSyscalllNames[] =
     "\0"
@@ -2419,5 +2419,5 @@ struct SyscallTable_x86_64 {
   };
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // SRC_KERNEL_UTILS_SYSCALL_TABLE_GENERATED_H_

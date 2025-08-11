@@ -23,7 +23,7 @@
 -- browser interval. This may differ based on whether the scenario is for
 -- topLevel events or LongTask events.
 
-CREATE OR REPLACE PERFETTO FUNCTION {{function_prefix}}SELECT_SLOW_BROWSER_TASKS()
+CREATE OR REPLACE DEJAVIEW FUNCTION {{function_prefix}}SELECT_SLOW_BROWSER_TASKS()
 RETURNS TABLE(full_name STRING, dur INT, ts INT, id INT, upid INT, thread_dur INT) AS
 SELECT
   task_table.full_name AS full_name,
@@ -42,7 +42,7 @@ WHERE
 -- that we could have started processing input but did not on the
 -- main thread, because it was blocked by those tasks.
 DROP VIEW IF EXISTS chrome_tasks_delaying_input_processing_unaggregated;
-CREATE PERFETTO VIEW chrome_tasks_delaying_input_processing_unaggregated AS
+CREATE DEJAVIEW VIEW chrome_tasks_delaying_input_processing_unaggregated AS
 SELECT
   tasks.full_name AS full_name,
   tasks.dur / 1e6 AS duration_ms,
@@ -59,7 +59,7 @@ JOIN {{input_browser_interval_table_name}} input_tbl
 -- Same task can delay multiple GestureUpdates, this step dedups
 -- multiple occrences of the same slice_id
 DROP VIEW IF EXISTS chrome_tasks_delaying_input_processing;
-CREATE PERFETTO VIEW chrome_tasks_delaying_input_processing AS
+CREATE DEJAVIEW VIEW chrome_tasks_delaying_input_processing AS
 SELECT
   full_name,
   duration_ms,
@@ -72,7 +72,7 @@ GROUP BY slice_id;
 -- that we could have started processing input but did not on the
 -- main thread, because it was blocked by those tasks.
 DROP VIEW IF EXISTS chrome_tasks_delaying_input_processing_summary;
-CREATE PERFETTO VIEW chrome_tasks_delaying_input_processing_summary AS
+CREATE DEJAVIEW VIEW chrome_tasks_delaying_input_processing_summary AS
 SELECT
   full_name AS full_name,
   AVG(duration_ms) AS avg_duration_ms,

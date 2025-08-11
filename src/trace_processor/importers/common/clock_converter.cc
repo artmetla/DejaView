@@ -23,15 +23,15 @@
 #include <cinttypes>
 #include <queue>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/hash.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/hash.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ClockConverter::ClockConverter(TraceProcessorContext* context)
@@ -113,4 +113,4 @@ std::string ClockConverter::TimeToStr(Timestamp ts) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

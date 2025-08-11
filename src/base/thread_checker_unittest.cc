@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/thread_checker.h"
+#include "dejaview/ext/base/thread_checker.h"
 
 #include <functional>
 #include <memory>
@@ -22,7 +22,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -72,4 +72,4 @@ TEST(ThreadCheckerTest, CopyConstructor) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

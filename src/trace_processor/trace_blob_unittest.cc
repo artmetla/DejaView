@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob.h"
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -31,4 +31,4 @@ TEST(TraceBlob, MoveAssignment) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

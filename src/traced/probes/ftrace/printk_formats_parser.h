@@ -19,10 +19,10 @@
 
 #include <string>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 
 struct PrintkEntry {
   uint64_t address;
@@ -65,6 +65,6 @@ class PrintkMap {
 
 PrintkMap ParsePrintkFormats(const std::string& format);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_PRINTK_FORMATS_PARSER_H_

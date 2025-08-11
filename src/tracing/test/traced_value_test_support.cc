@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "perfetto/test/traced_value_test_support.h"
+#include "dejaview/test/traced_value_test_support.h"
 
-#include "protos/perfetto/trace/track_event/debug_annotation.gen.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pb.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.gen.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pb.h"
 
 #include <sstream>
 
-namespace perfetto {
+namespace dejaview {
 
 namespace internal {
 
@@ -82,4 +82,4 @@ std::string DebugAnnotationToString(const std::string& data) {
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

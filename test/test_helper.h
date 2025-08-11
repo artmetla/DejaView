@@ -21,24 +21,24 @@
 #include <stdlib.h>
 #include <optional>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/subprocess.h"
-#include "perfetto/ext/base/thread_task_runner.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/shared_memory_arbiter.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/ext/tracing/ipc/consumer_ipc_client.h"
-#include "perfetto/ext/tracing/ipc/service_ipc_host.h"
-#include "perfetto/tracing/core/trace_config.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/subprocess.h"
+#include "dejaview/ext/base/thread_task_runner.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/shared_memory_arbiter.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/ipc/consumer_ipc_client.h"
+#include "dejaview/ext/tracing/ipc/service_ipc_host.h"
+#include "dejaview/tracing/core/trace_config.h"
+#include "dejaview/tracing/default_socket.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/fake_producer.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include "src/tracing/ipc/shared_memory_windows.h"
 #else
 #include <signal.h>
@@ -47,9 +47,9 @@
 #include "src/tracing/ipc/posix_shared_memory.h"
 #endif
 
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // This value has been bumped to 10s in Oct 2020 because the GCE-based emulator
 // can be sensibly slower than real hw (more than 10x) and caused flakes.
@@ -59,11 +59,11 @@ constexpr uint32_t kDefaultTestTimeoutMs = 30000;
 inline const char* GetTestProducerSockName() {
 // If we're building on Android and starting the daemons ourselves,
 // create the sockets in a world-writable location.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && \
-    PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
   return "/data/local/tmp/traced_producer";
 #else
-  return ::perfetto::GetProducerSocket();
+  return ::dejaview::GetProducerSocket();
 #endif
 }
 
@@ -90,7 +90,7 @@ class TestEnvCleaner {
   TestEnvCleaner(TestEnvCleaner&& obj) noexcept { *this = std::move(obj); }
   TestEnvCleaner& operator=(const TestEnvCleaner&) = delete;
   TestEnvCleaner& operator=(TestEnvCleaner&& obj) noexcept {
-    PERFETTO_CHECK(prev_state_.empty());
+    DEJAVIEW_CHECK(prev_state_.empty());
     this->prev_state_ = std::move(obj.prev_state_);
     obj.prev_state_.clear();
     return *this;
@@ -129,8 +129,8 @@ class ServiceThread {
 
   TestEnvCleaner Start() {
     TestEnvCleaner env_cleaner(
-        {"PERFETTO_PRODUCER_SOCK_NAME", "PERFETTO_CONSUMER_SOCK_NAME"});
-    runner_ = base::ThreadTaskRunner::CreateAndStart("perfetto.svc");
+        {"DEJAVIEW_PRODUCER_SOCK_NAME", "DEJAVIEW_CONSUMER_SOCK_NAME"});
+    runner_ = base::ThreadTaskRunner::CreateAndStart("dejaview.svc");
     runner_->PostTaskAndWaitForTesting([this]() {
       TracingService::InitOpts init_opts = {};
       if (enable_relay_endpoint_)
@@ -143,19 +143,19 @@ class ServiceThread {
           continue;
         if (remove(producer_socket.c_str()) == -1) {
           if (errno != ENOENT)
-            PERFETTO_FATAL("Failed to remove %s", producer_socket_.c_str());
+            DEJAVIEW_FATAL("Failed to remove %s", producer_socket_.c_str());
         }
       }
       if (remove(consumer_socket_.c_str()) == -1) {
         if (errno != ENOENT)
-          PERFETTO_FATAL("Failed to remove %s", consumer_socket_.c_str());
+          DEJAVIEW_FATAL("Failed to remove %s", consumer_socket_.c_str());
       }
-      base::SetEnv("PERFETTO_PRODUCER_SOCK_NAME", producer_socket_);
-      base::SetEnv("PERFETTO_CONSUMER_SOCK_NAME", consumer_socket_);
+      base::SetEnv("DEJAVIEW_PRODUCER_SOCK_NAME", producer_socket_);
+      base::SetEnv("DEJAVIEW_CONSUMER_SOCK_NAME", consumer_socket_);
       bool res =
           svc_->Start(producer_socket_.c_str(), consumer_socket_.c_str());
       if (!res) {
-        PERFETTO_FATAL("Failed to start service listening on %s and %s",
+        DEJAVIEW_FATAL("Failed to start service listening on %s and %s",
                        producer_socket_.c_str(), consumer_socket_.c_str());
       }
     });
@@ -181,7 +181,7 @@ class ServiceThread {
 };
 
 // This is used only in daemon starting integrations tests.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 // On Windows we don't have any traced_probes, make this a no-op to avoid
 // propagating #ifdefs to the outer test.
 class ProbesProducerThread {
@@ -202,7 +202,7 @@ class ProbesProducerThread {
   }
 
   void Connect() {
-    runner_ = base::ThreadTaskRunner::CreateAndStart("perfetto.prd.probes");
+    runner_ = base::ThreadTaskRunner::CreateAndStart("dejaview.prd.probes");
     runner_->PostTaskAndWaitForTesting([this]() {
       producer_.reset(new ProbesProducer());
       producer_->ConnectWithRetries(producer_socket_.c_str(), runner_->get());
@@ -228,7 +228,7 @@ class FakeProducerThread {
         connect_callback_(std::move(connect_callback)),
         setup_callback_(std::move(setup_callback)),
         start_callback_(std::move(start_callback)) {
-    runner_ = base::ThreadTaskRunner::CreateAndStart("perfetto.prd.fake");
+    runner_ = base::ThreadTaskRunner::CreateAndStart("dejaview.prd.fake");
     runner_->PostTaskAndWaitForTesting([this, producer_name]() {
       producer_.reset(new FakeProducer(producer_name, runner_->get()));
     });
@@ -251,7 +251,7 @@ class FakeProducerThread {
   FakeProducer* producer() { return producer_.get(); }
 
   void CreateProducerProvidedSmb() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     SharedMemoryWindows::Factory factory;
 #else
     PosixSharedMemory::Factory factory;
@@ -263,7 +263,7 @@ class FakeProducerThread {
 
   void ProduceStartupEventBatch(const protos::gen::TestConfig& config,
                                 std::function<void()> callback) {
-    PERFETTO_CHECK(shm_arbiter_);
+    DEJAVIEW_CHECK(shm_arbiter_);
     producer_->ProduceStartupEventBatch(config, shm_arbiter_.get(), callback);
   }
 
@@ -366,7 +366,7 @@ class TestHelper : public Consumer {
 
   base::ThreadTaskRunner* service_thread() { return service_thread_.runner(); }
   base::ThreadTaskRunner* producer_thread(size_t i = 0) {
-    PERFETTO_DCHECK(i < fake_producer_threads_.size());
+    DEJAVIEW_DCHECK(i < fake_producer_threads_.size());
     return fake_producer_threads_[i]->runner();
   }
 
@@ -411,7 +411,7 @@ class TestHelper : public Consumer {
   std::unique_ptr<TracingService::ConsumerEndpoint> endpoint_;  // Keep last.
 };
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 // This class is a reference to a child process that has in essence been execv
 // to the requested binary. The process will start and then wait for Run()
@@ -425,16 +425,16 @@ class Exec {
   // will contain the stderr of the process.
   int Run(std::string* stderr_out = nullptr) {
     // We can't be the child process.
-    PERFETTO_CHECK(getpid() != subprocess_.pid());
+    DEJAVIEW_CHECK(getpid() != subprocess_.pid());
     // Will cause the entrypoint to continue.
-    PERFETTO_CHECK(write(*sync_pipe_.wr, "1", 1) == 1);
+    DEJAVIEW_CHECK(write(*sync_pipe_.wr, "1", 1) == 1);
     sync_pipe_.wr.reset();
     subprocess_.Wait();
 
     if (stderr_out) {
       *stderr_out = std::move(subprocess_.output());
     } else {
-      PERFETTO_LOG("Child proc %d exited with stderr: \"%s\"",
+      DEJAVIEW_LOG("Child proc %d exited with stderr: \"%s\"",
                    subprocess_.pid(), subprocess_.output().c_str());
     }
     return subprocess_.returncode();
@@ -447,7 +447,7 @@ class Exec {
     subprocess_.args.stdout_mode = base::Subprocess::OutputMode::kDevNull;
     subprocess_.args.input = input;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
     constexpr bool kUseSystemBinaries = false;
 #else
     constexpr bool kUseSystemBinaries = true;
@@ -461,18 +461,18 @@ class Exec {
 
     std::vector<std::string>& cmd = subprocess_.args.exec_cmd;
     if (kUseSystemBinaries) {
-      PERFETTO_CHECK(TestHelper::kDefaultMode ==
+      DEJAVIEW_CHECK(TestHelper::kDefaultMode ==
                      TestHelper::Mode::kUseSystemService);
       cmd.push_back("/system/bin/" + argv0);
       cmd.insert(cmd.end(), args.begin(), args.end());
     } else {
-      PERFETTO_CHECK(TestHelper::kDefaultMode ==
+      DEJAVIEW_CHECK(TestHelper::kDefaultMode ==
                      TestHelper::Mode::kStartDaemons);
       subprocess_.args.env.push_back(
-          std::string("PERFETTO_PRODUCER_SOCK_NAME=") +
+          std::string("DEJAVIEW_PRODUCER_SOCK_NAME=") +
           TestHelper::GetDefaultModeProducerSocketName());
       subprocess_.args.env.push_back(
-          std::string("PERFETTO_CONSUMER_SOCK_NAME=") +
+          std::string("DEJAVIEW_CONSUMER_SOCK_NAME=") +
           TestHelper::GetDefaultModeConsumerSocketName());
       pass_env("TMPDIR", &subprocess_);
       pass_env("TMP", &subprocess_);
@@ -483,7 +483,7 @@ class Exec {
     }
 
     if (!base::FileExists(cmd[0])) {
-      PERFETTO_FATAL(
+      DEJAVIEW_FATAL(
           "Cannot find %s. Make sure that the target has been built and, on "
           "Android, pushed to the device.",
           cmd[0].c_str());
@@ -507,8 +507,8 @@ class Exec {
       // Don't add any logging here, all file descriptors are closed and trying
       // to log will likely cause undefined behaviors.
       char ignored = 0;
-      PERFETTO_CHECK(PERFETTO_EINTR(read(sync_pipe_rd, &ignored, 1)) > 0);
-      PERFETTO_CHECK(close(sync_pipe_rd) == 0 || errno == EINTR);
+      DEJAVIEW_CHECK(DEJAVIEW_EINTR(read(sync_pipe_rd, &ignored, 1)) > 0);
+      DEJAVIEW_CHECK(close(sync_pipe_rd) == 0 || errno == EINTR);
     };
 
     subprocess_.Start();
@@ -521,7 +521,7 @@ class Exec {
 #else
     // This code is never used on Windows tests, not bothering.
     if (subprocess_.pid())  // Always true, but avoids Wnoreturn compile errors.
-      PERFETTO_FATAL("SendSigterm() not implemented on this platform");
+      DEJAVIEW_FATAL("SendSigterm() not implemented on this platform");
 #endif
   }
 
@@ -530,8 +530,8 @@ class Exec {
   base::Pipe sync_pipe_;
 };
 
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // TEST_TEST_HELPER_H_

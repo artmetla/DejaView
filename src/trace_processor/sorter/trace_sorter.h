@@ -29,11 +29,11 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/circular_queue.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/circular_queue.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_event.h"
 #include "src/trace_processor/importers/art_method/art_method_event.h"
 #include "src/trace_processor/importers/common/parser_types.h"
@@ -49,7 +49,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/bump_allocator.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // This class takes care of sorting events parsed from the trace stream in
 // arbitrary order and pushing them to the next pipeline stages (parsing) in
@@ -306,7 +306,7 @@ class TraceSorter {
     SortAndExtractEventsUntilAllocId(end_id);
     for (auto& sorter_data : sorter_data_by_machine_) {
       for (const auto& queue : sorter_data.queues) {
-        PERFETTO_CHECK(queue.events_.empty());
+        DEJAVIEW_CHECK(queue.events_.empty());
       }
       sorter_data.queues.clear();
     }
@@ -436,7 +436,7 @@ class TraceSorter {
       }
 
       // Events are often seen in order.
-      if (PERFETTO_LIKELY(ts > max_ts_ ||
+      if (DEJAVIEW_LIKELY(ts > max_ts_ ||
                           (!use_slow_sorting && ts == max_ts_))) {
         max_ts_ = ts;
       } else {
@@ -446,7 +446,7 @@ class TraceSorter {
         // after that index, instead, will need a sorting pass before moving
         // events to the next pipeline stage.
         if (sort_start_idx_ == 0) {
-          PERFETTO_DCHECK(events_.size() >= 2);
+          DEJAVIEW_DCHECK(events_.size() >= 2);
           sort_start_idx_ = events_.size() - 1;
           sort_min_ts_ = ts;
         } else {
@@ -455,7 +455,7 @@ class TraceSorter {
       }
 
       min_ts_ = std::min(min_ts_, ts);
-      PERFETTO_DCHECK(min_ts_ <= max_ts_);
+      DEJAVIEW_DCHECK(min_ts_ <= max_ts_);
     }
 
     bool needs_sorting() const { return sort_start_idx_ != 0; }
@@ -473,21 +473,21 @@ class TraceSorter {
   inline Queue* GetQueue(size_t index,
                          std::optional<MachineId> machine_id = std::nullopt) {
     // sorter_data_by_machine_[0] corresponds to the default machine.
-    PERFETTO_DCHECK(sorter_data_by_machine_[0].machine_id == std::nullopt);
+    DEJAVIEW_DCHECK(sorter_data_by_machine_[0].machine_id == std::nullopt);
     auto* queues = &sorter_data_by_machine_[0].queues;
 
     // Find the TraceSorterData instance when |machine_id| is not nullopt.
-    if (PERFETTO_UNLIKELY(machine_id.has_value())) {
+    if (DEJAVIEW_UNLIKELY(machine_id.has_value())) {
       auto it = std::find_if(sorter_data_by_machine_.begin() + 1,
                              sorter_data_by_machine_.end(),
                              [machine_id](const TraceSorterData& item) {
                                return item.machine_id == machine_id;
                              });
-      PERFETTO_DCHECK(it != sorter_data_by_machine_.end());
+      DEJAVIEW_DCHECK(it != sorter_data_by_machine_.end());
       queues = &it->queues;
     }
 
-    if (PERFETTO_UNLIKELY(index >= queues->size()))
+    if (DEJAVIEW_UNLIKELY(index >= queues->size()))
       queues->resize(index + 1);
     return &queues->at(index);
   }
@@ -571,6 +571,6 @@ class TraceSorter {
   bool use_slow_sorting_ = false;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SORTER_TRACE_SORTER_H_

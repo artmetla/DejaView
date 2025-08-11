@@ -17,17 +17,17 @@
 #include "src/trace_processor/importers/perf/etm_tokenizer.h"
 #include <memory>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/aux_data_tokenizer.h"
 #include "src/trace_processor/importers/perf/aux_record.h"
 #include "src/trace_processor/importers/perf/perf_session.h"
 #include "src/trace_processor/importers/perf/reader.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 namespace {
 
 struct EtmV4Info {
@@ -111,4 +111,4 @@ CreateEtmTokenizerFactory(TraceBlobView data) {
       new DummyAuxDataTokenizerFactory());
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

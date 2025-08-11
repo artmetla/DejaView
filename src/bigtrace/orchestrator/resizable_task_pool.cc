@@ -16,7 +16,7 @@
 
 #include "src/bigtrace/orchestrator/resizable_task_pool.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 ResizableTaskPool::ResizableTaskPool(std::function<void(ThreadWithContext*)> fn)
     : fn_(std::move(fn)) {}
@@ -51,4 +51,4 @@ void ResizableTaskPool::JoinAll() {
   }
 }
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace

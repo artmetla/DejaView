@@ -16,4 +16,4 @@
 
 -- Compat layer for old clients.
 -- TODO(altimin): Remove it once everyone uses stdlib directly.
-INCLUDE PERFETTO MODULE chrome.tasks;
+INCLUDE DEJAVIEW MODULE chrome.tasks;

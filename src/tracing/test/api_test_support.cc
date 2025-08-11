@@ -16,29 +16,29 @@
 
 #include "src/tracing/test/api_test_support.h"
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/proc_utils.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/proc_utils.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "src/tracing/internal/tracing_muxer_impl.h"
 
 #include <sstream>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_IPC)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_IPC)
 #include "test/test_helper.h"
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace test {
 
 using internal::TracingMuxerImpl;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_IPC)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_IPC)
 namespace {
 
 class InProcessSystemService {
@@ -54,8 +54,8 @@ class InProcessSystemService {
   void Restart() { test_helper_.RestartService(); }
 
  private:
-  perfetto::base::TestTaskRunner task_runner_;
-  perfetto::TestHelper test_helper_;
+  dejaview::base::TestTaskRunner task_runner_;
+  dejaview::TestHelper test_helper_;
 };
 
 InProcessSystemService* g_system_service = nullptr;
@@ -98,10 +98,10 @@ void SystemService::Clean() {
 }
 
 void SystemService::Restart() {
-  PERFETTO_CHECK(valid_);
+  DEJAVIEW_CHECK(valid_);
   g_system_service->Restart();
 }
-#else   // !PERFETTO_BUILDFLAG(PERFETTO_IPC)
+#else   // !DEJAVIEW_BUILDFLAG(DEJAVIEW_IPC)
 // static
 SystemService SystemService::Start() {
   return SystemService();
@@ -112,10 +112,10 @@ void SystemService::Clean() {
 void SystemService::Restart() {
   valid_ = false;
 }
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_IPC)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_IPC)
 
 SystemService& SystemService::operator=(SystemService&& other) noexcept {
-  PERFETTO_CHECK(!valid_ || !other.valid_);
+  DEJAVIEW_CHECK(!valid_ || !other.valid_);
   Clean();
   valid_ = other.valid_;
   other.valid_ = false;
@@ -127,54 +127,54 @@ int32_t GetCurrentProcessId() {
 }
 
 void SyncProducers() {
-  auto* muxer = reinterpret_cast<perfetto::internal::TracingMuxerImpl*>(
-      perfetto::internal::TracingMuxer::Get());
+  auto* muxer = reinterpret_cast<dejaview::internal::TracingMuxerImpl*>(
+      dejaview::internal::TracingMuxer::Get());
   muxer->SyncProducersForTesting();
 }
 
 void SetBatchCommitsDuration(uint32_t batch_commits_duration_ms,
                              BackendType backend_type) {
-  auto* muxer = reinterpret_cast<perfetto::internal::TracingMuxerImpl*>(
-      perfetto::internal::TracingMuxer::Get());
+  auto* muxer = reinterpret_cast<dejaview::internal::TracingMuxerImpl*>(
+      dejaview::internal::TracingMuxer::Get());
   muxer->SetBatchCommitsDurationForTesting(batch_commits_duration_ms,
                                            backend_type);
 }
 
 void DisableReconnectLimit() {
-  auto* muxer = reinterpret_cast<perfetto::internal::TracingMuxerImpl*>(
-      perfetto::internal::TracingMuxer::Get());
+  auto* muxer = reinterpret_cast<dejaview::internal::TracingMuxerImpl*>(
+      dejaview::internal::TracingMuxer::Get());
   muxer->SetMaxProducerReconnectionsForTesting(
       std::numeric_limits<uint32_t>::max());
 }
 
 bool EnableDirectSMBPatching(BackendType backend_type) {
-  auto* muxer = reinterpret_cast<perfetto::internal::TracingMuxerImpl*>(
-      perfetto::internal::TracingMuxer::Get());
+  auto* muxer = reinterpret_cast<dejaview::internal::TracingMuxerImpl*>(
+      dejaview::internal::TracingMuxer::Get());
   return muxer->EnableDirectSMBPatchingForTesting(backend_type);
 }
 
 TestTempFile CreateTempFile() {
   TestTempFile res{};
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-  base::StackString<255> temp_file("%s\\perfetto-XXXXXX", getenv("TMP"));
-  PERFETTO_CHECK(_mktemp_s(temp_file.mutable_data(), temp_file.len() + 1) == 0);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+  base::StackString<255> temp_file("%s\\dejaview-XXXXXX", getenv("TMP"));
+  DEJAVIEW_CHECK(_mktemp_s(temp_file.mutable_data(), temp_file.len() + 1) == 0);
   HANDLE handle =
       ::CreateFileA(temp_file.c_str(), GENERIC_READ | GENERIC_WRITE,
                     FILE_SHARE_DELETE | FILE_SHARE_READ, nullptr, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_TEMPORARY, nullptr);
-  PERFETTO_CHECK(handle && handle != INVALID_HANDLE_VALUE);
+  DEJAVIEW_CHECK(handle && handle != INVALID_HANDLE_VALUE);
   res.fd = _open_osfhandle(reinterpret_cast<intptr_t>(handle), 0);
   res.path = temp_file.ToStdString();
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
-  char temp_file[] = "/data/local/tmp/perfetto-XXXXXXXX";
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
+  char temp_file[] = "/data/local/tmp/dejaview-XXXXXXXX";
   res.fd = mkstemp(temp_file);
   res.path = temp_file;
 #else
-  char temp_file[] = "/tmp/perfetto-XXXXXXXX";
+  char temp_file[] = "/tmp/dejaview-XXXXXXXX";
   res.fd = mkstemp(temp_file);
   res.path = temp_file;
 #endif
-  PERFETTO_CHECK(res.fd > 0);
+  DEJAVIEW_CHECK(res.fd > 0);
   return res;
 }
 
@@ -215,4 +215,4 @@ void TracingMuxerImplInternalsForTest::AppendResetForTestingCallback(
 }
 
 }  // namespace test
-}  // namespace perfetto
+}  // namespace dejaview

@@ -13,11 +13,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/ref_counted.h"
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -158,4 +158,4 @@ TEST(RefCountedTest, MoveOperators) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

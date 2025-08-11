@@ -21,10 +21,10 @@
 
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 std::string CreateStatsdShellConfig(const DataSourceConfig& config);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_STATSD_CLIENT_COMMON_H_

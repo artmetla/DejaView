@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../../../gn/perfetto.gni")
+import("../../../../../gn/dejaview.gni")
 import("../../../../../gn/test.gni")
 
 source_set("format_parser") {
@@ -26,7 +26,7 @@ source_set("format_parser") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":format_parser",

@@ -17,7 +17,7 @@
 -- Marks the beginning of the trace and is equivalent to when the statsd launch
 -- logging begins.
 DROP VIEW IF EXISTS activity_intent_received;
-CREATE PERFETTO VIEW activity_intent_received AS
+CREATE DEJAVIEW VIEW activity_intent_received AS
 SELECT ts FROM slice
 WHERE name = 'MetricsLogger:launchObserverNotifyIntentStarted';
 
@@ -39,7 +39,7 @@ ORDER BY ts;
 -- Filter activity_intent_recv_spans, keeping only the ones that triggered
 -- a launch.
 DROP VIEW IF EXISTS launch_partitions;
-CREATE PERFETTO VIEW launch_partitions AS
+CREATE DEJAVIEW VIEW launch_partitions AS
 SELECT * FROM activity_intent_recv_spans AS spans
 WHERE 1 = (
   SELECT COUNT(1)
@@ -49,7 +49,7 @@ WHERE 1 = (
 -- Successful activity launch. The end of the 'launching' event is not related
 -- to whether it actually succeeded or not.
 DROP VIEW IF EXISTS activity_intent_launch_successful;
-CREATE PERFETTO VIEW activity_intent_launch_successful AS
+CREATE DEJAVIEW VIEW activity_intent_launch_successful AS
 SELECT ts FROM slice
 WHERE name = 'MetricsLogger:launchObserverNotifyActivityLaunchFinished';
 

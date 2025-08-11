@@ -19,12 +19,12 @@ source_set("statsd_client") {
   deps = [
     "..:data_source",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced",
-    "../../../../protos/perfetto/config/statsd:cpp",
-    "../../../../protos/perfetto/config/statsd:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/statsd:cpp",
-    "../../../../protos/perfetto/trace/statsd:zero",
+    "../../../../include/dejaview/ext/traced",
+    "../../../../protos/dejaview/config/statsd:cpp",
+    "../../../../protos/dejaview/config/statsd:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/statsd:cpp",
+    "../../../../protos/dejaview/trace/statsd:zero",
     "../../../../protos/third_party/statsd:config_zero",
     "../../../android_internal:headers",
     "../../../android_internal:lazy_library_loader",
@@ -40,17 +40,17 @@ source_set("statsd_client") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":statsd_client",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/config/statsd:cpp",
-    "../../../../protos/perfetto/config/statsd:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/statsd:cpp",
-    "../../../../protos/perfetto/trace/statsd:zero",
+    "../../../../protos/dejaview/config/statsd:cpp",
+    "../../../../protos/dejaview/config/statsd:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/statsd:cpp",
+    "../../../../protos/dejaview/trace/statsd:zero",
     "../../../../protos/third_party/statsd:config_zero",
     "../../../../src/base:test_support",
     "../../../../src/tracing/test:test_support",

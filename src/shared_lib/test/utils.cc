@@ -16,15 +16,15 @@
 
 #include "src/shared_lib/test/utils.h"
 
-#include "perfetto/public/abi/heap_buffer.h"
-#include "perfetto/public/pb_msg.h"
-#include "perfetto/public/pb_utils.h"
-#include "perfetto/public/protos/config/data_source_config.pzc.h"
-#include "perfetto/public/protos/config/trace_config.pzc.h"
-#include "perfetto/public/protos/config/track_event/track_event_config.pzc.h"
-#include "perfetto/public/tracing_session.h"
+#include "dejaview/public/abi/heap_buffer.h"
+#include "dejaview/public/pb_msg.h"
+#include "dejaview/public/pb_utils.h"
+#include "dejaview/public/protos/config/data_source_config.pzc.h"
+#include "dejaview/public/protos/config/trace_config.pzc.h"
+#include "dejaview/public/protos/config/track_event/track_event_config.pzc.h"
+#include "dejaview/public/tracing_session.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace shlib {
 namespace test_utils {
 namespace {
@@ -42,76 +42,76 @@ std::string ToHexChars(uint8_t val) {
 }  // namespace
 
 TracingSession TracingSession::Builder::Build() {
-  struct PerfettoPbMsgWriter writer;
-  struct PerfettoHeapBuffer* hb = PerfettoHeapBufferCreate(&writer.writer);
+  struct DejaViewPbMsgWriter writer;
+  struct DejaViewHeapBuffer* hb = DejaViewHeapBufferCreate(&writer.writer);
 
-  struct perfetto_protos_TraceConfig cfg;
-  PerfettoPbMsgInit(&cfg.msg, &writer);
+  struct dejaview_protos_TraceConfig cfg;
+  DejaViewPbMsgInit(&cfg.msg, &writer);
 
   {
-    struct perfetto_protos_TraceConfig_BufferConfig buffers;
-    perfetto_protos_TraceConfig_begin_buffers(&cfg, &buffers);
+    struct dejaview_protos_TraceConfig_BufferConfig buffers;
+    dejaview_protos_TraceConfig_begin_buffers(&cfg, &buffers);
 
-    perfetto_protos_TraceConfig_BufferConfig_set_size_kb(&buffers, 1024);
+    dejaview_protos_TraceConfig_BufferConfig_set_size_kb(&buffers, 1024);
 
-    perfetto_protos_TraceConfig_end_buffers(&cfg, &buffers);
+    dejaview_protos_TraceConfig_end_buffers(&cfg, &buffers);
   }
 
   {
-    struct perfetto_protos_TraceConfig_DataSource data_sources;
-    perfetto_protos_TraceConfig_begin_data_sources(&cfg, &data_sources);
+    struct dejaview_protos_TraceConfig_DataSource data_sources;
+    dejaview_protos_TraceConfig_begin_data_sources(&cfg, &data_sources);
 
     {
-      struct perfetto_protos_DataSourceConfig ds_cfg;
-      perfetto_protos_TraceConfig_DataSource_begin_config(&data_sources,
+      struct dejaview_protos_DataSourceConfig ds_cfg;
+      dejaview_protos_TraceConfig_DataSource_begin_config(&data_sources,
                                                           &ds_cfg);
 
-      perfetto_protos_DataSourceConfig_set_cstr_name(&ds_cfg,
+      dejaview_protos_DataSourceConfig_set_cstr_name(&ds_cfg,
                                                      data_source_name_.c_str());
       if (!enabled_categories_.empty() || !disabled_categories_.empty()) {
-        perfetto_protos_TrackEventConfig te_cfg;
-        perfetto_protos_DataSourceConfig_begin_track_event_config(&ds_cfg,
+        dejaview_protos_TrackEventConfig te_cfg;
+        dejaview_protos_DataSourceConfig_begin_track_event_config(&ds_cfg,
                                                                   &te_cfg);
         for (const std::string& cat : enabled_categories_) {
-          perfetto_protos_TrackEventConfig_set_enabled_categories(
+          dejaview_protos_TrackEventConfig_set_enabled_categories(
               &te_cfg, cat.data(), cat.size());
         }
         for (const std::string& cat : disabled_categories_) {
-          perfetto_protos_TrackEventConfig_set_disabled_categories(
+          dejaview_protos_TrackEventConfig_set_disabled_categories(
               &te_cfg, cat.data(), cat.size());
         }
-        perfetto_protos_DataSourceConfig_end_track_event_config(&ds_cfg,
+        dejaview_protos_DataSourceConfig_end_track_event_config(&ds_cfg,
                                                                 &te_cfg);
       }
 
-      perfetto_protos_TraceConfig_DataSource_end_config(&data_sources, &ds_cfg);
+      dejaview_protos_TraceConfig_DataSource_end_config(&data_sources, &ds_cfg);
     }
 
-    perfetto_protos_TraceConfig_end_data_sources(&cfg, &data_sources);
+    dejaview_protos_TraceConfig_end_data_sources(&cfg, &data_sources);
   }
-  size_t cfg_size = PerfettoStreamWriterGetWrittenSize(&writer.writer);
+  size_t cfg_size = DejaViewStreamWriterGetWrittenSize(&writer.writer);
   std::unique_ptr<uint8_t[]> ser(new uint8_t[cfg_size]);
-  PerfettoHeapBufferCopyInto(hb, &writer.writer, ser.get(), cfg_size);
-  PerfettoHeapBufferDestroy(hb, &writer.writer);
+  DejaViewHeapBufferCopyInto(hb, &writer.writer, ser.get(), cfg_size);
+  DejaViewHeapBufferDestroy(hb, &writer.writer);
 
-  struct PerfettoTracingSessionImpl* ts =
-      PerfettoTracingSessionCreate(PERFETTO_BACKEND_IN_PROCESS);
+  struct DejaViewTracingSessionImpl* ts =
+      DejaViewTracingSessionCreate(DEJAVIEW_BACKEND_IN_PROCESS);
 
-  PerfettoTracingSessionSetup(ts, ser.get(), cfg_size);
+  DejaViewTracingSessionSetup(ts, ser.get(), cfg_size);
 
-  PerfettoTracingSessionStartBlocking(ts);
+  DejaViewTracingSessionStartBlocking(ts);
 
   return TracingSession::Adopt(ts);
 }
 
 TracingSession TracingSession::Adopt(
-    struct PerfettoTracingSessionImpl* session) {
+    struct DejaViewTracingSessionImpl* session) {
   TracingSession ret;
   ret.session_ = session;
   ret.stopped_ = std::make_unique<WaitableEvent>();
-  PerfettoTracingSessionSetStopCb(
+  DejaViewTracingSessionSetStopCb(
       ret.session_,
-      [](struct PerfettoTracingSessionImpl*, void* arg) {
+      [](struct DejaViewTracingSessionImpl*, void* arg) {
         static_cast<WaitableEvent*>(arg)->Notify();
       },
       ret.stopped_.get());
@@ -130,10 +130,10 @@ TracingSession::~TracingSession() {
     return;
   }
   if (!stopped_->IsNotified()) {
-    PerfettoTracingSessionStopBlocking(session_);
+    DejaViewTracingSessionStopBlocking(session_);
     stopped_->WaitForNotification();
   }
-  PerfettoTracingSessionDestroy(session_);
+  DejaViewTracingSessionDestroy(session_);
 }
 
 bool TracingSession::FlushBlocking(uint32_t timeout_ms) {
@@ -143,9 +143,9 @@ bool TracingSession::FlushBlocking(uint32_t timeout_ms) {
     result = success;
     notification.Notify();
   });
-  PerfettoTracingSessionFlushAsync(
+  DejaViewTracingSessionFlushAsync(
       session_, timeout_ms,
-      [](PerfettoTracingSessionImpl*, bool success, void* user_arg) {
+      [](DejaViewTracingSessionImpl*, bool success, void* user_arg) {
         auto* f = reinterpret_cast<std::function<void(bool)>*>(user_arg);
         (*f)(success);
         delete f;
@@ -160,18 +160,18 @@ void TracingSession::WaitForStopped() {
 }
 
 void TracingSession::StopAsync() {
-  PerfettoTracingSessionStopAsync(session_);
+  DejaViewTracingSessionStopAsync(session_);
 }
 
 void TracingSession::StopBlocking() {
-  PerfettoTracingSessionStopBlocking(session_);
+  DejaViewTracingSessionStopBlocking(session_);
 }
 
 std::vector<uint8_t> TracingSession::ReadBlocking() {
   std::vector<uint8_t> data;
-  PerfettoTracingSessionReadTraceBlocking(
+  DejaViewTracingSessionReadTraceBlocking(
       session_,
-      [](struct PerfettoTracingSessionImpl*, const void* trace_data,
+      [](struct DejaViewTracingSessionImpl*, const void* trace_data,
          size_t size, bool, void* user_arg) {
         auto& dst = *static_cast<std::vector<uint8_t>*>(user_arg);
         auto* src = static_cast<const uint8_t*>(trace_data);
@@ -183,37 +183,37 @@ std::vector<uint8_t> TracingSession::ReadBlocking() {
 
 }  // namespace test_utils
 }  // namespace shlib
-}  // namespace perfetto
+}  // namespace dejaview
 
-void PrintTo(const PerfettoPbDecoderField& field, std::ostream* pos) {
+void PrintTo(const DejaViewPbDecoderField& field, std::ostream* pos) {
   std::ostream& os = *pos;
-  PerfettoPbDecoderStatus status =
-      static_cast<PerfettoPbDecoderStatus>(field.status);
+  DejaViewPbDecoderStatus status =
+      static_cast<DejaViewPbDecoderStatus>(field.status);
   switch (status) {
-    case PERFETTO_PB_DECODER_ERROR:
+    case DEJAVIEW_PB_DECODER_ERROR:
       os << "MALFORMED PROTOBUF";
       break;
-    case PERFETTO_PB_DECODER_DONE:
+    case DEJAVIEW_PB_DECODER_DONE:
       os << "DECODER DONE";
       break;
-    case PERFETTO_PB_DECODER_OK:
+    case DEJAVIEW_PB_DECODER_OK:
       switch (field.wire_type) {
-        case PERFETTO_PB_WIRE_TYPE_DELIMITED:
+        case DEJAVIEW_PB_WIRE_TYPE_DELIMITED:
           os << "\"";
           for (size_t i = 0; i < field.value.delimited.len; i++) {
-            os << perfetto::shlib::test_utils::ToHexChars(
+            os << dejaview::shlib::test_utils::ToHexChars(
                       field.value.delimited.start[i])
                << " ";
           }
           os << "\"";
           break;
-        case PERFETTO_PB_WIRE_TYPE_VARINT:
+        case DEJAVIEW_PB_WIRE_TYPE_VARINT:
           os << "varint: " << field.value.integer64;
           break;
-        case PERFETTO_PB_WIRE_TYPE_FIXED32:
+        case DEJAVIEW_PB_WIRE_TYPE_FIXED32:
           os << "fixed32: " << field.value.integer32;
           break;
-        case PERFETTO_PB_WIRE_TYPE_FIXED64:
+        case DEJAVIEW_PB_WIRE_TYPE_FIXED64:
           os << "fixed64: " << field.value.integer64;
           break;
       }

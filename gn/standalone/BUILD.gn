@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//gn/perfetto_check_build_deps.gni")
+import("//gn/dejaview_check_build_deps.gni")
 import("//gn/standalone/android.gni")
 import("//gn/standalone/libc++/libc++.gni")
 import("//gn/standalone/sanitizers/sanitizers.gni")
@@ -286,7 +286,7 @@ config("default") {
     cflags += [ "-fno-omit-frame-pointer" ]
   } else if (current_cpu == "x64") {
     cflags += [ "-fno-omit-frame-pointer" ]  # For perf profiling.
-    if (enable_perfetto_x64_cpu_opt) {
+    if (enable_dejaview_x64_cpu_opt) {
       # When updating these flags, the CheckCpuOptimizations() in utils.cc must
       # be updated accordingly.
       cflags += [
@@ -469,10 +469,10 @@ config("android_liblog") {
 }
 
 # Checks that tools/install-build-deps has been run since it last changed.
-perfetto_check_build_deps("check_build_deps") {
+dejaview_check_build_deps("check_build_deps") {
   args = []
 }
 
-perfetto_check_build_deps("check_build_deps_android") {
+dejaview_check_build_deps("check_build_deps_android") {
   args = [ "--android" ]
 }

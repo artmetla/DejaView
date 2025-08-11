@@ -113,7 +113,7 @@ def worker_loop():
 
   cmd = [os.path.join(CUR_DIR, 'run_job.py'), job_id]
 
-  # Propagate the worker's PERFETTO_  vars and merge with the job-specific vars.
+  # Propagate the worker's DEJAVIEW_  vars and merge with the job-specific vars.
   env = dict(os.environ, **{k: str(v) for (k, v) in job['env'].items()})
   job_runner = subprocess.Popen(cmd, env=env)
 

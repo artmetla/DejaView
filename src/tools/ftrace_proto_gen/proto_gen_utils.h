@@ -27,7 +27,7 @@
 
 #include "src/traced/probes/ftrace/format_parser/format_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class VerifyStream : public std::ostringstream {
  public:
@@ -96,6 +96,6 @@ ProtoType GetCommon(ProtoType one, ProtoType other);
 std::string ProtoHeader();
 ProtoType InferProtoType(const FtraceEvent::Field& field);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TOOLS_FTRACE_PROTO_GEN_PROTO_GEN_UTILS_H_

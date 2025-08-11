@@ -17,14 +17,14 @@
 #include "src/trace_processor/importers/perf/aux_record.h"
 #include <cstdint>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/reader.h"
 #include "src/trace_processor/importers/perf/record.h"
 #include "src/trace_processor/importers/perf/sample_id.h"
 #include "src/trace_processor/importers/perf/util.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 // static
 base::Status AuxRecord::Parse(const Record& record) {
   attr = record.attr;
@@ -47,4 +47,4 @@ base::Status AuxRecord::Parse(const Record& record) {
   return sample_id->ParseFromRecord(record);
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

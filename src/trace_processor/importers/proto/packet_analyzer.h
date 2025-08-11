@@ -20,12 +20,12 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Interface for processing packet information.
@@ -49,6 +49,6 @@ class PacketAnalyzer : public Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PACKET_ANALYZER_H_

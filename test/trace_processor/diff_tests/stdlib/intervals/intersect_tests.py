@@ -29,16 +29,16 @@ class IntervalsIntersect(TestSuite):
         # B:   - - _ - - _ - -
         # res: _ - _ - - _ - _
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 1, 6)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 2),
@@ -66,16 +66,16 @@ class IntervalsIntersect(TestSuite):
         # B:   - - _ - - _ - -
         # res: _ - _ - - _ - _
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 1, 6)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 2),
@@ -104,16 +104,16 @@ class IntervalsIntersect(TestSuite):
         # C:   1 0 1 1 1 1 0 1
         # res: 0 0 0 1 1 0 0 0
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 1, 6)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 2),
@@ -122,7 +122,7 @@ class IntervalsIntersect(TestSuite):
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE C AS
+        CREATE DEJAVIEW TABLE C AS
           WITH data(id, ts, dur) AS (
             VALUES
             (10, 0, 1),
@@ -147,16 +147,16 @@ class IntervalsIntersect(TestSuite):
         # B:   -__
         # res: ___
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 2, 1)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 1)
@@ -178,16 +178,16 @@ class IntervalsIntersect(TestSuite):
         # B:   -__
         # res: ___
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 2, 1)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 1)
@@ -209,16 +209,16 @@ class IntervalsIntersect(TestSuite):
         # B:   -__
         # res: ___
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 2, 1)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
         SELECT * FROM A LIMIT 0;
 
         SELECT ts, dur, id_0, id_1
@@ -236,16 +236,16 @@ class IntervalsIntersect(TestSuite):
         # B:   -__
         # res: ___
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 2, 1)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
         SELECT * FROM A LIMIT 0;
 
         SELECT ts, dur, id_0, id_1
@@ -263,16 +263,16 @@ class IntervalsIntersect(TestSuite):
         # B:   -_
         # res: __
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 1, 1)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 1)
@@ -294,16 +294,16 @@ class IntervalsIntersect(TestSuite):
         # B:   -_
         # res: __
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 1, 1)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 1)
@@ -326,16 +326,16 @@ class IntervalsIntersect(TestSuite):
         # B:   - - _ - - _ - -
         # res: _ - _ - - _ - _
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A AS
+        CREATE DEJAVIEW TABLE A AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 1, 6)
           )
           SELECT * FROM data;
 
-        CREATE PERFETTO TABLE B AS
+        CREATE DEJAVIEW TABLE B AS
           WITH data(id, ts, dur) AS (
             VALUES
             (0, 0, 2),
@@ -359,14 +359,14 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(''),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE A
+        CREATE DEJAVIEW TABLE A
         AS
         WITH x(id, ts, dur, c0) AS (VALUES(1, 1, 1, 1), (2, 3, 1, 2))
         SELECT * FROM x;
 
-        CREATE PERFETTO TABLE B
+        CREATE DEJAVIEW TABLE B
         AS
         WITH x(id, ts, dur, c0) AS (VALUES(1, 5, 1, 3))
         SELECT * FROM x;
@@ -381,9 +381,9 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE big_foo AS
+        CREATE DEJAVIEW TABLE big_foo AS
         SELECT
           ts,
           dur,
@@ -392,7 +392,7 @@ class IntervalsIntersect(TestSuite):
         FROM sched
         WHERE dur > 0 AND utid != 0;
 
-        CREATE PERFETTO TABLE small_foo AS
+        CREATE DEJAVIEW TABLE small_foo AS
         SELECT
           ts + 1000 AS ts,
           dur + 1000 AS dur,
@@ -401,7 +401,7 @@ class IntervalsIntersect(TestSuite):
         FROM sched
         WHERE dur > 0 AND utid != 0;
 
-        CREATE PERFETTO TABLE small_foo_for_sj AS
+        CREATE DEJAVIEW TABLE small_foo_for_sj AS
         SELECT
           id AS small_id,
           ts,
@@ -409,7 +409,7 @@ class IntervalsIntersect(TestSuite):
           cpu
         FROM small_foo;
 
-        CREATE PERFETTO TABLE big_foo_for_sj AS
+        CREATE DEJAVIEW TABLE big_foo_for_sj AS
         SELECT
           id AS big_id,
           ts,
@@ -422,7 +422,7 @@ class IntervalsIntersect(TestSuite):
           small_foo_for_sj PARTITIONED cpu,
           big_foo_for_sj PARTITIONED cpu);
 
-        CREATE PERFETTO TABLE both AS
+        CREATE DEJAVIEW TABLE both AS
         SELECT
           id_0,
           id_1,
@@ -451,9 +451,9 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE big_foo AS
+        CREATE DEJAVIEW TABLE big_foo AS
         SELECT
           ts,
           dur,
@@ -461,7 +461,7 @@ class IntervalsIntersect(TestSuite):
         FROM sched
         WHERE dur > 0 AND utid == 44;
 
-        CREATE PERFETTO TABLE small_foo AS
+        CREATE DEJAVIEW TABLE small_foo AS
         SELECT
           ts,
           dur,
@@ -469,14 +469,14 @@ class IntervalsIntersect(TestSuite):
         FROM sched
         WHERE dur > 0 AND utid == 103;
 
-        CREATE PERFETTO TABLE small_foo_for_sj AS
+        CREATE DEJAVIEW TABLE small_foo_for_sj AS
         SELECT
           id AS small_id,
           ts,
           dur
         FROM small_foo;
 
-        CREATE PERFETTO TABLE big_foo_for_sj AS
+        CREATE DEJAVIEW TABLE big_foo_for_sj AS
         SELECT
           id AS big_id,
           ts,
@@ -488,7 +488,7 @@ class IntervalsIntersect(TestSuite):
           small_foo_for_sj,
           big_foo_for_sj);
 
-        CREATE PERFETTO TABLE both AS
+        CREATE DEJAVIEW TABLE both AS
         SELECT
           left_id,
           right_id,
@@ -516,15 +516,15 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE trace_interval AS
+        CREATE DEJAVIEW TABLE trace_interval AS
         SELECT
           0 AS id,
           TRACE_START() AS ts,
           TRACE_DUR() AS dur;
 
-        CREATE PERFETTO TABLE non_overlapping AS
+        CREATE DEJAVIEW TABLE non_overlapping AS
         SELECT
           id, ts, dur
         FROM thread_state
@@ -549,9 +549,9 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE non_overlapping AS
+        CREATE DEJAVIEW TABLE non_overlapping AS
         SELECT
           id, ts, dur
         FROM thread_state
@@ -579,7 +579,7 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
         SELECT * FROM _interval_intersect!(
           ((SELECT id, ts, dur, utid, cpu FROM sched WHERE dur > 0 LIMIT 10),
@@ -605,7 +605,7 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
         SELECT * FROM _interval_intersect!(
           ((SELECT id, ts, dur, utid, cpu FROM sched WHERE dur > 0 LIMIT 10),
@@ -631,7 +631,7 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
         SELECT * FROM _interval_intersect!(
           (
@@ -660,7 +660,7 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
         SELECT * FROM _interval_intersect!(
           (
@@ -689,31 +689,31 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT id, ts, dur FROM sched
         WHERE dur > 0 AND cpu = 0
         ORDER BY ts;
 
-        CREATE PERFETTO TABLE bar AS
+        CREATE DEJAVIEW TABLE bar AS
         SELECT id, ts, dur FROM sched
         WHERE dur > 0 AND cpu = 1
         ORDER BY ts;
 
-        CREATE PERFETTO TABLE baz AS
+        CREATE DEJAVIEW TABLE baz AS
         SELECT id, ts, dur FROM sched
         WHERE dur > 0 AND cpu = 2
         ORDER BY ts;
 
-        CREATE PERFETTO TABLE ii_foo_and_bar AS
+        CREATE DEJAVIEW TABLE ii_foo_and_bar AS
         SELECT
           ROW_NUMBER() OVER (ORDER BY ts) AS id,
           ts, dur, id_0 AS id_foo, id_1 AS id_bar
         FROM _interval_intersect!((foo, bar), ())
         ORDER BY ts;
 
-        CREATE PERFETTO TABLE ii_foo_bar_baz AS
+        CREATE DEJAVIEW TABLE ii_foo_bar_baz AS
         SELECT id_foo, id_bar, id_1 AS id_baz, ii.ts, ii.dur
         FROM _interval_intersect!((ii_foo_and_bar, baz), ()) ii
         JOIN ii_foo_and_bar ON ii_foo_and_bar.id = ii.id_0;
@@ -742,19 +742,19 @@ class IntervalsIntersect(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE intervals.intersect;
+        INCLUDE DEJAVIEW MODULE intervals.intersect;
 
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT id, ts, dur FROM sched
         WHERE dur > 0 AND cpu = 0
         ORDER BY ts;
 
-        CREATE PERFETTO TABLE bar AS
+        CREATE DEJAVIEW TABLE bar AS
         SELECT id, ts, dur FROM sched
         WHERE dur > 0 AND cpu = 1
         ORDER BY ts;
 
-        CREATE PERFETTO TABLE baz AS
+        CREATE DEJAVIEW TABLE baz AS
         SELECT id, ts, dur FROM sched
         WHERE dur > 0 AND cpu = 2
         ORDER BY ts;

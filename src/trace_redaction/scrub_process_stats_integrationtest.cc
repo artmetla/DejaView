@@ -17,7 +17,7 @@
 #include <cstdint>
 #include <string>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_redaction/collect_timeline_events.h"
 #include "src/trace_redaction/scrub_process_stats.h"
@@ -26,11 +26,11 @@
 #include "src/trace_redaction/trace_redactor.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ps/process_stats.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/ps/process_stats.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class ScrubProcessStatsTest : public testing::Test,
                               protected TraceRedactionIntegrationFixure {
@@ -63,7 +63,7 @@ class ScrubProcessStatsTest : public testing::Test,
 
       for (auto process = process_stats.processes(); process; ++process) {
         protos::pbzero::ProcessStats::Process::Decoder p(process->as_bytes());
-        PERFETTO_DCHECK(p.has_pid());
+        DEJAVIEW_DCHECK(p.has_pid());
         pids.insert(p.pid());
       }
     }
@@ -142,4 +142,4 @@ TEST_F(ScrubProcessStatsTest, OnlyKeepsStatsForPackage) {
   ASSERT_TRUE(actual.count(7105));
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/waitable_event.h"
+#include "dejaview/ext/base/waitable_event.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 WaitableEvent::WaitableEvent() = default;
@@ -34,4 +34,4 @@ void WaitableEvent::Notify() {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

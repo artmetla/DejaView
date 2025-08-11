@@ -23,18 +23,18 @@
 #include <string>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 class TraceProcessor;
 }
 namespace profiling {
-std::vector<std::string> GetPerfettoBinaryPath();
+std::vector<std::string> GetDejaViewBinaryPath();
 // Generate ModuleSymbol protos for all unsymbolized frames in the database.
 // Wrap them in proto-encoded TracePackets messages and call callback.
 void SymbolizeDatabase(trace_processor::TraceProcessor* tp,
                        Symbolizer* symbolizer,
                        std::function<void(const std::string&)> callback);
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_SYMBOLIZE_DATABASE_H_

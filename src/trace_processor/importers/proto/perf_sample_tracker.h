@@ -25,7 +25,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace protos {
 namespace pbzero {
 class TracePacketDefaults_Decoder;
@@ -84,6 +84,6 @@ class PerfSampleTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PERF_SAMPLE_TRACKER_H_

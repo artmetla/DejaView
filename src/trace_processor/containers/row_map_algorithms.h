@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/containers/bit_vector.h"
 
 // This file contains fundamental algorithms used by RowMap.
@@ -29,7 +29,7 @@
 // to use this to decide which heurustics to use and the value of magic
 // constants in RowMap algorithms.
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace row_map_algorithms {
 
@@ -40,7 +40,7 @@ inline std::vector<uint32_t> SelectIvWithIv(
     const std::vector<uint32_t>& selector) {
   std::vector<uint32_t> ret(selector.size());
   for (uint32_t i = 0; i < selector.size(); ++i) {
-    PERFETTO_DCHECK(selector[i] < iv.size());
+    DEJAVIEW_DCHECK(selector[i] < iv.size());
     ret[i] = iv[selector[i]];
   }
   return ret;
@@ -68,6 +68,6 @@ inline std::vector<uint32_t> SelectBvWithIvByIndexOfNthSet(
 
 }  // namespace row_map_algorithms
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_CONTAINERS_ROW_MAP_ALGORITHMS_H_

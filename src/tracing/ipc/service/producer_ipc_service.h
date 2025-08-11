@@ -22,14 +22,14 @@
 #include <memory>
 #include <string>
 
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/ipc/basic_types.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/ipc/basic_types.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 
-#include "protos/perfetto/ipc/producer_port.ipc.h"
+#include "protos/dejaview/ipc/producer_port.ipc.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace ipc {
 class Host;
@@ -136,6 +136,6 @@ class ProducerIPCService : public protos::gen::ProducerPort {
   base::WeakPtrFactory<ProducerIPCService> weak_ptr_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_SERVICE_PRODUCER_IPC_SERVICE_H_

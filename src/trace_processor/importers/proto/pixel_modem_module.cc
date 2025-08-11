@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/importers/proto/pixel_modem_module.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/importers/common/machine_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 
@@ -26,14 +26,14 @@
 #include "src/trace_processor/importers/proto/pixel_modem_parser.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
 
-#include "protos/perfetto/common/android_energy_consumer_descriptor.pbzero.h"
-#include "protos/perfetto/trace/android/pixel_modem_events.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/android_energy_consumer_descriptor.pbzero.h"
+#include "protos/dejaview/trace/android/pixel_modem_events.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 PixelModemModule::PixelModemModule(TraceProcessorContext* context)
     : context_(context), parser_(context) {
@@ -119,4 +119,4 @@ void PixelModemModule::ParseTracePacketData(const TracePacket::Decoder& decoder,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

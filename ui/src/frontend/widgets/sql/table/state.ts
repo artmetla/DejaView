@@ -147,7 +147,7 @@ export class SqlTableState {
   private getSQLImports() {
     const tableImports = this.config.imports || [];
     return [...tableImports, ...this.additionalImports]
-      .map((i) => `INCLUDE PERFETTO MODULE ${i};`)
+      .map((i) => `INCLUDE DEJAVIEW MODULE ${i};`)
       .join('\n');
   }
 

@@ -16,7 +16,7 @@
 
 syntax = "proto2";
 
-package perfetto.ipc;
+package dejaview.ipc;
 
 message TestMessage {
   optional int32 num = 1;

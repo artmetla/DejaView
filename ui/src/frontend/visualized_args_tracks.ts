@@ -19,7 +19,7 @@ import {VisualisedArgsTrack} from './visualized_args_track';
 import {TrackNode} from '../public/workspace';
 import {Trace} from '../public/trace';
 
-const VISUALISED_ARGS_SLICE_TRACK_URI_PREFIX = 'perfetto.VisualisedArgs';
+const VISUALISED_ARGS_SLICE_TRACK_URI_PREFIX = 'dejaview.VisualisedArgs';
 
 export async function addVisualisedArgTracks(trace: Trace, argName: string) {
   const escapedArgName = argName.replace(/[^a-zA-Z]/g, '_');

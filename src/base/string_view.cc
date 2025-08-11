@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 // Without ignoring this warning we get the message:
@@ -36,4 +36,4 @@ constexpr size_t StringView::npos;
 #endif
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

@@ -20,7 +20,7 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace trace_processor {
 
@@ -33,13 +33,13 @@ class SurfaceFlingerTransactionsParser {
 
  private:
   static constexpr auto* kTransactionTraceEntryProtoName =
-      ".perfetto.protos.TransactionTraceEntry";
+      ".dejaview.protos.TransactionTraceEntry";
 
   TraceProcessorContext* const context_;
   DescriptorPool pool_;
   util::ProtoToArgsParser args_parser_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_SURFACEFLINGER_TRANSACTIONS_PARSER_H_

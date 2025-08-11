@@ -25,24 +25,24 @@
 #include <set>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
-#include "protos/perfetto/trace/profiling/deobfuscation.pbzero.h"
-#include "protos/perfetto/trace/profiling/heap_graph.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/profiling/deobfuscation.pbzero.h"
+#include "protos/dejaview/trace/profiling/heap_graph.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 namespace {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 constexpr size_t kCompressionBufferSize = 500 * 1024;
 #endif
 
@@ -55,7 +55,7 @@ bool ReadTraceUnfinalized(trace_processor::TraceProcessor* tp,
 
 // Printing the status update on stderr can be a perf bottleneck. On WASM print
 // status updates more frequently because it can be slower to parse each chunk.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WASM)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WASM)
   constexpr int kStderrRate = 1;
 #else
   constexpr int kStderrRate = 128;
@@ -72,7 +72,7 @@ bool ReadTraceUnfinalized(trace_processor::TraceProcessor* tp,
     std::unique_ptr<uint8_t[]> buf(new uint8_t[kChunkSize]);
     input->read(reinterpret_cast<char*>(buf.get()), kChunkSize);
     if (input->bad()) {
-      PERFETTO_ELOG("Failed when reading trace");
+      DEJAVIEW_ELOG("Failed when reading trace");
       return false;
     }
 
@@ -94,7 +94,7 @@ void IngestTraceOrDie(trace_processor::TraceProcessor* tp,
   memcpy(buf.get(), trace_proto.data(), trace_proto.size());
   auto status = tp->Parse(std::move(buf), trace_proto.size());
   if (!status.ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to parse: %s", status.message().c_str());
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to parse: %s", status.message().c_str());
   }
 }
 
@@ -112,7 +112,7 @@ void TraceWriter::Write(const char* data, size_t sz) {
   output_->write(data, static_cast<std::streamsize>(sz));
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 DeflateTraceWriter::DeflateTraceWriter(std::ostream* output)
     : TraceWriter(output),
@@ -132,7 +132,7 @@ DeflateTraceWriter::~DeflateTraceWriter() {
   }
   // Flush any outstanding output bytes to the backing TraceWriter.
   Flush();
-  PERFETTO_CHECK(stream_.avail_out == static_cast<size_t>(end_ - start_));
+  DEJAVIEW_CHECK(stream_.avail_out == static_cast<size_t>(end_ - start_));
 
   CheckEq(deflateEnd(&stream_), Z_OK);
 }
@@ -158,18 +158,18 @@ void DeflateTraceWriter::Flush() {
 void DeflateTraceWriter::CheckEq(int actual_code, int expected_code) {
   if (actual_code == expected_code)
     return;
-  PERFETTO_FATAL("Expected %d got %d: %s", actual_code, expected_code,
+  DEJAVIEW_FATAL("Expected %d got %d: %s", actual_code, expected_code,
                  stream_.msg);
 }
 #else
 
 DeflateTraceWriter::DeflateTraceWriter(std::ostream* output)
     : TraceWriter(output) {
-  PERFETTO_ELOG("Cannot compress. Zlib is not enabled in the build config");
+  DEJAVIEW_ELOG("Cannot compress. Zlib is not enabled in the build config");
 }
 DeflateTraceWriter::~DeflateTraceWriter() = default;
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

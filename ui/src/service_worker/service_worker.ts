@@ -44,7 +44,7 @@ declare let self: ServiceWorkerGlobalScope;
 export {};
 
 const LOG_TAG = `ServiceWorker: `;
-const CACHE_NAME = 'ui-perfetto-dev';
+const CACHE_NAME = 'ui-dejaview-dev';
 const OPEN_TRACE_PREFIX = '/_open_trace'
 
 // If the fetch() for the / doesn't respond within 3s, return a cached version.

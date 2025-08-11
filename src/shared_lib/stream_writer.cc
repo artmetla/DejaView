@@ -18,46 +18,46 @@
 
 #include <algorithm>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/protozero/contiguous_memory_range.h"
-#include "perfetto/protozero/scattered_stream_writer.h"
-#include "perfetto/public/abi/stream_writer_abi.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/protozero/contiguous_memory_range.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
+#include "dejaview/public/abi/stream_writer_abi.h"
 
-void PerfettoStreamWriterUpdateWritePtr(struct PerfettoStreamWriter* w) {
+void DejaViewStreamWriterUpdateWritePtr(struct DejaViewStreamWriter* w) {
   auto* sw = reinterpret_cast<protozero::ScatteredStreamWriter*>(w->impl);
   sw->set_write_ptr(w->write_ptr);
 }
 
-void PerfettoStreamWriterNewChunk(struct PerfettoStreamWriter* w) {
+void DejaViewStreamWriterNewChunk(struct DejaViewStreamWriter* w) {
   auto* sw = reinterpret_cast<protozero::ScatteredStreamWriter*>(w->impl);
   sw->set_write_ptr(w->write_ptr);
   sw->Extend();
-  perfetto::UpdateStreamWriter(*sw, w);
+  dejaview::UpdateStreamWriter(*sw, w);
 }
 
-uint8_t* PerfettoStreamWriterAnnotatePatch(struct PerfettoStreamWriter* w,
+uint8_t* DejaViewStreamWriterAnnotatePatch(struct DejaViewStreamWriter* w,
                                            uint8_t* patch_addr) {
   auto* sw = reinterpret_cast<protozero::ScatteredStreamWriter*>(w->impl);
-  static_assert(PERFETTO_STREAM_WRITER_PATCH_SIZE ==
+  static_assert(DEJAVIEW_STREAM_WRITER_PATCH_SIZE ==
                     protozero::ScatteredStreamWriter::Delegate::kPatchSize,
                 "Size mismatch");
-  memset(patch_addr, 0, PERFETTO_STREAM_WRITER_PATCH_SIZE);
+  memset(patch_addr, 0, DEJAVIEW_STREAM_WRITER_PATCH_SIZE);
   return sw->AnnotatePatch(patch_addr);
 }
 
-void PerfettoStreamWriterAppendBytesSlowpath(struct PerfettoStreamWriter* w,
+void DejaViewStreamWriterAppendBytesSlowpath(struct DejaViewStreamWriter* w,
                                              const uint8_t* src,
                                              size_t size) {
   auto* sw = reinterpret_cast<protozero::ScatteredStreamWriter*>(w->impl);
   sw->set_write_ptr(w->write_ptr);
   sw->WriteBytesSlowPath(src, size);
-  perfetto::UpdateStreamWriter(*sw, w);
+  dejaview::UpdateStreamWriter(*sw, w);
 }
 
-void PerfettoStreamWriterReserveBytesSlowpath(struct PerfettoStreamWriter* w,
+void DejaViewStreamWriterReserveBytesSlowpath(struct DejaViewStreamWriter* w,
                                               size_t size) {
   auto* sw = reinterpret_cast<protozero::ScatteredStreamWriter*>(w->impl);
   sw->set_write_ptr(w->write_ptr);
   sw->ReserveBytes(size);
-  perfetto::UpdateStreamWriter(*sw, w);
+  dejaview::UpdateStreamWriter(*sw, w);
 }

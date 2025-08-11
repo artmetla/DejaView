@@ -21,13 +21,13 @@
 
 #include <array>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/sched_event_state.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class EventTracker;
@@ -111,6 +111,6 @@ class FtraceSchedEventTracker : public Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_FTRACE_SCHED_EVENT_TRACKER_H_

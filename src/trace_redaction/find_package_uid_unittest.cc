@@ -22,11 +22,11 @@
 #include "src/trace_redaction/find_package_uid.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/android/packages_list.gen.h"
-#include "protos/perfetto/trace/ps/process_tree.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/android/packages_list.gen.h"
+#include "protos/dejaview/trace/ps/process_tree.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 
@@ -275,4 +275,4 @@ TEST(FindPackageUidTest, FailsIfUidStartsInitialized) {
   ASSERT_FALSE(status.ok()) << status.message();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

@@ -16,21 +16,21 @@
 
 #include "src/traced/probes/android_log/android_log_data_source.h"
 
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/android_log_constants.gen.h"
-#include "protos/perfetto/config/android/android_log_config.gen.h"
-#include "protos/perfetto/trace/android/android_log.gen.h"
+#include "protos/dejaview/common/android_log_constants.gen.h"
+#include "protos/dejaview/config/android/android_log_config.gen.h"
+#include "protos/dejaview/trace/android/android_log.gen.h"
 
-using ::perfetto::protos::gen::AndroidLogConfig;
-using ::perfetto::protos::gen::AndroidLogId;
+using ::dejaview::protos::gen::AndroidLogConfig;
+using ::dejaview::protos::gen::AndroidLogId;
 using ::testing::Invoke;
 using ::testing::Return;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 class TestAndroidLogDataSource : public AndroidLogDataSource {
@@ -408,4 +408,4 @@ TEST_F(AndroidLogDataSourceTest, BinaryEventsWithTagFiltering) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/platform.h"
+#include "dejaview/ext/base/platform.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace platform {
 
@@ -30,4 +30,4 @@ void AfterMaybeBlockingSyscall() {}
 
 }  // namespace platform
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

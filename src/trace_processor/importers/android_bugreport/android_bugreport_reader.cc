@@ -23,10 +23,10 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
 #include "src/trace_processor/importers/android_bugreport/android_dumpstate_reader.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_reader.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
@@ -36,7 +36,7 @@
 #include "src/trace_processor/util/trace_type.h"
 #include "src/trace_processor/util/zip_reader.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 const util::ZipFile* FindBugReportFile(
     const std::vector<util::ZipFile>& zip_file_entries) {
@@ -106,7 +106,7 @@ util::Status AndroidBugreportReader::ParseImpl() {
 
 base::Status AndroidBugreportReader::ParseDumpstateTxt(
     std::vector<TimestampedAndroidLogEvent> logcat_events) {
-  PERFETTO_CHECK(dumpstate_file_);
+  DEJAVIEW_CHECK(dumpstate_file_);
   ScopedActiveTraceFile trace_file = context_->trace_file_tracker->StartNewFile(
       dumpstate_file_->name(), kAndroidDumpstateTraceType,
       dumpstate_file_->uncompressed_size());
@@ -161,14 +161,14 @@ AndroidBugreportReader::ParsePersistentLogcat() {
 bool AndroidBugreportReader::DetectYearAndBrFilename() {
   const util::ZipFile* br_file = FindBugReportFile(zip_file_entries_);
   if (!br_file) {
-    PERFETTO_ELOG("Could not find bugreport-*.txt in the zip file");
+    DEJAVIEW_ELOG("Could not find bugreport-*.txt in the zip file");
     return false;
   }
 
   std::optional<int32_t> year =
       ExtractYearFromBugReportFilename(br_file->name());
   if (!year.has_value()) {
-    PERFETTO_ELOG("Could not parse the year from %s", br_file->name().c_str());
+    DEJAVIEW_ELOG("Could not parse the year from %s", br_file->name().c_str());
     return false;
   }
   br_year_ = *year;
@@ -176,4 +176,4 @@ bool AndroidBugreportReader::DetectYearAndBrFilename() {
   return true;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -17,11 +17,11 @@
 #ifndef SRC_TOOLS_PROTO_MERGER_PROTO_MERGER_H_
 #define SRC_TOOLS_PROTO_MERGER_PROTO_MERGER_H_
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/tools/proto_merger/allowlist.h"
 #include "src/tools/proto_merger/proto_file.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 
 // Merges any updates in the proto |upstream| into the proto |input|
@@ -41,6 +41,6 @@ base::Status MergeProtoFiles(const ProtoFile& input,
                              ProtoFile& out);
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TOOLS_PROTO_MERGER_PROTO_MERGER_H_

@@ -135,7 +135,7 @@ export interface Track {
    * create any required resources.
    *
    * These lifecycle hooks are asynchronous, but they are run synchronously,
-   * meaning that perfetto will wait for each one to complete before calling the
+   * meaning that dejaview will wait for each one to complete before calling the
    * next one, so the user doesn't have to serialize these calls manually.
    *
    * Exactly when this hook is called is left purposely undefined. The only

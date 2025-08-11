@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/ctrl_c_handler.h"
+#include "dejaview/ext/base/ctrl_c_handler.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #include <io.h>
 #else
@@ -28,7 +28,7 @@
 #include <unistd.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -36,10 +36,10 @@ CtrlCHandlerFunction g_handler = nullptr;
 }
 
 void InstallCtrlCHandler(CtrlCHandlerFunction handler) {
-  PERFETTO_CHECK(g_handler == nullptr);
+  DEJAVIEW_CHECK(g_handler == nullptr);
   g_handler = handler;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   auto trampoline = [](DWORD type) -> int {
     if (type == CTRL_C_EVENT) {
       g_handler();
@@ -48,9 +48,9 @@ void InstallCtrlCHandler(CtrlCHandlerFunction handler) {
     return false;
   };
   ::SetConsoleCtrlHandler(trampoline, true);
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   // Setup signal handler.
   struct sigaction sa {};
 
@@ -71,4 +71,4 @@ void InstallCtrlCHandler(CtrlCHandlerFunction handler) {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

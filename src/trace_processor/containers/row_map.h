@@ -26,11 +26,11 @@
 #include <variant>
 #include <vector>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/containers/bit_vector.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Stores a list of row indicies in a space efficient manner. One or more
@@ -84,7 +84,7 @@ class RowMap {
   struct Range {
     Range(OutputIndex start_index, OutputIndex end_index)
         : start(start_index), end(end_index) {
-      PERFETTO_DCHECK(start_index <= end_index);
+      DEJAVIEW_DCHECK(start_index <= end_index);
     }
     Range() : start(0), end(0) {}
 
@@ -127,7 +127,7 @@ class RowMap {
       if (const auto* vec = std::get_if<IndexVector>(&rm_->data_)) {
         return ordinal_ < vec->size();
       }
-      PERFETTO_FATAL("Didn't match any variant type.");
+      DEJAVIEW_FATAL("Didn't match any variant type.");
     }
 
     // Returns the index pointed to by this iterator.
@@ -141,7 +141,7 @@ class RowMap {
       if (const auto* vec = std::get_if<IndexVector>(&rm_->data_)) {
         return (*vec)[ordinal_];
       }
-      PERFETTO_FATAL("Didn't match any variant type.");
+      DEJAVIEW_FATAL("Didn't match any variant type.");
     }
 
     // Returns the row of the index the iterator points to.
@@ -153,7 +153,7 @@ class RowMap {
           std::get_if<IndexVector>(&rm_->data_)) {
         return ordinal_;
       }
-      PERFETTO_FATAL("Didn't match any variant type.");
+      DEJAVIEW_FATAL("Didn't match any variant type.");
     }
 
    private:
@@ -322,7 +322,7 @@ class RowMap {
       return;
     }
     if (auto* vec = std::get_if<IndexVector>(&data_)) {
-      PERFETTO_DCHECK(std::is_sorted(vec->begin(), vec->end()));
+      DEJAVIEW_DCHECK(std::is_sorted(vec->begin(), vec->end()));
       auto it = std::upper_bound(vec->begin(), vec->end(), index);
       vec->insert(it, index);
       return;
@@ -431,14 +431,14 @@ class RowMap {
 
   explicit RowMap(Variant);
 
-  PERFETTO_ALWAYS_INLINE static OutputIndex GetRange(Range r, InputRow row) {
+  DEJAVIEW_ALWAYS_INLINE static OutputIndex GetRange(Range r, InputRow row) {
     return r.start + row;
   }
-  PERFETTO_ALWAYS_INLINE static OutputIndex GetBitVector(const BitVector& bv,
+  DEJAVIEW_ALWAYS_INLINE static OutputIndex GetBitVector(const BitVector& bv,
                                                          uint32_t row) {
     return bv.IndexOfNthSet(row);
   }
-  PERFETTO_ALWAYS_INLINE static OutputIndex GetIndexVector(
+  DEJAVIEW_ALWAYS_INLINE static OutputIndex GetIndexVector(
       const IndexVector& vec,
       uint32_t row) {
     return vec[row];
@@ -456,14 +456,14 @@ class RowMap {
     bv.Set(row);
   }
 
-  PERFETTO_NORETURN static void NoVariantMatched() {
-    PERFETTO_FATAL("Didn't match any variant type.");
+  DEJAVIEW_NORETURN static void NoVariantMatched() {
+    DEJAVIEW_FATAL("Didn't match any variant type.");
   }
 
   Variant data_;
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_CONTAINERS_ROW_MAP_H_

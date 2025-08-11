@@ -1,4 +1,4 @@
-# PerfettoSQL Common Queries
+# DejaViewSQL Common Queries
 
 This page acts as a reference guide for queries which often appear when
 performing ad-hoc analysis.

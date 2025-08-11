@@ -16,16 +16,16 @@
 
 #include "src/tracing/core/null_trace_writer.h"
 
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/protozero/scattered_stream_writer.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
 #include "src/base/test/utils.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(NullTraceWriterTest, WriterIdIsZero) {
@@ -74,4 +74,4 @@ TEST(NullTraceWriterTest, FlushCallbackIsCalled) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

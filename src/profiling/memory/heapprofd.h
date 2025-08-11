@@ -17,12 +17,12 @@
 #ifndef SRC_PROFILING_MEMORY_HEAPPROFD_H_
 #define SRC_PROFILING_MEMORY_HEAPPROFD_H_
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 int HeapprofdMain(int argc, char** argv);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_HEAPPROFD_H_

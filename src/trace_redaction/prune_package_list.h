@@ -19,10 +19,10 @@
 
 #include <string>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Removes all package list entries that don't match `Context.package_uid`.
 // Returns `base::ErrStatus()` if `Context.package_uid` was not set.
@@ -37,6 +37,6 @@ class PrunePackageList final : public TransformPrimitive {
                      protos::pbzero::PackagesList* message) const;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_PRUNE_PACKAGE_LIST_H_

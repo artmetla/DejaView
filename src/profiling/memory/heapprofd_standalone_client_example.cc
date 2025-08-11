@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/heap_profile.h"
+#include "dejaview/heap_profile.h"
 
 #include <unistd.h>
 

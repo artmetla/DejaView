@@ -21,11 +21,11 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -37,7 +37,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 base::StringView ToStringView(protozero::ConstBytes bytes) {
@@ -46,7 +46,7 @@ base::StringView ToStringView(protozero::ConstBytes bytes) {
 }
 
 // Determine wether this is the magical kernel mapping created in
-// `perfetto::::profiling::Unwinder::SymbolizeKernelCallchain`
+// `dejaview::::profiling::Unwinder::SymbolizeKernelCallchain`
 bool IsMagicalKernelMapping(const CreateMappingParams& params) {
   return params.memory_range.start() == 0 &&
          params.memory_range.length() == 0 && params.exact_offset == 0 &&
@@ -260,4 +260,4 @@ StackProfileSequenceState::LookupInternedFunctionName(uint64_t iid) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

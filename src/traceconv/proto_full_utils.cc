@@ -16,7 +16,7 @@
 
 #include "src/traceconv/proto_full_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 MultiFileErrorCollectorImpl::~MultiFileErrorCollectorImpl() = default;
@@ -25,7 +25,7 @@ void MultiFileErrorCollectorImpl::AddError(const std::string& filename,
                                            int line,
                                            int column,
                                            const std::string& message) {
-  PERFETTO_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
+  DEJAVIEW_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
                 message.c_str());
 }
 
@@ -33,9 +33,9 @@ void MultiFileErrorCollectorImpl::AddWarning(const std::string& filename,
                                              int line,
                                              int column,
                                              const std::string& message) {
-  PERFETTO_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
+  DEJAVIEW_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
                 message.c_str());
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

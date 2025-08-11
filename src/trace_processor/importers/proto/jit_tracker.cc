@@ -20,7 +20,7 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/jit_cache.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
@@ -28,7 +28,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 JitTracker::JitTracker(TraceProcessorContext* context) : context_(context) {}
 JitTracker::~JitTracker() = default;
@@ -44,9 +44,9 @@ JitCache* JitTracker::CreateJitCache(std::string name,
   // doesn't really happen in practice (e.g. for v8 you would need to delete an
   // isolate and recreate it.), so just make sure our assumption (this never
   // happens) is correct with a check.
-  PERFETTO_CHECK(caches_[upid].Emplace(range, std::move(cache)));
+  DEJAVIEW_CHECK(caches_[upid].Emplace(range, std::move(cache)));
   context_->mapping_tracker->AddJitRange(upid, range, cache_ptr);
   return cache_ptr;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

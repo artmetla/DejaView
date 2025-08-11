@@ -20,7 +20,7 @@
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class EtwModule : public ProtoImporterModule {
@@ -31,6 +31,6 @@ class EtwModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ETW_ETW_MODULE_H_

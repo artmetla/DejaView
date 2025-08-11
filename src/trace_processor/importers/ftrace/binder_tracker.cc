@@ -19,9 +19,9 @@
 #include <optional>
 #include <string>
 #include <utility>
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/flow_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
@@ -174,7 +174,7 @@
 //
 // The tracking for commands and returns also tries to keep a correct stack, to
 // avoid unbounded growth of the stack itself (even though it's internal only).
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -572,7 +572,7 @@ BinderTracker::TxnFrame* BinderTracker::PushTidFrame(uint32_t tid) {
 void BinderTracker::PopTidFrame(uint32_t tid) {
   UniqueTid utid = context_->process_tracker->GetOrCreateThread(tid);
   std::stack<BinderTracker::TxnFrame>* stack = utid_stacks_.Find(utid);
-  PERFETTO_CHECK(stack);
+  DEJAVIEW_CHECK(stack);
   stack->pop();
   if (stack->empty()) {
     utid_stacks_.Erase(utid);
@@ -580,4 +580,4 @@ void BinderTracker::PopTidFrame(uint32_t tid) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

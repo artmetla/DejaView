@@ -20,10 +20,10 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/proto/proto_trace_reader.h"
@@ -34,7 +34,7 @@
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 TraceSorter::SortingMode ConvertSortingMode(SortingMode sorting_mode) {
@@ -44,7 +44,7 @@ TraceSorter::SortingMode ConvertSortingMode(SortingMode sorting_mode) {
     case SortingMode::kForceFullSort:
       return TraceSorter::SortingMode::kFullSort;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 std::optional<TraceSorter::SortingMode> GetMinimumSortingMode(
@@ -77,10 +77,10 @@ std::optional<TraceSorter::SortingMode> GetMinimumSortingMode(
 
     case kAndroidDumpstateTraceType:
     case kAndroidBugreportTraceType:
-      PERFETTO_FATAL(
+      DEJAVIEW_FATAL(
           "This trace type should be handled at the ZipParser level");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 }  // namespace
@@ -91,7 +91,7 @@ ForwardingTraceParser::ForwardingTraceParser(TraceProcessorContext* context)
 ForwardingTraceParser::~ForwardingTraceParser() {}
 
 base::Status ForwardingTraceParser::Init(const TraceBlobView& blob) {
-  PERFETTO_CHECK(!reader_);
+  DEJAVIEW_CHECK(!reader_);
 
   {
     auto scoped_trace = context_->storage->TraceExecutionTimeIntoStats(
@@ -111,7 +111,7 @@ base::Status ForwardingTraceParser::Init(const TraceBlobView& blob) {
   }
   reader_ = std::move(*reader_or);
 
-  PERFETTO_DLOG("%s trace detected", TraceTypeToString(trace_type_));
+  DEJAVIEW_DLOG("%s trace detected", TraceTypeToString(trace_type_));
   UpdateSorterForTraceType(trace_type_);
 
   // TODO(b/334978369) Make sure kProtoTraceType and kSystraceTraceType are
@@ -137,7 +137,7 @@ void ForwardingTraceParser::UpdateSorterForTraceType(TraceType trace_type) {
 
   switch (context_->sorter->sorting_mode()) {
     case TraceSorter::SortingMode::kDefault:
-      PERFETTO_CHECK(minimum_sorting_mode ==
+      DEJAVIEW_CHECK(minimum_sorting_mode ==
                      TraceSorter::SortingMode::kDefault);
       break;
     case TraceSorter::SortingMode::kFullSort:
@@ -158,4 +158,4 @@ base::Status ForwardingTraceParser::NotifyEndOfFile() {
   return reader_ ? reader_->NotifyEndOfFile() : base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

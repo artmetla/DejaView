@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 #include <Windows.h>
 
-#include "perfetto/ext/base/thread_task_runner.h"
-#include "perfetto/tracing/internal/tracing_tls.h"
-#include "perfetto/tracing/platform.h"
+#include "dejaview/ext/base/thread_task_runner.h"
+#include "dejaview/tracing/internal/tracing_tls.h"
+#include "dejaview/tracing/platform.h"
 
 // Thread Termination Callbacks.
 // Windows doesn't support a per-thread destructor with its
@@ -33,13 +33,13 @@
 
 #ifdef _WIN64
 #pragma comment(linker, "/INCLUDE:_tls_used")
-#pragma comment(linker, "/INCLUDE:perfetto_thread_callback_base")
+#pragma comment(linker, "/INCLUDE:dejaview_thread_callback_base")
 #else
 #pragma comment(linker, "/INCLUDE:__tls_used")
-#pragma comment(linker, "/INCLUDE:_perfetto_thread_callback_base")
+#pragma comment(linker, "/INCLUDE:_dejaview_thread_callback_base")
 #endif
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -67,7 +67,7 @@ PlatformWindows* PlatformWindows::instance = nullptr;
 PlatformWindows::PlatformWindows() {
   instance = this;
   tls_key_ = ::TlsAlloc();
-  PERFETTO_CHECK(tls_key_ != TLS_OUT_OF_INDEXES);
+  DEJAVIEW_CHECK(tls_key_ != TLS_OUT_OF_INDEXES);
 }
 
 PlatformWindows::~PlatformWindows() {
@@ -119,7 +119,7 @@ Platform* Platform::GetDefaultPlatform() {
   return thread_safe_init_instance;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 // -----------------------
 // Thread-local destructor
@@ -135,16 +135,16 @@ Platform* Platform::GetDefaultPlatform() {
 // extern "C" suppresses C++ name mangling so we know the symbol name for the
 // linker /INCLUDE:symbol pragma above.
 extern "C" {
-// The linker must not discard perfetto_thread_callback_base. (We force a
+// The linker must not discard dejaview_thread_callback_base. (We force a
 // reference to this variable with a linker /INCLUDE:symbol pragma to ensure
 // that.) If this variable is discarded, the OnThreadExit function will never be
 // called.
 
-void NTAPI PerfettoOnThreadExit(PVOID, DWORD, PVOID);
-void NTAPI PerfettoOnThreadExit(PVOID, DWORD reason, PVOID) {
+void NTAPI DejaViewOnThreadExit(PVOID, DWORD, PVOID);
+void NTAPI DejaViewOnThreadExit(PVOID, DWORD reason, PVOID) {
   if (reason == DLL_THREAD_DETACH || reason == DLL_PROCESS_DETACH) {
-    if (perfetto::PlatformWindows::instance)
-      perfetto::PlatformWindows::instance->OnThreadExit();
+    if (dejaview::PlatformWindows::instance)
+      dejaview::PlatformWindows::instance->OnThreadExit();
   }
 }
 
@@ -155,8 +155,8 @@ void NTAPI PerfettoOnThreadExit(PVOID, DWORD reason, PVOID) {
 
 // When defining a const variable, it must have external linkage to be sure the
 // linker doesn't discard it.
-extern const PIMAGE_TLS_CALLBACK perfetto_thread_callback_base;
-const PIMAGE_TLS_CALLBACK perfetto_thread_callback_base = PerfettoOnThreadExit;
+extern const PIMAGE_TLS_CALLBACK dejaview_thread_callback_base;
+const PIMAGE_TLS_CALLBACK dejaview_thread_callback_base = DejaViewOnThreadExit;
 
 // Reset the default section.
 #pragma const_seg()
@@ -164,7 +164,7 @@ const PIMAGE_TLS_CALLBACK perfetto_thread_callback_base = PerfettoOnThreadExit;
 #else  // _WIN64
 
 #pragma data_seg(".CRT$XLP")
-PIMAGE_TLS_CALLBACK perfetto_thread_callback_base = PerfettoOnThreadExit;
+PIMAGE_TLS_CALLBACK dejaview_thread_callback_base = DejaViewOnThreadExit;
 // Reset the default section.
 #pragma data_seg()
 

@@ -45,7 +45,7 @@ class PreludePprofFunctions(TestSuite):
             STACK_FROM_STACK_PROFILE_FRAME(NULL)))
         """,
         out=BinaryProto(
-            message_type="perfetto.protos.Stack",
+            message_type="dejaview.protos.Stack",
             contents="""
               entries {
                 frame_id: 4
@@ -83,7 +83,7 @@ class PreludePprofFunctions(TestSuite):
         FROM PERF_SAMPLE
     """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
         Sample:
@@ -122,15 +122,15 @@ class PreludePprofFunctions(TestSuite):
         )))
         """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
             Sample:
               Values: 1
               Stack:
                 B (0x0)
-                perfetto::base::UnixTaskRunner::Run() (0x7a4172f330)
-                perfetto::ServiceMain(int, char**) (0x7a4177a658)
+                dejaview::base::UnixTaskRunner::Run() (0x7a4172f330)
+                dejaview::ServiceMain(int, char**) (0x7a4177a658)
                 __libc_init (0x7a4162b3a0)
                 A (0x0)
             """))
@@ -144,7 +144,7 @@ class PreludePprofFunctions(TestSuite):
             CAT_STACKS("A", "B"), "type", "units", 42))
         """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
             Sample:
@@ -173,7 +173,7 @@ class PreludePprofFunctions(TestSuite):
         FROM samples
         """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
             Sample:
@@ -202,7 +202,7 @@ class PreludePprofFunctions(TestSuite):
         SELECT HEX(EXPERIMENTAL_PROFILE(STACK_FROM_STACK_PROFILE_CALLSITE(251, TRUE)))
         """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
             Sample:

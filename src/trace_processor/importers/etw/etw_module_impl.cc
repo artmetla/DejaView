@@ -16,16 +16,16 @@
 
 #include "src/trace_processor/importers/etw/etw_module_impl.h"
 
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/etw/etw_tokenizer.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 EtwModuleImpl::EtwModuleImpl(TraceProcessorContext* context)
     : tokenizer_(context), parser_(context) {
@@ -50,4 +50,4 @@ ModuleResult EtwModuleImpl::TokenizePacket(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

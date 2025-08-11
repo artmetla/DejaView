@@ -20,7 +20,7 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace trace_processor {
 
@@ -34,13 +34,13 @@ class ShellTransitionsParser {
 
  private:
   static constexpr auto* kShellTransitionsProtoName =
-      ".perfetto.protos.ShellTransition";
+      ".dejaview.protos.ShellTransition";
 
   TraceProcessorContext* const context_;
   DescriptorPool pool_;
   util::ProtoToArgsParser args_parser_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_SHELL_TRANSITIONS_PARSER_H_

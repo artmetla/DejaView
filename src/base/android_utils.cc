@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/android_utils.h"
+#include "dejaview/ext/base/android_utils.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
 #include <string>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/system_properties.h>
 #endif
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
 std::string GetAndroidProp(const char* name) {
   std::string ret;
@@ -56,7 +56,7 @@ std::string GetAndroidProp(const char* name) {
   return ret;
 }
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

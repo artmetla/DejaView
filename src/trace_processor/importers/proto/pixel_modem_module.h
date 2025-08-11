@@ -21,10 +21,10 @@
 #include "src/trace_processor/importers/proto/pixel_modem_parser.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class PixelModemModule : public ProtoImporterModule {
@@ -48,6 +48,6 @@ class PixelModemModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PIXEL_MODEM_MODULE_H_

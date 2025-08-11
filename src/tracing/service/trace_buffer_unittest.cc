@@ -21,18 +21,18 @@
 #include <sstream>
 #include <vector>
 
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/base/test/vm_test_utils.h"
 #include "src/tracing/service/trace_buffer.h"
 #include "src/tracing/test/fake_packet.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using ::testing::ContainerEq;
 using ::testing::ElementsAre;
@@ -994,10 +994,10 @@ TEST_F(TraceBufferTest, Patching_ReadWaitsForPatchComplete) {
                                     /*other_patches_pending=*/false));
   trace_buffer()->BeginRead();
   ASSERT_THAT(ReadPacket(),
-              ElementsAre(FakePacketFragment("PERFETTOf02-f03", 15)));
+              ElementsAre(FakePacketFragment("DEJAVIEWf02-f03", 15)));
   ASSERT_THAT(ReadPacket(), IsEmpty());
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 // ---------------------
 // Malicious input tests
@@ -2042,4 +2042,4 @@ TEST_F(TraceBufferTest, Clone_CommitOnlyUsedSize) {
   ASSERT_TRUE(is_only_first_page_mapped(*snap));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,24 +19,24 @@
 
 // This source file can be built in two ways:
 // 1. As part of the regular GN build, against standard includes.
-// 2. To test that the amalgmated SDK works, against the perfetto.h source.
-#ifdef PERFETTO_SDK_EXAMPLE_USE_INTERNAL_HEADERS
-#include "perfetto/tracing/core/trace_config.h"
-#include "perfetto/tracing/tracing.h"
-#include "perfetto/tracing/track_event.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.gen.h"
+// 2. To test that the amalgmated SDK works, against the dejaview.h source.
+#ifdef DEJAVIEW_SDK_EXAMPLE_USE_INTERNAL_HEADERS
+#include "dejaview/tracing/core/trace_config.h"
+#include "dejaview/tracing/tracing.h"
+#include "dejaview/tracing/track_event.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.gen.h"
 #else
-#include <perfetto.h>
+#include <dejaview.h>
 #endif
 
 // The set of track event categories that the example is using.
-PERFETTO_DEFINE_CATEGORIES(
-    perfetto::Category("rendering")
+DEJAVIEW_DEFINE_CATEGORIES(
+    dejaview::Category("rendering")
         .SetDescription("Rendering and graphics events"),
-    perfetto::Category("network.debug")
+    dejaview::Category("network.debug")
         .SetTags("debug")
         .SetDescription("Verbose network events"),
-    perfetto::Category("audio.latency")
+    dejaview::Category("audio.latency")
         .SetTags("verbose")
         .SetDescription("Detailed audio latency metrics"));
 

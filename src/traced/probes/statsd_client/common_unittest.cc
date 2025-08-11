@@ -16,17 +16,17 @@
 
 #include "src/traced/probes/statsd_client/common.h"
 
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/config/statsd/statsd_tracing_config.gen.h"
+#include "protos/dejaview/config/statsd/statsd_tracing_config.gen.h"
 #include "protos/third_party/statsd/shell_config.pbzero.h"
 
-using ::perfetto::protos::gen::StatsdTracingConfig;
-using ::perfetto::protos::pbzero::StatsdShellSubscription;
-using ::perfetto::protos::pbzero::StatsdSimpleAtomMatcher;
+using ::dejaview::protos::gen::StatsdTracingConfig;
+using ::dejaview::protos::pbzero::StatsdShellSubscription;
+using ::dejaview::protos::pbzero::StatsdSimpleAtomMatcher;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(StatsdDataSourceCommonTest, EmptyConfig) {
@@ -51,4 +51,4 @@ TEST(StatsdDataSourceCommonTest, PushOneAtom) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

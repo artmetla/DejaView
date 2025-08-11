@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/importers/proto/winscope/android_input_event_parser.h"
 
-#include "protos/perfetto/trace/android/android_input_event.pbzero.h"
+#include "protos/dejaview/trace/android/android_input_event.pbzero.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/proto/args_parser.h"
 #include "src/trace_processor/importers/proto/winscope/winscope.descriptor.h"
@@ -24,13 +24,13 @@
 #include "src/trace_processor/tables/android_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
-using perfetto::protos::pbzero::AndroidInputEvent;
-using perfetto::protos::pbzero::AndroidKeyEvent;
-using perfetto::protos::pbzero::AndroidMotionEvent;
-using perfetto::protos::pbzero::AndroidWindowInputDispatchEvent;
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::AndroidInputEvent;
+using dejaview::protos::pbzero::AndroidKeyEvent;
+using dejaview::protos::pbzero::AndroidMotionEvent;
+using dejaview::protos::pbzero::AndroidWindowInputDispatchEvent;
+using dejaview::protos::pbzero::TracePacket;
 
 AndroidInputEventParser::AndroidInputEventParser(TraceProcessorContext* context)
     : context_(*context), args_parser_{pool_} {
@@ -88,7 +88,7 @@ void AndroidInputEventParser::ParseMotionEvent(
   ArgsParser writer{packet_ts, inserter, *context_.storage};
 
   base::Status status =
-      args_parser_.ParseMessage(bytes, ".perfetto.protos.AndroidMotionEvent",
+      args_parser_.ParseMessage(bytes, ".dejaview.protos.AndroidMotionEvent",
                                 nullptr /*parse all fields*/, writer);
   if (!status.ok())
     context_.storage->IncrementStats(stats::android_input_event_parse_errors);
@@ -109,7 +109,7 @@ void AndroidInputEventParser::ParseKeyEvent(
   ArgsParser writer{packet_ts, inserter, *context_.storage};
 
   base::Status status =
-      args_parser_.ParseMessage(bytes, ".perfetto.protos.AndroidKeyEvent",
+      args_parser_.ParseMessage(bytes, ".dejaview.protos.AndroidKeyEvent",
                                 nullptr /*parse all fields*/, writer);
   if (!status.ok())
     context_.storage->IncrementStats(stats::android_input_event_parse_errors);
@@ -132,10 +132,10 @@ void AndroidInputEventParser::ParseWindowDispatchEvent(
   ArgsParser writer{packet_ts, inserter, *context_.storage};
 
   base::Status status = args_parser_.ParseMessage(
-      bytes, ".perfetto.protos.AndroidWindowInputDispatchEvent",
+      bytes, ".dejaview.protos.AndroidWindowInputDispatchEvent",
       nullptr /*parse all fields*/, writer);
   if (!status.ok())
     context_.storage->IncrementStats(stats::android_input_event_parse_errors);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

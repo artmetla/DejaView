@@ -15,9 +15,9 @@
  */
 
 #include "src/trace_processor/importers/proto/profile_packet_utils.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // static
@@ -38,4 +38,4 @@ std::string ProfilePacketUtils::MakeMappingName(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

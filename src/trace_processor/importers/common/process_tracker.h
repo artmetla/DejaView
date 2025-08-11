@@ -24,13 +24,13 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Thread names can come from different sources, and we don't always want to
@@ -268,6 +268,6 @@ class ProcessTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_PROCESS_TRACKER_H_

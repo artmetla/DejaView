@@ -15,7 +15,7 @@
 
 DROP VIEW IF EXISTS chrome_user_event_hashes_output;
 
-CREATE PERFETTO VIEW chrome_user_event_hashes_output AS
+CREATE DEJAVIEW VIEW chrome_user_event_hashes_output AS
 SELECT ChromeUserEventHashes(
   'action_hash', (
     SELECT RepeatedField(int_value)

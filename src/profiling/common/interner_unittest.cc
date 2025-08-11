@@ -18,7 +18,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -130,4 +130,4 @@ TEST(InternerStringTest, IdsConsecutive) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

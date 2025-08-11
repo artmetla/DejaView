@@ -20,11 +20,11 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ProtoLogMessageDecoder::ProtoLogMessageDecoder(TraceProcessorContext* context)
     : context_(context) {}
@@ -147,4 +147,4 @@ void ProtoLogMessageDecoder::TrackMessage(
                            TrackedMessage{level, group_id, message, location});
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

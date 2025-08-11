@@ -21,17 +21,17 @@
 #include <memory>
 #include <set>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "protos/perfetto/config/android/packages_list_config.pbzero.h"
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "protos/dejaview/config/android/packages_list_config.pbzero.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
 
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class TraceWriter;
 
@@ -60,6 +60,6 @@ class PackagesListDataSource : public ProbesDataSource {
   std::unique_ptr<TraceWriter> writer_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_PACKAGES_LIST_PACKAGES_LIST_DATA_SOURCE_H_

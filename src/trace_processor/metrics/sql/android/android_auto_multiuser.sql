@@ -14,11 +14,11 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.auto.multiuser;
-INCLUDE PERFETTO MODULE time.conversion;
+INCLUDE DEJAVIEW MODULE android.auto.multiuser;
+INCLUDE DEJAVIEW MODULE time.conversion;
 
 DROP VIEW IF EXISTS android_auto_multiuser_output;
-CREATE PERFETTO VIEW android_auto_multiuser_output AS
+CREATE DEJAVIEW VIEW android_auto_multiuser_output AS
 SELECT AndroidAutoMultiuserMetric(
     'user_switch', (
         SELECT RepeatedField(

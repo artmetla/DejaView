@@ -13,12 +13,12 @@
 // limitations under the License.
 
 import {test, Page} from '@playwright/test';
-import {PerfettoTestHelper} from './perfetto_ui_test_helper';
+import {DejaViewTestHelper} from './dejaview_ui_test_helper';
 import {assertExists} from '../base/logging';
 
 test.describe.configure({mode: 'serial'});
 
-let pth: PerfettoTestHelper;
+let pth: DejaViewTestHelper;
 let page: Page;
 
 // Clip only the bottom half of the UI. When dealing with area selection, the
@@ -35,7 +35,7 @@ const SCREEN_CLIP = {
 
 test.beforeAll(async ({browser}, _testInfo) => {
   page = await browser.newPage();
-  pth = new PerfettoTestHelper(page);
+  pth = new DejaViewTestHelper(page);
   await pth.openTraceFile('wattson_dsu_pmu.pb', {
     enablePlugins: 'org.kernel.Wattson',
   });
@@ -62,7 +62,7 @@ test('sched aggregations', async () => {
   await page.mouse.down();
   await page.mouse.move(800, 350);
   await page.mouse.up();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
 
   await page.click('button[label="Wattson by thread"]');
   await pth.waitForIdleAndScreenshot('sched-aggr-thread.png', SCREEN_CLIP);

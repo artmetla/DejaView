@@ -16,19 +16,19 @@
 
 #include "src/trace_processor/iterator_impl.h"
 
-#include "perfetto/base/time.h"
-#include "perfetto/trace_processor/trace_processor_storage.h"
-#include "src/trace_processor/perfetto_sql/engine/perfetto_sql_engine.h"
+#include "dejaview/base/time.h"
+#include "dejaview/trace_processor/trace_processor_storage.h"
+#include "src/trace_processor/dejaview_sql/engine/dejaview_sql_engine.h"
 #include "src/trace_processor/sqlite/scoped_db.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/trace_processor_impl.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 IteratorImpl::IteratorImpl(
     TraceProcessorImpl* trace_processor,
-    base::StatusOr<PerfettoSqlEngine::ExecutionResult> result,
+    base::StatusOr<DejaViewSqlEngine::ExecutionResult> result,
     uint32_t sql_stats_row)
     : trace_processor_(trace_processor),
       result_(std::move(result)),
@@ -90,4 +90,4 @@ std::string Iterator::LastStatementSql() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

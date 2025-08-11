@@ -18,11 +18,11 @@
 
 #include <stdlib.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 // invokes |callback| once the target app is in the desired state
@@ -58,13 +58,13 @@ bool IsUserBuild() {
 bool IsAppRunning(const std::string& name) {
   std::string cmd = "pgrep -f ^" + name + "$";
   int retcode = system(cmd.c_str());
-  PERFETTO_CHECK(retcode >= 0);
+  DEJAVIEW_CHECK(retcode >= 0);
   int exit_status = WEXITSTATUS(retcode);
   if (exit_status == 0)
     return true;
   if (exit_status == 1)
     return false;
-  PERFETTO_FATAL("unexpected exit status from system(pgrep): %d", exit_status);
+  DEJAVIEW_FATAL("unexpected exit status from system(pgrep): %d", exit_status);
 }
 
 int PidForProcessName(const std::string& name) {
@@ -105,7 +105,7 @@ void StartAppActivity(const std::string& app_name,
                       uint32_t delay_ms) {
   std::string start_cmd = "am start " + app_name + "/." + activity_name;
   int status = system(start_cmd.c_str());
-  PERFETTO_CHECK(status >= 0 && WEXITSTATUS(status) == 0);
+  DEJAVIEW_CHECK(status >= 0 && WEXITSTATUS(status) == 0);
   WaitForProcess(app_name, checkpoint_name, task_runner, delay_ms);
 }
 
@@ -114,7 +114,7 @@ void StopApp(const std::string& app_name,
              base::TestTaskRunner* task_runner) {
   std::string stop_cmd = "am force-stop " + app_name;
   int status = system(stop_cmd.c_str());
-  PERFETTO_CHECK(status >= 0 && WEXITSTATUS(status) == 0);
+  DEJAVIEW_CHECK(status >= 0 && WEXITSTATUS(status) == 0);
 
   bool desired_run_state = false;
   auto checkpoint = task_runner->CreateCheckpoint(checkpoint_name);
@@ -129,4 +129,4 @@ void StopApp(const std::string& app_name) {
   system(stop_cmd.c_str());
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -15,8 +15,8 @@
  */
 
 #include <stdio.h>
-#include "perfetto/ext/traced/traced.h"
+#include "dejaview/ext/traced/traced.h"
 
 int main(int argc, char** argv) {
-  return perfetto::ServiceMain(argc, argv);
+  return dejaview::ServiceMain(argc, argv);
 }

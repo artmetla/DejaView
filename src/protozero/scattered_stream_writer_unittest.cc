@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/scattered_stream_writer.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
 
 #include <string.h>
 
 #include <memory>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/protozero/test/fake_scattered_buffer.h"
 #include "test/gtest_and_gmock.h"
 

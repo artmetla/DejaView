@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/demangle.h"
+#include "dejaview/ext/trace_processor/demangle.h"
 
 #include <string.h>
 #include <string>
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_LLVM_DEMANGLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_LLVM_DEMANGLE)
 #include "llvm/Demangle/Demangle.h"
-#elif !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <cxxabi.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace demangle {
 
@@ -41,7 +41,7 @@ namespace demangle {
 // operate on C strings. Right now we're introducing yet another layer that
 // undoes that conversion.
 std::unique_ptr<char, base::FreeDeleter> Demangle(const char* mangled_name) {
-#if PERFETTO_BUILDFLAG(PERFETTO_LLVM_DEMANGLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_LLVM_DEMANGLE)
   std::string input(mangled_name);
   std::string demangled = llvm::demangle(input);
   if (demangled == input)
@@ -54,7 +54,7 @@ std::unique_ptr<char, base::FreeDeleter> Demangle(const char* mangled_name) {
   memcpy(output.get(), demangled.c_str(), demangled.size() + 1);
   return output;
 
-#elif !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   int ignored = 0;
   return std::unique_ptr<char, base::FreeDeleter>(
       abi::__cxa_demangle(mangled_name, nullptr, nullptr, &ignored));
@@ -66,4 +66,4 @@ std::unique_ptr<char, base::FreeDeleter> Demangle(const char* mangled_name) {
 
 }  // namespace demangle
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

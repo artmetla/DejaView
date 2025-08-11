@@ -1,6 +1,6 @@
 # Making a new SDK release
 
-This guide shows how to make a new Perfetto SDK release.
+This guide shows how to make a new DejaView SDK release.
 
 Before snapshotting a release, check that no [release-blockers](http://b/savedsearches/5776355) are
 open.
@@ -9,7 +9,7 @@ Check out the code:
 
 ```bash
 git clone https://android.googlesource.com/platform/external/perfetto
-cd perfetto
+cd dejaview
 ```
 
 Next, decide the version number for the new release (vX.Y).
@@ -30,8 +30,8 @@ Create an entry in CHANGELOG with the new major version: this usually involves
 renaming the "Unreleased" entry to the version number you chose earlier
 ([example](https://r.android.com/2417175)).
 
-Test that the perfetto build tools can parse the CHANGELOG: after building,
-running `perfetto --version` should show your new version number.
+Test that the dejaview build tools can parse the CHANGELOG: after building,
+running `dejaview --version` should show your new version number.
 
 Upload the CHANGELOG change and submit it on the main branch.
 
@@ -91,8 +91,8 @@ v16.0 - 2021-06-01:
 1. Generate and commit the amalgamated source files.
 
 ```bash
-tools/gen_amalgamated --output sdk/perfetto
-git add sdk/perfetto.{cc,h}
+tools/gen_amalgamated --output sdk/dejaview
+git add sdk/dejaview.{cc,h}
 git commit -m "Amalgamated source for vX.Y"
 ```
 
@@ -131,7 +131,7 @@ git status
 # Should print: Your branch is up to date with 'origin/releases/v16.x'.
 # Do NOT proceed if your branch has diverged from origin/releases/vX.X
 
-git tag -a -m "Perfetto vX.Y" vX.Y
+git tag -a -m "DejaView vX.Y" vX.Y
 git push origin vX.Y
 ```
 
@@ -140,8 +140,8 @@ git push origin vX.Y
    - [docs/instrumentation/tracing-sdk.md](/docs/instrumentation/tracing-sdk.md)
    - [examples/sdk/README.md](/examples/sdk/README.md)
 
-6. Send an email with the CHANGELOG to perfetto-dev@ (internal) and to the
-   [public perfetto-dev](https://groups.google.com/forum/#!forum/perfetto-dev).
+6. Send an email with the CHANGELOG to dejaview-dev@ (internal) and to the
+   [public dejaview-dev](https://groups.google.com/forum/#!forum/perfetto-dev).
 
 ## Creating a GitHub release with prebuilts
 
@@ -150,7 +150,7 @@ git push origin vX.Y
    to have completed successfully and be back into the WAITING state.
 
 8. Run `tools/package-prebuilts-for-github-release vX.Y`. It will pull the
-   prebuilts under `/tmp/perfetto-prebuilts-vX.Y`.
+   prebuilts under `/tmp/dejaview-prebuilts-vX.Y`.
   - There must be 10 zips in total: linux-{arm,arm64,amd64},
     android-{arm,arm64,x86,x64}, mac-{amd64,arm64}, win-amd64.
   - If one or more are missing it means that one of the LUCI bots failed,
@@ -160,7 +160,7 @@ git push origin vX.Y
 
 9. Open https://github.com/google/perfetto/releases/new and
   - Select "Choose Tag" -> vX.Y
-  - "Release title" -> "Perfetto vX.Y"
+  - "Release title" -> "DejaView vX.Y"
   - "Describe release" -> Copy the CHANGELOG, wrapping it in triple backticks.
   - "Attach binaries" -> Attach the ten .zip files from the previous step.
 

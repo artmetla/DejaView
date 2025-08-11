@@ -22,16 +22,16 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 namespace {
 
@@ -54,13 +54,13 @@ void RangeOverlay::Flatten(uint32_t* start,
 RangeOverlay::ChainImpl::ChainImpl(std::unique_ptr<DataLayerChain> inner,
                                    const Range* range)
     : inner_(std::move(inner)), range_(range) {
-  PERFETTO_CHECK(range->end <= inner_->size());
+  DEJAVIEW_CHECK(range->end <= inner_->size());
 }
 
 SingleSearchResult RangeOverlay::ChainImpl::SingleSearch(FilterOp op,
                                                          SqlValue sql_val,
                                                          uint32_t i) const {
-  PERFETTO_DCHECK(i < range_->size());
+  DEJAVIEW_DCHECK(i < range_->size());
   return inner_->SingleSearch(op, sql_val, i + range_->start);
 }
 
@@ -78,8 +78,8 @@ RangeOrBitVector RangeOverlay::ChainImpl::SearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Range search_range) const {
-  PERFETTO_DCHECK(search_range.size() <= range_->size());
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "RangeOverlay::Search");
+  DEJAVIEW_DCHECK(search_range.size() <= range_->size());
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "RangeOverlay::Search");
 
   Range inner_search_range(search_range.start + range_->start,
                            search_range.end + range_->start);
@@ -98,8 +98,8 @@ RangeOrBitVector RangeOverlay::ChainImpl::SearchValidated(
     return RangeOrBitVector{std::move(inner_res_bv)};
   }
 
-  PERFETTO_DCHECK(inner_res_bv.size() == inner_search_range.end);
-  PERFETTO_DCHECK(inner_res_bv.CountSetBits(inner_search_range.start) == 0);
+  DEJAVIEW_DCHECK(inner_res_bv.size() == inner_search_range.end);
+  DEJAVIEW_DCHECK(inner_res_bv.CountSetBits(inner_search_range.start) == 0);
 
   BitVector::Builder builder(search_range.end, search_range.start);
   uint32_t cur_val = search_range.start;
@@ -132,7 +132,7 @@ RangeOrBitVector RangeOverlay::ChainImpl::SearchValidated(
 void RangeOverlay::ChainImpl::IndexSearchValidated(FilterOp op,
                                                    SqlValue sql_val,
                                                    Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "RangeOverlay::IndexSearch");
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "RangeOverlay::IndexSearch");
   AddOffsetToTokenIndex(indices.tokens, range_->start);
   inner_->IndexSearchValidated(op, sql_val, indices);
 }
@@ -147,21 +147,21 @@ void RangeOverlay::ChainImpl::StableSort(Token* start,
 }
 
 void RangeOverlay::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "RangeOverlay::Distinct");
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "RangeOverlay::Distinct");
   AddOffsetToTokenIndex(indices.tokens, range_->start);
   inner_->Distinct(indices);
 }
 
 std::optional<Token> RangeOverlay::ChainImpl::MaxElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "RangeOverlay::MaxElement");
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "RangeOverlay::MaxElement");
   AddOffsetToTokenIndex(indices.tokens, range_->start);
   return inner_->MaxElement(indices);
 }
 
 std::optional<Token> RangeOverlay::ChainImpl::MinElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "RangeOverlay::MinElement");
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "RangeOverlay::MinElement");
   AddOffsetToTokenIndex(indices.tokens, range_->start);
   return inner_->MinElement(indices);
 }
@@ -171,4 +171,4 @@ SqlValue RangeOverlay::ChainImpl::Get_AvoidUsingBecauseSlow(
   return inner_->Get_AvoidUsingBecauseSlow(index + range_->start);
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

@@ -26,7 +26,7 @@
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Contains indices which can be used to lookup data in one or more
 // ColumnStorages.
@@ -144,6 +144,6 @@ class ColumnStorageOverlay {
   RowMap row_map_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_STORAGE_OVERLAY_H_

@@ -19,18 +19,18 @@
 #include <stddef.h>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 
-#include "perfetto/tracing/core/data_source_config.h"
-#include "protos/perfetto/config/android/android_game_intervention_list_config.pbzero.h"
-#include "protos/perfetto/trace/android/android_game_intervention_list.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "protos/dejaview/config/android/android_game_intervention_list_config.pbzero.h"
+#include "protos/dejaview/trace/android/android_game_intervention_list.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 const char kAndroidGameInterventionListFileName[] =
     "/data/system/game_mode_intervention.list";
@@ -49,7 +49,7 @@ AndroidGameInterventionListDataSource::AndroidGameInterventionListDataSource(
     std::unique_ptr<TraceWriter> trace_writer)
     : ProbesDataSource(session_id, &descriptor),
       trace_writer_(std::move(trace_writer)) {
-  perfetto::protos::pbzero::AndroidGameInterventionListConfig::Decoder cfg(
+  dejaview::protos::pbzero::AndroidGameInterventionListConfig::Decoder cfg(
       ds_config.android_game_intervention_list_config_raw());
   for (auto name = cfg.package_name_filter(); name; ++name) {
     package_name_filter_.emplace_back((*name).ToStdString());
@@ -66,7 +66,7 @@ void AndroidGameInterventionListDataSource::Start() {
 
   base::ScopedFstream fs(fopen(kAndroidGameInterventionListFileName, "r"));
   if (!fs) {
-    PERFETTO_ELOG("Failed to open %s", kAndroidGameInterventionListFileName);
+    DEJAVIEW_ELOG("Failed to open %s", kAndroidGameInterventionListFileName);
     android_game_intervention_list_packet->set_read_error(true);
   } else {
     bool is_parsed_fully = ParseAndroidGameInterventionListStream(
@@ -116,9 +116,9 @@ bool AndroidGameInterventionListDataSource::
         const std::vector<std::string>& package_name_filter,
         protos::pbzero::AndroidGameInterventionList* packet) {
   size_t idx = 0;
-  perfetto::protos::pbzero::AndroidGameInterventionList_GamePackageInfo*
+  dejaview::protos::pbzero::AndroidGameInterventionList_GamePackageInfo*
       package = nullptr;
-  perfetto::protos::pbzero::AndroidGameInterventionList_GameModeInfo*
+  dejaview::protos::pbzero::AndroidGameInterventionList_GameModeInfo*
       game_mode_info = nullptr;
   for (base::StringSplitter string_splitter(line, '\t'); string_splitter.Next();
        ++idx) {
@@ -143,7 +143,7 @@ bool AndroidGameInterventionListDataSource::
         std::optional<uint64_t> uid =
             base::CStringToUInt64(string_splitter.cur_token());
         if (uid == std::nullopt) {
-          PERFETTO_DLOG("Failed to parse game_mode_intervention.list uid.");
+          DEJAVIEW_DLOG("Failed to parse game_mode_intervention.list uid.");
           return false;
         }
         package->set_uid(uid.value());
@@ -153,7 +153,7 @@ bool AndroidGameInterventionListDataSource::
         std::optional<uint32_t> cur_mode =
             base::CStringToUInt32(string_splitter.cur_token());
         if (cur_mode == std::nullopt) {
-          PERFETTO_DLOG(
+          DEJAVIEW_DLOG(
               "Failed to parse game_mode_intervention.list cur_mode.");
           return false;
         }
@@ -166,7 +166,7 @@ bool AndroidGameInterventionListDataSource::
         std::optional<uint32_t> game_mode =
             base::CStringToUInt32(string_splitter.cur_token());
         if (game_mode == std::nullopt) {
-          PERFETTO_DLOG(
+          DEJAVIEW_DLOG(
               "Failed to parse game_mode_intervention.list game_mode.");
           return false;
         }
@@ -189,7 +189,7 @@ bool AndroidGameInterventionListDataSource::
             std::optional<uint32_t> use_angle =
                 base::CStringToUInt32(value_splitter.cur_token());
             if (use_angle == std::nullopt) {
-              PERFETTO_DLOG(
+              DEJAVIEW_DLOG(
                   "Failed to parse game_mode_intervention.list use_angle.");
               return false;
             }
@@ -199,7 +199,7 @@ bool AndroidGameInterventionListDataSource::
             std::optional<double> resolution_downscale =
                 base::CStringToDouble(value_splitter.cur_token());
             if (resolution_downscale == std::nullopt) {
-              PERFETTO_DLOG(
+              DEJAVIEW_DLOG(
                   "Failed to parse game_mode_intervention.list "
                   "resolution_downscale.");
               return false;
@@ -211,7 +211,7 @@ bool AndroidGameInterventionListDataSource::
             std::optional<double> fps =
                 base::CStringToDouble(value_splitter.cur_token());
             if (fps == std::nullopt) {
-              PERFETTO_DLOG("Failed to parse game_mode_intervention.list fps.");
+              DEJAVIEW_DLOG("Failed to parse game_mode_intervention.list fps.");
               return false;
             }
             game_mode_info->set_fps(static_cast<float>(fps.value()));
@@ -224,4 +224,4 @@ bool AndroidGameInterventionListDataSource::
   return true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

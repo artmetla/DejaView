@@ -23,11 +23,11 @@
 #include <variant>
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map_algorithms.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -37,14 +37,14 @@ using OutputIndex = RowMap::OutputIndex;
 using Variant = std::variant<Range, BitVector, std::vector<OutputIndex>>;
 
 RowMap Select(Range range, Range selector) {
-  PERFETTO_DCHECK(selector.start <= selector.end);
-  PERFETTO_DCHECK(selector.end <= range.size());
+  DEJAVIEW_DCHECK(selector.start <= selector.end);
+  DEJAVIEW_DCHECK(selector.end <= range.size());
 
   return RowMap(range.start + selector.start, range.start + selector.end);
 }
 
 RowMap Select(Range range, const BitVector& selector) {
-  PERFETTO_DCHECK(selector.size() <= range.size());
+  DEJAVIEW_DCHECK(selector.size() <= range.size());
 
   // If |start| == 0 and |selector.size()| <= |end - start| (which is a
   // precondition for this function), the BitVector we generate is going to be
@@ -69,14 +69,14 @@ RowMap Select(Range range, const BitVector& selector) {
 RowMap Select(Range range, const std::vector<OutputIndex>& selector) {
   std::vector<uint32_t> iv(selector.size());
   for (uint32_t i = 0; i < selector.size(); ++i) {
-    PERFETTO_DCHECK(selector[i] < range.size());
+    DEJAVIEW_DCHECK(selector[i] < range.size());
     iv[i] = selector[i] + range.start;
   }
   return RowMap(std::move(iv));
 }
 
 RowMap Select(const BitVector& bv, Range selector) {
-  PERFETTO_DCHECK(selector.end <= bv.CountSetBits());
+  DEJAVIEW_DCHECK(selector.end <= bv.CountSetBits());
   if (selector.empty()) {
     return {};
   }
@@ -125,7 +125,7 @@ RowMap Select(const BitVector& bv, const std::vector<uint32_t>& selector) {
 }
 
 RowMap Select(const std::vector<uint32_t>& iv, Range selector) {
-  PERFETTO_DCHECK(selector.end <= iv.size());
+  DEJAVIEW_DCHECK(selector.end <= iv.size());
 
   std::vector<uint32_t> ret(selector.size());
   for (uint32_t i = selector.start; i < selector.end; ++i) {
@@ -135,7 +135,7 @@ RowMap Select(const std::vector<uint32_t>& iv, Range selector) {
 }
 
 RowMap Select(const std::vector<uint32_t>& iv, const BitVector& selector) {
-  PERFETTO_DCHECK(selector.size() <= iv.size());
+  DEJAVIEW_DCHECK(selector.size() <= iv.size());
 
   std::vector<uint32_t> copy = iv;
   copy.resize(selector.size());
@@ -293,4 +293,4 @@ RowMap::Iterator::Iterator(const RowMap* rm) : rm_(rm) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -1,5 +1,5 @@
 [Unit]
-Description=Perfetto tracing service daemon
+Description=DejaView tracing service daemon
 Documentation=https://perfetto.dev/docs/
 
 [Service]

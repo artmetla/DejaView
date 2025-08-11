@@ -27,12 +27,12 @@
 #include <sys/types.h>
 #include <optional>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/common/perf_events.gen.h"
+#include "protos/dejaview/common/perf_events.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace protos {
 namespace gen {
 class PerfEventConfig;
@@ -227,6 +227,6 @@ class EventConfig {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_EVENT_CONFIG_H_

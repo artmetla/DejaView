@@ -21,13 +21,13 @@
 
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace metadata {
 
 // Compile time list of metadata items.
 // clang-format off
-#define PERFETTO_TP_METADATA(F)                                               \
+#define DEJAVIEW_TP_METADATA(F)                                               \
   F(all_data_source_flushed_ns,        KeyType::kMulti,   Variadic::kInt),    \
   F(all_data_source_started_ns,        KeyType::kSingle,  Variadic::kInt),    \
   F(android_build_fingerprint,         KeyType::kSingle,  Variadic::kString), \
@@ -68,7 +68,7 @@ namespace metadata {
 
 // Compile time list of metadata items.
 // clang-format off
-#define PERFETTO_TP_METADATA_KEY_TYPES(F) \
+#define DEJAVIEW_TP_METADATA_KEY_TYPES(F) \
   F(kSingle, "single"),                   \
   F(kMulti,  "multi")
 // clang-format
@@ -78,42 +78,42 @@ namespace metadata {
 #pragma GCC system_header
 #endif
 
-#define PERFETTO_TP_META_TYPE_ENUM(varname, ...) varname
+#define DEJAVIEW_TP_META_TYPE_ENUM(varname, ...) varname
 enum class KeyType : size_t {
-  PERFETTO_TP_METADATA_KEY_TYPES(PERFETTO_TP_META_TYPE_ENUM),
+  DEJAVIEW_TP_METADATA_KEY_TYPES(DEJAVIEW_TP_META_TYPE_ENUM),
   kNumKeyTypes,
 };
 
-#define PERFETTO_TP_META_TYPE_NAME(_, name, ...) name
+#define DEJAVIEW_TP_META_TYPE_NAME(_, name, ...) name
 constexpr char const* kKeyTypeNames[] = {
-  PERFETTO_TP_METADATA_KEY_TYPES(PERFETTO_TP_META_TYPE_NAME)
+  DEJAVIEW_TP_METADATA_KEY_TYPES(DEJAVIEW_TP_META_TYPE_NAME)
 };
 
 // Declares an enum of literals (one for each item). The enum values of each
 // literal corresponds to the string index in the arrays below.
-#define PERFETTO_TP_META_ENUM(name, ...) name
+#define DEJAVIEW_TP_META_ENUM(name, ...) name
 enum KeyId : size_t {
-  PERFETTO_TP_METADATA(PERFETTO_TP_META_ENUM),
+  DEJAVIEW_TP_METADATA(DEJAVIEW_TP_META_ENUM),
   kNumKeys
 };
 
 // The code below declares an array for each property:
 // name, key type, value type.
 
-#define PERFETTO_TP_META_NAME(name, ...) #name
+#define DEJAVIEW_TP_META_NAME(name, ...) #name
 constexpr char const* kNames[] = {
-  PERFETTO_TP_METADATA(PERFETTO_TP_META_NAME)};
+  DEJAVIEW_TP_METADATA(DEJAVIEW_TP_META_NAME)};
 
-#define PERFETTO_TP_META_KEYTYPE(_, type, ...) type
+#define DEJAVIEW_TP_META_KEYTYPE(_, type, ...) type
 constexpr KeyType kKeyTypes[] = {
-    PERFETTO_TP_METADATA(PERFETTO_TP_META_KEYTYPE)};
+    DEJAVIEW_TP_METADATA(DEJAVIEW_TP_META_KEYTYPE)};
 
-#define PERFETTO_TP_META_VALUETYPE(_, __, type, ...) type
+#define DEJAVIEW_TP_META_VALUETYPE(_, __, type, ...) type
 constexpr Variadic::Type kValueTypes[] = {
-    PERFETTO_TP_METADATA(PERFETTO_TP_META_VALUETYPE)};
+    DEJAVIEW_TP_METADATA(DEJAVIEW_TP_META_VALUETYPE)};
 
 }  // namespace metadata
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_STORAGE_METADATA_H_

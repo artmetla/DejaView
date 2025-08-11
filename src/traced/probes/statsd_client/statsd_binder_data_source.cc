@@ -22,35 +22,35 @@
 #include <mutex>
 #include <optional>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/no_destructor.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/no_destructor.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/android_internal/lazy_library_loader.h"
 #include "src/android_internal/statsd.h"
 #include "src/traced/probes/statsd_client/common.h"
 
-#include "protos/perfetto/config/statsd/statsd_tracing_config.pbzero.h"
-#include "protos/perfetto/trace/statsd/statsd_atom.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/statsd/statsd_tracing_config.pbzero.h"
+#include "protos/dejaview/trace/statsd/statsd_atom.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "protos/third_party/statsd/shell_config.pbzero.h"
 #include "protos/third_party/statsd/shell_data.pbzero.h"
 
-using ::perfetto::protos::pbzero::StatsdPullAtomConfig;
-using ::perfetto::protos::pbzero::StatsdShellSubscription;
-using ::perfetto::protos::pbzero::StatsdTracingConfig;
+using ::dejaview::protos::pbzero::StatsdPullAtomConfig;
+using ::dejaview::protos::pbzero::StatsdShellSubscription;
+using ::dejaview::protos::pbzero::StatsdTracingConfig;
 
-using ShellDataDecoder = ::perfetto::proto::pbzero::ShellData_Decoder;
+using ShellDataDecoder = ::dejaview::proto::pbzero::ShellData_Decoder;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 int32_t AddAtomSubscription(const uint8_t* subscription_config,
                             size_t num_bytes,
                             android_internal::AtomCallback callback,
                             void* cookie) {
-  PERFETTO_LAZY_LOAD(android_internal::AddAtomSubscription, fn);
+  DEJAVIEW_LAZY_LOAD(android_internal::AddAtomSubscription, fn);
   if (fn) {
     return fn(subscription_config, num_bytes, callback, cookie);
   }
@@ -58,7 +58,7 @@ int32_t AddAtomSubscription(const uint8_t* subscription_config,
 }
 
 bool RemoveAtomSubscription(int32_t subscription_id) {
-  PERFETTO_LAZY_LOAD(android_internal::RemoveAtomSubscription, fn);
+  DEJAVIEW_LAZY_LOAD(android_internal::RemoveAtomSubscription, fn);
   if (fn) {
     fn(subscription_id);
     return true;
@@ -67,7 +67,7 @@ bool RemoveAtomSubscription(int32_t subscription_id) {
 }
 
 bool FlushAtomSubscription(int32_t subscription_id) {
-  PERFETTO_LAZY_LOAD(android_internal::FlushAtomSubscription, fn);
+  DEJAVIEW_LAZY_LOAD(android_internal::FlushAtomSubscription, fn);
   if (fn) {
     fn(subscription_id);
     return true;
@@ -229,7 +229,7 @@ void StatsdBinderDataSource::Start() {
   // Don't bother actually connecting to statsd if no pull/push atoms
   // were configured:
   if (shell_subscription_.empty()) {
-    PERFETTO_LOG("Empty statsd config. Not connecting to statsd.");
+    DEJAVIEW_LOG("Empty statsd config. Not connecting to statsd.");
     return;
   }
 
@@ -299,4 +299,4 @@ void StatsdBinderDataSource::Flush(FlushRequestID,
 
 void StatsdBinderDataSource::ClearIncrementalState() {}
 
-}  // namespace perfetto
+}  // namespace dejaview

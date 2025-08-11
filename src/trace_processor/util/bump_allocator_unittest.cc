@@ -20,10 +20,10 @@
 #include <random>
 #include <vector>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class BumpAllocatorUnittest : public ::testing::Test {
@@ -112,4 +112,4 @@ TEST_F(BumpAllocatorUnittest, StressTest) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

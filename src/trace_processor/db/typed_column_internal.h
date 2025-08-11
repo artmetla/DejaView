@@ -21,7 +21,7 @@
 #include "src/trace_processor/db/base_id.h"
 #include "src/trace_processor/db/column_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace tc_internal {
 
@@ -187,6 +187,6 @@ struct TypeHandler<std::optional<StringPool::Id>> {
 
 }  // namespace tc_internal
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_DB_TYPED_COLUMN_INTERNAL_H_

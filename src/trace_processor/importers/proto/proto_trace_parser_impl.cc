@@ -22,13 +22,13 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/metatrace_events.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/metatrace_events.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
@@ -47,12 +47,12 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/chrome/chrome_trace_event.pbzero.h"
-#include "protos/perfetto/trace/perfetto/perfetto_metatrace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_trace_event.pbzero.h"
+#include "protos/dejaview/trace/dejaview/dejaview_metatrace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ProtoTraceParserImpl::ProtoTraceParserImpl(TraceProcessorContext* context)
     : context_(context),
@@ -90,8 +90,8 @@ void ProtoTraceParserImpl::ParseTracePacket(int64_t ts, TracePacketData data) {
     ParseChromeEvents(ts, packet.chrome_events());
   }
 
-  if (packet.has_perfetto_metatrace()) {
-    ParseMetatraceEvent(ts, packet.perfetto_metatrace());
+  if (packet.has_dejaview_metatrace()) {
+    ParseMetatraceEvent(ts, packet.dejaview_metatrace());
   }
 
   if (packet.has_trace_config()) {
@@ -113,7 +113,7 @@ void ProtoTraceParserImpl::ParseTrackEvent(int64_t ts, TrackEventData data) {
 void ProtoTraceParserImpl::ParseEtwEvent(uint32_t cpu,
                                          int64_t ts,
                                          TracePacketData data) {
-  PERFETTO_DCHECK(context_->etw_module);
+  DEJAVIEW_DCHECK(context_->etw_module);
   context_->etw_module->ParseEtwEventData(cpu, ts, data);
 
   // TODO(lalitm): maybe move this to the flush method in the trace processor
@@ -125,7 +125,7 @@ void ProtoTraceParserImpl::ParseEtwEvent(uint32_t cpu,
 void ProtoTraceParserImpl::ParseFtraceEvent(uint32_t cpu,
                                             int64_t ts,
                                             TracePacketData data) {
-  PERFETTO_DCHECK(context_->ftrace_module);
+  DEJAVIEW_DCHECK(context_->ftrace_module);
   context_->ftrace_module->ParseFtraceEventData(cpu, ts, data);
 
   // TODO(lalitm): maybe move this to the flush method in the trace processor
@@ -137,7 +137,7 @@ void ProtoTraceParserImpl::ParseFtraceEvent(uint32_t cpu,
 void ProtoTraceParserImpl::ParseInlineSchedSwitch(uint32_t cpu,
                                                   int64_t ts,
                                                   InlineSchedSwitch data) {
-  PERFETTO_DCHECK(context_->ftrace_module);
+  DEJAVIEW_DCHECK(context_->ftrace_module);
   context_->ftrace_module->ParseInlineSchedSwitch(cpu, ts, data);
 
   // TODO(lalitm): maybe move this to the flush method in the trace processor
@@ -149,7 +149,7 @@ void ProtoTraceParserImpl::ParseInlineSchedSwitch(uint32_t cpu,
 void ProtoTraceParserImpl::ParseInlineSchedWaking(uint32_t cpu,
                                                   int64_t ts,
                                                   InlineSchedWaking data) {
-  PERFETTO_DCHECK(context_->ftrace_module);
+  DEJAVIEW_DCHECK(context_->ftrace_module);
   context_->ftrace_module->ParseInlineSchedWaking(cpu, ts, data);
 
   // TODO(lalitm): maybe move this to the flush method in the trace processor
@@ -258,14 +258,14 @@ void ProtoTraceParserImpl::ParseChromeEvents(int64_t ts, ConstBytes blob) {
 }
 
 void ProtoTraceParserImpl::ParseMetatraceEvent(int64_t ts, ConstBytes blob) {
-  protos::pbzero::PerfettoMetatrace::Decoder event(blob.data, blob.size);
+  protos::pbzero::DejaViewMetatrace::Decoder event(blob.data, blob.size);
   auto utid = context_->process_tracker->GetOrCreateThread(event.thread_id());
 
   StringId cat_id = metatrace_id_;
   StringId name_id = kNullStringId;
 
   for (auto it = event.interned_strings(); it; ++it) {
-    protos::pbzero::PerfettoMetatrace::InternedString::Decoder interned_string(
+    protos::pbzero::DejaViewMetatrace::InternedString::Decoder interned_string(
         it->data(), it->size());
     metatrace_interned_strings_.Insert(
         interned_string.iid(),
@@ -281,7 +281,7 @@ void ProtoTraceParserImpl::ParseMetatraceEvent(int64_t ts, ConstBytes blob) {
     // First, get a list of all the args so we can group them by key.
     std::vector<Arg> interned;
     for (auto it = event.args(); it; ++it) {
-      protos::pbzero::PerfettoMetatrace::Arg::Decoder arg_proto(*it);
+      protos::pbzero::DejaViewMetatrace::Arg::Decoder arg_proto(*it);
       StringId key;
       if (arg_proto.has_key_iid()) {
         key = GetMetatraceInternedString(arg_proto.key_iid());
@@ -319,7 +319,7 @@ void ProtoTraceParserImpl::ParseMetatraceEvent(int64_t ts, ConstBytes blob) {
         constexpr size_t kMaxIndexSize = 20;
         NullTermStringView key_str = context_->storage->GetString(key);
         if (key_str.size() >= sizeof(buffer) - kMaxIndexSize) {
-          PERFETTO_DLOG("Ignoring arg with unreasonbly large size");
+          DEJAVIEW_DLOG("Ignoring arg with unreasonbly large size");
           continue;
         }
 
@@ -387,4 +387,4 @@ StringId ProtoTraceParserImpl::GetMetatraceInternedString(uint64_t iid) {
   return *maybe_id;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -13,10 +13,10 @@
 // limitations under the License.
 
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import * as cameraConstants from './googleCameraConstants';
 
-class GoogleCamera implements PerfettoPlugin {
+class GoogleCamera implements DejaViewPlugin {
   private ctx!: Trace;
 
   async onTraceLoad(ctx: Trace): Promise<void> {

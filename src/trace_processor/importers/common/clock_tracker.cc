@@ -23,15 +23,15 @@
 #include <cinttypes>
 #include <queue>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/hash.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/hash.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using Clock = protos::pbzero::ClockSnapshot::Clock;
@@ -73,7 +73,7 @@ base::StatusOr<uint32_t> ClockTracker::AddSnapshot(
       }
       domain.unit_multiplier_ns = clock_ts.clock.unit_multiplier_ns;
       domain.is_incremental = clock_ts.clock.is_incremental;
-    } else if (PERFETTO_UNLIKELY(domain.unit_multiplier_ns !=
+    } else if (DEJAVIEW_UNLIKELY(domain.unit_multiplier_ns !=
                                      clock_ts.clock.unit_multiplier_ns ||
                                  domain.is_incremental !=
                                      clock_ts.clock.is_incremental)) {
@@ -92,7 +92,7 @@ base::StatusOr<uint32_t> ClockTracker::AddSnapshot(
 
     ClockSnapshots& vect = domain.snapshots[snapshot_hash];
     if (!vect.snapshot_ids.empty() &&
-        PERFETTO_UNLIKELY(vect.snapshot_ids.back() == snapshot_id)) {
+        DEJAVIEW_UNLIKELY(vect.snapshot_ids.back() == snapshot_id)) {
       context_->storage->IncrementStats(stats::invalid_clock_snapshots);
       return base::ErrStatus(
           "Clock sync error: duplicate clock domain with id=%" PRId64
@@ -103,10 +103,10 @@ base::StatusOr<uint32_t> ClockTracker::AddSnapshot(
     // Clock ids in the range [64, 128) are sequence-scoped and must be
     // translated to global ids via SeqScopedClockIdToGlobal() before calling
     // this function.
-    PERFETTO_DCHECK(!IsSequenceClock(clock_id));
+    DEJAVIEW_DCHECK(!IsSequenceClock(clock_id));
 
     // Snapshot IDs must be always monotonic.
-    PERFETTO_DCHECK(vect.snapshot_ids.empty() ||
+    DEJAVIEW_DCHECK(vect.snapshot_ids.empty() ||
                     vect.snapshot_ids.back() < snapshot_id);
 
     if (!vect.timestamps_ns.empty() &&
@@ -123,7 +123,7 @@ base::StatusOr<uint32_t> ClockTracker::AddSnapshot(
                                vect.timestamps_ns.back());
       }
 
-      PERFETTO_DLOG("Detected non-monotonic clock with ID %" PRId64, clock_id);
+      DEJAVIEW_DLOG("Detected non-monotonic clock with ID %" PRId64, clock_id);
 
       // For the other clocks the best thing we can do is mark it as
       // non-monotonic and refuse to use it as a source clock in the resolution
@@ -174,7 +174,7 @@ base::StatusOr<uint32_t> ClockTracker::AddSnapshot(
 // timestamp from clock C1 to C2 you need to first convert C1 -> C3 using the
 // snapshot hash A, then convert C3 -> C2 via snapshot hash B".
 ClockTracker::ClockPath ClockTracker::FindPath(ClockId src, ClockId target) {
-  PERFETTO_CHECK(src != target);
+  DEJAVIEW_CHECK(src != target);
 
   // If we've never heard of the clock before there is no hope:
   if (clocks_.find(target) == clocks_.end()) {
@@ -232,8 +232,8 @@ std::optional<int64_t> ClockTracker::ToTraceTimeFromSnapshot(
 base::StatusOr<int64_t> ClockTracker::ConvertSlowpath(ClockId src_clock_id,
                                                       int64_t src_timestamp,
                                                       ClockId target_clock_id) {
-  PERFETTO_DCHECK(!IsSequenceClock(src_clock_id));
-  PERFETTO_DCHECK(!IsSequenceClock(target_clock_id));
+  DEJAVIEW_DCHECK(!IsSequenceClock(src_clock_id));
+  DEJAVIEW_DCHECK(!IsSequenceClock(target_clock_id));
 
   context_->storage->IncrementStats(stats::clock_sync_cache_miss);
 
@@ -275,8 +275,8 @@ base::StatusOr<int64_t> ClockTracker::ConvertSlowpath(ClockId src_clock_id,
 
     // Now lookup the snapshot id that matches the closest timestamp.
     size_t index = static_cast<size_t>(std::distance(ts_vec.begin(), it));
-    PERFETTO_DCHECK(index < ts_vec.size());
-    PERFETTO_DCHECK(cur_snap.snapshot_ids.size() == ts_vec.size());
+    DEJAVIEW_DCHECK(index < ts_vec.size());
+    DEJAVIEW_DCHECK(cur_snap.snapshot_ids.size() == ts_vec.size());
     uint32_t snapshot_id = cur_snap.snapshot_ids[index];
 
     // And use that to retrieve the corresponding time in the next clock domain.
@@ -291,12 +291,12 @@ base::StatusOr<int64_t> ClockTracker::ConvertSlowpath(ClockId src_clock_id,
     auto next_it = std::lower_bound(next_snap.snapshot_ids.begin(),
                                     next_snap.snapshot_ids.end(), snapshot_id);
     if (next_it == next_snap.snapshot_ids.end() || *next_it != snapshot_id) {
-      PERFETTO_DFATAL("Snapshot does not exist in clock domain.");
+      DEJAVIEW_DFATAL("Snapshot does not exist in clock domain.");
       continue;
     }
     size_t next_index = static_cast<size_t>(
         std::distance(next_snap.snapshot_ids.begin(), next_it));
-    PERFETTO_DCHECK(next_index < next_snap.snapshot_ids.size());
+    DEJAVIEW_DCHECK(next_index < next_snap.snapshot_ids.size());
     int64_t next_timestamp_ns = next_snap.timestamps_ns[next_index];
 
     // The translated timestamp is the relative delta of the source timestamp
@@ -309,7 +309,7 @@ base::StatusOr<int64_t> ClockTracker::ConvertSlowpath(ClockId src_clock_id,
     // This will allow future Convert() calls to skip the pathfinder logic
     // as long as the query stays within the bound.
     if (cacheable) {
-      PERFETTO_DCHECK(i == 0);
+      DEJAVIEW_DCHECK(i == 0);
       const int64_t kInt64Min = std::numeric_limits<int64_t>::min();
       const int64_t kInt64Max = std::numeric_limits<int64_t>::max();
       cache_entry.min_ts_ns = it == ts_vec.begin() ? kInt64Min : *it;
@@ -319,7 +319,7 @@ base::StatusOr<int64_t> ClockTracker::ConvertSlowpath(ClockId src_clock_id,
     }
 
     // The last clock in the path must be the target clock.
-    PERFETTO_DCHECK(i < path.len - 1 || std::get<1>(edge) == target_clock_id);
+    DEJAVIEW_DCHECK(i < path.len - 1 || std::get<1>(edge) == target_clock_id);
   }
 
   if (cacheable) {
@@ -333,4 +333,4 @@ base::StatusOr<int64_t> ClockTracker::ConvertSlowpath(ClockId src_clock_id,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

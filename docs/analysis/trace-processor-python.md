@@ -7,14 +7,14 @@ traces.
 
 ## Setup
 ```
-pip install perfetto
+pip install dejaview
 ```
 NOTE: The API is only compatible with Python3.
 
 ```python
-from perfetto.trace_processor import TraceProcessor
+from dejaview.trace_processor import TraceProcessor
 # Initialise TraceProcessor with a trace file
-tp = TraceProcessor(trace='trace.perfetto-trace')
+tp = TraceProcessor(trace='trace.dejaview-trace')
 ```
 
 NOTE: The TraceProcessor can be initialized in a combination of ways including:
@@ -22,9 +22,9 @@ NOTE: The TraceProcessor can be initialized in a combination of ways including:
       loaded trace (e.g.`TraceProcessor(addr='localhost:9001')`)
       <br> - An address at which there exists a running instance of `trace_processor` and
       needs a trace to be loaded in
-      (e.g. `TraceProcessor(trace='trace.perfetto-trace', addr='localhost:9001')`)
+      (e.g. `TraceProcessor(trace='trace.dejaview-trace', addr='localhost:9001')`)
       <br> - A path to a `trace_processor` binary and the trace to be loaded in
-      (e.g. `TraceProcessor(trace='trace.perfetto-trace', config=TraceProcessorConfig(bin_path='./trace_processor'))`)
+      (e.g. `TraceProcessor(trace='trace.dejaview-trace', config=TraceProcessorConfig(bin_path='./trace_processor'))`)
 
 
 ## API
@@ -38,8 +38,8 @@ The query() function takes an SQL query as input and returns an iterator through
 of the result.
 
 ```python
-from perfetto.trace_processor import TraceProcessor
-tp = TraceProcessor(trace='trace.perfetto-trace')
+from dejaview.trace_processor import TraceProcessor
+tp = TraceProcessor(trace='trace.dejaview-trace')
 
 qr_it = tp.query('SELECT ts, dur, name FROM slice')
 for row in qr_it:
@@ -57,8 +57,8 @@ for row in qr_it:
 The QueryResultIterator can also be converted to a Pandas DataFrame, although this
 requires you to have both the `NumPy` and `Pandas` modules installed.
 ```python
-from perfetto.trace_processor import TraceProcessor
-tp = TraceProcessor(trace='trace.perfetto-trace')
+from dejaview.trace_processor import TraceProcessor
+tp = TraceProcessor(trace='trace.dejaview-trace')
 
 qr_it = tp.query('SELECT ts, dur, name FROM slice')
 qr_df = qr_it.as_pandas_dataframe()
@@ -78,8 +78,8 @@ ts                   dur                  name
 Furthermore, you can use the query result in a Pandas DataFrame format to easily
 make visualisations from the trace data.
 ```python
-from perfetto.trace_processor import TraceProcessor
-tp = TraceProcessor(trace='trace.perfetto-trace')
+from dejaview.trace_processor import TraceProcessor
+tp = TraceProcessor(trace='trace.dejaview-trace')
 
 qr_it = tp.query('SELECT ts, value FROM counter WHERE track_id=50')
 qr_df = qr_it.as_pandas_dataframe()
@@ -95,8 +95,8 @@ qr_df = qr_df.set_index('ts')['value'].plot()
 The metric() function takes in a list of trace metrics and returns the results as a Protobuf.
 
 ```python
-from perfetto.trace_processor import TraceProcessor
-tp = TraceProcessor(trace='trace.perfetto-trace')
+from dejaview.trace_processor import TraceProcessor
+tp = TraceProcessor(trace='trace.dejaview-trace')
 
 ad_cpu_metrics = tp.metric(['android_cpu'])
 print(ad_cpu_metrics)
@@ -171,7 +171,7 @@ The `trace_processor.http` module contains the `TraceProcessorHttp` class which
 provides methods to make HTTP requests to an address at which there already
 exists a running instance of `trace_processor` with a trace loaded in. All
 results are returned in Protobuf format
-(see [`trace_processor_proto`](/protos/perfetto/trace_processor/trace_processor.proto)).
+(see [`trace_processor_proto`](/protos/dejaview/trace_processor/trace_processor.proto)).
 Some functions include:
 * `execute_query()` - Takes in an SQL query and returns a `QueryResult` Protobuf
   message

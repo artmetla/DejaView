@@ -13,10 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE android.startup.startups;
+INCLUDE DEJAVIEW MODULE android.startup.startups;
 
 DROP VIEW IF EXISTS _app_startup_window;
-CREATE PERFETTO VIEW _app_startup_window AS
+CREATE DEJAVIEW VIEW _app_startup_window AS
 SELECT
   ts,
   dur,
@@ -29,7 +29,7 @@ SELECT RUN_METRIC(
 );
 
 DROP VIEW IF EXISTS wattson_app_startup_rails_output;
-CREATE PERFETTO VIEW wattson_app_startup_rails_output AS
+CREATE DEJAVIEW VIEW wattson_app_startup_rails_output AS
 SELECT AndroidWattsonTimePeriodMetric(
   'metric_version', 3,
   'period_info', (

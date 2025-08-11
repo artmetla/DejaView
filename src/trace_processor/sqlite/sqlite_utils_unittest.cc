@@ -23,13 +23,13 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_processor/sqlite/scoped_db.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::sqlite::utils {
+namespace dejaview::trace_processor::sqlite::utils {
 
 namespace {
 using base::gtest_matchers::IsError;
@@ -38,8 +38,8 @@ class GetColumnsForTableTest : public ::testing::Test {
  public:
   GetColumnsForTableTest() {
     sqlite3* db = nullptr;
-    PERFETTO_CHECK(sqlite3_initialize() == SQLITE_OK);
-    PERFETTO_CHECK(sqlite3_open(":memory:", &db) == SQLITE_OK);
+    DEJAVIEW_CHECK(sqlite3_initialize() == SQLITE_OK);
+    DEJAVIEW_CHECK(sqlite3_open(":memory:", &db) == SQLITE_OK);
     db_.reset(db);
   }
 
@@ -187,4 +187,4 @@ TEST(SqliteUtilsTest, ExtractFromSqlValueString) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::sqlite::utils
+}  // namespace dejaview::trace_processor::sqlite::utils

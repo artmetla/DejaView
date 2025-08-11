@@ -16,7 +16,7 @@
 
 #include "src/shared_lib/intern_map.h"
 
-namespace perfetto {
+namespace dejaview {
 InternMap::InternMap() = default;
 
 InternMap::~InternMap() = default;
@@ -35,4 +35,4 @@ InternMap::FindOrAssignRes InternMap::FindOrAssign(int32_t type,
   return {iid, true};
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

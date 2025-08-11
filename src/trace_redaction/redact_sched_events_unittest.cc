@@ -18,13 +18,13 @@
 #include "src/base/test/status_matchers.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/ftrace/sched.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/ftrace/sched.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 constexpr uint64_t kUidA = 1;
@@ -61,9 +61,9 @@ class ChangePidTo : public PidCommModifier {
               int32_t,
               int32_t* pid,
               std::string*) const override {
-    PERFETTO_DCHECK(context.timeline);
-    PERFETTO_DCHECK(context.package_uid.has_value());
-    PERFETTO_DCHECK(pid);
+    DEJAVIEW_DCHECK(context.timeline);
+    DEJAVIEW_DCHECK(context.package_uid.has_value());
+    DEJAVIEW_DCHECK(pid);
     if (!context.timeline->PidConnectsToUid(ts, *pid, *context.package_uid)) {
       *pid = new_pid;
     }
@@ -798,4 +798,4 @@ TEST_F(FilterCompactSchedWakingEventsTest, RemovingWakingEventsThrashing) {
   }
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

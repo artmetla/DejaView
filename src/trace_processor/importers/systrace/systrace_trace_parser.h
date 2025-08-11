@@ -26,7 +26,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class SystraceTraceParser : public ChunkedTraceReader {
@@ -62,6 +62,6 @@ class SystraceTraceParser : public ChunkedTraceReader {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_SYSTRACE_SYSTRACE_TRACE_PARSER_H_

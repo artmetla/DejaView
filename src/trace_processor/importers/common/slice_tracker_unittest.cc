@@ -31,7 +31,7 @@
 #include "src/trace_processor/types/variadic.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using ::testing::ElementsAre;
@@ -492,4 +492,4 @@ TEST_F(SliceTrackerTest, OnSliceBeginCallback) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

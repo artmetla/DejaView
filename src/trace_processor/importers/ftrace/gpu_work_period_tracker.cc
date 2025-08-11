@@ -16,17 +16,17 @@
 
 #include "src/trace_processor/importers/ftrace/gpu_work_period_tracker.h"
 
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/common/gpu_counter_descriptor.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/common/gpu_counter_descriptor.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.pbzero.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 GpuWorkPeriodTracker::GpuWorkPeriodTracker(TraceProcessorContext* context)
@@ -68,4 +68,4 @@ void GpuWorkPeriodTracker::ParseGpuWorkPeriodEvent(int64_t timestamp,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

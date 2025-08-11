@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/message_arena.h"
+#include "dejaview/protozero/message_arena.h"
 
 #include <atomic>
 #include <type_traits>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/message_handle.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/message_handle.h"
 
 namespace protozero {
 
@@ -36,23 +36,23 @@ MessageArena::MessageArena() {
 MessageArena::~MessageArena() = default;
 
 Message* MessageArena::NewMessage() {
-  PERFETTO_DCHECK(!blocks_.empty());  // Should never become empty.
+  DEJAVIEW_DCHECK(!blocks_.empty());  // Should never become empty.
 
   Block* block = &blocks_.front();
-  if (PERFETTO_UNLIKELY(block->entries >= Block::kCapacity)) {
+  if (DEJAVIEW_UNLIKELY(block->entries >= Block::kCapacity)) {
     blocks_.emplace_front();
     block = &blocks_.front();
   }
   const auto idx = block->entries++;
   void* storage = &block->storage[idx];
-  PERFETTO_ASAN_UNPOISON(storage, sizeof(Message));
+  DEJAVIEW_ASAN_UNPOISON(storage, sizeof(Message));
   return new (storage) Message();
 }
 
 void MessageArena::DeleteLastMessageInternal() {
-  PERFETTO_DCHECK(!blocks_.empty());  // Should never be empty, see below.
+  DEJAVIEW_DCHECK(!blocks_.empty());  // Should never be empty, see below.
   Block* block = &blocks_.front();
-  PERFETTO_DCHECK(block->entries > 0);
+  DEJAVIEW_DCHECK(block->entries > 0);
 
   // This is the reason why there is no ~Message() call here.
   // MessageArea::Reset() (see header) also relies on dtor being trivial.
@@ -60,7 +60,7 @@ void MessageArena::DeleteLastMessageInternal() {
                 "Message must be trivially destructible");
 
   --block->entries;
-  PERFETTO_ASAN_POISON(&block->storage[block->entries], sizeof(Message));
+  DEJAVIEW_ASAN_POISON(&block->storage[block->entries], sizeof(Message));
 
   // Don't remove the first block to avoid malloc/free calls when the root
   // message is reset. Hitting the allocator all the times is a waste of time.

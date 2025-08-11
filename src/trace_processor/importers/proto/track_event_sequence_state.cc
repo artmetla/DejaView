@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/importers/proto/track_event_sequence_state.h"
 
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 void TrackEventSequenceState::SetThreadDescriptor(
     const protos::pbzero::ThreadDescriptor::Decoder& decoder) {
@@ -32,4 +32,4 @@ void TrackEventSequenceState::SetThreadDescriptor(
   thread_instruction_count_ = decoder.reference_thread_instruction_count();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

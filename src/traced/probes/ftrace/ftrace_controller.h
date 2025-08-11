@@ -25,15 +25,15 @@
 #include <set>
 #include <string>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 #include "src/kallsyms/lazy_kernel_symbolizer.h"
 #include "src/traced/probes/ftrace/atrace_wrapper.h"
 #include "src/traced/probes/ftrace/cpu_reader.h"
 #include "src/traced/probes/ftrace/ftrace_config_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class FtraceConfigMuxer;
 class FtraceDataSource;
@@ -73,7 +73,7 @@ class FtraceController {
   static std::unique_ptr<FtraceController> Create(base::TaskRunner*, Observer*);
   virtual ~FtraceController();
 
-  bool AddDataSource(FtraceDataSource*) PERFETTO_WARN_UNUSED_RESULT;
+  bool AddDataSource(FtraceDataSource*) DEJAVIEW_WARN_UNUSED_RESULT;
   bool StartDataSource(FtraceDataSource*);
   void RemoveDataSource(FtraceDataSource*);
 
@@ -189,6 +189,6 @@ class FtraceController {
   base::WeakPtrFactory<FtraceController> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FTRACE_CONTROLLER_H_

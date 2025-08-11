@@ -28,10 +28,10 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/sqlite/bindings/sqlite_result.h"
 
 // Analogous to ASSIGN_OR_RETURN macro. Returns an sqlite error.
@@ -44,12 +44,12 @@
 
 // Analogous to ASSIGN_OR_RETURN macro. Returns an sqlite error.
 #define SQLITE_ASSIGN_OR_RETURN(vtab, lhs, rhs)                            \
-  PERFETTO_INTERNAL_MACRO_CONCAT(auto status_or, __LINE__) = rhs;          \
+  DEJAVIEW_INTERNAL_MACRO_CONCAT(auto status_or, __LINE__) = rhs;          \
   SQLITE_RETURN_IF_ERROR(                                                  \
-      vtab, PERFETTO_INTERNAL_MACRO_CONCAT(status_or, __LINE__).status()); \
-  lhs = std::move(PERFETTO_INTERNAL_MACRO_CONCAT(status_or, __LINE__).value())
+      vtab, DEJAVIEW_INTERNAL_MACRO_CONCAT(status_or, __LINE__).status()); \
+  lhs = std::move(DEJAVIEW_INTERNAL_MACRO_CONCAT(status_or, __LINE__).value())
 
-namespace perfetto::trace_processor::sqlite::utils {
+namespace dejaview::trace_processor::sqlite::utils {
 
 const auto kSqliteStatic = reinterpret_cast<sqlite3_destructor_type>(0);
 const auto kSqliteTransient = reinterpret_cast<sqlite3_destructor_type>(-1);
@@ -83,7 +83,7 @@ inline SqlValue::Type SqliteTypeToSqlValueType(int sqlite_type) {
     case SQLITE_TEXT:
       return SqlValue::Type::kString;
   }
-  PERFETTO_FATAL("Unknown SQLite type %d", sqlite_type);
+  DEJAVIEW_FATAL("Unknown SQLite type %d", sqlite_type);
 }
 
 inline SqlValue SqliteValueToSqlValue(sqlite3_value* value) {
@@ -123,7 +123,7 @@ inline std::optional<std::string> SqlValueToString(SqlValue value) {
     case SqlValue::Type::kNull:
       return std::nullopt;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 inline void ReportSqlValue(
@@ -168,7 +168,7 @@ inline int SetError(sqlite3_vtab* tab, base::Status s) {
 }
 
 inline void SetError(sqlite3_context* ctx, const base::Status& status) {
-  PERFETTO_CHECK(!status.ok());
+  DEJAVIEW_CHECK(!status.ok());
   sqlite::result::Error(ctx, status.c_message());
 }
 
@@ -240,7 +240,7 @@ inline const char* SqlValueTypeToString(SqlValue::Type type) {
     case SqlValue::Type::kNull:
       return "NULL";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 // Converts the given SqlValue type to the type string SQLite understands.
@@ -260,7 +260,7 @@ inline std::string SqlValueTypeToSqliteTypeName(SqlValue::Type type) {
       // a number of various checks.
       return "BIGINT";
   }
-  PERFETTO_FATAL("Not reached");  // For gcc
+  DEJAVIEW_FATAL("Not reached");  // For gcc
 }
 
 // Exracts the given type from the SqlValue if |value| can fit
@@ -375,6 +375,6 @@ base::StatusOr<SqlValue> ExtractArgument(size_t argc,
       internal::ToExpectedTypesSet(expected_type, expected_type_args...));
 }
 
-}  // namespace perfetto::trace_processor::sqlite::utils
+}  // namespace dejaview::trace_processor::sqlite::utils
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_SQLITE_UTILS_H_

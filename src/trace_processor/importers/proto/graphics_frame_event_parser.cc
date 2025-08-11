@@ -21,11 +21,11 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/ext/base/utils.h"
-#include "protos/perfetto/trace/android/graphics_frame_event.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/ext/base/utils.h"
+#include "protos/dejaview/trace/android/graphics_frame_event.pbzero.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
@@ -35,7 +35,7 @@
 #include "src/trace_processor/tables/track_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 constexpr char kQueueLostMessage[] =
     "Missing queue event. The slice is now a bit extended than it might "
@@ -78,7 +78,7 @@ bool GraphicsFrameEventParser::CreateBufferEvent(
   if (!event.has_buffer_id()) {
     context_->storage->IncrementStats(
         stats::graphics_frame_event_parser_errors);
-    PERFETTO_ELOG("GraphicsFrameEvent with missing buffer id field.");
+    DEJAVIEW_ELOG("GraphicsFrameEvent with missing buffer id field.");
     return false;
   }
 
@@ -109,12 +109,12 @@ bool GraphicsFrameEventParser::CreateBufferEvent(
     } else {
       context_->storage->IncrementStats(
           stats::graphics_frame_event_parser_errors);
-      PERFETTO_ELOG("GraphicsFrameEvent with unknown type %zu.", type);
+      DEJAVIEW_ELOG("GraphicsFrameEvent with unknown type %zu.", type);
     }
   } else {
     context_->storage->IncrementStats(
         stats::graphics_frame_event_parser_errors);
-    PERFETTO_ELOG("GraphicsFrameEvent with missing type field.");
+    DEJAVIEW_ELOG("GraphicsFrameEvent with missing type field.");
   }
 
   char buffer[4096];
@@ -404,4 +404,4 @@ void GraphicsFrameEventParser::ParseGraphicsFrameEvent(int64_t timestamp,
   }
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -19,12 +19,12 @@
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/unix_socket.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 bool operator==(const AllocMetadata& one, const AllocMetadata& other);
@@ -51,7 +51,7 @@ namespace {
 
 base::ScopedFile CopyFD(int fd) {
   int sv[2];
-  PERFETTO_CHECK(socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == 0);
+  DEJAVIEW_CHECK(socketpair(AF_UNIX, SOCK_STREAM, 0, sv) == 0);
   base::UnixSocketRaw send_sock(base::ScopedFile(sv[0]),
                                 base::SockFamily::kUnix,
                                 base::SockType::kStream);
@@ -59,7 +59,7 @@ base::ScopedFile CopyFD(int fd) {
                                 base::SockFamily::kUnix,
                                 base::SockType::kStream);
   char msg[] = "a";
-  PERFETTO_CHECK(send_sock.Send(msg, sizeof(msg), &fd, 1));
+  DEJAVIEW_CHECK(send_sock.Send(msg, sizeof(msg), &fd, 1));
   base::ScopedFile res;
   recv_sock.Receive(msg, sizeof(msg), &res, 1);
   return res;
@@ -175,4 +175,4 @@ TEST(GetHeapSamplingInterval, DisabledAndDefault) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -16,11 +16,11 @@
 
 #include "test/gtest_and_gmock.h"
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "src/profiling/symbolizer/breakpad_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -211,4 +211,4 @@ TEST(BreakpadParserTest, AddrBetweenFunctions) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

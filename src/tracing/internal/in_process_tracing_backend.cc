@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/in_process_tracing_backend.h"
+#include "dejaview/tracing/internal/in_process_tracing_backend.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 
 #include "src/tracing/core/in_process_shared_memory.h"
 
@@ -34,7 +34,7 @@
 // will deadlock (the Service will never free up the SMB because won't ever get
 // to run the task).
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 // static
@@ -48,7 +48,7 @@ InProcessTracingBackend::~InProcessTracingBackend() = default;
 
 std::unique_ptr<ProducerEndpoint> InProcessTracingBackend::ConnectProducer(
     const ConnectProducerArgs& args) {
-  PERFETTO_DCHECK(args.task_runner->RunsTasksOnCurrentThread());
+  DEJAVIEW_DCHECK(args.task_runner->RunsTasksOnCurrentThread());
   return GetOrCreateService(args.task_runner)
       ->ConnectProducer(args.producer, ClientIdentity(/*uid=*/0, /*pid=*/0),
                         args.producer_name, args.shmem_size_hint_bytes,
@@ -75,4 +75,4 @@ TracingService* InProcessTracingBackend::GetOrCreateService(
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

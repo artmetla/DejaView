@@ -19,7 +19,7 @@ source_set("full") {
   ]
   deps = [
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/base:base",
+    "../../../../include/dejaview/ext/base:base",
     "../../../trace_processor:storage_minimal",
     "../../types",
     "../../util:trace_type",

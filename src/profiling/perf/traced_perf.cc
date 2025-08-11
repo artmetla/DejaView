@@ -15,26 +15,26 @@
  */
 
 #include "src/profiling/perf/traced_perf.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/tracing/default_socket.h"
 #include "src/profiling/perf/perf_producer.h"
 #include "src/profiling/perf/proc_descriptors.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
 static constexpr char kTracedPerfSocketEnvVar[] = "ANDROID_SOCKET_traced_perf";
 
 int GetRawInheritedListeningSocket() {
   const char* sock_fd = getenv(kTracedPerfSocketEnvVar);
   if (sock_fd == nullptr)
-    PERFETTO_FATAL("Did not inherit socket from init.");
+    DEJAVIEW_FATAL("Did not inherit socket from init.");
   char* end;
   int raw_fd = static_cast<int>(strtol(sock_fd, &end, 10));
   if (*end != '\0')
-    PERFETTO_FATAL("Invalid env variable format. Expected decimal integer.");
+    DEJAVIEW_FATAL("Invalid env variable format. Expected decimal integer.");
   return raw_fd;
 }
 #endif
@@ -45,7 +45,7 @@ int TracedPerfMain(int, char**) {
   base::UnixTaskRunner task_runner;
 
 // TODO(rsavitski): support standalone --root or similar on android.
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   AndroidRemoteDescriptorGetter proc_fd_getter{GetRawInheritedListeningSocket(),
                                                &task_runner};
 #else
@@ -57,8 +57,8 @@ int TracedPerfMain(int, char**) {
   if (env_notif) {
     int notif_fd = atoi(env_notif);
     producer.SetAllDataSourcesRegisteredCb([notif_fd] {
-      PERFETTO_CHECK(base::WriteAll(notif_fd, "1", 1) == 1);
-      PERFETTO_CHECK(base::CloseFile(notif_fd) == 0);
+      DEJAVIEW_CHECK(base::WriteAll(notif_fd, "1", 1) == 1);
+      DEJAVIEW_CHECK(base::CloseFile(notif_fd) == 0);
     });
   }
   producer.ConnectWithRetries(GetProducerSocket());
@@ -66,4 +66,4 @@ int TracedPerfMain(int, char**) {
   return 0;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

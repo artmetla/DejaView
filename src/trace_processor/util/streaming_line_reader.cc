@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/util/streaming_line_reader.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -28,19 +28,19 @@ StreamingLineReader::StreamingLineReader(LinesCallback cb)
 StreamingLineReader::~StreamingLineReader() = default;
 
 char* StreamingLineReader::BeginWrite(size_t write_buf_size) {
-  PERFETTO_DCHECK(size_before_write_ == 0);
+  DEJAVIEW_DCHECK(size_before_write_ == 0);
   size_before_write_ = buf_.size();
   buf_.resize(size_before_write_ + write_buf_size);
   return &buf_[size_before_write_];
 }
 
 void StreamingLineReader::EndWrite(size_t size_written) {
-  PERFETTO_DCHECK(size_before_write_ + size_written <= buf_.size());
+  DEJAVIEW_DCHECK(size_before_write_ + size_written <= buf_.size());
   buf_.resize(size_before_write_ + size_written);
   size_before_write_ = 0;
 
   size_t consumed = Tokenize(base::StringView(buf_.data(), buf_.size()));
-  PERFETTO_DCHECK(consumed <= buf_.size());
+  DEJAVIEW_DCHECK(consumed <= buf_.size());
 
   // Unless we got very lucky, the last line in the chunk just written will be
   // incomplete. Move it to the beginning of the buffer so it gets glued
@@ -61,7 +61,7 @@ size_t StreamingLineReader::Tokenize(base::StringView input) {
     chars_consumed = static_cast<size_t>(c + 1 - input.data());
   }  // for(c : input)
 
-  PERFETTO_DCHECK(lines.empty() ^ (chars_consumed != 0));
+  DEJAVIEW_DCHECK(lines.empty() ^ (chars_consumed != 0));
   if (!lines.empty())
     lines_callback_(lines);
   return chars_consumed;
@@ -69,4 +69,4 @@ size_t StreamingLineReader::Tokenize(base::StringView input) {
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

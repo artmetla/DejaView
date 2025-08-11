@@ -30,11 +30,11 @@
 #include <unwindstack/MachineX86.h>
 #include <unwindstack/MachineX86_64.h>
 
-#include "perfetto/heap_profile.h"
+#include "dejaview/heap_profile.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 #include "src/profiling/memory/util.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class UnixSocketRaw;
@@ -63,24 +63,24 @@ constexpr size_t kMaxRegisterDataSize =
 
 struct ClientConfigurationHeap {
   char name[HEAPPROFD_HEAP_NAME_SZ];
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) interval;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) interval;
 };
 
 struct ClientConfiguration {
   // On average, sample one allocation every interval bytes,
   // If interval == 1, sample every allocation.
   // Must be >= 1.
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) default_interval;
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) block_client_timeout_us;
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) num_heaps;
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) adaptive_sampling_shmem_threshold;
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t)
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) default_interval;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) block_client_timeout_us;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) num_heaps;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) adaptive_sampling_shmem_threshold;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t)
   adaptive_sampling_max_sampling_interval_bytes;
   alignas(8) ClientConfigurationHeap heaps[64];
-  PERFETTO_CROSS_ABI_ALIGNED(bool) block_client;
-  PERFETTO_CROSS_ABI_ALIGNED(bool) disable_fork_teardown;
-  PERFETTO_CROSS_ABI_ALIGNED(bool) disable_vfork_detection;
-  PERFETTO_CROSS_ABI_ALIGNED(bool) all_heaps;
+  DEJAVIEW_CROSS_ABI_ALIGNED(bool) block_client;
+  DEJAVIEW_CROSS_ABI_ALIGNED(bool) disable_fork_teardown;
+  DEJAVIEW_CROSS_ABI_ALIGNED(bool) disable_vfork_detection;
+  DEJAVIEW_CROSS_ABI_ALIGNED(bool) all_heaps;
   // Just double check that the array sizes are in correct order.
 };
 
@@ -93,33 +93,33 @@ enum class RecordType : uint64_t {
 // Make the whole struct 8-aligned. This is to make sizeof(AllocMetdata)
 // the same on 32 and 64-bit.
 struct alignas(8) AllocMetadata {
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) sequence_number;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) sequence_number;
   // Size of the allocation that was made.
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) alloc_size;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) alloc_size;
   // Total number of bytes attributed to this allocation.
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) sample_size;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) sample_size;
   // Pointer returned by malloc(2) for this allocation.
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) alloc_address;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) alloc_address;
   // Current value of the stack pointer.
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) stack_pointer;
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) clock_monotonic_coarse_timestamp;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) stack_pointer;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) clock_monotonic_coarse_timestamp;
   // unwindstack::AsmGetRegs assumes this is aligned.
   alignas(8) char register_data[kMaxRegisterDataSize];
-  PERFETTO_CROSS_ABI_ALIGNED(uint32_t) heap_id;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint32_t) heap_id;
   // CPU architecture of the client.
-  PERFETTO_CROSS_ABI_ALIGNED(unwindstack::ArchEnum) arch;
+  DEJAVIEW_CROSS_ABI_ALIGNED(unwindstack::ArchEnum) arch;
 };
 
 struct FreeEntry {
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) sequence_number;
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) addr;
-  PERFETTO_CROSS_ABI_ALIGNED(uint32_t) heap_id;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) sequence_number;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) addr;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint32_t) heap_id;
 };
 
 struct HeapName {
-  PERFETTO_CROSS_ABI_ALIGNED(uint64_t) sample_interval;
-  PERFETTO_CROSS_ABI_ALIGNED(uint32_t) heap_id;
-  PERFETTO_CROSS_ABI_ALIGNED(char) heap_name[HEAPPROFD_HEAP_NAME_SZ];
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) sample_interval;
+  DEJAVIEW_CROSS_ABI_ALIGNED(uint32_t) heap_id;
+  DEJAVIEW_CROSS_ABI_ALIGNED(char) heap_name[HEAPPROFD_HEAP_NAME_SZ];
 };
 
 // Make sure the sizes do not change on different architectures.
@@ -163,6 +163,6 @@ constexpr const char* kHeapprofdSocketEnvVar = "ANDROID_SOCKET_heapprofd";
 constexpr const char* kHeapprofdSocketFile = "/dev/socket/heapprofd";
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_WIRE_PROTOCOL_H_

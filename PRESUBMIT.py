@@ -49,7 +49,7 @@ def CheckChange(input, output):
             '(.*/)?BUILD$',
             'WORKSPACE',
             '.*/Makefile$',
-            '/perfetto_build_flags.h$',
+            '/dejaview_build_flags.h$',
             "infra/luci/.*",
             "^ui/.*\.[jt]s$",  # TS/JS handled by eslint
             "^ui/pnpm-lock.yaml$",
@@ -136,7 +136,7 @@ def CheckAndroidBlueprint(input_api, output_api):
         # Do not require Android.bp to be regenerated for chrome
         # stdlib changes.
         files_to_skip=(
-            'src/trace_processor/perfetto_sql/stdlib/chrome/BUILD.gn'))
+            'src/trace_processor/dejaview_sql/stdlib/chrome/BUILD.gn'))
 
   if not input_api.AffectedSourceFiles(build_file_filter):
     return []
@@ -193,7 +193,7 @@ def CheckBannedCpp(input_api, output_api):
        'snprintf can return > dst_size. Use base::SprintfTrunc'),
       (r'//.*\bDNS\b',
        '// DNS (Do Not Ship) found. Did you mean to remove some testing code?'),
-      (r'\bPERFETTO_EINTR\(close\(',
+      (r'\bDEJAVIEW_EINTR\(close\(',
        'close(2) must not be retried on EINTR on Linux and other OSes '
        'that we run on, as the fd will be closed.'),
       (r'^#include <inttypes.h>', 'Use <cinttypes> rather than <inttypes.h>. ' +
@@ -265,7 +265,7 @@ def CheckIncludePaths(input_api, output_api):
       if not m:
         continue
       inc_hdr = m.group(1)
-      if inc_hdr.startswith('include/perfetto'):
+      if inc_hdr.startswith('include/dejaview'):
         error_lines.append('  %s:%s: Redundant "include/" in #include path"' %
                            (f.LocalPath(), line_num))
       if '/' not in inc_hdr:
@@ -287,7 +287,7 @@ def CheckBinaryDescriptors(input_api, output_api):
 
   def file_filter(x):
     return input_api.FilterSourceFile(
-        x, files_to_check=['protos/perfetto/.*[.]proto$', '.*[.]h', tool])
+        x, files_to_check=['protos/dejaview/.*[.]proto$', '.*[.]h', tool])
 
   if not input_api.AffectedSourceFiles(file_filter):
     return []
@@ -308,14 +308,14 @@ def CheckMergedTraceConfigProto(input_api, output_api):
 
   def build_file_filter(x):
     return input_api.FilterSourceFile(
-        x, files_to_check=['protos/perfetto/.*[.]proto$', tool])
+        x, files_to_check=['protos/dejaview/.*[.]proto$', tool])
 
   if not input_api.AffectedSourceFiles(build_file_filter):
     return []
   if subprocess.call([tool, '--check-only']):
     return [
         output_api.PresubmitError(
-            'perfetto_config.proto or perfetto_trace.proto is out of ' +
+            'dejaview_config.proto or dejaview_trace.proto is out of ' +
             'date. Please run ' + tool + ' to update it.')
     ]
   return []
@@ -345,7 +345,7 @@ def CheckProtoComments(input_api, output_api):
 
   def file_filter(x):
     return input_api.FilterSourceFile(
-        x, files_to_check=['protos/perfetto/.*[.]proto$', tool])
+        x, files_to_check=['protos/dejaview/.*[.]proto$', tool])
 
   if not input_api.AffectedSourceFiles(file_filter):
     return []
@@ -365,7 +365,7 @@ def CheckSqlModules(input_api, output_api):
     return input_api.FilterSourceFile(
         x,
         files_to_check=[
-            'src/trace_processor/perfetto_sql/stdlib/.*[.]sql$', tool
+            'src/trace_processor/dejaview_sql/stdlib/.*[.]sql$', tool
         ])
 
   if not input_api.AffectedSourceFiles(file_filter):
@@ -412,7 +412,7 @@ def CheckTestData(input_api, output_api):
 
 
 def CheckChromeStdlib(input_api, output_api):
-  stdlib_paths = ("src/trace_processor/perfetto_sql/stdlib/chrome/",
+  stdlib_paths = ("src/trace_processor/dejaview_sql/stdlib/chrome/",
                   "test/data/chrome/",
                   "test/trace_processor/diff_tests/stdlib/chrome/")
 
@@ -434,7 +434,7 @@ def CheckChromeStdlib(input_api, output_api):
       'Files under {0} and {1} '
       'are rolled from the Chromium repository by a '
       'Copybara service.\nYou should not modify these in '
-      'the Perfetto repository, please make your changes '
+      'the DejaView repository, please make your changes '
       'in Chromium instead.\n'
       'If you want to do a manual roll, you must specify '
       'CHROME_STDLIB_MANUAL_ROLL=<reason> in the CL description.').format(

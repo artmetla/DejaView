@@ -17,13 +17,13 @@
 #include "src/trace_redaction/redact_sched_events.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/ftrace/sched.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/ftrace/sched.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 namespace {
 constexpr int32_t kPackageUid = 1;
 }  // namespace
@@ -347,4 +347,4 @@ TEST_F(FilterSchedWakingEventsTest, DropsExcludedWakeEvents) {
   ASSERT_EQ(events.size(), 1u);
   ASSERT_FALSE(events.at(0).has_sched_waking());
 }
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

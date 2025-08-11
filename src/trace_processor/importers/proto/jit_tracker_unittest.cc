@@ -20,8 +20,8 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/jit_cache.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
@@ -33,7 +33,7 @@
 #include "src/trace_processor/util/build_id.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -180,4 +180,4 @@ TEST_F(JitTrackerTest, FunctionOverlapUpdatesDeleteTs) {
 }  // namespace
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

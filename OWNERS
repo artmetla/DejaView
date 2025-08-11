@@ -1,8 +1,8 @@
-# Global OWNERS that can approve Perfetto changes.
+# Global OWNERS that can approve DejaView changes.
 # Please look first at OWNERS in the various subdirectories before falling back
 # on this, as the former tend to be more brain-cache-hot.
 
-# Perfetto tracing internals and API/ABI boundaries.
+# DejaView tracing internals and API/ABI boundaries.
 primiano@google.com
 
 # UI, Ftrace interop, traced_probes, protozero, Android internals.
@@ -34,7 +34,7 @@ ilkos@google.com
 fmayer@google.com
 
 # chromium.org aliases for adding DEPS entries from chromium subprojects to
-# third_party/perfetto.
+# third_party/dejaview.
 eseckler@chromium.org
 nuskos@chromium.org
 skyostil@chromium.org

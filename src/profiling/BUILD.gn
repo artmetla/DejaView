@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 import("../../gn/test.gni")
 
 source_set("deobfuscator") {
@@ -22,14 +22,14 @@ source_set("deobfuscator") {
   ]
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/ext/base:base",
-    "../../protos/perfetto/trace:zero",
-    "../../protos/perfetto/trace/profiling:zero",
+    "../../include/dejaview/ext/base:base",
+    "../../protos/dejaview/trace:zero",
+    "../../protos/dejaview/trace/profiling:zero",
     "../../src/protozero:protozero",
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":deobfuscator",

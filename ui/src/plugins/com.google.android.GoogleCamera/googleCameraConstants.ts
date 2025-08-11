@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-// GCA Perfetto Constants
+// GCA DejaView Constants
 
 export const MAIN_THREAD_TRACK = ['id.GoogleCamera '];
 

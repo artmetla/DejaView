@@ -24,7 +24,7 @@
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 
-namespace perfetto::trace_processor::perf_text_importer {
+namespace dejaview::trace_processor::perf_text_importer {
 
 struct alignas(8) PerfTextEvent {
   std::optional<StringPool::Id> comm;
@@ -33,6 +33,6 @@ struct alignas(8) PerfTextEvent {
   tables::StackProfileCallsiteTable::Id callsite_id;
 };
 
-}  // namespace perfetto::trace_processor::perf_text_importer
+}  // namespace dejaview::trace_processor::perf_text_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_TEXT_PERF_TEXT_EVENT_H_

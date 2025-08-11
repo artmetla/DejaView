@@ -33,7 +33,7 @@ trace = synth_common.create_trace()
 # Without special-casing, we print everything as unsigned decimal.
 
 trace.add_packet()
-trace.add_process(pid=10, ppid=1, cmdline="perfetto")
+trace.add_process(pid=10, ppid=1, cmdline="dejaview")
 
 trace.add_ftrace_packet(cpu=0)
 trace.add_kfree(ts=100, tid=10, call_site=16, ptr=32)

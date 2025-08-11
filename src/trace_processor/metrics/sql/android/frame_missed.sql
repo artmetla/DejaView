@@ -14,7 +14,7 @@
 -- limitations under the License.
 
 DROP VIEW IF EXISTS {{output}};
-CREATE PERFETTO VIEW {{output}} AS
+CREATE DEJAVIEW VIEW {{output}} AS
 WITH frame_missed_counters AS (
   SELECT
     LAG(ts) OVER (ORDER BY ts) AS ts,

@@ -22,7 +22,7 @@
 #include <tuple>
 #include <vector>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
@@ -30,7 +30,7 @@
 #include "src/trace_processor/db/compare.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 inline bool operator==(const Range& a, const Range& b) {
   return std::tie(a.start, a.end) == std::tie(b.start, b.end);
@@ -777,4 +777,4 @@ TEST(NumericStorage, DistinctFromIndexVector) {
 
 }  // namespace
 }  // namespace column
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "perfetto/public/abi/thread_utils_abi.h"
+#include "dejaview/public/abi/thread_utils_abi.h"
 
-#include "perfetto/base/thread_utils.h"
+#include "dejaview/base/thread_utils.h"
 
-PerfettoThreadId PerfettoGetThreadIdImpl(void) {
-  return perfetto::base::GetThreadId();
+DejaViewThreadId DejaViewGetThreadIdImpl(void) {
+  return dejaview::base::GetThreadId();
 }

@@ -25,14 +25,14 @@
 #include <mutex>
 #include <vector>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/unix_socket.h"
 #include "src/profiling/memory/sampler.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 #include "src/profiling/memory/unhooked_allocator.h"
 #include "src/profiling/memory/wire_protocol.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 struct StackRange {
@@ -80,11 +80,11 @@ class Client {
   bool RecordMalloc(uint32_t heap_id,
                     uint64_t sample_size,
                     uint64_t alloc_size,
-                    uint64_t alloc_address) PERFETTO_WARN_UNUSED_RESULT;
+                    uint64_t alloc_address) DEJAVIEW_WARN_UNUSED_RESULT;
 
   // Add address to buffer of deallocations. Flushes the buffer if necessary.
   bool RecordFree(uint32_t heap_id,
-                  uint64_t alloc_address) PERFETTO_WARN_UNUSED_RESULT;
+                  uint64_t alloc_address) DEJAVIEW_WARN_UNUSED_RESULT;
   bool RecordHeapInfo(uint32_t heap_id,
                       const char* heap_name,
                       uint64_t interval);
@@ -116,9 +116,9 @@ class Client {
 
  private:
   const char* GetStackEnd(const char* stacktop);
-  bool SendControlSocketByte() PERFETTO_WARN_UNUSED_RESULT;
+  bool SendControlSocketByte() DEJAVIEW_WARN_UNUSED_RESULT;
   int64_t SendWireMessageWithRetriesIfBlocking(const WireMessage&)
-      PERFETTO_WARN_UNUSED_RESULT;
+      DEJAVIEW_WARN_UNUSED_RESULT;
 
   bool IsPostFork();
 
@@ -142,6 +142,6 @@ class Client {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_CLIENT_H_

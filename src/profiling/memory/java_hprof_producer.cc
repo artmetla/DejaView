@@ -20,12 +20,12 @@
 #include <limits>
 #include <optional>
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/profiling/common/proc_cmdline.h"
 #include "src/profiling/common/proc_utils.h"
 #include "src/profiling/common/producer_support.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -68,12 +68,12 @@ void JavaHprofProducer::DataSource::SendSignal() const {
   for (pid_t pid : pids_) {
     auto opt_status = ReadStatus(pid);
     if (!opt_status) {
-      PERFETTO_PLOG("Failed to read /proc/%d/status. Not signalling.", pid);
+      DEJAVIEW_PLOG("Failed to read /proc/%d/status. Not signalling.", pid);
       continue;
     }
     auto uids = GetUids(*opt_status);
     if (!uids) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Failed to read Uid from /proc/%d/status. "
           "Not signalling.",
           pid);
@@ -81,16 +81,16 @@ void JavaHprofProducer::DataSource::SendSignal() const {
     }
     if (!CanProfile(ds_config_, uids->effective,
                     config_.target_installed_by())) {
-      PERFETTO_ELOG("%d (UID %" PRIu64 ") not profileable.", pid,
+      DEJAVIEW_ELOG("%d (UID %" PRIu64 ") not profileable.", pid,
                     uids->effective);
       continue;
     }
-    PERFETTO_DLOG("Sending %d to %d", kJavaHeapprofdSignal, pid);
+    DEJAVIEW_DLOG("Sending %d to %d", kJavaHeapprofdSignal, pid);
     union sigval signal_value;
     signal_value.sival_int = static_cast<int32_t>(
         ds_config_.tracing_session_id() % std::numeric_limits<int32_t>::max());
     if (sigqueue(pid, kJavaHeapprofdSignal, signal_value) != 0) {
-      PERFETTO_DPLOG("sigqueue");
+      DEJAVIEW_DPLOG("sigqueue");
     }
   }
 }
@@ -118,7 +118,7 @@ void JavaHprofProducer::ResetConnectionBackoff() {
 void JavaHprofProducer::SetupDataSource(DataSourceInstanceID id,
                                         const DataSourceConfig& ds_config) {
   if (data_sources_.find(id) != data_sources_.end()) {
-    PERFETTO_DFATAL_OR_ELOG("Duplicate data source: %" PRIu64, id);
+    DEJAVIEW_DFATAL_OR_ELOG("Duplicate data source: %" PRIu64, id);
     return;
   }
   JavaHprofConfig config;
@@ -133,7 +133,7 @@ void JavaHprofProducer::StartDataSource(DataSourceInstanceID id,
                                         const DataSourceConfig&) {
   auto it = data_sources_.find(id);
   if (it == data_sources_.end()) {
-    PERFETTO_DFATAL_OR_ELOG("Starting invalid data source: %" PRIu64, id);
+    DEJAVIEW_DFATAL_OR_ELOG("Starting invalid data source: %" PRIu64, id);
     return;
   }
   const DataSource& ds = it->second;
@@ -155,7 +155,7 @@ void JavaHprofProducer::StartDataSource(DataSourceInstanceID id,
 void JavaHprofProducer::StopDataSource(DataSourceInstanceID id) {
   auto it = data_sources_.find(id);
   if (it == data_sources_.end()) {
-    PERFETTO_DFATAL_OR_ELOG("Stopping invalid data source: %" PRIu64, id);
+    DEJAVIEW_DFATAL_OR_ELOG("Stopping invalid data source: %" PRIu64, id);
     return;
   }
   data_sources_.erase(it);
@@ -169,10 +169,10 @@ void JavaHprofProducer::Flush(FlushRequestID flush_id,
 }
 
 void JavaHprofProducer::OnConnect() {
-  PERFETTO_DCHECK(state_ == kConnecting);
+  DEJAVIEW_DCHECK(state_ == kConnecting);
   state_ = kConnected;
   ResetConnectionBackoff();
-  PERFETTO_LOG("Connected to the service.");
+  DEJAVIEW_LOG("Connected to the service.");
 
   DataSourceDescriptor desc;
   desc.set_name(kJavaHprofDataSource);
@@ -195,7 +195,7 @@ void JavaHprofProducer::Restart() {
 }
 
 void JavaHprofProducer::ConnectWithRetries(const char* socket_name) {
-  PERFETTO_DCHECK(state_ == kNotStarted);
+  DEJAVIEW_DCHECK(state_ == kNotStarted);
   state_ = kNotConnected;
 
   ResetConnectionBackoff();
@@ -205,7 +205,7 @@ void JavaHprofProducer::ConnectWithRetries(const char* socket_name) {
 
 void JavaHprofProducer::SetProducerEndpoint(
     std::unique_ptr<TracingService::ProducerEndpoint> endpoint) {
-  PERFETTO_DCHECK(state_ == kNotConnected || state_ == kNotStarted);
+  DEJAVIEW_DCHECK(state_ == kNotConnected || state_ == kNotStarted);
   state_ = kConnecting;
   endpoint_ = std::move(endpoint);
 }
@@ -216,8 +216,8 @@ void JavaHprofProducer::ConnectService() {
 }
 
 void JavaHprofProducer::OnDisconnect() {
-  PERFETTO_DCHECK(state_ == kConnected || state_ == kConnecting);
-  PERFETTO_LOG("Disconnected from tracing service");
+  DEJAVIEW_DCHECK(state_ == kConnected || state_ == kConnecting);
+  DEJAVIEW_LOG("Disconnected from tracing service");
 
   auto weak_producer = weak_factory_.GetWeakPtr();
   if (state_ == kConnected)
@@ -239,4 +239,4 @@ void JavaHprofProducer::OnDisconnect() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

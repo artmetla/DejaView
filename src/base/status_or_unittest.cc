@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/ext/base/status_or.h"
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 TEST(StatusOrTest, IntOk) {
@@ -51,4 +51,4 @@ TEST(StatusOrTest, ErrStatus) {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

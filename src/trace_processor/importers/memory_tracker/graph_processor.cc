@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/graph_processor.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/graph_processor.h"
 
 #include <list>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using Edge = GlobalNodeGraph::Edge;
@@ -47,8 +47,8 @@ std::optional<uint64_t> GetSizeEntryOfNode(Node* node) {
   if (size_it == node->entries()->end())
     return std::nullopt;
 
-  PERFETTO_DCHECK(size_it->second.type == Node::Entry::Type::kUInt64);
-  PERFETTO_DCHECK(size_it->second.units == Node::Entry::ScalarUnits::kBytes);
+  DEJAVIEW_DCHECK(size_it->second.type == Node::Entry::Type::kUInt64);
+  DEJAVIEW_DCHECK(size_it->second.units == Node::Entry::ScalarUnits::kBytes);
   return std::optional<uint64_t>(size_it->second.value_uint64);
 }
 
@@ -216,7 +216,7 @@ GraphProcessor::ComputeSharedFootprintFromGraph(
       // indcates shared memory.
       Node* source_root = edge->source()->node_graph()->root();
       const Node* current = edge->source();
-      PERFETTO_DCHECK(current != source_root);
+      DEJAVIEW_DCHECK(current != source_root);
 
       // Traverse up until we hit the point where |current| holds a node which
       // is the child of |source_root|.
@@ -249,7 +249,7 @@ GraphProcessor::ComputeSharedFootprintFromGraph(
 
     const Node::Entry& size_entry =
         node->entries()->find(kSizeEntryName)->second;
-    PERFETTO_DCHECK(size_entry.type == Node::Entry::kUInt64);
+    DEJAVIEW_DCHECK(size_entry.type == Node::Entry::kUInt64);
 
     uint64_t size_per_process = size_entry.value_uint64 / edges.size();
     for (auto* edge : edges) {
@@ -287,9 +287,9 @@ void GraphProcessor::CollectAllocatorNodes(const RawProcessMemoryNode& source,
     } else {
       node = node_iterator->second;
 
-      PERFETTO_DCHECK(node == process->FindNode(path));
+      DEJAVIEW_DCHECK(node == process->FindNode(path));
 
-      PERFETTO_DCHECK(is_global);
+      DEJAVIEW_DCHECK(is_global);
     }
 
     // Copy any entries not already present into the node.
@@ -341,12 +341,12 @@ void GraphProcessor::AddEdges(const RawProcessMemoryNode& source,
 void GraphProcessor::MarkImplicitWeakParentsRecursively(Node* node) {
   // Ensure that we aren't in a bad state where we have an implicit node
   // which doesn't have any children (which is not the root node).
-  PERFETTO_DCHECK(node->is_explicit() || !node->children()->empty() ||
+  DEJAVIEW_DCHECK(node->is_explicit() || !node->children()->empty() ||
                   !node->parent());
 
   // Check that at this stage, any node which is weak is only so because
   // it was explicitly created as such.
-  PERFETTO_DCHECK(!node->is_weak() || node->is_explicit());
+  DEJAVIEW_DCHECK(!node->is_weak() || node->is_explicit());
 
   // If a node is already weak then all children will be marked weak at a
   // later stage.
@@ -421,7 +421,7 @@ void GraphProcessor::RemoveWeakNodesRecursively(Node* node) {
     // We should never be in a situation where we're about to
     // keep a node which owns a weak node (which will be/has been
     // removed).
-    PERFETTO_DCHECK(!child->owns_edge() ||
+    DEJAVIEW_DCHECK(!child->owns_edge() ||
                     !child->owns_edge()->target()->is_weak());
 
     // Descend and remove all weak child nodes.
@@ -443,7 +443,7 @@ void GraphProcessor::AssignTracingOverhead(const std::string& allocator,
                                            GlobalNodeGraph* global_graph,
                                            Process* process) {
   // This method should only be called if the allocator node exists.
-  PERFETTO_DCHECK(process->FindNode(allocator));
+  DEJAVIEW_DCHECK(process->FindNode(allocator));
 
   // Check that the tracing node exists and isn't already owning another node.
   Node* tracing_node = process->FindNode("tracing");
@@ -451,7 +451,7 @@ void GraphProcessor::AssignTracingOverhead(const std::string& allocator,
     return;
 
   // This should be first edge associated with the tracing node.
-  PERFETTO_DCHECK(!tracing_node->owns_edge());
+  DEJAVIEW_DCHECK(!tracing_node->owns_edge());
 
   // Create the node under the allocator to which tracing overhead can be
   // assigned.
@@ -483,13 +483,13 @@ Node::Entry GraphProcessor::AggregateNumericWithNameForNode(
     const Node::Entry& entry = name_to_entry_it->second;
 
     // Ensure that the entry is numeric.
-    PERFETTO_DCHECK(entry.type == Node::Entry::Type::kUInt64);
+    DEJAVIEW_DCHECK(entry.type == Node::Entry::Type::kUInt64);
 
     // Check that the units of every child's entry with the given name is the
     // same (i.e. we don't get a number for one child and size for another
     // child). We do this by having a DCHECK that the units match the first
     // child's units.
-    PERFETTO_DCHECK(first || units == entry.units);
+    DEJAVIEW_DCHECK(first || units == entry.units);
     units = entry.units;
     aggregated += entry.value_uint64;
     first = false;
@@ -574,7 +574,7 @@ void GraphProcessor::CalculateSizeForNode(Node* node) {
   // TODO(lalitm): the following condition is triggered very often even though
   // it is a warning in JS code. Find a way to add the warning to display in UI
   // or to fix all instances where this is violated and then enable this check.
-  // PERFETTO_DCHECK(!node_size || !aggregated_size || *node_size >=
+  // DEJAVIEW_DCHECK(!node_size || !aggregated_size || *node_size >=
   // *aggregated_size);
 
   // Calculate the maximal size of an owner node.
@@ -593,7 +593,7 @@ void GraphProcessor::CalculateSizeForNode(Node* node) {
   // TODO(lalitm): the following condition is triggered very often even though
   // it is a warning in JS code. Find a way to add the warning to display in UI
   // or to fix all instances where this is violated and then enable this check.
-  // PERFETTO_DCHECK(!node_size || !max_owner_size || *node_size >=
+  // DEJAVIEW_DCHECK(!node_size || !max_owner_size || *node_size >=
   // *max_owner_size);
 
   // Clear out any existing size entry which may exist.
@@ -727,7 +727,7 @@ void GraphProcessor::CalculateNodeOwnershipCoefficient(Node* node) {
     }
 
     // At the end of this loop, we should move to a node with a lower priority.
-    PERFETTO_DCHECK(current_it == next_it);
+    DEJAVIEW_DCHECK(current_it == next_it);
   }
 
   // Attribute the remainder of the owned node's not-owned sub-size to
@@ -798,4 +798,4 @@ void GraphProcessor::CalculateNodeEffectiveSize(Node* node) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -15,14 +15,14 @@
 package {
     // See: http://go/android-license-faq
     // A large-scale-change added 'default_applicable_licenses' to import
-    // all of the 'license_kinds' from "external_perfetto_license"
+    // all of the 'license_kinds' from "external_dejaview_license"
     // to get the below license kinds:
     //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["external_perfetto_license"],
+    default_applicable_licenses: ["external_dejaview_license"],
 }
 
 android_test_helper_app {
-    name: "CtsPerfettoProducerApp",
+    name: "CtsDejaViewProducerApp",
     // tag this module as a cts test artifact
     test_suites: [
         "cts",
@@ -37,7 +37,7 @@ android_test_helper_app {
     sdk_version: "31",
     min_sdk_version: "31",
     jni_libs: [
-        "libperfettocts_jni",
+        "libdejaviewcts_jni",
     ],
     jni_uses_platform_apis: true,
 }

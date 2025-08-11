@@ -24,17 +24,17 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.pbzero.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.pbzero.h"
 #include "src/traced/probes/common/cpu_freq_info.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -142,6 +142,6 @@ class SysStatsDataSource : public ProbesDataSource {
   base::WeakPtrFactory<SysStatsDataSource> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_SYS_STATS_SYS_STATS_DATA_SOURCE_H_

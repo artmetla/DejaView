@@ -16,20 +16,20 @@
 
 #include "src/trace_processor/importers/instruments/row_parser.h"
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/importers/instruments/row.h"
 #include "src/trace_processor/importers/instruments/row_data_tracker.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_TP_INSTRUMENTS)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_INSTRUMENTS)
 #error \
-    "This file should not be built when enable_perfetto_trace_processor_mac_instruments=false"
+    "This file should not be built when enable_dejaview_trace_processor_mac_instruments=false"
 #endif
 
-namespace perfetto::trace_processor::instruments_importer {
+namespace dejaview::trace_processor::instruments_importer {
 
 RowParser::RowParser(TraceProcessorContext* context)
     : context_(context), data_(RowDataTracker::GetOrCreate(context)) {}
@@ -118,4 +118,4 @@ DummyMemoryMapping* RowParser::GetDummyMapping(UniquePid upid) {
   return mapping;
 }
 
-}  // namespace perfetto::trace_processor::instruments_importer
+}  // namespace dejaview::trace_processor::instruments_importer

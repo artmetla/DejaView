@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/static_buffer.h"
+#include "dejaview/protozero/static_buffer.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
 namespace protozero {
 
@@ -26,7 +26,7 @@ ContiguousMemoryRange StaticBufferDelegate::GetNewBuffer() {
   if (get_new_buffer_called_once_) {
     // This is the 2nd time GetNewBuffer is called. The estimate is wrong. We
     // shouldn't try to grow the buffer after the initial call.
-    PERFETTO_FATAL("Static buffer too small");
+    DEJAVIEW_FATAL("Static buffer too small");
   }
   get_new_buffer_called_once_ = true;
   return range_;

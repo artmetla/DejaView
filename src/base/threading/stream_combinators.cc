@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/threading/stream.h"
+#include "dejaview/ext/base/threading/stream.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 AllOkCollectorImpl::~AllOkCollectorImpl() = default;
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

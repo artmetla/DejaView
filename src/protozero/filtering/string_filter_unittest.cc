@@ -16,7 +16,7 @@
 
 #include "src/protozero/filtering/string_filter.h"
 
-#include "protos/perfetto/trace/trace_packet.pb.h"
+#include "protos/dejaview/trace/trace_packet.pb.h"
 #include "test/gtest_and_gmock.h"
 
 namespace protozero {
@@ -243,10 +243,10 @@ TEST(StringFilterTest, RegexRedactionNonUtf) {
   ASSERT_FALSE(filter.MaybeFilter(bad.data(), bad.size()));
   ASSERT_EQ(bad, bad_copy);
 
-  perfetto::protos::TracePacket packet;
-  packet.mutable_perfetto_metatrace()->set_counter_id(0);
-  *packet.mutable_perfetto_metatrace()->mutable_counter_name() = "foo";
-  packet.mutable_perfetto_metatrace()->set_counter_value(100);
+  dejaview::protos::TracePacket packet;
+  packet.mutable_dejaview_metatrace()->set_counter_id(0);
+  *packet.mutable_dejaview_metatrace()->mutable_counter_name() = "foo";
+  packet.mutable_dejaview_metatrace()->set_counter_value(100);
 
   std::string metatrace = packet.SerializeAsString();
   std::string metatrace_copy = metatrace;
@@ -266,10 +266,10 @@ TEST(StringFilterTest, AtraceRedactionNonUtf) {
   ASSERT_FALSE(filter.MaybeFilter(bad.data(), bad.size()));
   ASSERT_EQ(bad, bad_copy);
 
-  perfetto::protos::TracePacket packet;
-  packet.mutable_perfetto_metatrace()->set_counter_id(0);
-  *packet.mutable_perfetto_metatrace()->mutable_counter_name() = "foo";
-  packet.mutable_perfetto_metatrace()->set_counter_value(100);
+  dejaview::protos::TracePacket packet;
+  packet.mutable_dejaview_metatrace()->set_counter_id(0);
+  *packet.mutable_dejaview_metatrace()->mutable_counter_name() = "foo";
+  packet.mutable_dejaview_metatrace()->set_counter_value(100);
 
   std::string metatrace = packet.SerializeAsString();
   std::string metatrace_copy = metatrace;

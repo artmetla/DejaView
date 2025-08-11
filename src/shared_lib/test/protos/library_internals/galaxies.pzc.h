@@ -23,13 +23,13 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "perfetto/public/pb_macros.h"
+#include "dejaview/public/pb_macros.h"
 #include "src/shared_lib/test/protos/upper_import.pzc.h"
 
-PERFETTO_PB_ENUM(protozero_test_protos_Galaxy){
-    PERFETTO_PB_ENUM_ENTRY(protozero_test_protos_MILKY_WAY) = 1,
-    PERFETTO_PB_ENUM_ENTRY(protozero_test_protos_ANDROMEDA) = 2,
-    PERFETTO_PB_ENUM_ENTRY(protozero_test_protos_SUNFLOWER) = 3,
+DEJAVIEW_PB_ENUM(protozero_test_protos_Galaxy){
+    DEJAVIEW_PB_ENUM_ENTRY(protozero_test_protos_MILKY_WAY) = 1,
+    DEJAVIEW_PB_ENUM_ENTRY(protozero_test_protos_ANDROMEDA) = 2,
+    DEJAVIEW_PB_ENUM_ENTRY(protozero_test_protos_SUNFLOWER) = 3,
 };
 
 #endif  // SRC_SHARED_LIB_TEST_PROTOS_LIBRARY_INTERNALS_GALAXIES_PZC_H_

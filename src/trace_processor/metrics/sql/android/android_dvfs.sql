@@ -15,7 +15,7 @@
 
 DROP VIEW IF EXISTS freq_slice;
 
-CREATE PERFETTO VIEW freq_slice AS
+CREATE DEJAVIEW VIEW freq_slice AS
 SELECT
   counter.track_id AS track_id,
   track.name AS freq_name,
@@ -29,7 +29,7 @@ ORDER BY ts;
 
 DROP VIEW IF EXISTS freq_total_duration;
 
-CREATE PERFETTO VIEW freq_total_duration AS
+CREATE DEJAVIEW VIEW freq_total_duration AS
 SELECT
   track_id,
   freq_name,
@@ -40,7 +40,7 @@ GROUP BY track_id, freq_name;
 
 DROP VIEW IF EXISTS dvfs_per_band_view;
 
-CREATE PERFETTO VIEW dvfs_per_band_view AS
+CREATE DEJAVIEW VIEW dvfs_per_band_view AS
 WITH
 freq_duration AS (
   SELECT
@@ -66,7 +66,7 @@ LEFT JOIN freq_total_duration
 ORDER BY freq_duration.freq_name, freq_duration.freq_value;
 
 DROP VIEW IF EXISTS dvfs_per_freq_view;
-CREATE PERFETTO VIEW dvfs_per_freq_view AS
+CREATE DEJAVIEW VIEW dvfs_per_freq_view AS
 SELECT
   AndroidDvfsMetric_FrequencyResidency(
     'freq_name', freq_total_duration.freq_name,
@@ -82,7 +82,7 @@ GROUP BY track_id, freq_name
 ORDER BY freq_name;
 
 DROP VIEW IF EXISTS android_dvfs_output;
-CREATE PERFETTO VIEW android_dvfs_output AS
+CREATE DEJAVIEW VIEW android_dvfs_output AS
 SELECT AndroidDVFSMetric(
     'freq_residencies', (
       SELECT

@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/importers/proto/network_trace_module.h"
 
-#include "perfetto/ext/base/string_writer.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
@@ -26,7 +26,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/tcp_state.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 // From android.os.UserHandle.PER_USER_RANGE
@@ -48,10 +48,10 @@ base::StackString<12> GetTcpFlagMask(uint32_t tcp_flags) {
 }
 }  // namespace
 
-using ::perfetto::protos::pbzero::NetworkPacketBundle;
-using ::perfetto::protos::pbzero::NetworkPacketEvent;
-using ::perfetto::protos::pbzero::TracePacket;
-using ::perfetto::protos::pbzero::TrafficDirection;
+using ::dejaview::protos::pbzero::NetworkPacketBundle;
+using ::dejaview::protos::pbzero::NetworkPacketEvent;
+using ::dejaview::protos::pbzero::TracePacket;
+using ::dejaview::protos::pbzero::TrafficDirection;
 using ::protozero::ConstBytes;
 
 NetworkTraceModule::NetworkTraceModule(TraceProcessorContext* context)
@@ -302,4 +302,4 @@ void NetworkTraceModule::PushPacketBufferForSort(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

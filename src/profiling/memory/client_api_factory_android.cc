@@ -25,29 +25,29 @@
 #include <unistd.h>
 #include <optional>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/unix_socket.h"
 #include "src/profiling/memory/client.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #error "Must be built on Android."
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 void StartHeapprofdIfStatic() {}
 
 std::shared_ptr<Client> ConstructClient(
-    UnhookedAllocator<perfetto::profiling::Client> unhooked_allocator) {
-  PERFETTO_LOG("Constructing client for central daemon.");
-  using perfetto::profiling::Client;
+    UnhookedAllocator<dejaview::profiling::Client> unhooked_allocator) {
+  DEJAVIEW_LOG("Constructing client for central daemon.");
+  using dejaview::profiling::Client;
 
-  std::optional<perfetto::base::UnixSocketRaw> sock =
-      Client::ConnectToHeapprofd(perfetto::profiling::kHeapprofdSocketFile);
+  std::optional<dejaview::base::UnixSocketRaw> sock =
+      Client::ConnectToHeapprofd(dejaview::profiling::kHeapprofdSocketFile);
   if (!sock) {
-    PERFETTO_ELOG("Failed to connect to %s. This is benign on user builds.",
-                  perfetto::profiling::kHeapprofdSocketFile);
+    DEJAVIEW_ELOG("Failed to connect to %s. This is benign on user builds.",
+                  dejaview::profiling::kHeapprofdSocketFile);
     return nullptr;
   }
   return Client::CreateAndHandshake(std::move(sock.value()),
@@ -55,4 +55,4 @@ std::shared_ptr<Client> ConstructClient(
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

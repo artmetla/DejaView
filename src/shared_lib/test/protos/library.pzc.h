@@ -23,39 +23,39 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "perfetto/public/pb_macros.h"
+#include "dejaview/public/pb_macros.h"
 #include "src/shared_lib/test/protos/library_internals/galaxies.pzc.h"
 
-PERFETTO_PB_ENUM_IN_MSG(protozero_test_protos_TransgalacticMessage,
+DEJAVIEW_PB_ENUM_IN_MSG(protozero_test_protos_TransgalacticMessage,
                         MessageType){
-    PERFETTO_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_TransgalacticMessage,
+    DEJAVIEW_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_TransgalacticMessage,
                                   REGULAR) = 0,
-    PERFETTO_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_TransgalacticMessage,
+    DEJAVIEW_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_TransgalacticMessage,
                                   EXPRESS) = 1,
 };
 
-PERFETTO_PB_MSG(protozero_test_protos_TransgalacticMessage);
-PERFETTO_PB_FIELD(protozero_test_protos_TransgalacticMessage,
+DEJAVIEW_PB_MSG(protozero_test_protos_TransgalacticMessage);
+DEJAVIEW_PB_FIELD(protozero_test_protos_TransgalacticMessage,
                   VARINT,
                   enum protozero_test_protos_Galaxy,
                   origin_galaxy,
                   1);
-PERFETTO_PB_FIELD(protozero_test_protos_TransgalacticMessage,
+DEJAVIEW_PB_FIELD(protozero_test_protos_TransgalacticMessage,
                   STRING,
                   const char*,
                   origin_planet,
                   2);
-PERFETTO_PB_FIELD(protozero_test_protos_TransgalacticMessage,
+DEJAVIEW_PB_FIELD(protozero_test_protos_TransgalacticMessage,
                   VARINT,
                   enum protozero_test_protos_Galaxy,
                   destination_galaxy,
                   3);
-PERFETTO_PB_FIELD(protozero_test_protos_TransgalacticMessage,
+DEJAVIEW_PB_FIELD(protozero_test_protos_TransgalacticMessage,
                   STRING,
                   const char*,
                   destination_planet,
                   4);
-PERFETTO_PB_FIELD(protozero_test_protos_TransgalacticMessage,
+DEJAVIEW_PB_FIELD(protozero_test_protos_TransgalacticMessage,
                   STRING,
                   const char*,
                   proto_message,

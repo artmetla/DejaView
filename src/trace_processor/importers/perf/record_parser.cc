@@ -23,11 +23,11 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/create_mapping_params.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
@@ -51,9 +51,9 @@
 #include "src/trace_processor/util/build_id.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 namespace {
 
 CreateMappingParams BuildCreateMappingParams(
@@ -83,7 +83,7 @@ bool IsInKernel(protos::pbzero::Profiling::CpuMode cpu_mode) {
     case protos::pbzero::Profiling::MODE_UNKNOWN:
       return false;
   }
-  PERFETTO_FATAL("For GCC.");
+  DEJAVIEW_FATAL("For GCC.");
 }
 
 }  // namespace
@@ -124,7 +124,7 @@ base::Status RecordParser::ParseRecord(int64_t ts, Record record) {
     case PERF_RECORD_AUXTRACE:
     case PERF_RECORD_AUXTRACE_INFO:
       // These should be dealt with at tokenization time
-      PERFETTO_FATAL("Unexpected record type at parsing time: %" PRIu32,
+      DEJAVIEW_FATAL("Unexpected record type at parsing time: %" PRIu32,
                      record.header.type);
 
     default:
@@ -164,7 +164,7 @@ base::Status RecordParser::InternSample(Sample sample) {
   }
 
   if (sample.cpu_mode ==
-      protos::pbzero::perfetto_pbzero_enum_Profiling::MODE_UNKNOWN) {
+      protos::pbzero::dejaview_pbzero_enum_Profiling::MODE_UNKNOWN) {
     context_->storage->IncrementStats(stats::perf_samples_cpu_mode_unknown);
   }
 
@@ -310,7 +310,7 @@ UniquePid RecordParser::GetUpid(const CommonMmapRecordFields& fields) const {
   auto upid = context_->storage->thread_table()
                   .FindById(tables::ThreadTable::Id(utid))
                   ->upid();
-  PERFETTO_CHECK(upid.has_value());
+  DEJAVIEW_CHECK(upid.has_value());
   return *upid;
 }
 
@@ -346,7 +346,7 @@ base::Status RecordParser::UpdateCountersInReadGroups(const Sample& sample) {
   for (const auto& entry : sample.read_groups) {
     RefPtr<PerfEventAttr> attr =
         sample.perf_session->FindAttrForEventId(*entry.event_id);
-    if (PERFETTO_UNLIKELY(!attr)) {
+    if (DEJAVIEW_UNLIKELY(!attr)) {
       return base::ErrStatus("No perf_event_attr for id %" PRIu64,
                              *entry.event_id);
     }
@@ -366,4 +366,4 @@ DummyMemoryMapping* RecordParser::GetDummyMapping(UniquePid upid) {
   return mapping;
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

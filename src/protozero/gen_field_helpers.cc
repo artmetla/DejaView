@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/gen_field_helpers.h"
+#include "dejaview/protozero/gen_field_helpers.h"
 
 namespace protozero {
 namespace internal {

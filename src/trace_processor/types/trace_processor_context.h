@@ -22,11 +22,11 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/types/destructible.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class AndroidLogEventParser;
 class ArgsTracker;
@@ -206,6 +206,6 @@ class TraceProcessorContext {
   std::unique_ptr<MultiMachineTraceManager> multi_machine_trace_manager;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_TRACE_PROCESSOR_CONTEXT_H_

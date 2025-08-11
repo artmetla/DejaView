@@ -20,9 +20,9 @@
 #include <set>
 #include <string>
 
-#include "protos/perfetto/config/ftrace/ftrace_config.gen.h"
+#include "protos/dejaview/config/ftrace/ftrace_config.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using FtraceConfig = protos::gen::FtraceConfig;
 
@@ -37,6 +37,6 @@ bool RequiresAtrace(const FtraceConfig&);
 
 bool ValidConfig(const FtraceConfig& config);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FTRACE_CONFIG_UTILS_H_

@@ -13,18 +13,18 @@
 // limitations under the License.
 
 import {test, Page} from '@playwright/test';
-import {PerfettoTestHelper} from './perfetto_ui_test_helper';
+import {DejaViewTestHelper} from './dejaview_ui_test_helper';
 import {assertExists} from '../base/logging';
 
 test.describe.configure({mode: 'serial'});
 
-let pth: PerfettoTestHelper;
+let pth: DejaViewTestHelper;
 let page: Page;
 
 test.beforeAll(async ({browser}, _testInfo) => {
   page = await browser.newPage();
-  pth = new PerfettoTestHelper(page);
-  await pth.openTraceFile('api34_startup_cold.perfetto-trace');
+  pth = new DejaViewTestHelper(page);
+  await pth.openTraceFile('api34_startup_cold.dejaview-trace');
 });
 
 test('sched', async () => {
@@ -32,7 +32,7 @@ test('sched', async () => {
   await page.mouse.down();
   await page.mouse.move(800, 350);
   await page.mouse.up();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('cpu-by-thread.png');
 
   await page.click('button[label="CPU by process"]');
@@ -88,7 +88,7 @@ test('slices', async () => {
     .locateTrack('system_server 1719/android.anim 1754', syssrv)
     .nth(1);
   await animThread.scrollIntoViewIfNeeded();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   const coords = assertExists(await animThread.boundingBox());
   await page.mouse.move(600, coords.y + 10);
   await page.mouse.down();

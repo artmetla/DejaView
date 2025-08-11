@@ -20,7 +20,7 @@
 #include "src/trace_redaction/redact_sched_events.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // If 'pid' is not connected to the target package, replace it with a synthetic
 // pid.
@@ -32,6 +32,6 @@ class MergeThreadsPids : public PidCommModifier {
               std::string* comm) const override;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_MERGE_THREADS_H_

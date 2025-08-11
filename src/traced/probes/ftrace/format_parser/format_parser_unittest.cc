@@ -17,7 +17,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using testing::ElementsAre;
@@ -161,4 +161,4 @@ TEST(FtraceEventParserTest, GetNameFromTypeAndName) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

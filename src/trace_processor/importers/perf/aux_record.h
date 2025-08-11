@@ -20,12 +20,12 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/importers/perf/perf_event_attr.h"
 #include "src/trace_processor/importers/perf/sample_id.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 struct Record;
 struct AuxRecord {
@@ -39,6 +39,6 @@ struct AuxRecord {
   std::optional<SampleId> sample_id;
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_AUX_RECORD_H_

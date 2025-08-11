@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/small_vector.h"
+#include "dejaview/ext/base/small_vector.h"
 
 #include <tuple>
 #include <utility>
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -229,4 +229,4 @@ INSTANTIATE_TEST_SUITE_P(SmallVectorTest,
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

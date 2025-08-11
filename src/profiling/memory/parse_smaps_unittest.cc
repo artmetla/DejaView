@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/profiling/parse_smaps.h"
+#include "dejaview/profiling/parse_smaps.h"
 
 #include <cinttypes>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 #include "src/base/test/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 bool operator==(const SmapsEntry& a, const SmapsEntry& b);
@@ -90,4 +90,4 @@ TEST(ParseSmapsTest, SmokeNoEol) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

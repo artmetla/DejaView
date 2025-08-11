@@ -16,14 +16,14 @@ import {addSqlTableTab} from '../../frontend/sql_table_tab_interface';
 import {asUtid} from '../../trace_processor/sql_utils/core_types';
 import {NUM, NUM_NULL, STR_NULL} from '../../trace_processor/query_result';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {ChromeTasksDetailsPanel} from './details';
 import {chromeTasksTable} from './table';
 import {ChromeTasksThreadTrack} from './track';
 import {TrackNode} from '../../public/workspace';
 import {TrackEventSelection} from '../../public/selection';
 
-class ChromeTasksPlugin implements PerfettoPlugin {
+class ChromeTasksPlugin implements DejaViewPlugin {
   onActivate() {}
 
   async onTraceLoad(ctx: Trace) {
@@ -42,7 +42,7 @@ class ChromeTasksPlugin implements PerfettoPlugin {
   async createTracks(ctx: Trace) {
     const it = (
       await ctx.engine.query(`
-      INCLUDE PERFETTO MODULE chrome.tasks;
+      INCLUDE DEJAVIEW MODULE chrome.tasks;
 
       with relevant_threads as (
         select distinct utid from chrome_tasks

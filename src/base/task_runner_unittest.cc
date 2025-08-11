@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#include "perfetto/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/unix_task_runner.h"
 
 #include <thread>
 
-#include "perfetto/ext/base/event_fd.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/event_fd.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -373,7 +373,7 @@ TEST_F(TaskRunnerTest, FileDescriptorWatchFairness) {
   }
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 // This tests UNIX-specific behavior on pipe closure.
 TEST_F(TaskRunnerTest, FileDescriptorClosedEvent) {
@@ -389,4 +389,4 @@ TEST_F(TaskRunnerTest, FileDescriptorClosedEvent) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

@@ -22,11 +22,11 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/tracing/test/test_shared_memory.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Base parametrized test for unittests that require an aligned buffer.
 class AlignedBufferTest : public ::testing::TestWithParam<size_t> {
@@ -50,6 +50,6 @@ class AlignedBufferTest : public ::testing::TestWithParam<size_t> {
   std::unique_ptr<TestSharedMemory> buf_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_ALIGNED_BUFFER_TEST_H_

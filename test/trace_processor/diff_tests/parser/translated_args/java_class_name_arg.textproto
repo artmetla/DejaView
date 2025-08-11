@@ -15,7 +15,7 @@ packet {
     categories: "cat1"
     type: 3
     name: "name1"
-    [perfetto.protos.ChromeTrackEvent.android_view_dump] {
+    [dejaview.protos.ChromeTrackEvent.android_view_dump] {
       activity {
         name: "A1"
         view {

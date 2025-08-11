@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 
 #include <algorithm>
 #include <cstdarg>
@@ -22,7 +22,7 @@
 #include <string>
 #include <utility>
 
-namespace perfetto::base {
+namespace dejaview::base {
 
 Status ErrStatus(const char* format, ...) {
   std::string buf;
@@ -103,4 +103,4 @@ bool Status::ErasePayload(std::string_view type_url) {
   return erased;
 }
 
-}  // namespace perfetto::base
+}  // namespace dejaview::base

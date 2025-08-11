@@ -17,8 +17,8 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/proto_decoder.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/proto_decoder.h"
 
 namespace protozero {
 namespace {

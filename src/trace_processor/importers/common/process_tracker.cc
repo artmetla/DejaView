@@ -22,19 +22,19 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ProcessTracker::ProcessTracker(TraceProcessorContext* context)
     : context_(context), args_tracker_(context) {
-  // Reserve utid/upid 0. These are special as embedders (e.g. Perfetto UI)
+  // Reserve utid/upid 0. These are special as embedders (e.g. DejaView UI)
   // exclude them from certain views (e.g. thread state) under the assumption
   // that they correspond to the idle (swapper) process. When parsing Linux
   // system traces, SetPidZeroIsUpidZeroIdleProcess will be called to associate
@@ -78,7 +78,7 @@ UniqueTid ProcessTracker::StartNewThread(std::optional<int64_t> timestamp,
   UniqueTid new_utid = thread_table->Insert(row).row;
   tids_[tid].emplace_back(new_utid);
 
-  if (PERFETTO_UNLIKELY(thread_name_priorities_.size() <= new_utid)) {
+  if (DEJAVIEW_UNLIKELY(thread_name_priorities_.size() <= new_utid)) {
     // This condition can happen in a multi-machine tracing session:
     // Machine 1 gets utid 0, 1
     // Machine 2 gets utid 2, 3
@@ -126,7 +126,7 @@ void ProcessTracker::EndThread(int64_t timestamp, uint32_t tid) {
 
   // If the process pid and thread tid are equal then, as is the main thread
   // of the process, we should also finish the process itself.
-  PERFETTO_DCHECK(*td.is_main_thread());
+  DEJAVIEW_DCHECK(*td.is_main_thread());
   ps.set_end_ts(timestamp);
   pids_.Erase(tid);
 }
@@ -141,12 +141,12 @@ std::optional<UniqueTid> ProcessTracker::GetThreadOrNull(uint32_t tid) {
   auto rr = threads[utid];
 
   // Ensure that the tid matches the tid we were looking for.
-  PERFETTO_DCHECK(rr.tid() == tid);
+  DEJAVIEW_DCHECK(rr.tid() == tid);
   // Ensure that the thread's machine ID matches the context's machine ID.
-  PERFETTO_DCHECK(rr.machine_id() == context_->machine_id());
+  DEJAVIEW_DCHECK(rr.machine_id() == context_->machine_id());
   // If the thread is being tracked by the process tracker, it should not be
   // known to have ended.
-  PERFETTO_DCHECK(!rr.end_ts().has_value());
+  DEJAVIEW_DCHECK(!rr.end_ts().has_value());
 
   return utid;
 }
@@ -171,7 +171,7 @@ void ProcessTracker::UpdateThreadNameByUtid(UniqueTid utid,
     return;
 
   auto& thread_table = *context_->storage->mutable_thread_table();
-  if (PERFETTO_UNLIKELY(thread_name_priorities_.size() <= utid)) {
+  if (DEJAVIEW_UNLIKELY(thread_name_priorities_.size() <= utid)) {
     // This condition can happen in a multi-machine tracing session:
     // Machine 1 gets utid 0, 1
     // Machine 2 gets utid 2, 3
@@ -229,7 +229,7 @@ std::optional<UniqueTid> ProcessTracker::GetThreadOrNull(
 
     // If we finished this thread, we should have removed it from the vector
     // entirely.
-    PERFETTO_DCHECK(!rr.end_ts().has_value());
+    DEJAVIEW_DCHECK(!rr.end_ts().has_value());
 
     // If the thread is dead, ignore it.
     if (!IsThreadAlive(current_utid))
@@ -258,9 +258,9 @@ UniqueTid ProcessTracker::UpdateThread(uint32_t tid, uint32_t pid) {
   // If no matching thread was found, create a new one.
   UniqueTid utid = opt_utid ? *opt_utid : StartNewThread(std::nullopt, tid);
   auto rr = thread_table[utid];
-  PERFETTO_DCHECK(rr.tid() == tid);
+  DEJAVIEW_DCHECK(rr.tid() == tid);
   // Ensure that the thread's machine ID matches the context's machine ID.
-  PERFETTO_DCHECK(rr.machine_id() == context_->machine_id());
+  DEJAVIEW_DCHECK(rr.machine_id() == context_->machine_id());
 
   // Find matching process or create new one.
   if (!rr.upid().has_value()) {
@@ -302,7 +302,7 @@ std::optional<uint32_t> ProcessTracker::ResolveNamespacedTid(
   // Check if any non-main thread has a matching ns-local thread ID.
   for (const auto& root_level_tid : process.threads) {
     const auto& thread = namespaced_threads_[root_level_tid];
-    PERFETTO_DCHECK(thread.nstid.size() > ns_level);
+    DEJAVIEW_DCHECK(thread.nstid.size() > ns_level);
     auto tid_ns_local = thread.nstid[ns_level];
     if (tid_ns_local == tid)
       return thread.tid;
@@ -336,8 +336,8 @@ UniquePid ProcessTracker::StartNewProcess(std::optional<int64_t> timestamp,
   auto& thread_table = *context_->storage->mutable_thread_table();
 
   auto prr = process_table[upid];
-  PERFETTO_DCHECK(!prr.name().has_value());
-  PERFETTO_DCHECK(!prr.start_ts().has_value());
+  DEJAVIEW_DCHECK(!prr.name().has_value());
+  DEJAVIEW_DCHECK(!prr.start_ts().has_value());
 
   if (timestamp) {
     prr.set_start_ts(*timestamp);
@@ -429,7 +429,7 @@ void ProcessTracker::UpdateThreadNameAndMaybeProcessName(
   }
   auto prr = pt[*opt_upid];
   if (prr.pid() == tid) {
-    PERFETTO_DCHECK(trr.is_main_thread());
+    DEJAVIEW_DCHECK(trr.is_main_thread());
     prr.set_name(thread_name);
   }
 }
@@ -441,7 +441,7 @@ UniquePid ProcessTracker::GetOrCreateProcess(uint32_t pid) {
   auto it_and_ins = pids_.Insert(pid, UniquePid{0});
   if (!it_and_ins.second) {
     // Ensure that the process has not ended.
-    PERFETTO_DCHECK(!process_table[*it_and_ins.first].end_ts().has_value());
+    DEJAVIEW_DCHECK(!process_table[*it_and_ins.first].end_ts().has_value());
     return *it_and_ins.first;
   }
 
@@ -486,7 +486,7 @@ void ProcessTracker::AssociateThreads(UniqueTid utid1, UniqueTid utid2) {
 
   if (opt_upid1.has_value() && opt_upid1 != opt_upid2) {
     // Cannot associate two threads that belong to two different processes.
-    PERFETTO_ELOG("Process tracker failure. Cannot associate threads %u, %u",
+    DEJAVIEW_ELOG("Process tracker failure. Cannot associate threads %u, %u",
                   rr1.tid(), rr2.tid());
     context_->storage->IncrementStats(stats::process_tracker_errors);
     return;
@@ -501,7 +501,7 @@ void ProcessTracker::ResolvePendingAssociations(UniqueTid utid_arg,
   auto& pt = *context_->storage->mutable_process_table();
 
   auto trr = tt[utid_arg];
-  PERFETTO_DCHECK(trr.upid() == upid);
+  DEJAVIEW_DCHECK(trr.upid() == upid);
 
   std::vector<UniqueTid> resolved_utids;
   resolved_utids.emplace_back(utid_arg);
@@ -518,11 +518,11 @@ void ProcessTracker::ResolvePendingAssociations(UniqueTid utid_arg,
         ++it;
         continue;
       }
-      PERFETTO_DCHECK(child_upid != upid);
+      DEJAVIEW_DCHECK(child_upid != upid);
 
       // Set the parent pid of the other process
       auto crr = pt[child_upid];
-      PERFETTO_DCHECK(!crr.parent_upid() || crr.parent_upid() == upid);
+      DEJAVIEW_DCHECK(!crr.parent_upid() || crr.parent_upid() == upid);
       crr.set_parent_upid(upid);
 
       // Erase the pair. The |pending_parent_assocs_| vector is not sorted and
@@ -543,11 +543,11 @@ void ProcessTracker::ResolvePendingAssociations(UniqueTid utid_arg,
         continue;
       }
 
-      PERFETTO_DCHECK(other_utid != utid);
+      DEJAVIEW_DCHECK(other_utid != utid);
 
       // Update the other thread and associated it to the same process.
       auto orr = tt[other_utid];
-      PERFETTO_DCHECK(!orr.upid() || orr.upid() == upid);
+      DEJAVIEW_DCHECK(!orr.upid() || orr.upid() == upid);
       AssociateThreadToProcess(other_utid, upid);
 
       // Swap the current element to the end of the list and move the end
@@ -610,7 +610,7 @@ void ProcessTracker::UpdateNamespacedProcess(uint32_t pid,
 void ProcessTracker::UpdateNamespacedThread(uint32_t pid,
                                             uint32_t tid,
                                             std::vector<uint32_t> nstid) {
-  PERFETTO_DCHECK(namespaced_processes_.find(pid) !=
+  DEJAVIEW_DCHECK(namespaced_processes_.find(pid) !=
                   namespaced_processes_.end());
   auto& process = namespaced_processes_[pid];
   process.threads.emplace(tid);
@@ -618,4 +618,4 @@ void ProcessTracker::UpdateNamespacedThread(uint32_t pid,
   namespaced_threads_[tid] = {pid, tid, std::move(nstid)};
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

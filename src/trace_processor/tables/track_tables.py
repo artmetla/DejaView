@@ -59,7 +59,7 @@ TRACK_TABLE = Table(
             'parent_id':
                 '''
                   The track which is the "parent" of this track. Only non-null
-                  for tracks created using Perfetto's track_event API.
+                  for tracks created using DejaView's track_event API.
                 ''',
             'source_arg_set_id':
                 ColumnDoc(

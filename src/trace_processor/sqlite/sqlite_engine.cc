@@ -22,26 +22,26 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/sqlite/scoped_db.h"
 #include "src/trace_processor/sqlite/sql_source.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
 // In Android and Chromium tree builds, we don't have the percentile module.
 // Just don't include it.
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_PERCENTILE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_PERCENTILE)
 // defined in sqlite_src/ext/misc/percentile.c
 extern "C" int sqlite3_percentile_init(sqlite3* db,
                                        char** error,
                                        const sqlite3_api_routines* api);
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_TP_PERCENTILE)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_PERCENTILE)
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 void EnsureSqliteInitialized() {
@@ -72,23 +72,23 @@ void EnsureSqliteInitialized() {
       return true;
     }
 
-    PERFETTO_CHECK(ret == SQLITE_OK);
+    DEJAVIEW_CHECK(ret == SQLITE_OK);
     return sqlite3_initialize() == SQLITE_OK;
   }();
-  PERFETTO_CHECK(init_once);
+  DEJAVIEW_CHECK(init_once);
 }
 
 void InitializeSqlite(sqlite3* db) {
   char* error = nullptr;
   sqlite3_exec(db, "PRAGMA temp_store=2", nullptr, nullptr, &error);
   if (error) {
-    PERFETTO_FATAL("Error setting pragma temp_store: %s", error);
+    DEJAVIEW_FATAL("Error setting pragma temp_store: %s", error);
   }
 // In Android tree builds, we don't have the percentile module.
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_PERCENTILE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_PERCENTILE)
   sqlite3_percentile_init(db, &error, nullptr);
   if (error) {
-    PERFETTO_ELOG("Error initializing: %s", error);
+    DEJAVIEW_ELOG("Error initializing: %s", error);
     sqlite3_free(error);
   }
 #endif
@@ -112,7 +112,7 @@ SqliteEngine::SqliteEngine() {
   // level.
   static constexpr int kSqliteOpenFlags =
       SQLITE_OPEN_READWRITE | SQLITE_OPEN_CREATE | SQLITE_OPEN_NOMUTEX;
-  PERFETTO_CHECK(sqlite3_open_v2(":memory:", &db, kSqliteOpenFlags, nullptr) ==
+  DEJAVIEW_CHECK(sqlite3_open_v2(":memory:", &db, kSqliteOpenFlags, nullptr) ==
                  SQLITE_OK);
   InitializeSqlite(db);
   db_.reset(db);
@@ -126,15 +126,15 @@ SqliteEngine::~SqliteEngine() {
     int ret = sqlite3_create_function_v2(db_.get(), it.key().first.c_str(),
                                          it.key().second, SQLITE_UTF8, nullptr,
                                          nullptr, nullptr, nullptr, nullptr);
-    if (PERFETTO_UNLIKELY(ret != SQLITE_OK)) {
-      PERFETTO_FATAL("Failed to drop function: '%s'", it.key().first.c_str());
+    if (DEJAVIEW_UNLIKELY(ret != SQLITE_OK)) {
+      DEJAVIEW_FATAL("Failed to drop function: '%s'", it.key().first.c_str());
     }
   }
   fn_ctx_.Clear();
 }
 
 SqliteEngine::PreparedStatement SqliteEngine::PrepareStatement(SqlSource sql) {
-  PERFETTO_TP_TRACE(metatrace::Category::QUERY_DETAILED, "QUERY_PREPARE");
+  DEJAVIEW_TP_TRACE(metatrace::Category::QUERY_DETAILED, "QUERY_PREPARE");
   sqlite3_stmt* raw_stmt = nullptr;
   int err =
       sqlite3_prepare_v2(db_.get(), sql.sql().c_str(), -1, &raw_stmt, nullptr);
@@ -245,7 +245,7 @@ SqliteEngine::PreparedStatement::PreparedStatement(ScopedStmt stmt,
       sql_source_(std::move(source)) {}
 
 bool SqliteEngine::PreparedStatement::Step() {
-  PERFETTO_TP_TRACE(metatrace::Category::QUERY_DETAILED, "STMT_STEP",
+  DEJAVIEW_TP_TRACE(metatrace::Category::QUERY_DETAILED, "STMT_STEP",
                     [this](metatrace::Record* record) {
                       record->AddArg("Original SQL", original_sql());
                       record->AddArg("Executed SQL", sql());
@@ -280,4 +280,4 @@ const char* SqliteEngine::PreparedStatement::sql() const {
   return expanded_sql_.get();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

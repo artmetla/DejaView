@@ -19,13 +19,13 @@
 #include <cinttypes>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/ipc/service.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/clock_snapshots.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/ipc/service.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/clock_snapshots.h"
+#include "dejaview/tracing/core/forward_decls.h"
 
-namespace perfetto {
+namespace dejaview {
 
 RelayIPCService::RelayIPCService(TracingService* core_service)
     : core_service_(core_service), weak_ptr_factory_(this) {}
@@ -40,7 +40,7 @@ TracingService::RelayEndpoint* RelayIPCService::GetRelayEndpoint(
 
 void RelayIPCService::OnClientDisconnected() {
   auto client_id = ipc::Service::client_info().client_id();
-  PERFETTO_DLOG("Relay endpoint %" PRIu64 "disconnected ", client_id);
+  DEJAVIEW_DLOG("Relay endpoint %" PRIu64 "disconnected ", client_id);
 
   auto* endpoint = GetRelayEndpoint(client_id);
   if (!endpoint)
@@ -82,4 +82,4 @@ void RelayIPCService::SyncClock(const protos::gen::SyncClockRequest& req,
   endpoint->SyncClocks(mode, std::move(client_clock_snapshots),
                        std::move(host_clock_snapshots));
 }
-}  // namespace perfetto
+}  // namespace dejaview

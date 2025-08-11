@@ -21,13 +21,13 @@
 #include <stdlib.h>
 #include <sys/stat.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(PrefixFinderTest, Basic) {
@@ -48,4 +48,4 @@ TEST(PrefixFinderTest, Basic) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

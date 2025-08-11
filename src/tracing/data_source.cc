@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/data_source.h"
-#include "perfetto/base/logging.h"
-#include "protos/perfetto/config/data_source_config.gen.h"
+#include "dejaview/tracing/data_source.h"
+#include "dejaview/base/logging.h"
+#include "protos/dejaview/config/data_source_config.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 DataSourceBase::StopArgs::~StopArgs() = default;
 DataSourceBase::FlushArgs::~FlushArgs() = default;
@@ -77,7 +77,7 @@ void DataSourceType::PopulateTlsInst(
   tls_inst->trace_writer = tracing_impl->CreateTraceWriter(
       &state_, instance_index, instance_state, buffer_exhausted_policy_);
   if (create_incremental_state_fn_) {
-    PERFETTO_DCHECK(!tls_inst->incremental_state);
+    DEJAVIEW_DCHECK(!tls_inst->incremental_state);
     CreateIncrementalState(tls_inst, instance_index);
   }
   if (create_custom_tls_fn_) {
@@ -86,8 +86,8 @@ void DataSourceType::PopulateTlsInst(
   }
   // Even in the case of out-of-IDs, SharedMemoryArbiterImpl returns a
   // NullTraceWriter. The returned pointer should never be null.
-  PERFETTO_DCHECK(tls_inst->trace_writer);
+  DEJAVIEW_DCHECK(tls_inst->trace_writer);
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

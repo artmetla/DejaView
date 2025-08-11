@@ -1,17 +1,17 @@
 # Tracing API and ABI: surfaces and stability
 
 This document describes the API and ABI surface of the
-[Perfetto Client Library][cli_lib], what can be expected to be stable long-term
+[DejaView Client Library][cli_lib], what can be expected to be stable long-term
 and what not.
 
 #### In summary
 
-* The public C++ API in `include/perfetto/tracing/` is mostly stable but can
+* The public C++ API in `include/dejaview/tracing/` is mostly stable but can
   occasionally break at compile-time throughout 2020.
-* The C++ API within `include/perfetto/ext/` is internal-only and exposed only
+* The C++ API within `include/dejaview/ext/` is internal-only and exposed only
   for Chromium.
 * A new C API/ABI for a tracing shared library is in the works in
-  `include/perfetto/public`. It is not stable yet.
+  `include/dejaview/public`. It is not stable yet.
 * The tracing protocol ABI is based on protobuf-over-UNIX-socket and shared
   memory. It is long-term stable and maintains compatibility in both directions
   (old service + newer client and vice-versa).
@@ -26,7 +26,7 @@ and what not.
 ## C++ API
 
 The Client Library C++ API allows an app to contribute to the trace with custom
-trace events. Its headers live under [`include/perfetto/`](/include/perfetto).
+trace events. Its headers live under [`include/dejaview/`](/include/dejaview).
 
 There are three different tiers of this API, offering increasingly higher
 expressive power, at the cost of increased complexity. The three tiers are built
@@ -38,16 +38,16 @@ on top of each other. (Googlers, for more details see also
 ### Track Event (public)
 
 This mainly consists of the `TRACE_EVENT*` macros defined in
-[`track_event.h`](/include/perfetto/tracing/track_event.h).
+[`track_event.h`](/include/dejaview/tracing/track_event.h).
 Those macros provide apps with a quick and easy way to add common types of
 instrumentation points (slices, counters, instant events).
 For details and instructions see the [Client Library doc][cli_lib].
 
 ### Custom Data Sources (public)
 
-This consists of the `perfetto::DataSource` base class and the
-`perfetto::Tracing` controller class defined in
-[`tracing.h`](/include/perfetto/tracing.h).
+This consists of the `dejaview::DataSource` base class and the
+`dejaview::Tracing` controller class defined in
+[`tracing.h`](/include/dejaview/tracing.h).
 These classes allow an app to create custom data sources which can get
 notifications about tracing sessions lifecycle and emit custom protos in the
 trace (e.g. memory snapshots, compositor layers, etc).
@@ -65,8 +65,8 @@ WARNING: The team is still iterating on this API surface. While we try to avoid
 ### Producer / Consumer API (internal)
 
 This consists of all the interfaces defined in the
-[`include/perfetto/ext`](/include/perfetto/ext) directory. These provide access
-to the lowest levels of the Perfetto internals (manually registering producers
+[`include/dejaview/ext`](/include/dejaview/ext) directory. These provide access
+to the lowest levels of the DejaView internals (manually registering producers
 and data sources, handling all IPCs).
 
 These interfaces will always be highly unstable. We highly discourage
@@ -76,7 +76,7 @@ This API surface exists only for the Chromium project, which has unique
 challenges (e.g., its own IPC system, complex sandboxing models) and has dozens
 of subtle use cases accumulated through over ten years of legacy of
 chrome://tracing. The team is continuously reshaping this surface to gradually
-migrate all Chrome Tracing use cases over to Perfetto.
+migrate all Chrome Tracing use cases over to DejaView.
 
 ## Tracing Protocol ABI
 
@@ -104,7 +104,7 @@ The tracing service listens on two distinct sockets: producer and consumer.
 ![Socket protocol](/docs/images/socket-protocol.png)
 
 Both sockets use the same wire protocol, the `IPCFrame` message defined in
-[wire_protocol.proto](/protos/perfetto/ipc/wire_protocol.proto). The wire
+[wire_protocol.proto](/protos/dejaview/ipc/wire_protocol.proto). The wire
 protocol is simply based on a sequence of length-prefixed messages of the form:
 ```
 < 4 bytes len little-endian > < proto-encoded IPCFrame >
@@ -130,8 +130,8 @@ the following frame types:
     The invocation takes as unique argument a proto sub-message. Each method
     defines a pair of _request_ and _response_ method types.<br>
     For instance the `RegisterDataSource` defined in [producer_port.proto] takes
-    a `perfetto.protos.RegisterDataSourceRequest` and returns a
-    `perfetto.protos.RegisterDataSourceResponse`.
+    a `dejaview.protos.RegisterDataSourceRequest` and returns a
+    `dejaview.protos.RegisterDataSourceResponse`.
 
 4. `InvokeMethodReply  service -> {producer, consumer}`<br>
     Returns the result of the corresponding invocation or an error flag.
@@ -194,12 +194,12 @@ tmpfs file descriptor during initialization for setting up the
 written (asynchronously).
 
 On Android this socket is linked at `/dev/socket/traced_producer`. On all
-platforms it is overridable via the `PERFETTO_PRODUCER_SOCK_NAME` env var.
+platforms it is overridable via the `DEJAVIEW_PRODUCER_SOCK_NAME` env var.
 
 On Android all apps and most system processes can connect to it
-(see [`perfetto_producer` in SELinux policies][selinux_producer]).
+(see [`dejaview_producer` in SELinux policies][selinux_producer]).
 
-In the Perfetto codebase, the [`traced_probes`](/src/traced/probes/) and
+In the DejaView codebase, the [`traced_probes`](/src/traced/probes/) and
 [`heapprofd`](/src/profiling/memory) processes use the producer socket for
 injecting system-wide tracing / profiling data.
 
@@ -210,7 +210,7 @@ The consumer socket allows processes to control tracing sessions (start / stop
 tracing) and read back trace data.
 
 On Android this socket is linked at `/dev/socket/traced_consumer`. On all
-platforms it is overridable via the `PERFETTO_CONSUMER_SOCK_NAME` env var.
+platforms it is overridable via the `DEJAVIEW_CONSUMER_SOCK_NAME` env var.
 
 Trace data contains sensitive information that discloses the activity the
 system (e.g., which processes / threads are running) and can allow side-channel
@@ -218,14 +218,14 @@ attacks. For this reason the consumer socket is intended to be exposed only to
 a few privileged processes.
 
 On Android, only the `adb shell` domain (used by various UI tools like
-[Perfetto UI](https://ui.perfetto.dev/),
+[DejaView UI](https://ui.perfetto.dev/),
 [Android Studio](https://developer.android.com/studio) or the
 [Android GPU Inspector](https://github.com/google/agi))
 and few other trusted system services are allowed to access the consumer socket
 (see [traced_consumer in SELinux][selinux_consumer]).
 
-In the Perfetto codebase, the [`perfetto`](/docs/reference/perfetto-cli)
-binary (`/system/bin/perfetto` on Android) provides a consumer implementation
+In the DejaView codebase, the [`dejaview`](/docs/reference/dejaview-cli)
+binary (`/system/bin/dejaview` on Android) provides a consumer implementation
 and exposes it through a command line interface.
 
 #### Socket protocol FAQs
@@ -234,7 +234,7 @@ _Why SOCK_STREAM and not DGRAM/SEQPACKET?_
 
 1. To allow direct passthrough of the consumer socket on Android through
    `adb forward localabstract` and allow host tools to directly talk to the
-   on-device tracing service. Today both the Perfetto UI and Android GPU
+   on-device tracing service. Today both the DejaView UI and Android GPU
    Inspector do this.
 2. To allow in future to directly control a remote service over TCP or SSH
    tunneling.
@@ -250,7 +250,7 @@ fine-grained control on back-pressure.
 
 _Is the UNIX socket protocol used within Chrome processes?_
 
-No. Within Chrome processes (the browser app, not CrOS) Perfetto doesn't use
+No. Within Chrome processes (the browser app, not CrOS) DejaView doesn't use
 any doesn't use any unix socket. Instead it uses the functionally equivalent
 Mojo endpoints [`Producer{Client,Host}` and `Consumer{Client,Host}`][mojom].
 
@@ -440,7 +440,7 @@ be changed maintaining backwards compatibility.
 
 This is due to the fact that on every Android release the `traced` service
 gets frozen in the system image while unbundled apps (e.g. Chrome) and host
-tools (e.g. Perfetto UI) can be updated at a more frequently cadence.
+tools (e.g. DejaView UI) can be updated at a more frequently cadence.
 
 Both the following scenarios are possible:
 
@@ -488,7 +488,7 @@ service, which might not support some newer features.
 
 ## Static linking vs shared library
 
-The Perfetto C++ Client Library is only available in the form of a static
+The DejaView C++ Client Library is only available in the form of a static
 library and a single-source amalgamated SDK (which is effectively a static
 library). The library implements the Tracing Protocol ABI so, once statically
 linked, depends only on the socket and shared memory protocol ABI, which are
@@ -497,10 +497,10 @@ guaranteed to be stable.
 No shared library distributions for the C++ are available. We strongly
 discourage teams from attempting to build the C++ tracing library as shared
 library and use it from a different linker unit. It is fine to link AND use the
-client library within the same shared library, as long as none of the perfetto
+client library within the same shared library, as long as none of the dejaview
 C++ API is exported.
 
-The `PERFETTO_EXPORT_COMPONENT` annotations are only used when building the
+The `DEJAVIEW_EXPORT_COMPONENT` annotations are only used when building the
 third tier of the client library in chromium component builds and cannot be
 easily repurposed for delineating shared library boundaries for the other two
 API tiers.
@@ -521,12 +521,12 @@ A new C Client library API/ABI is in the works, but it's not stable yet.
 [selinux_consumer]:https://cs.android.com/search?q=f:sepolicy%2F.*%5C.te%20traced_consumer&sq=
 [mojom]: https://source.chromium.org/chromium/chromium/src/+/master:services/tracing/public/mojom/perfetto_service.mojom?q=producer%20f:%5C.mojom$%20perfetto&ss=chromium&originalUrl=https:%2F%2Fcs.chromium.org%2F
 [proto_rpc]: https://developers.google.com/protocol-buffers/docs/proto#services
-[producer_port.proto]: /protos/perfetto/ipc/producer_port.proto
-[consumer_port.proto]: /protos/perfetto/ipc/consumer_port.proto
-[trace_packet.proto]: /protos/perfetto/trace/trace_packet.proto
-[data_source_descriptor.proto]: /protos/perfetto/common/data_source_descriptor.proto
-[data_source_config.proto]: /protos/perfetto/config/data_source_config.proto
+[producer_port.proto]: /protos/dejaview/ipc/producer_port.proto
+[consumer_port.proto]: /protos/dejaview/ipc/consumer_port.proto
+[trace_packet.proto]: /protos/dejaview/trace/trace_packet.proto
+[data_source_descriptor.proto]: /protos/dejaview/common/data_source_descriptor.proto
+[data_source_config.proto]: /protos/dejaview/config/data_source_config.proto
 [trace-packet-ref]: /docs/reference/trace-packet-proto.autogen
-[shared_memory_abi.h]: /include/perfetto/ext/tracing/core/shared_memory_abi.h
-[commit_data_request.proto]: /protos/perfetto/common/commit_data_request.proto
+[shared_memory_abi.h]: /include/dejaview/ext/tracing/core/shared_memory_abi.h
+[commit_data_request.proto]: /protos/dejaview/common/commit_data_request.proto
 [proto-updating]: https://developers.google.com/protocol-buffers/docs/proto#updating

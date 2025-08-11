@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_splitter.h"
 
 #include <utility>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 StringSplitter::StringSplitter(std::string str,
@@ -50,7 +50,7 @@ StringSplitter::StringSplitter(StringSplitter* outer,
 }
 
 void StringSplitter::Initialize(char* str, size_t size) {
-  PERFETTO_DCHECK(!size || str);
+  DEJAVIEW_DCHECK(!size || str);
   next_ = str;
   end_ = str + size;
   cur_ = nullptr;
@@ -89,4 +89,4 @@ bool StringSplitter::Next() {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

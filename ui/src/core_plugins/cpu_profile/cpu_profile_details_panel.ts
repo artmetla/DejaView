@@ -62,7 +62,7 @@ export class CpuProfileSampleFlamegraphDetailsPanel
               columnName: 'self_count',
             },
           ],
-          'include perfetto module callstacks.stack_profile',
+          'include dejaview module callstacks.stack_profile',
           [{name: 'mapping_name', displayName: 'Mapping'}],
           [
             {

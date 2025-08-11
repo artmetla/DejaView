@@ -20,11 +20,11 @@
 
 #include "src/trace_processor/containers/row_map_algorithms.h"
 
-using perfetto::trace_processor::BitVector;
+using dejaview::trace_processor::BitVector;
 
 namespace {
 
-using namespace perfetto::trace_processor::row_map_algorithms;
+using namespace dejaview::trace_processor::row_map_algorithms;
 
 bool IsBenchmarkFunctionalOnly() {
   return getenv("BENCHMARK_FUNCTIONAL_TEST_ONLY") != nullptr;

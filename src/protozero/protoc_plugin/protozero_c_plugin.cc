@@ -29,7 +29,7 @@
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
 namespace protozero {
 namespace {
@@ -42,12 +42,12 @@ using google::protobuf::FileDescriptor;
 using google::protobuf::compiler::GeneratorContext;
 using google::protobuf::io::Printer;
 using google::protobuf::io::ZeroCopyOutputStream;
-using perfetto::base::SplitString;
-using perfetto::base::StripChars;
-using perfetto::base::StripPrefix;
-using perfetto::base::StripSuffix;
-using perfetto::base::ToUpper;
-using perfetto::base::Uppercase;
+using dejaview::base::SplitString;
+using dejaview::base::StripChars;
+using dejaview::base::StripPrefix;
+using dejaview::base::StripSuffix;
+using dejaview::base::ToUpper;
+using dejaview::base::Uppercase;
 
 void Assert(bool condition) {
   if (!condition)
@@ -383,7 +383,7 @@ class GeneratorJob {
         "#define $guard$\n\n"
         "#include <stdbool.h>\n"
         "#include <stdint.h>\n\n"
-        "#include \"perfetto/public/pb_macros.h\"\n",
+        "#include \"dejaview/public/pb_macros.h\"\n",
         "guard", GenerateGuard());
 
     // Print includes for public imports and enums which cannot be forward
@@ -413,7 +413,7 @@ class GeneratorJob {
 
     // Print forward declarations.
     for (const Descriptor* message : referenced_messages_) {
-      stub_h_->Print("PERFETTO_PB_MSG_DECL($class$);\n", "class",
+      stub_h_->Print("DEJAVIEW_PB_MSG_DECL($class$);\n", "class",
                      GetCppClassName(message));
     }
 
@@ -422,11 +422,11 @@ class GeneratorJob {
 
   void GenerateEnumDescriptor(const EnumDescriptor* enumeration) {
     if (enumeration->containing_type()) {
-      stub_h_->Print("PERFETTO_PB_ENUM_IN_MSG($msg$, $class$){\n", "msg",
+      stub_h_->Print("DEJAVIEW_PB_ENUM_IN_MSG($msg$, $class$){\n", "msg",
                      GetCppClassName(enumeration->containing_type()), "class",
                      enumeration->name());
     } else {
-      stub_h_->Print("PERFETTO_PB_ENUM($class$){\n", "class",
+      stub_h_->Print("DEJAVIEW_PB_ENUM($class$){\n", "class",
                      GetCppClassName(enumeration));
     }
     stub_h_->Indent();
@@ -437,11 +437,11 @@ class GeneratorJob {
 
       if (enumeration->containing_type()) {
         stub_h_->Print(
-            "PERFETTO_PB_ENUM_IN_MSG_ENTRY($msg$, $val$) = $number$,\n", "msg",
+            "DEJAVIEW_PB_ENUM_IN_MSG_ENTRY($msg$, $val$) = $number$,\n", "msg",
             GetCppClassName(enumeration->containing_type()), "val", value_name,
             "number", std::to_string(value->number()));
       } else {
-        stub_h_->Print("PERFETTO_PB_ENUM_ENTRY($val$) = $number$, \n", "val",
+        stub_h_->Print("DEJAVIEW_PB_ENUM_ENTRY($val$) = $number$, \n", "val",
                        full_namespace_prefix_ + "_" + value_name, "number",
                        std::to_string(value->number()));
       }
@@ -466,7 +466,7 @@ class GeneratorJob {
   void GeneratePackedRepeatedFieldDescriptor(
       const std::string& message_cpp_type,
       const FieldDescriptor* field) {
-    stub_h_->Print("PERFETTO_PB_FIELD(");
+    stub_h_->Print("DEJAVIEW_PB_FIELD(");
     GeneratePackedRepeatedFieldDescriptorArgs(message_cpp_type, field);
     stub_h_->Print(");\n");
   }
@@ -475,7 +475,7 @@ class GeneratorJob {
       const std::string& field_cpp_prefix,
       const std::string& message_cpp_type,
       const FieldDescriptor* field) {
-    stub_h_->Print("PERFETTO_PB_EXTENSION_FIELD($prefix$, ", "prefix",
+    stub_h_->Print("DEJAVIEW_PB_EXTENSION_FIELD($prefix$, ", "prefix",
                    field_cpp_prefix);
     GeneratePackedRepeatedFieldDescriptorArgs(message_cpp_type, field);
     stub_h_->Print(");\n");
@@ -525,7 +525,7 @@ class GeneratorJob {
 
   void GenerateSimpleFieldDescriptor(const std::string& message_cpp_type,
                                      const FieldDescriptor* field) {
-    stub_h_->Print("PERFETTO_PB_FIELD(");
+    stub_h_->Print("DEJAVIEW_PB_FIELD(");
     GenerateSimpleFieldDescriptorArgs(message_cpp_type, field);
     stub_h_->Print(");\n");
   }
@@ -534,7 +534,7 @@ class GeneratorJob {
       const std::string& field_cpp_prefix,
       const std::string& message_cpp_type,
       const FieldDescriptor* field) {
-    stub_h_->Print("PERFETTO_PB_EXTENSION_FIELD($prefix$, ", "prefix",
+    stub_h_->Print("DEJAVIEW_PB_EXTENSION_FIELD($prefix$, ", "prefix",
                    field_cpp_prefix);
     GenerateSimpleFieldDescriptorArgs(message_cpp_type, field);
     stub_h_->Print(");\n");
@@ -544,7 +544,7 @@ class GeneratorJob {
                                             const FieldDescriptor* field) {
     std::string inner_class = GetCppClassName(field->message_type());
     stub_h_->Print(
-        "PERFETTO_PB_FIELD($class$, MSG, $inner_class$, $name$, $id$);\n",
+        "DEJAVIEW_PB_FIELD($class$, MSG, $inner_class$, $name$, $id$);\n",
         "class", message_cpp_type, "id", std::to_string(field->number()),
         "name", field->lowercase_name(), "inner_class", inner_class);
   }
@@ -555,7 +555,7 @@ class GeneratorJob {
       const FieldDescriptor* field) {
     std::string inner_class = GetCppClassName(field->message_type());
     stub_h_->Print(
-        "PERFETTO_PB_EXTENSION_FIELD($prefix$, $class$, MSG, $inner_class$, "
+        "DEJAVIEW_PB_EXTENSION_FIELD($prefix$, $class$, MSG, $inner_class$, "
         "$name$, $id$);\n",
         "prefix", field_cpp_prefix, "class", message_cpp_type, "id",
         std::to_string(field->number()), "name", field->lowercase_name(),
@@ -563,7 +563,7 @@ class GeneratorJob {
   }
 
   void GenerateMessageDescriptor(const Descriptor* message) {
-    stub_h_->Print("PERFETTO_PB_MSG($name$);\n", "name",
+    stub_h_->Print("DEJAVIEW_PB_MSG($name$);\n", "name",
                    GetCppClassName(message));
 
     // Field descriptors.

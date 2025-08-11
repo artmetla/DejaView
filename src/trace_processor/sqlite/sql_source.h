@@ -24,9 +24,9 @@
 #include <tuple>
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // An SQL string which retains knowledge of the source of the SQL (i.e. stdlib
@@ -81,7 +81,7 @@ class SqlSource {
   // Rewrites the SQL backing |this| to SQL from |source| ignoring any existing
   // rewrites in |this|.
   //
-  // This is useful when PerfettoSQL statements are transpiled into SQLite
+  // This is useful when DejaViewSQL statements are transpiled into SQLite
   // statements but we want to preserve the context of the original statement.
   SqlSource RewriteAllIgnoreExisting(SqlSource source) const;
 
@@ -176,7 +176,7 @@ class SqlSource {
     Node Substr(uint32_t rewritten_offset, uint32_t rewritten_len) const;
 
     bool IsRewritten() const {
-      PERFETTO_CHECK(rewrites.empty() == (original_sql == rewritten_sql));
+      DEJAVIEW_CHECK(rewrites.empty() == (original_sql == rewritten_sql));
       return !rewrites.empty();
     }
 
@@ -296,6 +296,6 @@ class SqlSource::Rewriter {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_SQL_SOURCE_H_

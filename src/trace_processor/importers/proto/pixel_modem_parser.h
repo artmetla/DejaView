@@ -17,12 +17,12 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PIXEL_MODEM_PARSER_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PIXEL_MODEM_PARSER_H_
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/proto/pigweed_detokenizer.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -45,6 +45,6 @@ class PixelModemParser {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PIXEL_MODEM_PARSER_H_

@@ -21,10 +21,10 @@
 #include "column/types.h"
 #include "column_storage.h"
 #include "column_storage_overlay.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/db/table.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ColumnLegacy::ColumnLegacy(const ColumnLegacy& column,
                            uint32_t col_idx,
@@ -68,8 +68,8 @@ ColumnLegacy ColumnLegacy::IdColumn(uint32_t col_idx,
 }
 
 const ColumnStorageOverlay& ColumnLegacy::overlay() const {
-  PERFETTO_DCHECK(type_ != ColumnType::kDummy);
+  DEJAVIEW_DCHECK(type_ != ColumnType::kDummy);
   return table_->overlays_[overlay_index()];
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/unix_socket.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/test_helper.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace socket_fuzz {
 namespace {
 
@@ -32,17 +32,17 @@ class FakeEventListener : public base::UnixSocket::EventListener {
 
   void OnNewIncomingConnection(base::UnixSocket*,
                                std::unique_ptr<base::UnixSocket>) override {
-    PERFETTO_CHECK(false);
+    DEJAVIEW_CHECK(false);
   }
 
   void OnConnect(base::UnixSocket* self, bool connected) override {
-    PERFETTO_CHECK(connected && self->is_connected());
+    DEJAVIEW_CHECK(connected && self->is_connected());
     self->Send(data_, size_, self->fd());
     data_sent_();
   }
 
-  void OnDisconnect(base::UnixSocket*) override { PERFETTO_CHECK(false); }
-  void OnDataAvailable(base::UnixSocket*) override { PERFETTO_CHECK(false); }
+  void OnDisconnect(base::UnixSocket*) override { DEJAVIEW_CHECK(false); }
+  void OnDataAvailable(base::UnixSocket*) override { DEJAVIEW_CHECK(false); }
 
  private:
   const uint8_t* data_;
@@ -70,10 +70,10 @@ int FuzzSharedMemory(const uint8_t* data, size_t size) {
 }
 }  // namespace
 }  // namespace socket_fuzz
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  return perfetto::socket_fuzz::FuzzSharedMemory(data, size);
+  return dejaview::socket_fuzz::FuzzSharedMemory(data, size);
 }

@@ -16,12 +16,12 @@
 
 #include "src/trace_processor/importers/perf/auxtrace_record.h"
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_processor/importers/perf/reader.h"
 #include "src/trace_processor/importers/perf/record.h"
 #include "src/trace_processor/importers/perf/util.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 base::Status AuxtraceRecord::Parse(const Record& record) {
   Reader reader(record.payload.copy());
@@ -37,4 +37,4 @@ base::Status AuxtraceRecord::Parse(const Record& record) {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

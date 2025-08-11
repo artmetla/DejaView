@@ -16,17 +16,17 @@
 
 #include "src/trace_processor/importers/etw/etw_parser.h"
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/sched_event_tracker.h"
 #include "src/trace_processor/importers/common/thread_state_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/trace/etw/etw.pbzero.h"
-#include "protos/perfetto/trace/etw/etw_event.pbzero.h"
+#include "protos/dejaview/trace/etw/etw.pbzero.h"
+#include "protos/dejaview/trace/etw/etw_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -92,7 +92,7 @@ void EtwParser::PushSchedSwitch(uint32_t cpu,
   }
   if (pending_slice_idx < std::numeric_limits<uint32_t>::max()) {
     prev_pid_match_prev_next_pid = prev_tid == pending_sched->last_pid;
-    if (PERFETTO_LIKELY(prev_pid_match_prev_next_pid)) {
+    if (DEJAVIEW_LIKELY(prev_pid_match_prev_next_pid)) {
       context_->sched_event_tracker->ClosePendingSlice(pending_slice_idx, ts,
                                                        prev_state_string_id);
     } else {
@@ -137,4 +137,4 @@ StringId EtwParser::TaskStateToStringId(int64_t task_state_int) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -18,17 +18,17 @@
 
 #include <vector>
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/protozero/message_handle.h"
-#include "perfetto/protozero/root_message.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/protozero/message_handle.h"
+#include "dejaview/protozero/root_message.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // A specialization of TraceWriter for testing which writes into memory
 // allocated by the ScatteredHeapBuffer.
-// See //include/perfetto/ext/tracing/core/trace_writer.h for docs.
+// See //include/dejaview/ext/tracing/core/trace_writer.h for docs.
 class TraceWriterForTesting : public TraceWriter {
  public:
   TraceWriterForTesting();
@@ -69,6 +69,6 @@ class TraceWriterForTesting : public TraceWriter {
   size_t cur_packet_written_start_ = 0;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_CORE_TRACE_WRITER_FOR_TESTING_H_

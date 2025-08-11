@@ -22,9 +22,9 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // Returns a bitmask for sampling the userspace register set, used when
@@ -40,6 +40,6 @@ uint64_t PerfUserRegsMaskForArch(unwindstack::ArchEnum arch);
 std::unique_ptr<unwindstack::Regs> ReadPerfUserRegsData(const char** data);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_REGS_PARSING_H_

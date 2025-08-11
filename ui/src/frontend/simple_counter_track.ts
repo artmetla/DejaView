@@ -19,7 +19,7 @@ import {
   SqlDataSource,
 } from '../public/lib/debug_tracks/debug_tracks';
 import {uuidv4Sql} from '../base/uuid';
-import {createPerfettoTable} from '../trace_processor/sql_utils';
+import {createDejaViewTable} from '../trace_processor/sql_utils';
 import {Trace} from '../public/trace';
 
 export type SimpleCounterTrackConfig = {
@@ -47,7 +47,7 @@ export class SimpleCounterTrack extends BaseCounterTrack {
   }
 
   async onInit() {
-    return await createPerfettoTable(
+    return await createDejaViewTable(
       this.engine,
       this.sqlTableName,
       `

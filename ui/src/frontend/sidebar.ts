@@ -26,7 +26,7 @@ import {
 import {Engine, EngineMode} from '../trace_processor/engine';
 import {featureFlags} from '../core/feature_flags';
 import {raf} from '../core/raf_scheduler';
-import {SCM_REVISION, VERSION} from '../gen/perfetto_version';
+import {SCM_REVISION, VERSION} from '../gen/dejaview_version';
 import {showModal} from '../widgets/modal';
 import {Animation} from './animation';
 import {downloadData, downloadUrl} from './download_utils';
@@ -449,7 +449,7 @@ function downloadTrace(e: Event, trace: Trace) {
       'Please enter a name for your file or leave blank',
     );
     if (inputFileName) {
-      fileName = `${inputFileName}.perfetto_trace.gz`;
+      fileName = `${inputFileName}.dejaview_trace.gz`;
     } else if (src.fileName) {
       fileName = src.fileName;
     }
@@ -481,7 +481,7 @@ function recordMetatrace(e: Event, engine: Engine) {
     const PROMPT = `High-precision timers are not available to WASM trace processor yet.
 
 Modern browsers restrict high-precision timers to cross-origin-isolated pages.
-As Perfetto UI needs to open traces via postMessage, it can't be cross-origin
+As DejaView UI needs to open traces via postMessage, it can't be cross-origin
 isolated until browsers ship support for
 'Cross-origin-opener-policy: restrict-properties'.
 
@@ -815,7 +815,7 @@ export class Sidebar implements m.ClassComponent<OptionalTraceAttrs> {
           {
             onclick: () => {
               globals.commandManager.runCommand(
-                'perfetto.CoreCommands#ToggleLeftSidebar',
+                'dejaview.CoreCommands#ToggleLeftSidebar',
               );
             },
           },

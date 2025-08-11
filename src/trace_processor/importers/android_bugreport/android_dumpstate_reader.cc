@@ -21,14 +21,14 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_reader.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 AndroidDumpstateReader::AndroidDumpstateReader(
     TraceProcessorContext* context,
@@ -128,4 +128,4 @@ base::Status AndroidDumpstateReader::ParseLine(base::StringView line) {
 
 void AndroidDumpstateReader::EndOfStream(base::StringView) {}
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

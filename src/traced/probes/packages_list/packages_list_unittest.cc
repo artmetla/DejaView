@@ -21,14 +21,14 @@
 #include <set>
 #include <string>
 
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/trace/android/packages_list.gen.h"
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/trace/android/packages_list.gen.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
 #include "src/traced/probes/packages_list/packages_list_parser.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(PackagesListDataSourceTest, ParseLineNonProfileNonDebug) {
@@ -91,7 +91,7 @@ TEST(PackagesListDataSourceTest, EmptyNameFilterIncludesAll) {
   // Create a stream from |buf|, up to the null byte. Avoid fmemopen as it
   // requires a higher target API (23) than we use for portability.
   auto pipe = base::Pipe::Create();
-  PERFETTO_CHECK(write(pipe.wr.get(), buf, sizeof(buf) - 1) == sizeof(buf) - 1);
+  DEJAVIEW_CHECK(write(pipe.wr.get(), buf, sizeof(buf) - 1) == sizeof(buf) - 1);
   pipe.wr.reset();
   auto fs = base::ScopedFstream(fdopen(pipe.rd.get(), "r"));
   pipe.rd.release();  // now owned by |fs|
@@ -128,7 +128,7 @@ TEST(PackagesListDataSourceTest, NameFilter) {
   // Create a stream from |buf|, up to the null byte. Avoid fmemopen as it
   // requires a higher target API (23) than we use for portability.
   auto pipe = base::Pipe::Create();
-  PERFETTO_CHECK(write(pipe.wr.get(), buf, sizeof(buf) - 1) == sizeof(buf) - 1);
+  DEJAVIEW_CHECK(write(pipe.wr.get(), buf, sizeof(buf) - 1) == sizeof(buf) - 1);
   pipe.wr.reset();
   auto fs = base::ScopedFstream(fdopen(pipe.rd.get(), "r"));
   pipe.rd.release();  // now owned by |fs|
@@ -152,4 +152,4 @@ TEST(PackagesListDataSourceTest, NameFilter) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

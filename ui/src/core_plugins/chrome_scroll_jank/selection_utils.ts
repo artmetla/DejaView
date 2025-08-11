@@ -17,9 +17,9 @@ import {Anchor} from '../../widgets/anchor';
 import {Icons} from '../../base/semantic_icons';
 import {Trace} from '../../public/trace';
 
-export const SCROLLS_TRACK_URI = 'perfetto.ChromeScrollJank#toplevelScrolls';
-export const EVENT_LATENCY_TRACK_URI = 'perfetto.ChromeScrollJank#eventLatency';
-export const JANKS_TRACK_URI = 'perfetto.ChromeScrollJank#scrollJankV3';
+export const SCROLLS_TRACK_URI = 'dejaview.ChromeScrollJank#toplevelScrolls';
+export const EVENT_LATENCY_TRACK_URI = 'dejaview.ChromeScrollJank#eventLatency';
+export const JANKS_TRACK_URI = 'dejaview.ChromeScrollJank#scrollJankV3';
 
 export function renderSliceRef(args: {
   trace: Trace;

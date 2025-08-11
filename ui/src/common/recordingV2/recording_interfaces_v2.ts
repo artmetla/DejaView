@@ -31,9 +31,9 @@ export interface TargetFactory {
 
   listTargets(): RecordingTargetV2[];
   // Returns recording problems that we encounter when not directly using the
-  // target. For instance we connect webusb devices when Perfetto is loaded. If
+  // target. For instance we connect webusb devices when DejaView is loaded. If
   // there is an issue with connecting a webusb device, we do not want to crash
-  // all of Perfetto, as the user may not want to use the recording
+  // all of DejaView, as the user may not want to use the recording
   // functionality at all.
   listRecordingProblems(): string[];
 
@@ -128,7 +128,7 @@ export interface RecordingTargetV2 {
 // actions, the UI can start/stop/cancel a session. During the recording, it
 // provides updates about buffer usage. It is subclassed by
 // TracedTracingSession, which manages the communication with traced and has
-// logic for encoding/decoding Perfetto client requests/replies.
+// logic for encoding/decoding DejaView client requests/replies.
 export interface TracingSession {
   // Starts the tracing session.
   start(config: TraceConfig): void;

@@ -20,15 +20,15 @@
 #include <limits>
 #include <list>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/sys_types.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/ipc/basic_types.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/sys_types.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/ipc/basic_types.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 
-#include "protos/perfetto/ipc/relay_port.ipc.h"
+#include "protos/dejaview/ipc/relay_port.ipc.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Implements the RelayPort IPC service.
 class RelayIPCService : public protos::gen::RelayPort {
@@ -64,6 +64,6 @@ class RelayIPCService : public protos::gen::RelayPort {
   base::WeakPtrFactory<RelayIPCService> weak_ptr_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_SERVICE_RELAY_IPC_SERVICE_H_

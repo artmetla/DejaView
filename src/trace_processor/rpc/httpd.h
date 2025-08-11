@@ -20,7 +20,7 @@
 #include <memory>
 #include <string>
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessor;
 
@@ -31,6 +31,6 @@ class TraceProcessor;
 // instance when pushing data into the /parse endpoint.
 void RunHttpRPCServer(std::unique_ptr<TraceProcessor>, const std::string&);
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_RPC_HTTPD_H_

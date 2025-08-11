@@ -19,14 +19,14 @@
 #include <memory>
 #include <optional>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/global_args_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using ::testing::_;
@@ -265,4 +265,4 @@ TEST_F(ProcessTrackerTest, NamespacedProcessesAndThreads) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

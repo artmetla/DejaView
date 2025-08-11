@@ -19,10 +19,10 @@
 
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Execute a broad-phase filter here and defer a narrow-phase filter via other
 // primitives.
@@ -50,6 +50,6 @@ class BroadphasePacketFilter : public TransformPrimitive {
                      protos::pbzero::FtraceEvent* message) const;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_BROADPHASE_PACKET_FILTER_H_

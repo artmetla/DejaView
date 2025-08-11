@@ -25,7 +25,7 @@ using ::testing::Key;
 using ::testing::Not;
 using ::testing::Pair;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(PrintkFormatParserTest, AllZeros) {
@@ -85,4 +85,4 @@ No name:
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

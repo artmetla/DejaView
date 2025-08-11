@@ -1,13 +1,13 @@
 # Quickstart: Trace conversion
 
-_This quickstart demonstrates how Perfetto traces can be converted into other trace formats using the `traceconv` tool._
+_This quickstart demonstrates how DejaView traces can be converted into other trace formats using the `traceconv` tool._
 
 ![](/docs/images/traceconv-summary.png)
 
 ## Prerequisites
 
 - A host running Linux or MacOS
-- A Perfetto protobuf trace file
+- A DejaView protobuf trace file
 
 The supported output formats are:
 
@@ -64,7 +64,7 @@ You can use pprof to merge them together if desired.
 
 ## Opening in the legacy systrace UI
 
-If you just want to open a Perfetto trace with the legacy (Catapult) trace
+If you just want to open a DejaView trace with the legacy (Catapult) trace
 viewer, you can just navigate to [ui.perfetto.dev](https://ui.perfetto.dev),
 and use the _"Open with legacy UI"_ link. This runs `traceconv` within
 the browser using WebAssembly and passes the converted trace seamlessly to

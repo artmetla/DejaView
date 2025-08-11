@@ -13,11 +13,11 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE android.slices;
+INCLUDE DEJAVIEW MODULE android.slices;
 
 -- Table of ShadeListBuilder.buildList slices
 DROP TABLE IF EXISTS shade_list_builder_build_list_slices;
-CREATE PERFETTO TABLE shade_list_builder_build_list_slices AS
+CREATE DEJAVIEW TABLE shade_list_builder_build_list_slices AS
 SELECT
   s.name name,
   dur,
@@ -33,7 +33,7 @@ WHERE
 
 -- Table of ShadeListBuilder.buildList slices with the descendants
 DROP TABLE IF EXISTS slices_and_descendants;
-CREATE PERFETTO TABLE slices_and_descendants AS
+CREATE DEJAVIEW TABLE slices_and_descendants AS
 SELECT
   parent.name name,
   descendant.name descendant_name,

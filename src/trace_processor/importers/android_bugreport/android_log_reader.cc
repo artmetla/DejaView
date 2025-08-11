@@ -24,10 +24,10 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/status.h"
-#include "perfetto/base/time.h"
-#include "protos/perfetto/common/android_log_constants.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "dejaview/base/status.h"
+#include "dejaview/base/time.h"
+#include "protos/dejaview/common/android_log_constants.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_event.h"
 #include "src/trace_processor/importers/common/clock_converter.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
@@ -36,7 +36,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -140,7 +140,7 @@ util::Status AndroidLogReader::ParseLine(base::StringView line) {
   if (!format_.has_value()) {
     format_ = AndroidLogEvent::DetectFormat(line);
     if (!format_.has_value()) {
-      PERFETTO_DLOG("Could not detect logcat format for: |%s|",
+      DEJAVIEW_DLOG("Could not detect logcat format for: |%s|",
                     line.ToStdString().c_str());
       context_->storage->IncrementStats(stats::android_log_format_invalid);
       return base::OkStatus();
@@ -286,4 +286,4 @@ base::Status DedupingAndroidLogReader::ProcessEvent(
   return SendToSorter(event_ts, std::move(event));
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

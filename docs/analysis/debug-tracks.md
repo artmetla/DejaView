@@ -1,6 +1,6 @@
 # Debug Tracks
 
-Debug Tracks are a way to display tabular results from running a PerfettoSQL
+Debug Tracks are a way to display tabular results from running a DejaViewSQL
 query as a so-called "debug" track. Specifically, if the resultant table can
 be visualised in a slice format (ex: the
 [`slice`](sql-tables.autogen#slice) table) or counter format

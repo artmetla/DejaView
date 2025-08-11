@@ -19,7 +19,7 @@ from python.generators.diff_tests.testing import DiffTestBlueprint
 from python.generators.diff_tests.testing import TestSuite
 
 
-class PerfettoFiltering(TestSuite):
+class DejaViewFiltering(TestSuite):
   # Below comparison tests are based on
   # https://www.sqlite.org/datatype3.html#comparisons.
 
@@ -194,7 +194,7 @@ class PerfettoFiltering(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT 0 as id, NULL AS strings
         UNION ALL
         SELECT 1, 'cheese'
@@ -217,7 +217,7 @@ class PerfettoFiltering(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT 0 as id, NULL AS strings
         UNION ALL
         SELECT 1, 'cheese'
@@ -240,7 +240,7 @@ class PerfettoFiltering(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT 'foo' AS strings
         UNION ALL
         SELECT 'binder x'
@@ -260,7 +260,7 @@ class PerfettoFiltering(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        CREATE PERFETTO TABLE foo AS
+        CREATE DEJAVIEW TABLE foo AS
         SELECT 'foo' AS strings
         UNION ALL
         SELECT 'binder x'

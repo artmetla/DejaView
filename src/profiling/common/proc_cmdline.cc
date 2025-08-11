@@ -23,9 +23,9 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace glob_aware {
 
@@ -45,7 +45,7 @@ namespace glob_aware {
 // starting with a nul byte, but never nullptr).
 //
 // NB: bionic/libc/bionic/malloc_heapprofd will require a parallel
-// implementation of these functions (to avoid a bionic->perfetto dependency).
+// implementation of these functions (to avoid a bionic->dejaview dependency).
 // Keep them as STL-free as possible to allow for both implementations to be
 // close to verbatim copies.
 
@@ -54,16 +54,16 @@ bool ReadProcCmdlineForPID(pid_t pid, std::string* cmdline_out) {
   std::string filename = "/proc/" + std::to_string(pid) + "/cmdline";
   base::ScopedFile fd(base::OpenFile(filename, O_RDONLY));
   if (!fd) {
-    PERFETTO_DPLOG("Failed to open %s", filename.c_str());
+    DEJAVIEW_DPLOG("Failed to open %s", filename.c_str());
     return false;
   }
 
   // buf is 511 bytes to match an implementation that adds a null terminator to
   // the back of a 512 byte buffer.
   char buf[511];
-  ssize_t rd = PERFETTO_EINTR(read(*fd, buf, sizeof(buf)));
+  ssize_t rd = DEJAVIEW_EINTR(read(*fd, buf, sizeof(buf)));
   if (rd < 0) {
-    PERFETTO_DPLOG("Failed to read %s", filename.c_str());
+    DEJAVIEW_DPLOG("Failed to read %s", filename.c_str());
     return false;
   }
 
@@ -115,4 +115,4 @@ bool MatchGlobPattern(const char* pattern,
 
 }  // namespace glob_aware
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -25,7 +25,7 @@ class ViewCapture(TestSuite):
     return DiffTestBlueprint(
         trace=Path('viewcapture.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.winscope.viewcapture;
+        INCLUDE DEJAVIEW MODULE android.winscope.viewcapture;
         SELECT
           id, ts
         FROM
@@ -41,7 +41,7 @@ class ViewCapture(TestSuite):
     return DiffTestBlueprint(
         trace=Path('viewcapture.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.winscope.viewcapture;
+        INCLUDE DEJAVIEW MODULE android.winscope.viewcapture;
         SELECT
           args.key, args.display_value
         FROM
@@ -68,7 +68,7 @@ class ViewCapture(TestSuite):
     return DiffTestBlueprint(
         trace=Path('viewcapture.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.winscope.viewcapture;
+        INCLUDE DEJAVIEW MODULE android.winscope.viewcapture;
         SELECT
           args.key, args.display_value
         FROM

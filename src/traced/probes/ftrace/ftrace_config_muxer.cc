@@ -25,16 +25,16 @@
 #include <iterator>
 #include <limits>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/traced/probes/ftrace/atrace_wrapper.h"
 #include "src/traced/probes/ftrace/compact_sched.h"
 #include "src/traced/probes/ftrace/ftrace_config_utils.h"
 #include "src/traced/probes/ftrace/ftrace_stats.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 constexpr uint64_t kDefaultLowRamPerCpuBufferSizeKb = 2 * (1ULL << 10);   // 2mb
@@ -126,7 +126,7 @@ std::vector<std::string> Subtract(const std::vector<std::string>& unsorted_a,
 
 // This is just to reduce binary size and stack frame size of the insertions.
 // It effectively undoes STL's set::insert inlining.
-void PERFETTO_NO_INLINE InsertEvent(const char* group,
+void DEJAVIEW_NO_INLINE InsertEvent(const char* group,
                                     const char* name,
                                     std::set<GroupAndName>* dst) {
   dst->insert(GroupAndName(group, name));
@@ -150,7 +150,7 @@ std::set<GroupAndName> FtraceConfigMuxer::GetFtraceEvents(
       // use it's group.
       const Event* e = table->GetEventByName(name);
       if (!e) {
-        PERFETTO_DLOG(
+        DEJAVIEW_DLOG(
             "Event doesn't exist: %s. Include the group in the config to allow "
             "the event to be output as a generic event.",
             name.c_str());
@@ -553,7 +553,7 @@ EventFilter FtraceConfigMuxer::BuildSyscallFilter(
   for (const std::string& syscall : request.syscall_events()) {
     std::optional<size_t> id = syscalls_.GetByName(syscall);
     if (!id.has_value()) {
-      PERFETTO_ELOG("Can't enable %s, syscall not known", syscall.c_str());
+      DEJAVIEW_ELOG("Can't enable %s, syscall not known", syscall.c_str());
       continue;
     }
     output.AddEnabledEvent(*id);
@@ -568,7 +568,7 @@ bool FtraceConfigMuxer::SetSyscallEventFilter(
 
   syscall_filter.EnableEventsFrom(extra_syscalls);
   for (const auto& id_config : ds_configs_) {
-    const perfetto::FtraceDataSourceConfig& config = id_config.second;
+    const dejaview::FtraceDataSourceConfig& config = id_config.second;
     syscall_filter.EnableEventsFrom(config.syscall_filter);
   }
 
@@ -609,14 +609,14 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
                                     FtraceSetupErrors* errors) {
   EventFilter filter;
   if (ds_configs_.empty()) {
-    PERFETTO_DCHECK(active_configs_.empty());
+    DEJAVIEW_DCHECK(active_configs_.empty());
 
-    // If someone outside of perfetto is using a non-nop tracer, yield. We can't
+    // If someone outside of dejaview is using a non-nop tracer, yield. We can't
     // realistically figure out all notions of "in use" even if we look at
     // set_event or events/enable, so this is all we check for.
     if (!request.preserve_ftrace_buffer() && !ftrace_->IsTracingAvailable()) {
-      PERFETTO_ELOG(
-          "ftrace in use by non-Perfetto. Check that %s current_tracer is nop.",
+      DEJAVIEW_ELOG(
+          "ftrace in use by non-DejaView. Check that %s current_tracer is nop.",
           ftrace_->GetRootPath().c_str());
       return false;
     }
@@ -661,13 +661,13 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
 
   if (RequiresAtrace(request)) {
     if (secondary_instance_) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Secondary ftrace instances do not support atrace_categories and "
           "atrace_apps options as they affect global state");
       return false;
     }
     if (!atrace_wrapper_->SupportsUserspaceOnly() && !ds_configs_.empty()) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Concurrent atrace sessions are not supported before Android P, "
           "bailing out.");
       return false;
@@ -678,14 +678,14 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
   for (const auto& group_and_name : events) {
     const Event* event = table_->GetOrCreateEvent(group_and_name);
     if (!event) {
-      PERFETTO_DLOG("Can't enable %s, event not known",
+      DEJAVIEW_DLOG("Can't enable %s, event not known",
                     group_and_name.ToString().c_str());
       if (errors)
         errors->unknown_ftrace_events.push_back(group_and_name.ToString());
       continue;
     }
     // Niche option to skip events that are in the config, but don't have a
-    // dedicated proto for the event in perfetto. Otherwise such events will be
+    // dedicated proto for the event in dejaview. Otherwise such events will be
     // encoded as GenericFtraceEvent.
     if (request.disable_generic_events() &&
         event->proto_field_id ==
@@ -707,7 +707,7 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
       current_state_.ftrace_events.AddEnabledEvent(event->ftrace_event_id);
       filter.AddEnabledEvent(event->ftrace_event_id);
     } else {
-      PERFETTO_DPLOG("Failed to enable %s.", group_and_name.ToString().c_str());
+      DEJAVIEW_DPLOG("Failed to enable %s.", group_and_name.ToString().c_str());
       if (errors)
         errors->failed_ftrace_events.push_back(group_and_name.ToString());
     }
@@ -715,7 +715,7 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
 
   EventFilter syscall_filter = BuildSyscallFilter(filter, request);
   if (!SetSyscallEventFilter(syscall_filter)) {
-    PERFETTO_ELOG("Failed to set raw_syscall ftrace filter in SetupConfig");
+    DEJAVIEW_ELOG("Failed to set raw_syscall ftrace filter in SetupConfig");
     return false;
   }
 
@@ -741,7 +741,7 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
       return false;
     if (!current_state_.funcgraph_on &&
         !ftrace_->SetCurrentTracer("function_graph")) {
-      PERFETTO_LOG(
+      DEJAVIEW_LOG(
           "Unable to enable function_graph tracing since a concurrent ftrace "
           "data source is using a different tracer");
       return false;
@@ -754,7 +754,7 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
       compact_format);
   if (errors && !compact_format.format_valid) {
     errors->failed_ftrace_events.emplace_back(
-        "perfetto/compact_sched (unexpected sched event format)");
+        "dejaview/compact_sched (unexpected sched event format)");
   }
 
   std::optional<FtracePrintFilterConfig> ftrace_print_filter;
@@ -786,7 +786,7 @@ bool FtraceConfigMuxer::SetupConfig(FtraceConfigId id,
 
 bool FtraceConfigMuxer::ActivateConfig(FtraceConfigId id) {
   if (!id || ds_configs_.count(id) == 0) {
-    PERFETTO_DFATAL("Config not found");
+    DEJAVIEW_DFATAL("Config not found");
     return false;
   }
 
@@ -795,7 +795,7 @@ bool FtraceConfigMuxer::ActivateConfig(FtraceConfigId id) {
 
   // Pick the lowest buffer_percent across the new set of active configs.
   if (!UpdateBufferPercent()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Invalid FtraceConfig.drain_buffer_percent or "
         "/sys/kernel/tracing/buffer_percent file permissions.");
     // carry on, non-critical error
@@ -804,7 +804,7 @@ bool FtraceConfigMuxer::ActivateConfig(FtraceConfigId id) {
   // Enable kernel event writer.
   if (first_config) {
     if (!ftrace_->SetTracingOn(true)) {
-      PERFETTO_ELOG("Failed to enable ftrace.");
+      DEJAVIEW_ELOG("Failed to enable ftrace.");
       active_configs_.erase(id);
       return false;
     }
@@ -820,7 +820,7 @@ bool FtraceConfigMuxer::RemoveConfig(FtraceConfigId config_id) {
   std::vector<std::string> expected_categories;
   std::vector<std::string> expected_categories_sdk_optout;
   for (const auto& id_config : ds_configs_) {
-    const perfetto::FtraceDataSourceConfig& config = id_config.second;
+    const dejaview::FtraceDataSourceConfig& config = id_config.second;
     expected_ftrace_events.EnableEventsFrom(config.event_filter);
     UnionInPlace(config.atrace_apps, &expected_apps);
     UnionInPlace(config.atrace_categories, &expected_categories);
@@ -852,7 +852,7 @@ bool FtraceConfigMuxer::RemoveConfig(FtraceConfigId config_id) {
       expected_categories_prefer_sdk;
 
   if (!SetSyscallEventFilter(/*extra_syscalls=*/{})) {
-    PERFETTO_ELOG("Failed to set raw_syscall ftrace filter in RemoveConfig");
+    DEJAVIEW_ELOG("Failed to set raw_syscall ftrace filter in RemoveConfig");
   }
 
   // Disable any events that are currently enabled, but are not in any configs
@@ -863,7 +863,7 @@ bool FtraceConfigMuxer::RemoveConfig(FtraceConfigId config_id) {
       continue;
     const Event* event = table_->GetEventById(id);
     // Any event that was enabled must exist.
-    PERFETTO_DCHECK(event);
+    DEJAVIEW_DCHECK(event);
     if (ftrace_->DisableEvent(event->group, event->name))
       current_state_.ftrace_events.DisableEvent(event->ftrace_event_id);
   }
@@ -926,16 +926,16 @@ bool FtraceConfigMuxer::ResetCurrentTracer() {
   if (!current_state_.funcgraph_on)
     return true;
   if (!ftrace_->ResetCurrentTracer()) {
-    PERFETTO_PLOG("Failed to reset current_tracer to nop");
+    DEJAVIEW_PLOG("Failed to reset current_tracer to nop");
     return false;
   }
   current_state_.funcgraph_on = false;
   if (!ftrace_->ClearFunctionFilters()) {
-    PERFETTO_PLOG("Failed to reset set_ftrace_filter.");
+    DEJAVIEW_PLOG("Failed to reset set_ftrace_filter.");
     return false;
   }
   if (!ftrace_->ClearFunctionGraphFilters()) {
-    PERFETTO_PLOG("Failed to reset set_function_graph.");
+    DEJAVIEW_PLOG("Failed to reset set_function_graph.");
     return false;
   }
   return true;
@@ -1093,7 +1093,7 @@ void FtraceConfigMuxer::UpdateAtrace(const FtraceConfig& request,
 bool FtraceConfigMuxer::StartAtrace(const std::vector<std::string>& apps,
                                     const std::vector<std::string>& categories,
                                     std::string* atrace_errors) {
-  PERFETTO_DLOG("Update atrace config...");
+  DEJAVIEW_DLOG("Update atrace config...");
 
   std::vector<std::string> args;
   args.push_back("atrace");  // argv0 for exec()
@@ -1116,7 +1116,7 @@ bool FtraceConfigMuxer::StartAtrace(const std::vector<std::string>& apps,
   }
 
   bool result = atrace_wrapper_->RunAtrace(args, atrace_errors);
-  PERFETTO_DLOG("...done (%s)", result ? "success" : "fail");
+  DEJAVIEW_DLOG("...done (%s)", result ? "success" : "fail");
   return result;
 }
 
@@ -1126,7 +1126,7 @@ bool FtraceConfigMuxer::SetAtracePreferSdk(
   if (!atrace_wrapper_->SupportsPreferSdk()) {
     return false;
   }
-  PERFETTO_DLOG("Update atrace prefer sdk categories...");
+  DEJAVIEW_DLOG("Update atrace prefer sdk categories...");
 
   std::vector<std::string> args;
   args.push_back("atrace");  // argv0 for exec()
@@ -1136,14 +1136,14 @@ bool FtraceConfigMuxer::SetAtracePreferSdk(
     args.push_back(category);
 
   bool result = atrace_wrapper_->RunAtrace(args, atrace_errors);
-  PERFETTO_DLOG("...done (%s)", result ? "success" : "fail");
+  DEJAVIEW_DLOG("...done (%s)", result ? "success" : "fail");
   return result;
 }
 
 void FtraceConfigMuxer::DisableAtrace() {
-  PERFETTO_DCHECK(current_state_.atrace_on);
+  DEJAVIEW_DCHECK(current_state_.atrace_on);
 
-  PERFETTO_DLOG("Stop atrace...");
+  DEJAVIEW_DLOG("Stop atrace...");
 
   std::vector<std::string> args{"atrace", "--async_stop"};
   if (atrace_wrapper_->SupportsUserspaceOnly())
@@ -1154,7 +1154,7 @@ void FtraceConfigMuxer::DisableAtrace() {
     current_state_.atrace_on = false;
   }
 
-  PERFETTO_DLOG("...done");
+  DEJAVIEW_DLOG("...done");
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

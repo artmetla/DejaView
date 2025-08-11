@@ -20,9 +20,9 @@
 
 #include <string>
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Converts a byte stream that represents a latin-1
@@ -58,6 +58,6 @@ std::string ConvertUtf16LeToUtf8(protozero::ConstBytes utf16);
 std::string ConvertUtf16BeToUtf8(protozero::ConstBytes utf16);
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_STRING_ENCODING_UTILS_H_

@@ -19,11 +19,11 @@
 
 #include <cstdint>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Tracks and stores slice translation rules. It allows Trace Processor
 // to for example deobfuscate slice names.
@@ -50,6 +50,6 @@ class ProcessTrackTranslationTable {
   base::FlatHashMap<StringId, StringId> raw_to_deobfuscated_name_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_PROCESS_TRACK_TRANSLATION_TABLE_H_

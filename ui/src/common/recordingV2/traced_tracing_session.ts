@@ -90,8 +90,8 @@ export class TracedTracingSession implements TracingSession {
 
   // Accumulates DataSource objects from QueryServiceStateResponse,
   // which can have >1 replies for each query
-  // go/codesearch/android/external/perfetto/protos/
-  // perfetto/ipc/consumer_port.proto;l=243-246
+  // go/codesearch/android/external/dejaview/protos/
+  // dejaview/ipc/consumer_port.proto;l=243-246
   private pendingDataSources: DataSource[] = [];
 
   // For concurrent calls to 'QueryServiceState', we return the same value.

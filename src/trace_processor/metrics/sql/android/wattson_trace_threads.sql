@@ -13,11 +13,11 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE wattson.curves.grouped;
-INCLUDE PERFETTO MODULE viz.summary.threads_w_processes;
+INCLUDE DEJAVIEW MODULE wattson.curves.grouped;
+INCLUDE DEJAVIEW MODULE viz.summary.threads_w_processes;
 
 DROP VIEW IF EXISTS _wattson_period_windows;
-CREATE PERFETTO VIEW _wattson_period_windows AS
+CREATE DEJAVIEW VIEW _wattson_period_windows AS
 SELECT
   MIN(ts) as ts,
   MAX(ts) - MIN(ts) as dur,
@@ -33,7 +33,7 @@ SELECT RUN_METRIC(
 -- Group by unique thread ID and disregard CPUs, summing of power over all CPUs
 -- and all instances of the thread
 DROP VIEW IF EXISTS _wattson_thread_attribution;
-CREATE PERFETTO VIEW _wattson_thread_attribution AS
+CREATE DEJAVIEW VIEW _wattson_thread_attribution AS
 SELECT
   -- active time of thread divided by total time of trace
   SUM(estimated_mw * dur) / 1000000000 as estimated_mws,
@@ -49,7 +49,7 @@ GROUP BY utid
 ORDER BY estimated_mw DESC;
 
 DROP VIEW IF EXISTS wattson_trace_threads_output;
-CREATE PERFETTO VIEW wattson_trace_threads_output AS
+CREATE DEJAVIEW VIEW wattson_trace_threads_output AS
 SELECT AndroidWattsonTasksAttributionMetric(
   'metric_version', 2,
   'task_info', (

@@ -16,14 +16,14 @@
 
 #include "src/trace_processor/importers/instruments/row_data_tracker.h"
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_TP_INSTRUMENTS)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_INSTRUMENTS)
 #error \
-    "This file should not be built when enable_perfetto_trace_processor_mac_instruments=false"
+    "This file should not be built when enable_dejaview_trace_processor_mac_instruments=false"
 #endif
 
-namespace perfetto::trace_processor::instruments_importer {
+namespace dejaview::trace_processor::instruments_importer {
 
 RowDataTracker::RowDataTracker() {}
 RowDataTracker::~RowDataTracker() = default;
@@ -35,7 +35,7 @@ IdPtr<Thread> RowDataTracker::NewThread() {
   return {id + 1, ptr};
 }
 Thread* RowDataTracker::GetThread(ThreadId id) {
-  PERFETTO_DCHECK(id != kNullId);
+  DEJAVIEW_DCHECK(id != kNullId);
   return &threads_[id - 1];
 }
 
@@ -46,7 +46,7 @@ IdPtr<Process> RowDataTracker::NewProcess() {
   return {id + 1, ptr};
 }
 Process* RowDataTracker::GetProcess(ProcessId id) {
-  PERFETTO_DCHECK(id != kNullId);
+  DEJAVIEW_DCHECK(id != kNullId);
   return &processes_[id - 1];
 }
 
@@ -57,7 +57,7 @@ IdPtr<Frame> RowDataTracker::NewFrame() {
   return {id + 1, ptr};
 }
 Frame* RowDataTracker::GetFrame(BacktraceFrameId id) {
-  PERFETTO_DCHECK(id != kNullId);
+  DEJAVIEW_DCHECK(id != kNullId);
   return &frames_[id - 1];
 }
 
@@ -68,7 +68,7 @@ IdPtr<Backtrace> RowDataTracker::NewBacktrace() {
   return {id + 1, ptr};
 }
 Backtrace* RowDataTracker::GetBacktrace(BacktraceId id) {
-  PERFETTO_DCHECK(id != kNullId);
+  DEJAVIEW_DCHECK(id != kNullId);
   return &backtraces_[id - 1];
 }
 
@@ -85,4 +85,4 @@ Binary* RowDataTracker::GetBinary(BinaryId id) {
   return &binaries_[id - 1];
 }
 
-}  // namespace perfetto::trace_processor::instruments_importer
+}  // namespace dejaview::trace_processor::instruments_importer

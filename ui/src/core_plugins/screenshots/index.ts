@@ -15,14 +15,14 @@
 import {TrackNode} from '../../public/workspace';
 import {NUM} from '../../trace_processor/query_result';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {ScreenshotDetailsPanel} from './screenshot_panel';
 import {ScreenshotsTrack} from './screenshots_track';
 
-class ScreenshotsPlugin implements PerfettoPlugin {
+class ScreenshotsPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const res = await ctx.engine.query(`
-      INCLUDE PERFETTO MODULE android.screenshots;
+      INCLUDE DEJAVIEW MODULE android.screenshots;
       select
         count() as count
       from android_screenshots
@@ -51,6 +51,6 @@ class ScreenshotsPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.Screenshots',
+  pluginId: 'dejaview.Screenshots',
   plugin: ScreenshotsPlugin,
 };

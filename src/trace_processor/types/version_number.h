@@ -19,7 +19,7 @@
 
 #include <tuple>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 struct VersionNumber {
@@ -38,6 +38,6 @@ struct VersionNumber {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_VERSION_NUMBER_H_

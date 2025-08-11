@@ -17,7 +17,7 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_FTRACE_MODULE_IMPL_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_FTRACE_MODULE_IMPL_H_
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/ftrace/ftrace_module.h"
 #include "src/trace_processor/importers/ftrace/ftrace_parser.h"
@@ -25,7 +25,7 @@
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceBlobView;
@@ -46,7 +46,7 @@ class FtraceModuleImpl : public FtraceModule {
                             const TracePacketData& data) override {
     util::Status res = parser_.ParseFtraceEvent(cpu, ts, data);
     if (!res.ok()) {
-      PERFETTO_ELOG("%s", res.message().c_str());
+      DEJAVIEW_ELOG("%s", res.message().c_str());
     }
   }
 
@@ -55,7 +55,7 @@ class FtraceModuleImpl : public FtraceModule {
                               const InlineSchedSwitch& data) override {
     util::Status res = parser_.ParseInlineSchedSwitch(cpu, ts, data);
     if (!res.ok()) {
-      PERFETTO_ELOG("%s", res.message().c_str());
+      DEJAVIEW_ELOG("%s", res.message().c_str());
     }
   }
 
@@ -64,7 +64,7 @@ class FtraceModuleImpl : public FtraceModule {
                               const InlineSchedWaking& data) override {
     util::Status res = parser_.ParseInlineSchedWaking(cpu, ts, data);
     if (!res.ok()) {
-      PERFETTO_ELOG("%s", res.message().c_str());
+      DEJAVIEW_ELOG("%s", res.message().c_str());
     }
   }
 
@@ -74,6 +74,6 @@ class FtraceModuleImpl : public FtraceModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_FTRACE_MODULE_IMPL_H_

@@ -91,7 +91,7 @@ export class ScrollJankCauseMap {
 
   private async initializeCauseMap(engine: Engine) {
     const queryResult = await engine.query(`
-      INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_cause_map;
+      INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_cause_map;
 
       SELECT
         IFNULL(name, '') AS name,

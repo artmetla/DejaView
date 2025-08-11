@@ -12,15 +12,15 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-"""Updates the python scripts in python/perfetto/prebuilts/manifests
+"""Updates the python scripts in python/dejaview/prebuilts/manifests
 
 This script does the following, for each entry in MANIFESTS_TO_UPDATE:
   - Downloads the artifact by the LUCI infrastructure, one for each arch.
   - Computes the SHA-256 of each artifact.
   - Generates a manifest with URL, SHA-256 and other details.
-  - Merges get_perfetto_prebuilt.py with the manifest and writes tools/xxx.
+  - Merges get_dejaview_prebuilt.py with the manifest and writes tools/xxx.
 
-This script is supposed to be run by Perfetto OWNERS after every monthly release
+This script is supposed to be run by DejaView OWNERS after every monthly release
 after the LUCI jobs have completed.
 """
 
@@ -36,7 +36,7 @@ from concurrent.futures import ThreadPoolExecutor
 GCS_URL = 'https://commondatastorage.googleapis.com/perfetto-luci-artifacts'
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MANIFESTS_DIR = os.path.join(ROOT_DIR, 'python/perfetto/prebuilts/manifests')
+MANIFESTS_DIR = os.path.join(ROOT_DIR, 'python/dejaview/prebuilts/manifests')
 
 UNIX_ARCHS = [
     'mac-amd64',
@@ -68,7 +68,7 @@ MANIFESTS_TO_UPDATE = [
 
 # Maps a 'os-arch' string (were arch follows LUCI conventions) into
 # corresponding tuples that match against python's platform / machine API
-# (see get_perfetto_prebuilt.py for usage).
+# (see get_dejaview_prebuilt.py for usage).
 ARCH_TO_PYTHON = {
     'mac-amd64': {
         'platform': 'darwin',

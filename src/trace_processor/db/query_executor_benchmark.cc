@@ -24,11 +24,11 @@
 #include <string_view>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/base/test/utils.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column/types.h"
@@ -38,7 +38,7 @@
 #include "src/trace_processor/tables/slice_tables_py.h"
 #include "src/trace_processor/tables/track_tables_py.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using SliceTable = tables::SliceTable;
@@ -91,15 +91,15 @@ std::vector<std::string> SplitCSVLine(const std::string& line) {
 std::vector<std::string> ReadCSV(benchmark::State& state,
                                  std::string_view file_name) {
   std::string table_csv;
-  perfetto::base::ReadFile(
-      perfetto::base::GetTestDataPath(std::string(file_name)), &table_csv);
+  dejaview::base::ReadFile(
+      dejaview::base::GetTestDataPath(std::string(file_name)), &table_csv);
   if (table_csv.empty()) {
     state.SkipWithError(
         "Test strings missing. Googlers: download "
         "go/perfetto-benchmark-trace-strings and save into /tmp/trace_strings");
     return {};
   }
-  PERFETTO_CHECK(!table_csv.empty());
+  DEJAVIEW_CHECK(!table_csv.empty());
   return base::SplitString(table_csv, "\n");
 }
 
@@ -120,7 +120,7 @@ SliceTable::Row GetSliceTableRow(const std::string& string_row,
                                  StringPool& pool) {
   std::vector<std::string> row_vec = SplitCSVLine(string_row);
   SliceTable::Row row;
-  PERFETTO_CHECK(row_vec.size() >= 14);
+  DEJAVIEW_CHECK(row_vec.size() >= 14);
   row.ts = *base::StringToInt64(row_vec[2]);
   row.dur = *base::StringToInt64(row_vec[3]);
   row.track_id = ThreadTrackTable::Id(*base::StringToUInt32(row_vec[4]));
@@ -687,4 +687,4 @@ void BM_QEMax(benchmark::State& state) {
 BENCHMARK(BM_QEMax);
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

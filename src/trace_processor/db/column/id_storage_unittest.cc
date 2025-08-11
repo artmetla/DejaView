@@ -19,14 +19,14 @@
 #include <limits>
 #include <vector>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/column/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 inline bool operator==(const Range& a, const Range& b) {
   return std::tie(a.start, a.end) == std::tie(b.start, b.end);
@@ -381,4 +381,4 @@ TEST(IdStorage, Distinct) {
 
 }  // namespace
 }  // namespace column
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

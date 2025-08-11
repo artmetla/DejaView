@@ -16,15 +16,15 @@
 
 #include "test/gtest_and_gmock.h"
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_mojo_event_info.pbzero.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_mojo_event_info.pbzero.h"
 #include "src/protozero/test/example_proto/test_messages.pbzero.h"
 #include "src/trace_processor/test_messages.descriptor.h"
 #include "src/trace_processor/util/proto_profiler.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 namespace {
@@ -77,4 +77,4 @@ TEST(ProtoProfiler, TestMessage) {
 }  // namespace
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

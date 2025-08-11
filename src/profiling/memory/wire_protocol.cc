@@ -16,15 +16,15 @@
 
 #include "src/profiling/memory/wire_protocol.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 
 #include <sys/socket.h>
 #include <sys/types.h>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
 #include <bionic/mte.h>
 #else
 struct ScopedDisableMTE {
@@ -33,7 +33,7 @@ struct ScopedDisableMTE {
 };
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -66,14 +66,14 @@ int64_t WithBuffer(SharedRingBuffer* shmem, size_t total_size, F fn) {
   {
     ScopedSpinlock lock = shmem->AcquireLock(ScopedSpinlock::Mode::Try);
     if (!lock.locked()) {
-      PERFETTO_DLOG("Failed to acquire spinlock.");
+      DEJAVIEW_DLOG("Failed to acquire spinlock.");
       errno = EAGAIN;
       return -1;
     }
     buf = shmem->BeginWrite(lock, total_size);
   }
   if (!buf) {
-    PERFETTO_DLOG("Buffer overflow.");
+    DEJAVIEW_DLOG("Buffer overflow.");
     shmem->EndWrite(std::move(buf));
     errno = EAGAIN;
     return -1;
@@ -131,7 +131,7 @@ bool ReceiveWireMessage(char* buf, size_t size, WireMessage* out) {
   RecordType* record_type;
   char* end = buf + size;
   if (!ViewAndAdvance<RecordType>(&buf, &record_type, end)) {
-    PERFETTO_DFATAL_OR_ELOG("Cannot read record type.");
+    DEJAVIEW_DFATAL_OR_ELOG("Cannot read record type.");
     return false;
   }
 
@@ -141,27 +141,27 @@ bool ReceiveWireMessage(char* buf, size_t size, WireMessage* out) {
 
   if (*record_type == RecordType::Malloc) {
     if (!ViewAndAdvance<AllocMetadata>(&buf, &out->alloc_header, end)) {
-      PERFETTO_DFATAL_OR_ELOG("Cannot read alloc header.");
+      DEJAVIEW_DFATAL_OR_ELOG("Cannot read alloc header.");
       return false;
     }
     out->payload = buf;
     if (buf > end) {
-      PERFETTO_DFATAL_OR_ELOG("Receive buffer overflowed");
+      DEJAVIEW_DFATAL_OR_ELOG("Receive buffer overflowed");
       return false;
     }
     out->payload_size = static_cast<size_t>(end - buf);
   } else if (*record_type == RecordType::Free) {
     if (!ViewAndAdvance<FreeEntry>(&buf, &out->free_header, end)) {
-      PERFETTO_DFATAL_OR_ELOG("Cannot read free header.");
+      DEJAVIEW_DFATAL_OR_ELOG("Cannot read free header.");
       return false;
     }
   } else if (*record_type == RecordType::HeapName) {
     if (!ViewAndAdvance<HeapName>(&buf, &out->heap_name_header, end)) {
-      PERFETTO_DFATAL_OR_ELOG("Cannot read free header.");
+      DEJAVIEW_DFATAL_OR_ELOG("Cannot read free header.");
       return false;
     }
   } else {
-    PERFETTO_DFATAL_OR_ELOG("Invalid record type.");
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid record type.");
     return false;
   }
   return true;
@@ -184,4 +184,4 @@ uint64_t GetHeapSamplingInterval(const ClientConfiguration& cli_config,
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

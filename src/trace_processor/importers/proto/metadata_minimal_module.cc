@@ -16,19 +16,19 @@
 
 #include "src/trace_processor/importers/proto/metadata_minimal_module.h"
 
-#include "perfetto/ext/base/base64.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/base64.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/importers/common/metadata_tracker.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/chrome/chrome_benchmark_metadata.pbzero.h"
-#include "protos/perfetto/trace/chrome/chrome_metadata.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_benchmark_metadata.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_metadata.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 MetadataMinimalModule::MetadataMinimalModule(TraceProcessorContext* context)
     : context_(context) {
@@ -151,7 +151,7 @@ void MetadataMinimalModule::ParseChromeMetadataPacket(ConstBytes blob) {
         line_size++;
       }
 
-      perfetto::protos::pbzero::ChromeMetadataPacket::FinchHash::Decoder
+      dejaview::protos::pbzero::ChromeMetadataPacket::FinchHash::Decoder
           field_trial(*it);
 
       base::StackString<45> field_trial_string(
@@ -194,4 +194,4 @@ void MetadataMinimalModule::ParseChromeMetadataPacket(ConstBytes blob) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

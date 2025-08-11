@@ -17,15 +17,15 @@
 #ifndef SRC_TRACING_IPC_PRODUCER_RELAY_IPC_CLIENT_H_
 #define SRC_TRACING_IPC_PRODUCER_RELAY_IPC_CLIENT_H_
 
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/ipc/client.h"
-#include "perfetto/ext/ipc/service_proxy.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/ipc/client.h"
+#include "dejaview/ext/ipc/service_proxy.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 
-#include "protos/perfetto/ipc/relay_port.ipc.h"
+#include "protos/dejaview/ipc/relay_port.ipc.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -78,9 +78,9 @@ class RelayIPCClient : public ipc::ServiceProxy::EventListener {
   std::unique_ptr<protos::gen::RelayPortProxy> relay_proxy_;
 
   bool connected_ = false;
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_PRODUCER_RELAY_IPC_CLIENT_H_

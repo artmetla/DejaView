@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/thread_task_runner.h"
-#include "perfetto/tracing/internal/tracing_tls.h"
-#include "perfetto/tracing/platform.h"
-#include "perfetto/tracing/trace_writer_base.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/thread_task_runner.h"
+#include "dejaview/tracing/internal/tracing_tls.h"
+#include "dejaview/tracing/platform.h"
+#include "dejaview/tracing/trace_writer_base.h"
 
 #include <pthread.h>
 #include <stdlib.h>
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -55,7 +55,7 @@ PlatformPosix* g_instance = nullptr;
 using ThreadLocalObject = Platform::ThreadLocalObject;
 
 PlatformPosix::PlatformPosix() {
-  PERFETTO_CHECK(!g_instance);
+  DEJAVIEW_CHECK(!g_instance);
   g_instance = this;
   auto tls_dtor = [](void* obj) {
     // The Posix TLS implementation resets the key before calling this dtor.
@@ -68,7 +68,7 @@ PlatformPosix::PlatformPosix() {
     delete static_cast<ThreadLocalObject*>(obj);
     pthread_setspecific(g_instance->tls_key_, nullptr);
   };
-  PERFETTO_CHECK(pthread_key_create(&tls_key_, tls_dtor) == 0);
+  DEJAVIEW_CHECK(pthread_key_create(&tls_key_, tls_dtor) == 0);
 }
 
 PlatformPosix::~PlatformPosix() {
@@ -82,11 +82,11 @@ PlatformPosix::~PlatformPosix() {
 }
 
 void PlatformPosix::Shutdown() {
-  PERFETTO_CHECK(g_instance == this);
+  DEJAVIEW_CHECK(g_instance == this);
   delete this;
-  PERFETTO_CHECK(!g_instance);
+  DEJAVIEW_CHECK(!g_instance);
   // We're not clearing out the instance in GetDefaultPlatform() since it's not
-  // possible to re-initialize Perfetto after calling this function anyway.
+  // possible to re-initialize DejaView after calling this function anyway.
 }
 
 ThreadLocalObject* PlatformPosix::GetOrCreateThreadLocalObject() {
@@ -110,12 +110,12 @@ std::unique_ptr<base::TaskRunner> PlatformPosix::CreateTaskRunner(
 }
 
 std::string PlatformPosix::GetCurrentProcessName() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   std::string cmdline;
   base::ReadFile("/proc/self/cmdline", &cmdline);
   return cmdline.substr(0, cmdline.find('\0'));
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   return std::string(getprogname());
 #else
   return "unknown_producer";
@@ -130,5 +130,5 @@ Platform* Platform::GetDefaultPlatform() {
   return instance;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // OS_LINUX || OS_ANDROID || OS_APPLE || OS_FUCHSIA

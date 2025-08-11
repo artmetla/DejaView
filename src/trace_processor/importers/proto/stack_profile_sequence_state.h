@@ -20,14 +20,14 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -103,6 +103,6 @@ class StackProfileSequenceState final
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_STACK_PROFILE_SEQUENCE_STATE_H_

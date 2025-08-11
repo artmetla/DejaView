@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/checked_scope.h"
+#include "dejaview/tracing/internal/checked_scope.h"
 
 #include <utility>
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 CheckedScope::CheckedScope(CheckedScope* parent_scope)
     : parent_scope_(parent_scope) {
   if (parent_scope_) {
-    PERFETTO_DCHECK(parent_scope_->is_active());
+    DEJAVIEW_DCHECK(parent_scope_->is_active());
     parent_scope_->set_is_active(false);
   }
 }
@@ -38,7 +38,7 @@ void CheckedScope::Reset() {
   if (!is_active_) {
     // The only case when inactive scope could be destroyed is when Reset() was
     // called explicitly or the contents of the object were moved away.
-    PERFETTO_DCHECK(deleted_);
+    DEJAVIEW_DCHECK(deleted_);
     return;
   }
   is_active_ = false;
@@ -65,4 +65,4 @@ CheckedScope& CheckedScope::operator=(CheckedScope&& other) {
 #endif
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

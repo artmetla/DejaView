@@ -20,23 +20,23 @@
 
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/android_test_utils.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/common/perf_events.gen.h"
-#include "protos/perfetto/config/process_stats/process_stats_config.gen.h"
-#include "protos/perfetto/config/profiling/perf_event_config.gen.h"
-#include "protos/perfetto/trace/profiling/profile_common.gen.h"
-#include "protos/perfetto/trace/profiling/profile_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/common/perf_events.gen.h"
+#include "protos/dejaview/config/process_stats/process_stats_config.gen.h"
+#include "protos/dejaview/config/profiling/perf_event_config.gen.h"
+#include "protos/dejaview/trace/profiling/profile_common.gen.h"
+#include "protos/dejaview/trace/profiling/profile_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 // Skip these tests if the device in question doesn't have the necessary kernel
@@ -145,7 +145,7 @@ void AssertHasSampledStacksForPid(std::vector<protos::gen::TracePacket> packets,
       "full_samples: %d, lost_records_packets: %d, target_skipped_samples: %d",
       target_pid, packets.size(), total_perf_packets, full_samples,
       lost_records_packets, target_skipped_samples);
-  PERFETTO_LOG("%s", log.c_str());
+  DEJAVIEW_LOG("%s", log.c_str());
 
   EXPECT_GT(target_samples, 0) << log.c_str() << "\n";
 }
@@ -167,13 +167,13 @@ TEST(TracedPerfCtsTest, SystemWideDebuggableApp) {
   if (!HasPerfLsmHooks())
     GTEST_SKIP() << "skipped due to lack of perf_event_open LSM hooks";
 
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets = ProfileSystemWide(app_name);
   int app_pid = PidForProcessName(app_name);
   ASSERT_GT(app_pid, 0) << "failed to find pid for target process";
 
   AssertHasSampledStacksForPid(packets, app_pid);
-  PERFETTO_CHECK(IsAppRunning(app_name));
+  DEJAVIEW_CHECK(IsAppRunning(app_name));
   StopApp(app_name);
 }
 
@@ -181,13 +181,13 @@ TEST(TracedPerfCtsTest, SystemWideProfileableApp) {
   if (!HasPerfLsmHooks())
     GTEST_SKIP() << "skipped due to lack of perf_event_open LSM hooks";
 
-  std::string app_name = "android.perfetto.cts.app.profileable";
+  std::string app_name = "android.dejaview.cts.app.profileable";
   const auto& packets = ProfileSystemWide(app_name);
   int app_pid = PidForProcessName(app_name);
   ASSERT_GT(app_pid, 0) << "failed to find pid for target process";
 
   AssertHasSampledStacksForPid(packets, app_pid);
-  PERFETTO_CHECK(IsAppRunning(app_name));
+  DEJAVIEW_CHECK(IsAppRunning(app_name));
   StopApp(app_name);
 }
 
@@ -195,7 +195,7 @@ TEST(TracedPerfCtsTest, SystemWideNonProfileableApp) {
   if (!HasPerfLsmHooks())
     GTEST_SKIP() << "skipped due to lack of perf_event_open LSM hooks";
 
-  std::string app_name = "android.perfetto.cts.app.nonprofileable";
+  std::string app_name = "android.dejaview.cts.app.nonprofileable";
   const auto& packets = ProfileSystemWide(app_name);
   int app_pid = PidForProcessName(app_name);
   ASSERT_GT(app_pid, 0) << "failed to find pid for target process";
@@ -204,7 +204,7 @@ TEST(TracedPerfCtsTest, SystemWideNonProfileableApp) {
     AssertHasSampledStacksForPid(packets, app_pid);
   else
     AssertNoStacksForPid(packets, app_pid);
-  PERFETTO_CHECK(IsAppRunning(app_name));
+  DEJAVIEW_CHECK(IsAppRunning(app_name));
   StopApp(app_name);
 }
 
@@ -212,7 +212,7 @@ TEST(TracedPerfCtsTest, SystemWideReleaseApp) {
   if (!HasPerfLsmHooks())
     GTEST_SKIP() << "skipped due to lack of perf_event_open LSM hooks";
 
-  std::string app_name = "android.perfetto.cts.app.release";
+  std::string app_name = "android.dejaview.cts.app.release";
   const auto& packets = ProfileSystemWide(app_name);
   int app_pid = PidForProcessName(app_name);
   ASSERT_GT(app_pid, 0) << "failed to find pid for target process";
@@ -222,7 +222,7 @@ TEST(TracedPerfCtsTest, SystemWideReleaseApp) {
   else
     AssertNoStacksForPid(packets, app_pid);
 
-  PERFETTO_CHECK(IsAppRunning(app_name));
+  DEJAVIEW_CHECK(IsAppRunning(app_name));
   StopApp(app_name);
 }
 
@@ -280,4 +280,4 @@ TEST(TracedPerfCtsTest, ProfilePlatformProcess) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

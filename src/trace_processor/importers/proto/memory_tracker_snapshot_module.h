@@ -20,9 +20,9 @@
 #include "src/trace_processor/importers/proto/memory_tracker_snapshot_parser.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class MemoryTrackerSnapshotModule : public ProtoImporterModule {
@@ -43,6 +43,6 @@ class MemoryTrackerSnapshotModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_MEMORY_TRACKER_SNAPSHOT_MODULE_H_

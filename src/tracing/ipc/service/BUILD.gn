@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../../gn/perfetto.gni")
-import("../../../../gn/perfetto_component.gni")
+import("../../../../gn/dejaview.gni")
+import("../../../../gn/dejaview_component.gni")
 
-assert(enable_perfetto_ipc)
+assert(enable_dejaview_ipc)
 
 # Posix specialization of the tracing library for Linux / Android / Mac.
 # Provides an IPC transport over a UNIX socket for the service interface.
 source_set("service") {
   public_deps = [
-    "../../../../include/perfetto/ext/tracing/core",
-    "../../../../include/perfetto/ext/tracing/ipc",
+    "../../../../include/dejaview/ext/tracing/core",
+    "../../../../include/dejaview/ext/tracing/ipc",
   ]
   sources = [
     "consumer_ipc_service.cc",
@@ -37,13 +37,13 @@ source_set("service") {
   deps = [
     "..:common",
     "../../../../gn:default_deps",
-    "../../../../protos/perfetto/ipc",
+    "../../../../protos/dejaview/ipc",
     "../../../base",
     "../../core:core",
     "../../service",
   ]
-  if (perfetto_component_type == "static_library") {
-    deps += [ "../../../ipc:perfetto_ipc" ]
+  if (dejaview_component_type == "static_library") {
+    deps += [ "../../../ipc:dejaview_ipc" ]
   } else {
     deps += [ "../../../ipc:host" ]
   }

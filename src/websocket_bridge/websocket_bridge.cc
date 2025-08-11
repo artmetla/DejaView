@@ -23,13 +23,13 @@
 #include <memory>
 #include <vector>
 
-#include "perfetto/ext/base/http/http_server.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/ext/base/http/http_server.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/tracing/default_socket.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 constexpr int kWebsocketPort = 8037;
@@ -67,7 +67,7 @@ class WSBridge : public base::HttpRequestHandler,
 };
 
 void WSBridge::Main(int, char**) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // On Windows traced used a TCP socket.
   const auto kTracedFamily = base::SockFamily::kInet;
 #else
@@ -82,11 +82,11 @@ void WSBridge::Main(int, char**) {
     adb_socket_endpoint = base::StripPrefix(adb_ss, "tcp:");
 
     // Ensure that ADB_SERVER_SOCKET actually starts with tcp:
-    PERFETTO_CHECK(adb_socket_endpoint.size() != adb_ss_sv.size());
+    DEJAVIEW_CHECK(adb_socket_endpoint.size() != adb_ss_sv.size());
   } else {
     adb_socket_endpoint = "127.0.0.1:5037";
   }
-  PERFETTO_LOG("[WSBridge] adb server socket is:%s.",
+  DEJAVIEW_LOG("[WSBridge] adb server socket is:%s.",
                adb_socket_endpoint.c_str());
   endpoints_.push_back({"/traced", GetConsumerSocket(), kTracedFamily});
   endpoints_.push_back(
@@ -98,7 +98,7 @@ void WSBridge::Main(int, char**) {
   srv.AddAllowedOrigin("https://ui.perfetto.dev");
 
   srv.Start(kWebsocketPort);
-  PERFETTO_LOG("[WSBridge] Listening on 127.0.0.1:%d", kWebsocketPort);
+  DEJAVIEW_LOG("[WSBridge] Listening on 127.0.0.1:%d", kWebsocketPort);
   task_runner_.Run();
 }
 
@@ -111,23 +111,23 @@ void WSBridge::OnHttpRequest(const base::HttpRequest& req) {
     auto sock_raw =
         base::UnixSocketRaw::CreateMayFail(ep.family, base::SockType::kStream);
     if (!sock_raw) {
-      PERFETTO_PLOG("socket() failed");
+      DEJAVIEW_PLOG("socket() failed");
       req.conn->SendResponseAndClose("500 Server Error");
       return;
     }
-    PERFETTO_LOG("[WSBridge] New connection from \"%.*s\"",
+    DEJAVIEW_LOG("[WSBridge] New connection from \"%.*s\"",
                  static_cast<int>(req.origin.size()), req.origin.data());
     sock_raw.SetTxTimeout(3000);
     sock_raw.SetBlocking(true);
 
     if (!sock_raw.Connect(ep.endpoint)) {
-      PERFETTO_ELOG("[WSBridge] Connection to %s failed", ep.endpoint);
+      DEJAVIEW_ELOG("[WSBridge] Connection to %s failed", ep.endpoint);
       req.conn->SendResponseAndClose("503 Service Unavailable");
       return;
     }
     sock_raw.SetBlocking(false);
 
-    PERFETTO_DLOG("[WSBridge] Connected to %s", ep.endpoint);
+    DEJAVIEW_DLOG("[WSBridge] Connected to %s", ep.endpoint);
     conns_[req.conn] = base::UnixSocket::AdoptConnected(
         sock_raw.ReleaseFd(), this, &task_runner_, ep.family,
         base::SockType::kStream);
@@ -141,7 +141,7 @@ void WSBridge::OnHttpRequest(const base::HttpRequest& req) {
 // Called when an inbound websocket message is received from the browser.
 void WSBridge::OnWebsocketMessage(const base::WebsocketMessage& msg) {
   auto it = conns_.find(msg.conn);
-  PERFETTO_CHECK(it != conns_.end());
+  DEJAVIEW_CHECK(it != conns_.end());
   // Pass through the websocket message onto the endpoint TCP socket.
   base::UnixSocket& sock = *it->second;
   sock.Send(msg.data.data(), msg.data.size());
@@ -150,7 +150,7 @@ void WSBridge::OnWebsocketMessage(const base::WebsocketMessage& msg) {
 // Called when a TCP message is received from the endpoint.
 void WSBridge::OnDataAvailable(base::UnixSocket* sock) {
   base::HttpServerConnection* websocket = GetWebsocket(sock);
-  PERFETTO_CHECK(websocket);
+  DEJAVIEW_CHECK(websocket);
 
   char buf[8192];
   auto rsize = sock->Receive(buf, sizeof(buf));
@@ -165,7 +165,7 @@ void WSBridge::OnDataAvailable(base::UnixSocket* sock) {
 
 // Called when the browser terminates the websocket connection.
 void WSBridge::OnHttpConnectionClosed(base::HttpServerConnection* websocket) {
-  PERFETTO_DLOG("[WSBridge] Websocket connection closed");
+  DEJAVIEW_DLOG("[WSBridge] Websocket connection closed");
   auto it = conns_.find(websocket);
   if (it == conns_.end())
     return;  // Can happen if ADB closed first.
@@ -181,7 +181,7 @@ void WSBridge::OnDisconnect(base::UnixSocket* sock) {
   websocket->Close();
   sock->Shutdown(/*notify=*/false);
   conns_.erase(websocket);
-  PERFETTO_DLOG("[WSBridge] Socket connection closed");
+  DEJAVIEW_DLOG("[WSBridge] Socket connection closed");
 }
 
 base::HttpServerConnection* WSBridge::GetWebsocket(base::UnixSocket* sock) {
@@ -199,10 +199,10 @@ void WSBridge::OnNewIncomingConnection(base::UnixSocket*,
 
 }  // namespace
 
-int PERFETTO_EXPORT_ENTRYPOINT WebsocketBridgeMain(int argc, char** argv) {
-  perfetto::WSBridge ws_bridge;
+int DEJAVIEW_EXPORT_ENTRYPOINT WebsocketBridgeMain(int argc, char** argv) {
+  dejaview::WSBridge ws_bridge;
   ws_bridge.Main(argc, argv);
   return 0;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/time.h"
+#include "dejaview/base/time.h"
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -74,9 +74,9 @@ TEST(TimeTest, GetTime) {
 }
 
 // This test can work only on Posix platforms which respect the TZ env var.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 TEST(TimeTest, GetTimezoneOffsetMins) {
   const char* tz = getenv("TZ");
   std::string tz_save(tz ? tz : "");
@@ -101,4 +101,4 @@ TEST(TimeTest, GetTimezoneOffsetMins) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

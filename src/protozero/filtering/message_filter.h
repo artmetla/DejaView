@@ -97,9 +97,9 @@ class MessageFilter {
   // This affects the filter starting point of the subsequent FilterMessage*()
   // calls. By default the filtering process starts from the message @ index 0,
   // the root message passed to proto_filter when generating the bytecode
-  // (in typical tracing use-cases, this is perfetto.protos.Trace). However, the
+  // (in typical tracing use-cases, this is dejaview.protos.Trace). However, the
   // caller (TracingServiceImpl) might want to filter packets from the 2nd level
-  // (perfetto.protos.TracePacket) because the root level is pre-pended after
+  // (dejaview.protos.TracePacket) because the root level is pre-pended after
   // the fact. This call allows to change the root message for the filter.
   // The argument |field_ids| is an array of proto field ids and determines the
   // path to the new root. For instance, in the case of [1,2,3] SetFilterRoot
@@ -145,11 +145,11 @@ class MessageFilter {
   // Inlining allows the compiler turn the per-byte call/return into a for loop,
   // while, at the same time, keeping the code easy to read and reason about.
   // It gives a 20-25% speedup (265ms vs 215ms for a 25MB trace).
-  void FilterOneByte(uint8_t octet) PERFETTO_ALWAYS_INLINE;
+  void FilterOneByte(uint8_t octet) DEJAVIEW_ALWAYS_INLINE;
 
   // No-inline because this is a slowpath (only when usage tracking is enabled).
   void IncrementCurrentFieldUsage(uint32_t field_id,
-                                  bool allowed) PERFETTO_NO_INLINE;
+                                  bool allowed) DEJAVIEW_NO_INLINE;
 
   // Gets into an error state which swallows all the input and emits no output.
   void SetUnrecoverableErrorState();

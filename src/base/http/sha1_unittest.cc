@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/http/sha1.h"
+#include "dejaview/ext/base/http/sha1.h"
 
 #include <cstdint>
 #include <string>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -54,4 +54,4 @@ TEST(SHA1Test, Hash) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

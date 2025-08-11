@@ -47,7 +47,7 @@ export function addHistogramTab(
 }
 
 export class HistogramTab extends BottomTab<HistogramTabConfig> {
-  static readonly kind = 'dev.perfetto.HistogramTab';
+  static readonly kind = 'dev.dejaview.HistogramTab';
 
   private state: HistogramState;
 

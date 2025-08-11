@@ -20,8 +20,8 @@
 #include <stdint.h>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column/types.h"
@@ -30,7 +30,7 @@
 #include "src/trace_processor/db/compare.h"
 #include "src/trace_processor/db/typed_column_internal.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Helper class for converting a type to a ColumnType.
 template <typename T>
@@ -317,8 +317,8 @@ class ColumnLegacy {
   // Should only be called when |type_| == ToColumnType<T>().
   template <typename T>
   const ColumnStorage<stored_type<T>>& storage() const {
-    PERFETTO_DCHECK(ColumnTypeHelper<T>::ToColumnType() == type_);
-    PERFETTO_DCHECK(tc_internal::TypeHandler<T>::is_optional == IsNullable());
+    DEJAVIEW_DCHECK(ColumnTypeHelper<T>::ToColumnType() == type_);
+    DEJAVIEW_DCHECK(tc_internal::TypeHandler<T>::is_optional == IsNullable());
     return *static_cast<ColumnStorage<stored_type<T>>*>(storage_);
   }
 
@@ -336,9 +336,9 @@ class ColumnLegacy {
       case ColumnType::kString:
         return SqlValue::Type::kString;
       case ColumnType::kDummy:
-        PERFETTO_FATAL("ToSqlValueType not allowed on dummy column");
+        DEJAVIEW_FATAL("ToSqlValueType not allowed on dummy column");
     }
-    PERFETTO_FATAL("For GCC");
+    DEJAVIEW_FATAL("For GCC");
   }
 
  protected:
@@ -346,8 +346,8 @@ class ColumnLegacy {
   // Should only be called when |type_| == ToColumnType<T>().
   template <typename T>
   ColumnStorage<stored_type<T>>* mutable_storage() {
-    PERFETTO_DCHECK(ColumnTypeHelper<T>::ToColumnType() == type_);
-    PERFETTO_DCHECK(tc_internal::TypeHandler<T>::is_optional == IsNullable());
+    DEJAVIEW_DCHECK(ColumnTypeHelper<T>::ToColumnType() == type_);
+    DEJAVIEW_DCHECK(tc_internal::TypeHandler<T>::is_optional == IsNullable());
     return static_cast<ColumnStorage<stored_type<T>>*>(storage_);
   }
 
@@ -400,9 +400,9 @@ class ColumnLegacy {
       case ColumnType::kId:
         return SqlValue::Long(idx);
       case ColumnType::kDummy:
-        PERFETTO_FATAL("GetAtIdx not allowed on dummy column");
+        DEJAVIEW_FATAL("GetAtIdx not allowed on dummy column");
     }
-    PERFETTO_FATAL("For GCC");
+    DEJAVIEW_FATAL("For GCC");
   }
 
   template <typename T>
@@ -448,12 +448,12 @@ class ColumnLegacy {
   // Returns the string at the index |idx|.
   // Should only be called when |type_| == ColumnType::kString.
   NullTermStringView GetStringPoolStringAtIdx(uint32_t idx) const {
-    PERFETTO_DCHECK(type_ == ColumnType::kString);
+    DEJAVIEW_DCHECK(type_ == ColumnType::kString);
     return string_pool_->Get(storage<StringPool::Id>().Get(idx));
   }
 
   void BindToTable(Table* table, StringPool* string_pool) {
-    PERFETTO_DCHECK(!table_);
+    DEJAVIEW_DCHECK(!table_);
     table_ = table;
     string_pool_ = string_pool;
 
@@ -474,15 +474,15 @@ class ColumnLegacy {
           is_storage_dense = storage<std::optional<double>>().IsDense();
           break;
         case ColumnType::kString:
-          PERFETTO_FATAL("String column should not be nullable");
+          DEJAVIEW_FATAL("String column should not be nullable");
         case ColumnType::kId:
-          PERFETTO_FATAL("Id column should not be nullable");
+          DEJAVIEW_FATAL("Id column should not be nullable");
         case ColumnType::kDummy:
-          PERFETTO_FATAL("Dummy column excluded above");
+          DEJAVIEW_FATAL("Dummy column excluded above");
       }
-      PERFETTO_DCHECK(is_storage_dense == IsDense());
+      DEJAVIEW_DCHECK(is_storage_dense == IsDense());
     }
-    PERFETTO_DCHECK(IsFlagsAndTypeValid(flags_, type_));
+    DEJAVIEW_DCHECK(IsFlagsAndTypeValid(flags_, type_));
   }
 
   // type_ is used to cast nullable_vector_ to the correct type.
@@ -497,6 +497,6 @@ class ColumnLegacy {
   const StringPool* string_pool_ = nullptr;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_H_

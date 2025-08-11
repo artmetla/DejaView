@@ -18,21 +18,21 @@
 
 #include <limits>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/protozero/proto_utils.h"
 
 #define TRACE_BUFFER_VERBOSE_LOGGING() 0  // Set to 1 when debugging unittests.
 #if TRACE_BUFFER_VERBOSE_LOGGING()
-#define TRACE_BUFFER_DLOG PERFETTO_DLOG
+#define TRACE_BUFFER_DLOG DEJAVIEW_DLOG
 #else
 #define TRACE_BUFFER_DLOG(...) void()
 #endif
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr uint8_t kFirstPacketContinuesFromPrevChunk =
@@ -68,11 +68,11 @@ bool TraceBuffer::Initialize(size_t size) {
       SharedMemoryABI::kMinPageSize % sizeof(ChunkRecord) == 0,
       "sizeof(ChunkRecord) must be an integer divider of a page size");
   auto max_size = std::numeric_limits<decltype(ChunkMeta::record_off)>::max();
-  PERFETTO_CHECK(size <= static_cast<size_t>(max_size));
+  DEJAVIEW_CHECK(size <= static_cast<size_t>(max_size));
   data_ = base::PagedMemory::Allocate(
       size, base::PagedMemory::kMayFail | base::PagedMemory::kDontCommit);
   if (!data_.IsValid()) {
-    PERFETTO_ELOG("Trace buffer allocation failed (size: %zu)", size);
+    DEJAVIEW_ELOG("Trace buffer allocation failed (size: %zu)", size);
     return false;
   }
   size_ = size;
@@ -99,28 +99,28 @@ void TraceBuffer::CopyChunkUntrusted(
     bool chunk_complete,
     const uint8_t* src,
     size_t size) {
-  PERFETTO_CHECK(!read_only_);
+  DEJAVIEW_CHECK(!read_only_);
 
   // |record_size| = |size| + sizeof(ChunkRecord), rounded up to avoid to end
   // up in a fragmented state where size_to_end() < sizeof(ChunkRecord).
   const size_t record_size =
       base::AlignUp<sizeof(ChunkRecord)>(size + sizeof(ChunkRecord));
   TRACE_BUFFER_DLOG("CopyChunk @ %" PRIdPTR ", size=%zu", wptr_ - begin(), record_size);
-  if (PERFETTO_UNLIKELY(record_size > max_chunk_size_)) {
+  if (DEJAVIEW_UNLIKELY(record_size > max_chunk_size_)) {
     stats_.set_abi_violations(stats_.abi_violations() + 1);
-    PERFETTO_DCHECK(suppress_client_dchecks_for_testing_);
+    DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_);
     return;
   }
 
   has_data_ = true;
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   changed_since_last_read_ = true;
 #endif
 
   // If the chunk hasn't been completed, we should only consider the first
   // |num_fragments - 1| packets complete. For simplicity, we simply disregard
   // the last one when we copy the chunk.
-  if (PERFETTO_UNLIKELY(!chunk_complete)) {
+  if (DEJAVIEW_UNLIKELY(!chunk_complete)) {
     if (num_fragments > 0) {
       num_fragments--;
       // These flags should only affect the last packet in the chunk. We clear
@@ -145,7 +145,7 @@ void TraceBuffer::CopyChunkUntrusted(
   // service may scrape and thus override chunks in arbitrary order since the
   // chunks aren't ordered in the SMB.
   const auto it = index_.find(key);
-  if (PERFETTO_UNLIKELY(it != index_.end())) {
+  if (DEJAVIEW_UNLIKELY(it != index_.end())) {
     ChunkMeta* record_meta = &it->second;
     ChunkRecord* prev = GetChunkRecordAt(begin() + record_meta->record_off);
 
@@ -153,19 +153,19 @@ void TraceBuffer::CopyChunkUntrusted(
     // Overridden chunks should never change size, since the page layout is
     // fixed per writer. The number of fragments should also never decrease and
     // flags should not be removed.
-    if (PERFETTO_UNLIKELY(ChunkMeta::Key(*prev) != key ||
+    if (DEJAVIEW_UNLIKELY(ChunkMeta::Key(*prev) != key ||
                           prev->size != record_size ||
                           prev->num_fragments > num_fragments ||
                           (prev->flags & chunk_flags) != prev->flags)) {
       stats_.set_abi_violations(stats_.abi_violations() + 1);
-      PERFETTO_DCHECK(suppress_client_dchecks_for_testing_);
+      DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_);
       return;
     }
 
     // If this chunk was previously copied with the same number of fragments and
     // the number didn't change, there's no need to copy it again. If the
     // previous chunk was complete already, this should always be the case.
-    PERFETTO_DCHECK(suppress_client_dchecks_for_testing_ ||
+    DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_ ||
                     !record_meta->is_complete() ||
                     (chunk_complete && prev->num_fragments == num_fragments));
     if (prev->num_fragments == num_fragments) {
@@ -186,15 +186,15 @@ void TraceBuffer::CopyChunkUntrusted(
     if (subsequent_it != index_.end() &&
         subsequent_it->second.num_fragments_read > 0) {
       stats_.set_abi_violations(stats_.abi_violations() + 1);
-      PERFETTO_DCHECK(suppress_client_dchecks_for_testing_);
+      DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_);
       return;
     }
 
     // We should not have read past the last packet.
     if (record_meta->num_fragments_read > prev->num_fragments) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "TraceBuffer read too many fragments from an incomplete chunk");
-      PERFETTO_DCHECK(suppress_client_dchecks_for_testing_);
+      DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_);
       return;
     }
 
@@ -217,21 +217,21 @@ void TraceBuffer::CopyChunkUntrusted(
     return;
   }
 
-  if (PERFETTO_UNLIKELY(discard_writes_))
+  if (DEJAVIEW_UNLIKELY(discard_writes_))
     return DiscardWrite();
 
   // If there isn't enough room from the given write position. Write a padding
   // record to clear the end of the buffer and wrap back.
   const size_t cached_size_to_end = size_to_end();
-  if (PERFETTO_UNLIKELY(record_size > cached_size_to_end)) {
+  if (DEJAVIEW_UNLIKELY(record_size > cached_size_to_end)) {
     ssize_t res = DeleteNextChunksFor(cached_size_to_end);
     if (res == -1)
       return DiscardWrite();
-    PERFETTO_DCHECK(static_cast<size_t>(res) <= cached_size_to_end);
+    DEJAVIEW_DCHECK(static_cast<size_t>(res) <= cached_size_to_end);
     AddPaddingRecord(cached_size_to_end);
     wptr_ = begin();
     stats_.set_write_wrap_count(stats_.write_wrap_count() + 1);
-    PERFETTO_DCHECK(size_to_end() >= record_size);
+    DEJAVIEW_DCHECK(size_to_end() >= record_size);
   }
 
   // At this point either |wptr_| points to an untouched part of the buffer
@@ -267,14 +267,14 @@ void TraceBuffer::CopyChunkUntrusted(
   auto it_and_inserted =
       index_.emplace(key, ChunkMeta(chunk_off, num_fragments, chunk_complete,
                                     chunk_flags, client_identity_trusted));
-  PERFETTO_DCHECK(it_and_inserted.second);
+  DEJAVIEW_DCHECK(it_and_inserted.second);
   TRACE_BUFFER_DLOG("  copying @ [%" PRIdPTR " - %" PRIdPTR "] %zu", wptr_ - begin(),
                     uintptr_t(wptr_ - begin()) + record_size, record_size);
   WriteChunkRecord(wptr_, record, src, size);
   TRACE_BUFFER_DLOG("Chunk raw: %s", base::HexDump(wptr_, record_size).c_str());
   wptr_ += record_size;
   if (wptr_ >= end()) {
-    PERFETTO_DCHECK(padding_size == 0);
+    DEJAVIEW_DCHECK(padding_size == 0);
     wptr_ = begin();
     stats_.set_write_wrap_count(stats_.write_wrap_count() + 1);
   }
@@ -308,7 +308,7 @@ void TraceBuffer::CopyChunkUntrusted(
 }
 
 ssize_t TraceBuffer::DeleteNextChunksFor(size_t bytes_to_clear) {
-  PERFETTO_CHECK(!discard_writes_);
+  DEJAVIEW_CHECK(!discard_writes_);
 
   // Find the position of the first chunk which begins at or after
   // (|wptr_| + |bytes|). Note that such a chunk might not exist and we might
@@ -317,7 +317,7 @@ ssize_t TraceBuffer::DeleteNextChunksFor(size_t bytes_to_clear) {
   uint8_t* search_end = wptr_ + bytes_to_clear;
   TRACE_BUFFER_DLOG("Delete [%zu %zu]", wptr_ - begin(), search_end - begin());
   DcheckIsAlignedAndWithinBounds(wptr_);
-  PERFETTO_DCHECK(search_end <= end());
+  DEJAVIEW_DCHECK(search_end <= end());
   std::vector<ChunkMap::iterator> index_delete;
   uint64_t chunks_overwritten = stats_.chunks_overwritten();
   uint64_t bytes_overwritten = stats_.bytes_overwritten();
@@ -332,23 +332,23 @@ ssize_t TraceBuffer::DeleteNextChunksFor(size_t bytes_to_clear) {
     // zeroes from here to end().
     // Optimization: if during Initialize() we fill the buffer with padding
     // records we could get rid of this branch.
-    if (PERFETTO_UNLIKELY(!next_chunk.is_valid())) {
+    if (DEJAVIEW_UNLIKELY(!next_chunk.is_valid())) {
       // This should happen only at the first iteration. The zeroed area can
       // only begin precisely at the |wptr_|, not after. Otherwise it means that
       // we wrapped but screwed up the ChunkRecord chain.
-      PERFETTO_DCHECK(next_chunk_ptr == wptr_);
+      DEJAVIEW_DCHECK(next_chunk_ptr == wptr_);
       return 0;
     }
 
     // Remove |next_chunk| from the index, unless it's a padding record (padding
     // records are not part of the index).
-    if (PERFETTO_LIKELY(!next_chunk.is_padding)) {
+    if (DEJAVIEW_LIKELY(!next_chunk.is_padding)) {
       ChunkMeta::Key key(next_chunk);
       auto it = index_.find(key);
       bool will_remove = false;
-      if (PERFETTO_LIKELY(it != index_.end())) {
+      if (DEJAVIEW_LIKELY(it != index_.end())) {
         const ChunkMeta& meta = it->second;
-        if (PERFETTO_UNLIKELY(meta.num_fragments_read < meta.num_fragments)) {
+        if (DEJAVIEW_UNLIKELY(meta.num_fragments_read < meta.num_fragments)) {
           if (overwrite_policy_ == kDiscard)
             return -1;
           chunks_overwritten++;
@@ -362,7 +362,7 @@ ssize_t TraceBuffer::DeleteNextChunksFor(size_t bytes_to_clear) {
           key.producer_id, key.writer_id, key.chunk_id,
           next_chunk_ptr - begin(), next_chunk_ptr - begin() + next_chunk.size,
           will_remove);
-      PERFETTO_DCHECK(will_remove);
+      DEJAVIEW_DCHECK(will_remove);
     } else {
       padding_bytes_cleared += next_chunk.size;
     }
@@ -373,7 +373,7 @@ ssize_t TraceBuffer::DeleteNextChunksFor(size_t bytes_to_clear) {
     // to the buffer and breaking the ChunkRecord(s) chain.
     // TODO(primiano): Write more meaningful logging with the status of the
     // buffer, to get more actionable bugs in case we hit this.
-    PERFETTO_CHECK(next_chunk_ptr <= end());
+    DEJAVIEW_CHECK(next_chunk_ptr <= end());
   }
 
   // Remove from the index.
@@ -384,12 +384,12 @@ ssize_t TraceBuffer::DeleteNextChunksFor(size_t bytes_to_clear) {
   stats_.set_bytes_overwritten(bytes_overwritten);
   stats_.set_padding_bytes_cleared(padding_bytes_cleared);
 
-  PERFETTO_DCHECK(next_chunk_ptr >= search_end && next_chunk_ptr <= end());
+  DEJAVIEW_DCHECK(next_chunk_ptr >= search_end && next_chunk_ptr <= end());
   return static_cast<ssize_t>(next_chunk_ptr - search_end);
 }
 
 void TraceBuffer::AddPaddingRecord(size_t size) {
-  PERFETTO_DCHECK(size >= sizeof(ChunkRecord) && size <= ChunkRecord::kMaxSize);
+  DEJAVIEW_DCHECK(size >= sizeof(ChunkRecord) && size <= ChunkRecord::kMaxSize);
   ChunkRecord record(size);
   record.is_padding = 1;
   TRACE_BUFFER_DLOG("AddPaddingRecord @ [%" PRIdPTR " - %" PRIdPTR "] %zu", wptr_ - begin(),
@@ -405,7 +405,7 @@ bool TraceBuffer::TryPatchChunkContents(ProducerID producer_id,
                                         const Patch* patches,
                                         size_t patches_size,
                                         bool other_patches_pending) {
-  PERFETTO_CHECK(!read_only_);
+  DEJAVIEW_CHECK(!read_only_);
   ChunkMeta::Key key(producer_id, writer_id, chunk_id);
   auto it = index_.find(key);
   if (it == index_.end()) {
@@ -418,11 +418,11 @@ bool TraceBuffer::TryPatchChunkContents(ProducerID producer_id,
   // stored in the ChunkRecord.
 
   ChunkRecord* chunk_record = GetChunkRecordAt(begin() + chunk_meta.record_off);
-  PERFETTO_DCHECK(ChunkMeta::Key(*chunk_record) == key);
+  DEJAVIEW_DCHECK(ChunkMeta::Key(*chunk_record) == key);
   uint8_t* chunk_begin = reinterpret_cast<uint8_t*>(chunk_record);
-  PERFETTO_DCHECK(chunk_begin >= begin());
+  DEJAVIEW_DCHECK(chunk_begin >= begin());
   uint8_t* chunk_end = chunk_begin + chunk_record->size;
-  PERFETTO_DCHECK(chunk_end <= end());
+  DEJAVIEW_DCHECK(chunk_end <= end());
 
   static_assert(Patch::kSize == SharedMemoryABI::kPacketHeaderSize,
                 "Patch::kSize out of sync with SharedMemoryABI");
@@ -460,7 +460,7 @@ bool TraceBuffer::TryPatchChunkContents(ProducerID producer_id,
 
 void TraceBuffer::BeginRead() {
   read_iter_ = GetReadIterForSequence(index_.begin());
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   changed_since_last_read_ = false;
 #endif
 }
@@ -474,13 +474,13 @@ TraceBuffer::SequenceIterator TraceBuffer::GetReadIterForSequence(
     return iter;
   }
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   // Either |seq_begin| is == index_.begin() or the item immediately before must
   // belong to a different {ProducerID, WriterID} sequence.
   if (seq_begin != index_.begin() && seq_begin != index_.end()) {
     auto prev_it = seq_begin;
     prev_it--;
-    PERFETTO_DCHECK(
+    DEJAVIEW_DCHECK(
         seq_begin == index_.begin() ||
         std::tie(prev_it->first.producer_id, prev_it->first.writer_id) <
             std::tie(seq_begin->first.producer_id, seq_begin->first.writer_id));
@@ -492,13 +492,13 @@ TraceBuffer::SequenceIterator TraceBuffer::GetReadIterForSequence(
   ChunkMeta::Key key = seq_begin->first;  // Deliberate copy.
   key.chunk_id = kMaxChunkID;
   iter.seq_end = index_.upper_bound(key);
-  PERFETTO_DCHECK(iter.seq_begin != iter.seq_end);
+  DEJAVIEW_DCHECK(iter.seq_begin != iter.seq_end);
 
   // Now find the first entry between [seq_begin, seq_end) that is
   // > last_chunk_id_written_. This is where we the sequence will start (see
   // notes about wrapping of IDs in the header).
   auto producer_and_writer_id = std::make_pair(key.producer_id, key.writer_id);
-  PERFETTO_DCHECK(last_chunk_id_written_.count(producer_and_writer_id));
+  DEJAVIEW_DCHECK(last_chunk_id_written_.count(producer_and_writer_id));
   iter.wrapping_id = last_chunk_id_written_[producer_and_writer_id];
   key.chunk_id = iter.wrapping_id;
   iter.cur = index_.upper_bound(key);
@@ -554,22 +554,22 @@ bool TraceBuffer::ReadNextTracePacket(
   // chunk (|last_read_packet_skipped| in ChunkMeta).
   bool previous_packet_dropped = true;
 
-#if PERFETTO_DCHECK_IS_ON()
-  PERFETTO_DCHECK(!changed_since_last_read_);
+#if DEJAVIEW_DCHECK_IS_ON()
+  DEJAVIEW_DCHECK(!changed_since_last_read_);
 #endif
   for (;; read_iter_.MoveNext()) {
-    if (PERFETTO_UNLIKELY(!read_iter_.is_valid())) {
+    if (DEJAVIEW_UNLIKELY(!read_iter_.is_valid())) {
       // We ran out of chunks in the current {ProducerID, WriterID} sequence or
       // we just reached the index_.end().
 
-      if (PERFETTO_UNLIKELY(read_iter_.seq_end == index_.end()))
+      if (DEJAVIEW_UNLIKELY(read_iter_.seq_end == index_.end()))
         return false;
 
       // We reached the end of sequence, move to the next one.
       // Note: ++read_iter_.seq_end might become index_.end(), but
       // GetReadIterForSequence() knows how to deal with that.
       read_iter_ = GetReadIterForSequence(read_iter_.seq_end);
-      PERFETTO_DCHECK(read_iter_.is_valid() && read_iter_.cur != index_.end());
+      DEJAVIEW_DCHECK(read_iter_.is_valid() && read_iter_.cur != index_.end());
       previous_packet_dropped = true;
     }
 
@@ -612,7 +612,7 @@ bool TraceBuffer::ReadNextTracePacket(
     // | Packet 3  ... |   |                   |  | Packet 5 ...  |
     // +---------------+   +-------------------+  +---------------+
 
-    PERFETTO_DCHECK(chunk_meta->num_fragments_read <=
+    DEJAVIEW_DCHECK(chunk_meta->num_fragments_read <=
                     chunk_meta->num_fragments);
 
     // If we didn't read any packets from this chunk, the last packet was from
@@ -660,14 +660,14 @@ bool TraceBuffer::ReadNextTracePacket(
         ReadPacketResult result =
             ReadNextPacketInChunk(producer_and_writer_id, chunk_meta, packet);
 
-        if (PERFETTO_LIKELY(result == ReadPacketResult::kSucceeded)) {
+        if (DEJAVIEW_LIKELY(result == ReadPacketResult::kSucceeded)) {
           *sequence_properties = {trusted_producer_id, client_identity,
                                   writer_id};
           *previous_packet_on_sequence_dropped = previous_packet_dropped;
           return true;
         } else if (result == ReadPacketResult::kFailedEmptyPacket) {
           // We can ignore and skip empty packets.
-          PERFETTO_DCHECK(packet->slices().empty());
+          DEJAVIEW_DCHECK(packet->slices().empty());
           continue;
         }
 
@@ -677,13 +677,13 @@ bool TraceBuffer::ReadNextTracePacket(
         // marks the chunk as fully read, so we don't attempt to read from it
         // again in a future call to ReadBuffers(). It also already records an
         // abi violation for this.
-        PERFETTO_DCHECK(result == ReadPacketResult::kFailedInvalidPacket);
+        DEJAVIEW_DCHECK(result == ReadPacketResult::kFailedInvalidPacket);
         chunk_meta->set_last_read_packet_skipped(true);
         previous_packet_dropped = true;
         break;
       }
 
-      PERFETTO_DCHECK(action == kTryReadAhead);
+      DEJAVIEW_DCHECK(action == kTryReadAhead);
       ReadAheadResult ra_res = ReadAhead(packet);
       if (ra_res == ReadAheadResult::kSucceededReturnSlices) {
         stats_.set_readaheads_succeeded(stats_.readaheads_succeeded() + 1);
@@ -710,7 +710,7 @@ bool TraceBuffer::ReadNextTracePacket(
         break;
       }
 
-      PERFETTO_DCHECK(ra_res == ReadAheadResult::kFailedStayOnSameSequence);
+      DEJAVIEW_DCHECK(ra_res == ReadAheadResult::kFailedStayOnSameSequence);
 
       // In this case ReadAhead() might advance |read_iter_|, so we need to
       // re-cache the |chunk_meta| pointer to point to the current chunk.
@@ -729,13 +729,13 @@ TraceBuffer::ReadAheadResult TraceBuffer::ReadAhead(TracePacket* packet) {
   SequenceIterator it = read_iter_;
   for (it.MoveNext(); it.is_valid(); it.MoveNext(), next_chunk_id++) {
     // We should stay within the same sequence while iterating here.
-    PERFETTO_DCHECK(it.producer_id() == read_iter_.producer_id() &&
+    DEJAVIEW_DCHECK(it.producer_id() == read_iter_.producer_id() &&
                     it.writer_id() == read_iter_.writer_id());
 
     TRACE_BUFFER_DLOG("   expected chunk ID: %u, actual ID: %u", next_chunk_id,
                       it.chunk_id());
 
-    if (PERFETTO_UNLIKELY((*it).num_fragments == 0))
+    if (DEJAVIEW_UNLIKELY((*it).num_fragments == 0))
       continue;
 
     // If we miss the next chunk, stop looking in the current sequence and
@@ -743,7 +743,7 @@ TraceBuffer::ReadAheadResult TraceBuffer::ReadAhead(TracePacket* packet) {
     // The second condition is the edge case of a buggy/malicious
     // producer. The ChunkID is contiguous but its flags don't make sense.
     if (it.chunk_id() != next_chunk_id ||
-        PERFETTO_UNLIKELY(
+        DEJAVIEW_UNLIKELY(
             !((*it).flags & kFirstPacketContinuesFromPrevChunk))) {
       return ReadAheadResult::kFailedMoveToNextSequence;
     }
@@ -765,7 +765,7 @@ TraceBuffer::ReadAheadResult TraceBuffer::ReadAhead(TracePacket* packet) {
 
     // We made it! We got all fragments for the packet without holes.
     TRACE_BUFFER_DLOG("  readahead success @ chunk %u", it.chunk_id());
-    PERFETTO_DCHECK(((*it).num_fragments == 1 &&
+    DEJAVIEW_DCHECK(((*it).num_fragments == 1 &&
                      !((*it).flags & kLastPacketContinuesOnNextChunk)) ||
                     (*it).num_fragments > 1);
 
@@ -773,9 +773,9 @@ TraceBuffer::ReadAheadResult TraceBuffer::ReadAhead(TracePacket* packet) {
     // all the fragments as read.
     bool packet_corruption = false;
     for (;;) {
-      PERFETTO_DCHECK(read_iter_.is_valid());
+      DEJAVIEW_DCHECK(read_iter_.is_valid());
       TRACE_BUFFER_DLOG("    commit chunk %u", read_iter_.chunk_id());
-      if (PERFETTO_LIKELY((*read_iter_).num_fragments > 0)) {
+      if (DEJAVIEW_LIKELY((*read_iter_).num_fragments > 0)) {
         // In the unlikely case of a corrupted packet (corrupted or empty
         // fragment), invalidate the all stitching and move on to the next chunk
         // in the same sequence, if any.
@@ -788,9 +788,9 @@ TraceBuffer::ReadAheadResult TraceBuffer::ReadAhead(TracePacket* packet) {
         break;
       read_iter_.MoveNext();
     }  // for(;;)
-    PERFETTO_DCHECK(read_iter_.cur == it.cur);
+    DEJAVIEW_DCHECK(read_iter_.cur == it.cur);
 
-    if (PERFETTO_UNLIKELY(packet_corruption)) {
+    if (DEJAVIEW_UNLIKELY(packet_corruption)) {
       // ReadNextPacketInChunk() already records an abi violation for this case.
       *packet = TracePacket();  // clear.
       return ReadAheadResult::kFailedStayOnSameSequence;
@@ -805,8 +805,8 @@ TraceBuffer::ReadPacketResult TraceBuffer::ReadNextPacketInChunk(
     ProducerAndWriterID producer_and_writer_id,
     ChunkMeta* const chunk_meta,
     TracePacket* packet) {
-  PERFETTO_DCHECK(chunk_meta->num_fragments_read < chunk_meta->num_fragments);
-  PERFETTO_DCHECK(!(chunk_meta->flags & kChunkNeedsPatching));
+  DEJAVIEW_DCHECK(chunk_meta->num_fragments_read < chunk_meta->num_fragments);
+  DEJAVIEW_DCHECK(!(chunk_meta->flags & kChunkNeedsPatching));
 
   const uint8_t* record_begin = begin() + chunk_meta->record_off;
   DcheckIsAlignedAndWithinBounds(record_begin);
@@ -815,15 +815,15 @@ TraceBuffer::ReadPacketResult TraceBuffer::ReadNextPacketInChunk(
   const uint8_t* packets_begin = record_begin + sizeof(ChunkRecord);
   const uint8_t* packet_begin = packets_begin + chunk_meta->cur_fragment_offset;
 
-  if (PERFETTO_UNLIKELY(packet_begin < packets_begin ||
+  if (DEJAVIEW_UNLIKELY(packet_begin < packets_begin ||
                         packet_begin >= record_end)) {
     // The producer has a bug or is malicious and did declare that the chunk
     // contains more packets beyond its boundaries.
     stats_.set_abi_violations(stats_.abi_violations() + 1);
-    PERFETTO_DCHECK(suppress_client_dchecks_for_testing_);
+    DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_);
     chunk_meta->cur_fragment_offset = 0;
     chunk_meta->num_fragments_read = chunk_meta->num_fragments;
-    if (PERFETTO_LIKELY(chunk_meta->is_complete())) {
+    if (DEJAVIEW_LIKELY(chunk_meta->is_complete())) {
       stats_.set_chunks_read(stats_.chunks_read() + 1);
       stats_.set_bytes_read(stats_.bytes_read() + chunk_record->size);
     }
@@ -841,7 +841,7 @@ TraceBuffer::ReadPacketResult TraceBuffer::ReadNextPacketInChunk(
       packet_begin, header_end, &packet_size);
 
   const uint8_t* next_packet = packet_data + packet_size;
-  if (PERFETTO_UNLIKELY(next_packet <= packet_begin ||
+  if (DEJAVIEW_UNLIKELY(next_packet <= packet_begin ||
                         next_packet > record_end)) {
     // In BufferExhaustedPolicy::kDrop mode, TraceWriter may abort a fragmented
     // packet by writing an invalid size in the last fragment's header. We
@@ -849,14 +849,14 @@ TraceBuffer::ReadPacketResult TraceBuffer::ReadNextPacketInChunk(
     // R).
     if (packet_size != SharedMemoryABI::kPacketSizeDropPacket) {
       stats_.set_abi_violations(stats_.abi_violations() + 1);
-      PERFETTO_DCHECK(suppress_client_dchecks_for_testing_);
+      DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_);
     } else {
       stats_.set_trace_writer_packet_loss(stats_.trace_writer_packet_loss() +
                                           1);
     }
     chunk_meta->cur_fragment_offset = 0;
     chunk_meta->num_fragments_read = chunk_meta->num_fragments;
-    if (PERFETTO_LIKELY(chunk_meta->is_complete())) {
+    if (DEJAVIEW_LIKELY(chunk_meta->is_complete())) {
       stats_.set_chunks_read(stats_.chunks_read() + 1);
       stats_.set_bytes_read(stats_.bytes_read() + chunk_record->size);
     }
@@ -867,7 +867,7 @@ TraceBuffer::ReadPacketResult TraceBuffer::ReadNextPacketInChunk(
       static_cast<uint16_t>(next_packet - packets_begin);
   chunk_meta->num_fragments_read++;
 
-  if (PERFETTO_UNLIKELY(chunk_meta->num_fragments_read ==
+  if (DEJAVIEW_UNLIKELY(chunk_meta->num_fragments_read ==
                             chunk_meta->num_fragments &&
                         chunk_meta->is_complete())) {
     stats_.set_chunks_read(stats_.chunks_read() + 1);
@@ -878,23 +878,23 @@ TraceBuffer::ReadPacketResult TraceBuffer::ReadNextPacketInChunk(
     // We have at least one more packet to parse. It should be within the chunk.
     if (chunk_meta->cur_fragment_offset + sizeof(ChunkRecord) >=
         chunk_record->size) {
-      PERFETTO_DCHECK(suppress_client_dchecks_for_testing_);
+      DEJAVIEW_DCHECK(suppress_client_dchecks_for_testing_);
     }
   }
 
   chunk_meta->set_last_read_packet_skipped(false);
 
-  if (PERFETTO_UNLIKELY(packet_size == 0))
+  if (DEJAVIEW_UNLIKELY(packet_size == 0))
     return ReadPacketResult::kFailedEmptyPacket;
 
-  if (PERFETTO_LIKELY(packet))
+  if (DEJAVIEW_LIKELY(packet))
     packet->AddSlice(packet_data, static_cast<size_t>(packet_size));
 
   return ReadPacketResult::kSucceeded;
 }
 
 void TraceBuffer::DiscardWrite() {
-  PERFETTO_DCHECK(overwrite_policy_ == kDiscard);
+  DEJAVIEW_DCHECK(overwrite_policy_ == kDiscard);
   discard_writes_ = true;
   stats_.set_chunks_discarded(stats_.chunks_discarded() + 1);
   TRACE_BUFFER_DLOG("  discarding write");
@@ -937,4 +937,4 @@ TraceBuffer::TraceBuffer(CloneCtor, const TraceBuffer& src)
   read_iter_ = SequenceIterator();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

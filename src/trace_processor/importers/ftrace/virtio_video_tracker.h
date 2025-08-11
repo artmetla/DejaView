@@ -19,17 +19,17 @@
 
 #include <cstdint>
 
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 
-#include "perfetto/protozero/field.h"
-#include "protos/perfetto/trace/ftrace/virtio_video.pbzero.h"
+#include "dejaview/protozero/field.h"
+#include "protos/dejaview/trace/ftrace/virtio_video.pbzero.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -92,6 +92,6 @@ class VirtioVideoTracker : public Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_VIRTIO_VIDEO_TRACKER_H_

@@ -48,10 +48,10 @@ def amalgamate_file(fname, stack=None, done=None, in_progress=None):
     lines = f.readlines()
   outlines = []
   for line in lines:
-    if line.startswith('from perfetto') or line.startswith('import perfetto'):
-      if not re.match('from perfetto[.][.\w]+\s+import\s+[*]$', line):
+    if line.startswith('from dejaview') or line.startswith('import dejaview'):
+      if not re.match('from dejaview[.][.\w]+\s+import\s+[*]$', line):
         logging.fatal('Error in %s on line \"%s\"', fname, line.rstrip())
-        logging.fatal('Only "from perfetto.foo import *" is supported in '
+        logging.fatal('Only "from dejaview.foo import *" is supported in '
                       'sources that are used in //tools and get amalgamated')
         sys.exit(1)
       pkg = line.split()[1]

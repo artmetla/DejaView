@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/thread_checker.h"
+#include "dejaview/ext/base/thread_checker.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
 constexpr ThreadID kDetached{};
 
 ThreadID CurrentThreadId() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   return ::GetCurrentThreadId();
 #else
   return pthread_self();
@@ -65,4 +65,4 @@ void ThreadChecker::DetachFromThread() {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,14 +19,14 @@
 #include <cstdint>
 #include <memory>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/getopt.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/getopt.h"
 #include "src/bigtrace/worker/repository_policies/gcs_trace_processor_loader.h"
 #include "src/bigtrace/worker/repository_policies/local_trace_processor_loader.h"
 #include "src/bigtrace/worker/repository_policies/trace_processor_loader.h"
 #include "src/bigtrace/worker/worker_impl.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 namespace {
 
 struct CommandLineOptions {
@@ -44,7 +44,7 @@ CommandLineOptions ParseCommandLineOptions(int argc, char** argv) {
         command_line_options.socket = optarg;
         break;
       default:
-        PERFETTO_ELOG("Usage: %s --socket=address:port", argv[0]);
+        DEJAVIEW_ELOG("Usage: %s --socket=address:port", argv[0]);
         break;
     }
   }
@@ -67,7 +67,7 @@ base::Status WorkerMain(int argc, char** argv) {
   builder.RegisterService(service.get());
   builder.AddListeningPort(socket, grpc::InsecureServerCredentials());
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  PERFETTO_LOG("Worker server listening on %s", socket.c_str());
+  DEJAVIEW_LOG("Worker server listening on %s", socket.c_str());
 
   server->Wait();
 
@@ -75,10 +75,10 @@ base::Status WorkerMain(int argc, char** argv) {
 }
 
 }  // namespace
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 int main(int argc, char** argv) {
-  auto status = perfetto::bigtrace::WorkerMain(argc, argv);
+  auto status = dejaview::bigtrace::WorkerMain(argc, argv);
   if (!status.ok()) {
     fprintf(stderr, "%s\n", status.c_message());
     return 1;

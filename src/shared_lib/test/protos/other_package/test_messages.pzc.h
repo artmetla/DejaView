@@ -23,40 +23,40 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "perfetto/public/pb_macros.h"
+#include "dejaview/public/pb_macros.h"
 
-PERFETTO_PB_MSG_DECL(other_package_Message_NestedMessage);
+DEJAVIEW_PB_MSG_DECL(other_package_Message_NestedMessage);
 
-PERFETTO_PB_ENUM(other_package_Enum){
-    PERFETTO_PB_ENUM_ENTRY(other_package_A) = 10,
-    PERFETTO_PB_ENUM_ENTRY(other_package_B) = 11,
+DEJAVIEW_PB_ENUM(other_package_Enum){
+    DEJAVIEW_PB_ENUM_ENTRY(other_package_A) = 10,
+    DEJAVIEW_PB_ENUM_ENTRY(other_package_B) = 11,
 };
 
-PERFETTO_PB_ENUM_IN_MSG(other_package_Message, NestedEnum){
-    PERFETTO_PB_ENUM_IN_MSG_ENTRY(other_package_Message, C) = 12,
-    PERFETTO_PB_ENUM_IN_MSG_ENTRY(other_package_Message, D) = 13,
+DEJAVIEW_PB_ENUM_IN_MSG(other_package_Message, NestedEnum){
+    DEJAVIEW_PB_ENUM_IN_MSG_ENTRY(other_package_Message, C) = 12,
+    DEJAVIEW_PB_ENUM_IN_MSG_ENTRY(other_package_Message, D) = 13,
 };
 
-PERFETTO_PB_MSG(other_package_Message);
-PERFETTO_PB_FIELD(other_package_Message, VARINT, int32_t, field_int32, 1);
-PERFETTO_PB_FIELD(other_package_Message,
+DEJAVIEW_PB_MSG(other_package_Message);
+DEJAVIEW_PB_FIELD(other_package_Message, VARINT, int32_t, field_int32, 1);
+DEJAVIEW_PB_FIELD(other_package_Message,
                   VARINT,
                   enum other_package_Enum,
                   field_enum,
                   2);
-PERFETTO_PB_FIELD(other_package_Message,
+DEJAVIEW_PB_FIELD(other_package_Message,
                   VARINT,
                   enum other_package_Message_NestedEnum,
                   field_nested_enum,
                   3);
-PERFETTO_PB_FIELD(other_package_Message,
+DEJAVIEW_PB_FIELD(other_package_Message,
                   MSG,
                   other_package_Message_NestedMessage,
                   field_nested_message,
                   4);
 
-PERFETTO_PB_MSG(other_package_Message_NestedMessage);
-PERFETTO_PB_FIELD(other_package_Message_NestedMessage,
+DEJAVIEW_PB_MSG(other_package_Message_NestedMessage);
+DEJAVIEW_PB_FIELD(other_package_Message_NestedMessage,
                   VARINT,
                   int32_t,
                   field_int32,

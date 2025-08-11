@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 
 #include <algorithm>
 
@@ -27,7 +27,7 @@ ScatteredHeapBuffer::Slice::Slice(size_t size)
     : buffer_(std::unique_ptr<uint8_t[]>(new uint8_t[size])),
       size_(size),
       unused_bytes_(size) {
-  PERFETTO_DCHECK(size);
+  DEJAVIEW_DCHECK(size);
   Clear();
 }
 
@@ -40,28 +40,28 @@ ScatteredHeapBuffer::Slice& ScatteredHeapBuffer::Slice::operator=(Slice&&) =
 
 void ScatteredHeapBuffer::Slice::Clear() {
   unused_bytes_ = size_;
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   memset(start(), 0xff, size_);
-#endif  // PERFETTO_DCHECK_IS_ON()
+#endif  // DEJAVIEW_DCHECK_IS_ON()
 }
 
 ScatteredHeapBuffer::ScatteredHeapBuffer(size_t initial_slice_size_bytes,
                                          size_t maximum_slice_size_bytes)
     : next_slice_size_(initial_slice_size_bytes),
       maximum_slice_size_(maximum_slice_size_bytes) {
-  PERFETTO_DCHECK(next_slice_size_ && maximum_slice_size_);
-  PERFETTO_DCHECK(maximum_slice_size_ >= initial_slice_size_bytes);
+  DEJAVIEW_DCHECK(next_slice_size_ && maximum_slice_size_);
+  DEJAVIEW_DCHECK(maximum_slice_size_ >= initial_slice_size_bytes);
 }
 
 ScatteredHeapBuffer::~ScatteredHeapBuffer() = default;
 
 protozero::ContiguousMemoryRange ScatteredHeapBuffer::GetNewBuffer() {
-  PERFETTO_CHECK(writer_);
+  DEJAVIEW_CHECK(writer_);
   AdjustUsedSizeOfCurrentSlice();
 
   if (cached_slice_.start()) {
     slices_.push_back(std::move(cached_slice_));
-    PERFETTO_DCHECK(!cached_slice_.start());
+    DEJAVIEW_DCHECK(!cached_slice_.start());
   } else {
     slices_.emplace_back(next_slice_size_);
   }

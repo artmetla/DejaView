@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/raw_process_memory_node.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/raw_process_memory_node.h"
 
 #include <stddef.h>
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -93,4 +93,4 @@ TEST(RawProcessMemoryNodeTest, MoveAssignment) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

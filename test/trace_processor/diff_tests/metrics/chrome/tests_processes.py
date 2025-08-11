@@ -277,7 +277,7 @@ class ChromeProcesses(TestSuite):
           track_event {
             type: TYPE_INSTANT
             name: "ActiveProcesses"
-            [perfetto.protos.ChromeTrackEvent.active_processes]: {
+            [dejaview.protos.ChromeTrackEvent.active_processes]: {
               pid: 10
               pid: 100
               pid: 1000
@@ -332,7 +332,7 @@ class ChromeProcesses(TestSuite):
           track_event {
             type: TYPE_INSTANT
             name: "ActiveProcesses"
-            [perfetto.protos.ChromeTrackEvent.active_processes]: {
+            [dejaview.protos.ChromeTrackEvent.active_processes]: {
               pid: 10
               pid: 100
               pid: 1000

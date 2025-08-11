@@ -13,10 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE android.slices;
+INCLUDE DEJAVIEW MODULE android.slices;
 
 DROP TABLE IF EXISTS android_sysui_notifications_blocking_calls;
-CREATE PERFETTO TABLE android_sysui_notifications_blocking_calls AS
+CREATE DEJAVIEW TABLE android_sysui_notifications_blocking_calls AS
 SELECT
     s.name name,
     COUNT(s.name) count,
@@ -38,7 +38,7 @@ WHERE
 GROUP BY s.name;
 
 DROP VIEW IF EXISTS android_sysui_notifications_blocking_calls_metric_output;
-CREATE PERFETTO VIEW android_sysui_notifications_blocking_calls_metric_output AS
+CREATE DEJAVIEW VIEW android_sysui_notifications_blocking_calls_metric_output AS
 SELECT AndroidSysUINotificationsBlockingCallsMetric('blocking_calls', (
         SELECT RepeatedField(
             AndroidBlockingCall(

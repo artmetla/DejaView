@@ -66,8 +66,8 @@ export interface PostedTrace {
   // allow dashboards like APC to pass extra data to materialize onto tracks).
   // The format is the following:
   // pluginArgs: {
-  //   'dev.perfetto.PluginFoo': { 'key1': 'value1', 'key2': 1234 }
-  //   'dev.perfetto.PluginBar': { 'key3': '...', 'key4': ... }
+  //   'dev.dejaview.PluginFoo': { 'key1': 'value1', 'key2': 1234 }
+  //   'dev.dejaview.PluginBar': { 'key3': '...', 'key4': ... }
   // }
   pluginArgs?: {[pluginId: string]: {[key: string]: unknown}};
 }

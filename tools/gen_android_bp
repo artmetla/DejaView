@@ -44,25 +44,25 @@ ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # Arguments for the GN output directory.
 gn_args = ' '.join([
     'is_debug=false',
-    'is_perfetto_build_generator=true',
-    'perfetto_build_with_android=true',
+    'is_dejaview_build_generator=true',
+    'dejaview_build_with_android=true',
     'target_cpu="arm"',
     'target_os="android"',
 ])
 
 # Default targets to translate to the blueprint file.
 default_targets = [
-    '//:libperfetto_client_experimental',
-    '//:libperfetto',
-    '//:perfetto_integrationtests',
-    '//:perfetto_unittests',
-    '//protos/perfetto/trace:perfetto_trace_protos',
-    '//protos/perfetto/trace/android:perfetto_winscope_extensions_zero',
-    '//src/android_internal:libperfetto_android_internal',
-    '//src/base:perfetto_base_default_platform',
-    '//src/shared_lib:libperfetto_c',
-    '//src/perfetto_cmd:perfetto',
-    '//src/perfetto_cmd:trigger_perfetto',
+    '//:libdejaview_client_experimental',
+    '//:libdejaview',
+    '//:dejaview_integrationtests',
+    '//:dejaview_unittests',
+    '//protos/dejaview/trace:dejaview_trace_protos',
+    '//protos/dejaview/trace/android:dejaview_winscope_extensions_zero',
+    '//src/android_internal:libdejaview_android_internal',
+    '//src/base:dejaview_base_default_platform',
+    '//src/shared_lib:libdejaview_c',
+    '//src/dejaview_cmd:dejaview',
+    '//src/dejaview_cmd:trigger_dejaview',
     '//src/profiling/memory:heapprofd_client',
     '//src/profiling/memory:heapprofd_client_api',
     '//src/profiling/memory:heapprofd_api_noop',
@@ -74,11 +74,11 @@ default_targets = [
     '//src/traced_relay:traced_relay',
     '//src/trace_processor:trace_processor_shell',
     '//src/trace_redaction:trace_redactor',
-    '//test/cts:perfetto_cts_deps',
-    '//test/cts:perfetto_cts_jni_deps',
-    '//test:perfetto_gtest_logcat_printer',
-    '//test:perfetto_end_to_end_integrationtests',
-    '//test/vts:perfetto_vts_deps',
+    '//test/cts:dejaview_cts_deps',
+    '//test/cts:dejaview_cts_jni_deps',
+    '//test:dejaview_gtest_logcat_printer',
+    '//test:dejaview_end_to_end_integrationtests',
+    '//test/vts:dejaview_vts_deps',
 ]
 
 # Host targets
@@ -97,17 +97,17 @@ default_targets += [
 # Defines a custom init_rc argument to be applied to the corresponding output
 # blueprint target.
 target_initrc = {
-    '//src/traced/service:traced': {'perfetto.rc'},
+    '//src/traced/service:traced': {'dejaview.rc'},
     '//src/profiling/memory:heapprofd': {'heapprofd.rc'},
     '//src/profiling/perf:traced_perf': {'traced_perf.rc'},
 }
 
 target_host_supported = [
-    '//:libperfetto',
-    '//:libperfetto_client_experimental',
-    '//protos/perfetto/trace:perfetto_trace_protos',
-    '//protos/perfetto/trace/android:perfetto_winscope_extensions_zero',
-    '//src/shared_lib:libperfetto_c',
+    '//:libdejaview',
+    '//:libdejaview_client_experimental',
+    '//protos/dejaview/trace:dejaview_trace_protos',
+    '//protos/dejaview/trace/android:dejaview_winscope_extensions_zero',
+    '//src/shared_lib:libdejaview_c',
     '//src/trace_processor:demangle',
     '//src/trace_processor:trace_processor_shell',
     '//src/traced/probes:traced_probes',
@@ -115,11 +115,11 @@ target_host_supported = [
 ]
 
 target_vendor_available = [
-    '//:libperfetto_client_experimental',
+    '//:libdejaview_client_experimental',
 ]
 
 target_product_available = [
-    '//:libperfetto_client_experimental',
+    '//:libdejaview_client_experimental',
 ]
 
 # Proto target groups which will be made public.
@@ -127,39 +127,39 @@ proto_groups = {
     'trace': {
         'types': ['lite'],
         'targets': [
-            '//protos/perfetto/trace:non_minimal_source_set',
-            '//protos/perfetto/trace:minimal_source_set',
+            '//protos/dejaview/trace:non_minimal_source_set',
+            '//protos/dejaview/trace:minimal_source_set',
         ]
     },
     'winscope': {
         'types': ['filegroup'],
         'targets': [
-            '//protos/perfetto/trace:non_minimal_source_set',
-            '//protos/perfetto/trace/android:winscope_extensions_source_set',
+            '//protos/dejaview/trace:non_minimal_source_set',
+            '//protos/dejaview/trace/android:winscope_extensions_source_set',
         ]
     },
     'config': {
         'types': ['lite', 'filegroup'],
         'targets': [
-            '//protos/perfetto/config:source_set',
+            '//protos/dejaview/config:source_set',
         ]
     },
     'metrics': {
         'types': ['python'],
         'targets': [
-            '//protos/perfetto/metrics:source_set',
+            '//protos/dejaview/metrics:source_set',
         ]
     },
 }
 
 needs_libfts = [
-    '//:perfetto_unittests',
+    '//:dejaview_unittests',
     '//src/trace_processor:trace_processor_shell',
     '//src/traceconv:traceconv',
 ]
 
 # All module names are prefixed with this string to avoid collisions.
-module_prefix = 'perfetto_'
+module_prefix = 'dejaview_'
 
 # Shared libraries which are directly translated to Android system equivalents.
 shared_library_allowlist = [
@@ -187,7 +187,7 @@ shared_library_allowlist = [
 
 # Static libraries which are directly translated to Android system equivalents.
 static_library_allowlist = [
-    'statslog_perfetto',
+    'statslog_dejaview',
 ]
 
 # Name of the module which settings such as compiler flags for all other
@@ -195,7 +195,7 @@ static_library_allowlist = [
 defaults_module = module_prefix + 'defaults'
 
 # Location of the project in the Android source tree.
-tree_path = 'external/perfetto'
+tree_path = 'external/dejaview'
 
 # Path for the protobuf sources in the standalone build.
 buildtools_protobuf_src = '//buildtools/protobuf/src'
@@ -204,13 +204,13 @@ buildtools_protobuf_src = '//buildtools/protobuf/src'
 android_protobuf_src = 'external/protobuf/src'
 
 # Compiler flags which are passed through to the blueprint.
-cflag_allowlist = r'^-DPERFETTO.*$'
+cflag_allowlist = r'^-DDEJAVIEW.*$'
 
 # Compiler defines which are passed through to the blueprint.
 define_allowlist = r'^(GOOGLE_PROTO.*)|(ZLIB_.*)|(USE_MMAP)$'
 
-# The directory where the generated perfetto_build_flags.h will be copied into.
-buildflags_dir = 'include/perfetto/base/build_configs/android_tree'
+# The directory where the generated dejaview_build_flags.h will be copied into.
+buildflags_dir = 'include/dejaview/base/build_configs/android_tree'
 
 def enumerate_data_deps():
   with open(os.path.join(ROOT_DIR, 'tools', 'test_data.txt')) as f:
@@ -260,15 +260,15 @@ additional_args = {
         ('export_include_dirs', {'src/profiling/memory/include'}),
         ('stl', 'libc++_static'),
     ],
-    'perfetto_unittests': [
+    'dejaview_unittests': [
         ('data', set(enumerate_data_deps())),
         ('include_dirs', {'bionic/libc/kernel'}),
     ],
-    'perfetto_integrationtests': [
+    'dejaview_integrationtests': [
         ('test_suites', {'general-tests'}),
-        ('test_config', 'PerfettoIntegrationTests.xml'),
+        ('test_config', 'DejaViewIntegrationTests.xml'),
     ],
-    'libperfetto_android_internal': [('static_libs', {'libhealthhalutils'}),],
+    'libdejaview_android_internal': [('static_libs', {'libhealthhalutils'}),],
     'trace_processor_shell': [
         ('strip', {
             'all': True
@@ -280,7 +280,7 @@ additional_args = {
             },
         }),
     ],
-    'libperfetto_client_experimental': [
+    'libdejaview_client_experimental': [
         ('apex_available', {
             '//apex_available:platform', '//apex_available:anyapex'
         }),
@@ -289,32 +289,32 @@ additional_args = {
         ('export_shared_lib_headers', {'liblog'}),
         ('export_include_dirs', {'include', buildflags_dir}),
     ],
-    'libperfetto_c': [
+    'libdejaview_c': [
         ('min_sdk_version', '30'),
         ('export_include_dirs', {'include'}),
-        ('cflags', {'-DPERFETTO_SHLIB_SDK_IMPLEMENTATION'}),
+        ('cflags', {'-DDEJAVIEW_SHLIB_SDK_IMPLEMENTATION'}),
     ],
-    'perfetto_trace_protos': [
+    'dejaview_trace_protos': [
         ('apex_available', {
             '//apex_available:platform', 'com.android.art',
             'com.android.art.debug'
         }),
         ('min_sdk_version', 'S'),
     ],
-    'libperfetto': [('export_include_dirs', {'include', buildflags_dir}),],
-    'perfetto': [('required', {'perfetto_persistent_cfg.pbtxt'}),],
+    'libdejaview': [('export_include_dirs', {'include', buildflags_dir}),],
+    'dejaview': [('required', {'dejaview_persistent_cfg.pbtxt'}),],
 }
 
 
 def enable_base_platform(module):
-  module.srcs.add(':perfetto_base_default_platform')
+  module.srcs.add(':dejaview_base_default_platform')
 
 
 def enable_gtest_and_gmock(module):
   module.static_libs.add('libgmock')
   module.static_libs.add('libgtest')
-  if module.name != 'perfetto_gtest_logcat_printer':
-    module.whole_static_libs.add('perfetto_gtest_logcat_printer')
+  if module.name != 'dejaview_gtest_logcat_printer':
+    module.whole_static_libs.add('dejaview_gtest_logcat_printer')
 
 
 def enable_protobuf_full(module):
@@ -643,7 +643,7 @@ class Module(object):
       output.append('    product_variables: {')
       output.append('        debuggable: {')
       output.append(
-          '            cflags: ["-DPERFETTO_BUILD_WITH_ANDROID_USERDEBUG"],')
+          '            cflags: ["-DDEJAVIEW_BUILD_WITH_ANDROID_USERDEBUG"],')
       output.append('        },')
       output.append('    },')
     if self.lto is not None:
@@ -702,7 +702,7 @@ class Blueprint(object):
 
 
 def label_to_module_name(label: str):
-  """Turn a GN label (e.g., //:perfetto_tests) into a module name."""
+  """Turn a GN label (e.g., //:dejaview_tests) into a module name."""
   # If the label is explicibly listed in the default target list, don't prefix
   # its name and return just the target name. This is so tools like
   # "traceconv" stay as such in the Android tree.
@@ -828,8 +828,8 @@ def create_proto_modules(blueprint: Blueprint, gn: GnParser,
   # TODO(primiano): at some point we should remove this. This was introduced
   # by aosp/1108421 when adding "protos/" to .proto include paths, in order to
   # avoid doing multi-repo changes and allow old clients in the android tree
-  # to still do the old #include "perfetto/..." rather than
-  # #include "protos/perfetto/...".
+  # to still do the old #include "dejaview/..." rather than
+  # #include "protos/dejaview/...".
   header_module.export_include_dirs = {'.', 'protos'}
 
   source_module.genrule_srcs.add(':' + source_module.name)
@@ -904,7 +904,7 @@ def create_tp_tables_module(blueprint: Blueprint, gn: GnParser,
   module.cmd = ' '.join([
       f'$(location {bp_binary_module_name})',
       '--gen-dir=$(genDir)',
-      '--relative-input-dir=external/perfetto',
+      '--relative-input-dir=external/dejaview',
       '--inputs',
       '$(in)',
   ])
@@ -944,8 +944,8 @@ def create_amalgamated_sql_module(blueprint: Blueprint, gn: GnParser,
     # Use globs for the chrome stdlib so the file does not need to be
     # regenerated in autoroll CLs.
     if dep.name.startswith(
-          '//src/trace_processor/perfetto_sql/stdlib/chrome:chrome_sql'):
-      module.srcs.add('src/trace_processor/perfetto_sql/stdlib/chrome/**/*.sql')
+          '//src/trace_processor/dejaview_sql/stdlib/chrome:chrome_sql'):
+      module.srcs.add('src/trace_processor/dejaview_sql/stdlib/chrome/**/*.sql')
       continue
     module.srcs.update(
         [gn_utils.label_to_path(src) for src in gn.get_target(dep.name).inputs])
@@ -1213,7 +1213,7 @@ def create_blueprint_for_targets(gn: GnParser, targets: List[str]):
   defaults = Module('cc_defaults', defaults_module, '//gn:default_deps')
 
   # We have to use include_dirs passing the path relative to the android tree.
-  # This is because: (i) perfetto_cc_defaults is used also by
+  # This is because: (i) dejaview_cc_defaults is used also by
   # test/**/Android.bp; (ii) if we use local_include_dirs instead, paths
   # become relative to the Android.bp that *uses* cc_defaults (not the one
   # that defines it).s
@@ -1262,7 +1262,7 @@ def main():
   parser.add_argument(
       'targets',
       nargs=argparse.REMAINDER,
-      help='Targets to include in the blueprint (e.g., "//:perfetto_tests")')
+      help='Targets to include in the blueprint (e.g., "//:dejaview_tests")')
   args = parser.parse_args()
 
   if args.desc:
@@ -1277,7 +1277,7 @@ def main():
   tool_name = os.path.relpath(os.path.abspath(__file__), project_root)
 
   # TODO(primiano): enable this on Android after the TODO in
-  # perfetto_component.gni is fixed.
+  # dejaview_component.gni is fixed.
   # Check for ODR violations
   # for target_name in default_targets:
   # checker = gn_utils.ODRChecker(gn, target_name)
@@ -1318,8 +1318,8 @@ def main():
     # Text files should have a trailing EOL.
     f.write('\n')
 
-  # Generate the perfetto_build_flags.h file.
-  out_files.append(os.path.join(buildflags_dir, 'perfetto_build_flags.h.swp'))
+  # Generate the dejaview_build_flags.h file.
+  out_files.append(os.path.join(buildflags_dir, 'dejaview_build_flags.h.swp'))
   gn_utils.gen_buildflags(gn_args, out_files[-1])
 
   # Either check the contents or move the files to their final destination.

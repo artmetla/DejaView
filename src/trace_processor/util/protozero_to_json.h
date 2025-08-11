@@ -19,9 +19,9 @@
 
 #include <string>
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class DescriptorPool;
@@ -72,6 +72,6 @@ std::string ProtozeroToJson(const DescriptorPool& pool,
 
 }  // namespace protozero_to_json
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_PROTOZERO_TO_JSON_H_

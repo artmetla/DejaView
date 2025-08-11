@@ -34,7 +34,7 @@ import time
 
 CUR_DIR = os.path.dirname(os.path.abspath(__file__))
 GIT_UPSTREAM = 'https://android.googlesource.com/platform/external/perfetto/'
-GIT_MIRROR = 'git@github.com:google/perfetto.git'
+GIT_MIRROR = 'git@github.com:google/dejaview.git'
 WORKDIR = os.path.join(CUR_DIR, 'repo')
 
 # Min delay (in seconds) between two consecutive git poll cycles. This is to

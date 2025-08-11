@@ -24,7 +24,7 @@
 #include <unordered_map>
 #include <vector>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/fuchsia/fuchsia_record.h"
 #include "src/trace_processor/importers/proto/proto_trace_reader.h"
@@ -32,7 +32,7 @@
 #include "src/trace_processor/tables/sched_tables_py.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -138,6 +138,6 @@ class FuchsiaTraceTokenizer : public ChunkedTraceReader {
   std::unordered_map<uint64_t, Thread> threads_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FUCHSIA_FUCHSIA_TRACE_TOKENIZER_H_

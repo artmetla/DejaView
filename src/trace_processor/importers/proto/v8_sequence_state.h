@@ -20,12 +20,12 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/v8_tables_py.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -66,6 +66,6 @@ class V8SequenceState final
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_V8_SEQUENCE_STATE_H_

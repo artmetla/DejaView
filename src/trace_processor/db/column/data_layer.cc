@@ -23,8 +23,8 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column/arrangement_overlay.h"
@@ -42,7 +42,7 @@
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/compare.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 DataLayer::~DataLayer() = default;
 DataLayerChain::~DataLayerChain() = default;
@@ -79,11 +79,11 @@ std::unique_ptr<DataLayerChain> DataLayer::MakeChain() {
     case Impl::kNull:
     case Impl::kRange:
     case Impl::kSelector:
-      PERFETTO_FATAL(
+      DEJAVIEW_FATAL(
           "Unexpected call to MakeChain(). MakeChain(DataLayerChain) should be "
           "called instead");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 std::unique_ptr<DataLayerChain> DataLayer::MakeChain(
@@ -112,11 +112,11 @@ std::unique_ptr<DataLayerChain> DataLayer::MakeChain(
     case Impl::kNumericInt64:
     case Impl::kSetId:
     case Impl::kString:
-      PERFETTO_FATAL(
+      DEJAVIEW_FATAL(
           "Unexpected call to MakeChain(DataLayerChain). MakeChain() should be "
           "called instead");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 Range DataLayerChain::OrderedIndexSearchValidated(
@@ -153,17 +153,17 @@ Range DataLayerChain::OrderedIndexSearchValidated(
     case FilterOp::kGt:
       return {ub(), indices.size};
     case FilterOp::kIsNull:
-      PERFETTO_CHECK(value.is_null());
+      DEJAVIEW_CHECK(value.is_null());
       return {0, ub()};
     case FilterOp::kIsNotNull:
-      PERFETTO_CHECK(value.is_null());
+      DEJAVIEW_CHECK(value.is_null());
       return {ub(), indices.size};
     case FilterOp::kNe:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Wrong filtering operation");
+      DEJAVIEW_FATAL("Wrong filtering operation");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 ArrangementOverlay::ArrangementOverlay(
@@ -279,4 +279,4 @@ std::unique_ptr<DataLayerChain> StringStorage::MakeChain() {
   return std::make_unique<ChainImpl>(string_pool_, data_, is_sorted_);
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

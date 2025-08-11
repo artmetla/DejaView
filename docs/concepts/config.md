@@ -1,11 +1,11 @@
 # Trace configuration
 
 Unlike many always-on logging systems (e.g. Linux's rsyslog, Android's logcat),
-in Perfetto all tracing data sources are idle by default and record data only
+in DejaView all tracing data sources are idle by default and record data only
 when instructed to do so.
 
 Data sources record data only when one (or more) tracing sessions are active.
-A tracing session is started by invoking the `perfetto` cmdline client and
+A tracing session is started by invoking the `dejaview` cmdline client and
 passing a config (see QuickStart guide for
 [Android](/docs/quickstart/android-tracing.md),
 [Linux](/docs/quickstart/linux-tracing.md), or [Chrome on desktop](/docs/quickstart/chrome-tracing.md)).
@@ -36,7 +36,7 @@ data_sources {
 And is used as follows:
 
 ```bash
-perfetto --txt -c config.pbtx -o trace_file.perfetto-trace
+dejaview --txt -c config.pbtx -o trace_file.dejaview-trace
 ```
 
 TIP: Some more complete examples of trace configs can be found in the repo in
@@ -62,13 +62,13 @@ The TraceConfig is a protobuf message
     target process name and sampling rate.
     
     See the _data sources_ section of the docs for details on how to
-    configure the data sources bundled with Perfetto.
+    configure the data sources bundled with DejaView.
 
 3. The `{data source} x {buffer}` mappings: which buffer each data
     source should write into (see [buffers section](#buffers) below).
 
 The tracing service (`traced`) acts as a configuration dispatcher: it receives
-a config from the `perfetto` cmdline client (or any other
+a config from the `dejaview` cmdline client (or any other
 [Consumer](/docs/concepts/service-model.md#consumer)) and forwards parts of the
 config to the various [Producers](/docs/concepts/service-model.md#producer)
 connected.
@@ -144,7 +144,7 @@ buffer.
 
 ## Dynamic buffer mapping
 
-Data-source <> buffer mappings are dynamic in Perfetto.
+Data-source <> buffer mappings are dynamic in DejaView.
 In the simplest case a tracing session can define only one buffer. By default,
 all data sources will record data into that one buffer.
 
@@ -184,7 +184,7 @@ data_sources: {
 
 ## PBTX vs binary format
 
-There are two ways to pass the trace config when using the `perfetto` cmdline
+There are two ways to pass the trace config when using the `dejaview` cmdline
 client format:
 
 #### Text format
@@ -192,14 +192,14 @@ client format:
 It is the preferred format for human-driven workflows and exploration. It
 allows to pass directly the text file in the PBTX (ProtoBuf TeXtual
 representation) syntax, for the schema defined in the
-[trace_config.proto](/protos/perfetto/config/trace_config.proto)
+[trace_config.proto](/protos/dejaview/config/trace_config.proto)
 (see [reference docs](/docs/reference/trace-config-proto.autogen))
 
-When using this mode pass the `--txt` flag to `perfetto` to indicate the config
+When using this mode pass the `--txt` flag to `dejaview` to indicate the config
 should be interpreted as a PBTX file:
 
 ```bash
-perfetto -c /path/to/config.pbtx --txt -o trace_file.perfetto-trace
+dejaview -c /path/to/config.pbtx --txt -o trace_file.dejaview-trace
 ```
 
 NOTE: The `--txt` option has been introduced only in Android 10 (Q). Older
@@ -218,23 +218,23 @@ compiler (which can be downloaded
 [here](https://github.com/protocolbuffers/protobuf/releases)).
 
 ```bash
-cd ~/code/perfetto  # external/perfetto in the Android tree.
+cd ~/code/dejaview  # external/dejaview in the Android tree.
 
-protoc --encode=perfetto.protos.TraceConfig \
-        -I. protos/perfetto/config/perfetto_config.proto \
+protoc --encode=dejaview.protos.TraceConfig \
+        -I. protos/dejaview/config/dejaview_config.proto \
         < config.txpb \
         > config.bin
 ```
 
-and then passing it to perfetto as follows, without the `--txt` argument:
+and then passing it to dejaview as follows, without the `--txt` argument:
 
 ```bash
-perfetto -c config.bin -o trace_file.perfetto-trace
+dejaview -c config.bin -o trace_file.dejaview-trace
 ```
 
 ## {#long-traces} Streaming long traces
 
-By default Perfetto keeps the full trace buffer(s) in memory and writes it into
+By default DejaView keeps the full trace buffer(s) in memory and writes it into
 the destination file (the `-o` cmdline argument) only at the end of the tracing
 session. This is to reduce the perf-intrusiveness of the tracing system.
 This, however, limits the max size of the trace to the physical memory size of
@@ -243,7 +243,7 @@ the device, which is often too limiting.
 In some cases (e.g., benchmarks, hard to repro cases) it is desirable to capture
 traces that are way larger than that, at the cost of extra I/O overhead.
 
-To achieve that, Perfetto allows to periodically write the trace buffers into
+To achieve that, DejaView allows to periodically write the trace buffers into
 the target file (or stdout) using the following TraceConfig fields:
 
 * `write_into_file (bool)`:
@@ -276,7 +276,7 @@ Alongside the trace-wide configuration parameters, the trace config also defines
 data-source-specific behaviors. At the proto schema level, this is defined in
 the `DataSourceConfig` section of `TraceConfig`:
 
-From [data_source_config.proto](/protos/perfetto/config/data_source_config.proto):
+From [data_source_config.proto](/protos/dejaview/config/data_source_config.proto):
 
 ```protobuf
 message TraceConfig {
@@ -321,7 +321,7 @@ This allows to introduced new data sources without needing the service to
 know anything about them upfront.
 
 TODO: we are aware of the fact that today extending the `DataSourceConfig` with
-a custom proto requires changing the `data_source_config.proto` in the Perfetto
+a custom proto requires changing the `data_source_config.proto` in the DejaView
 repo, which is unideal for external projects. The long-term plan is to reserve
 a range of fields for non-upstream extensions and provide generic templated
 accessors for client code. Until then, we accept patches upstream to introduce
@@ -330,26 +330,26 @@ ad-hoc configurations for your own data sources.
 ## Multi-process data sources
 
 Some data sources are singletons. E.g., in the case of scheduler tracing that
-Perfetto ships on Android, there is only data source for the whole system,
+DejaView ships on Android, there is only data source for the whole system,
 owned by the `traced_probes` service.
 
 However, in the general case multiple processes can advertise the same data
 source. This is the case, for instance, when using the
-[Perfetto SDK](/docs/instrumentation/tracing-sdk.md) for userspace
+[DejaView SDK](/docs/instrumentation/tracing-sdk.md) for userspace
 instrumentation.
 
 If this happens, when starting a tracing session that specifies that data
-source in the trace config, Perfetto by default will ask all processes that
+source in the trace config, DejaView by default will ask all processes that
 advertise that data source to start it.
 
 In some cases it might be desirable to further limit the enabling of the data
 source to a specific process (or set of processes). That is possible through the
 `producer_name_filter` and `producer_name_regex_filter`.
 
-NOTE: the typical Perfetto run-time model is: one process == one Perfetto
+NOTE: the typical DejaView run-time model is: one process == one DejaView
       Producer; one Producer typically hosts multiple data sources.
 
-When those filters are set, the Perfetto tracing service will activate the data
+When those filters are set, the DejaView tracing service will activate the data
 source only in the subset of producers matching the filter.
 
 Example:
@@ -372,11 +372,11 @@ data_sources {
 ## Triggers
 
 In nominal conditions, a tracing session has a lifecycle that simply matches the
-invocation of the `perfetto` cmdline client: trace data recording starts when
-the TraceConfig is passed to `perfetto` and ends when either the
+invocation of the `dejaview` cmdline client: trace data recording starts when
+the TraceConfig is passed to `dejaview` and ends when either the
 `TraceConfig.duration_ms` has elapsed, or when the cmdline client terminates.
 
-Perfetto supports an alternative mode of either starting or stopping the trace
+DejaView supports an alternative mode of either starting or stopping the trace
 which is based on triggers. The overall idea is to declare in the trace config
 itself:
 
@@ -384,8 +384,8 @@ itself:
 * Whether a given trigger should cause the trace to be started or stopped, and
   the start/stop delay.
 
-Why using triggers? Why can't one just start perfetto or kill(SIGTERM) it when
-needed? The rationale of all this is the security model: in most Perfetto
+Why using triggers? Why can't one just start dejaview or kill(SIGTERM) it when
+needed? The rationale of all this is the security model: in most DejaView
 deployments (e.g., on Android) only privileged entities (e.g., adb shell) can
 configure/start/stop tracing. Apps are unprivileged in this sense and they
 cannot control tracing.
@@ -405,7 +405,7 @@ lifecycle of a tracing session. The conceptual model is:
 Triggers can be signaled via the cmdline util
 
 ```bash
-/system/bin/trigger_perfetto "trigger_name"
+/system/bin/trigger_dejaview "trigger_name"
 ```
 
 (or also by starting an independent trace session which uses only the
@@ -445,11 +445,11 @@ data_sources { ... }
 #### Stop triggers
 
 STOP_TRACING triggers allow to prematurely finalize a trace when the trigger is
-hit. In this mode the trace starts immediately when the `perfetto` client is
+hit. In this mode the trace starts immediately when the `dejaview` client is
 invoked (like in nominal cases). The trigger acts as a premature finalization
 signal.
 
-This can be used to use perfetto in flight-recorder mode. By starting a trace
+This can be used to use dejaview in flight-recorder mode. By starting a trace
 with buffers configured in `RING_BUFFER` mode and `STOP_TRACING` triggers,
 the trace will be recorded in a loop and finalized when the culprit event is
 detected. This is key for events where the root cause is in the recent past
@@ -479,17 +479,17 @@ data_sources { ... }
 On Android, there are some caveats around using `adb shell`
 
 * Ctrl+C, which normally causes a graceful termination of the trace, is not
-  propagated by ADB when using `adb shell perfetto` but only when using an
+  propagated by ADB when using `adb shell dejaview` but only when using an
   interactive PTY-based session via `adb shell`.
 * On non-rooted devices before Android 12, the config can only be passed as
-  `cat config | adb shell perfetto -c -` (-: stdin) because of over-restrictive
-  SELinux rules. Since Android 12 `/data/misc/perfetto-configs` can be used for
+  `cat config | adb shell dejaview -c -` (-: stdin) because of over-restrictive
+  SELinux rules. Since Android 12 `/data/misc/dejaview-configs` can be used for
   storing configs.
 * On devices before Android 10, adb cannot directly pull
-  `/data/misc/perfetto-traces`. Use
-  `adb shell cat /data/misc/perfetto-traces/trace > trace` to work around.
+  `/data/misc/dejaview-traces`. Use
+  `adb shell cat /data/misc/dejaview-traces/trace > trace` to work around.
 * When capturing longer traces, e.g. in the context of benchmarks or CI, use
-  `PID=$(perfetto --background)` and then `kill $PID` to stop.
+  `PID=$(dejaview --background)` and then `kill $PID` to stop.
 
 
 ## Other resources

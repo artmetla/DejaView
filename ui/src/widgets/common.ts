@@ -22,7 +22,7 @@ import {assertUnreachable} from '../base/logging';
 export type Style = string | Partial<CSSStyleDeclaration>;
 
 export interface HTMLAttrs {
-  readonly ref?: string; // This is a common attribute used in Perfetto.
+  readonly ref?: string; // This is a common attribute used in DejaView.
   readonly style?: Style;
   readonly id?: string;
   readonly title?: string;

@@ -23,8 +23,8 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/proto/multi_machine_trace_manager.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_builder.h"
@@ -35,7 +35,7 @@ namespace protozero {
 struct ConstBytes;
 }
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos::pbzero {
 class TracePacket_Decoder;
@@ -125,6 +125,6 @@ class ProtoTraceReader : public ChunkedTraceReader {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROTO_TRACE_READER_H_

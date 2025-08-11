@@ -23,10 +23,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/profiling/perf/regs_parsing.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -72,10 +72,10 @@ bool MaybeApplyTracepointFilter(int fd, const PerfCounter& event) {
       event.tracepoint_filter.empty()) {
     return true;
   }
-  PERFETTO_DCHECK(event.attr_type == PERF_TYPE_TRACEPOINT);
+  DEJAVIEW_DCHECK(event.attr_type == PERF_TYPE_TRACEPOINT);
 
   if (ioctl(fd, PERF_EVENT_IOC_SET_FILTER, event.tracepoint_filter.c_str())) {
-    PERFETTO_PLOG("Failed ioctl to set event filter");
+    DEJAVIEW_PLOG("Failed ioctl to set event filter");
     return false;
   }
   return true;
@@ -108,13 +108,13 @@ PerfRingBuffer::~PerfRingBuffer() {
     return;
 
   if (munmap(reinterpret_cast<void*>(metadata_page_), mmap_sz_) != 0)
-    PERFETTO_PLOG("failed munmap");
+    DEJAVIEW_PLOG("failed munmap");
 }
 
 std::optional<PerfRingBuffer> PerfRingBuffer::Allocate(int perf_fd,
                                                        size_t data_page_count) {
   // perf_event_open requires the ring buffer to be a power of two in size.
-  PERFETTO_DCHECK(IsPowerOfTwo(data_page_count));
+  DEJAVIEW_DCHECK(IsPowerOfTwo(data_page_count));
 
   PerfRingBuffer ret;
 
@@ -126,17 +126,17 @@ std::optional<PerfRingBuffer> PerfRingBuffer::Allocate(int perf_fd,
   void* mmap_addr = mmap(nullptr, ret.mmap_sz_, PROT_READ | PROT_WRITE,
                          MAP_SHARED, perf_fd, 0);
   if (mmap_addr == MAP_FAILED) {
-    PERFETTO_PLOG("failed mmap");
+    DEJAVIEW_PLOG("failed mmap");
     return std::nullopt;
   }
 
   // Expected layout is [ metadata page ] [ data pages ... ]
   ret.metadata_page_ = reinterpret_cast<perf_event_mmap_page*>(mmap_addr);
   ret.data_buf_ = reinterpret_cast<char*>(mmap_addr) + base::GetSysPageSize();
-  PERFETTO_CHECK(ret.metadata_page_->data_offset == base::GetSysPageSize());
-  PERFETTO_CHECK(ret.metadata_page_->data_size == ret.data_buf_sz_);
+  DEJAVIEW_CHECK(ret.metadata_page_->data_offset == base::GetSysPageSize());
+  DEJAVIEW_CHECK(ret.metadata_page_->data_size == ret.data_buf_sz_);
 
-  PERFETTO_DCHECK(IsPowerOfTwo(ret.data_buf_sz_));
+  DEJAVIEW_DCHECK(IsPowerOfTwo(ret.data_buf_sz_));
 
   return std::make_optional(std::move(ret));
 }
@@ -150,7 +150,7 @@ std::optional<PerfRingBuffer> PerfRingBuffer::Allocate(int perf_fd,
 char* PerfRingBuffer::ReadRecordNonconsuming() {
   static_assert(sizeof(std::atomic<uint64_t>) == sizeof(uint64_t), "");
 
-  PERFETTO_DCHECK(valid());
+  DEJAVIEW_DCHECK(valid());
 
   // |data_tail| is written only by this userspace thread, so we can safely read
   // it without any synchronization.
@@ -162,15 +162,15 @@ char* PerfRingBuffer::ReadRecordNonconsuming() {
       reinterpret_cast<std::atomic<uint64_t>*>(&metadata_page_->data_head)
           ->load(std::memory_order_acquire);
 
-  PERFETTO_DCHECK(read_offset <= write_offset);
+  DEJAVIEW_DCHECK(read_offset <= write_offset);
   if (write_offset == read_offset)
     return nullptr;  // no new data
 
   size_t read_pos = static_cast<size_t>(read_offset & (data_buf_sz_ - 1));
 
   // event header (64 bits) guaranteed to be contiguous
-  PERFETTO_DCHECK(read_pos <= data_buf_sz_ - sizeof(perf_event_header));
-  PERFETTO_DCHECK(0 == reinterpret_cast<size_t>(data_buf_ + read_pos) %
+  DEJAVIEW_DCHECK(read_pos <= data_buf_sz_ - sizeof(perf_event_header));
+  DEJAVIEW_DCHECK(0 == reinterpret_cast<size_t>(data_buf_ + read_pos) %
                            alignof(perf_event_header));
 
   perf_event_header* evt_header =
@@ -179,7 +179,7 @@ char* PerfRingBuffer::ReadRecordNonconsuming() {
 
   // event wrapped - reconstruct it, and return a pointer to the buffer
   if (read_pos + evt_size > data_buf_sz_) {
-    PERFETTO_DLOG("PerfRingBuffer: returning reconstructed event");
+    DEJAVIEW_DLOG("PerfRingBuffer: returning reconstructed event");
 
     size_t prefix_sz = data_buf_sz_ - read_pos;
     memcpy(&reconstructed_record_[0], data_buf_ + read_pos, prefix_sz);
@@ -193,7 +193,7 @@ char* PerfRingBuffer::ReadRecordNonconsuming() {
 }
 
 void PerfRingBuffer::Consume(size_t bytes) {
-  PERFETTO_DCHECK(valid());
+  DEJAVIEW_DCHECK(valid());
 
   // Advance |data_tail|, which is written only by this thread. The store of the
   // updated value needs to have release semantics such that the preceding
@@ -230,7 +230,7 @@ std::optional<EventReader> EventReader::ConfigureEvents(
     const EventConfig& event_cfg) {
   auto timebase_fd = PerfEventOpen(cpu, event_cfg.perf_attr());
   if (!timebase_fd) {
-    PERFETTO_PLOG("Failed perf_event_open");
+    DEJAVIEW_PLOG("Failed perf_event_open");
     return std::nullopt;
   }
 
@@ -239,7 +239,7 @@ std::optional<EventReader> EventReader::ConfigureEvents(
   for (auto follower_attr : event_cfg.perf_attr_followers()) {
     auto follower_fd = PerfEventOpen(cpu, &follower_attr, timebase_fd.get());
     if (!follower_fd) {
-      PERFETTO_PLOG("Failed perf_event_open (follower)");
+      DEJAVIEW_PLOG("Failed perf_event_open (follower)");
       return std::nullopt;
     }
     follower_fds.push_back(std::move(follower_fd));
@@ -309,7 +309,7 @@ std::optional<ParsedSample> EventReader::ReadUntilSample(
       continue;  // keep looking for a sample
     }
 
-    PERFETTO_DFATAL_OR_ELOG("Unsupported event type [%zu]",
+    DEJAVIEW_DFATAL_OR_ELOG("Unsupported event type [%zu]",
                             static_cast<size_t>(event_hdr->type));
     ring_buffer_.Consume(event_hdr->size);
   }
@@ -324,7 +324,7 @@ ParsedSample EventReader::ParseSampleRecord(uint32_t cpu,
       (~uint64_t(PERF_SAMPLE_TID | PERF_SAMPLE_TIME | PERF_SAMPLE_STACK_USER |
                  PERF_SAMPLE_REGS_USER | PERF_SAMPLE_CALLCHAIN |
                  PERF_SAMPLE_READ))) {
-    PERFETTO_FATAL("Unsupported sampling option");
+    DEJAVIEW_FATAL("Unsupported sampling option");
   }
 
   auto* event_hdr = reinterpret_cast<const perf_event_header*>(record_start);
@@ -360,7 +360,7 @@ ParsedSample EventReader::ParseSampleRecord(uint32_t cpu,
       // and the value of the followers events goes into follower_counts.
       uint64_t nr = 0;
       parse_pos = ReadValue(&nr, parse_pos);
-      PERFETTO_CHECK(nr != 0);
+      DEJAVIEW_CHECK(nr != 0);
       parse_pos = ReadValue(&sample.common.timebase_count, parse_pos);
       sample.common.follower_counts.resize(nr - 1);
       for (size_t i = 0; i < nr - 1; ++i) {
@@ -410,19 +410,19 @@ ParsedSample EventReader::ParseSampleRecord(uint32_t cpu,
     }
   }
 
-  PERFETTO_CHECK(parse_pos == record_start + sample_size);
+  DEJAVIEW_CHECK(parse_pos == record_start + sample_size);
   return sample;
 }
 
 void EventReader::EnableEvents() {
   int ret = ioctl(perf_fd_.get(), PERF_EVENT_IOC_ENABLE);
-  PERFETTO_CHECK(ret == 0);
+  DEJAVIEW_CHECK(ret == 0);
 }
 
 void EventReader::DisableEvents() {
   int ret = ioctl(perf_fd_.get(), PERF_EVENT_IOC_DISABLE);
-  PERFETTO_CHECK(ret == 0);
+  DEJAVIEW_CHECK(ret == 0);
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

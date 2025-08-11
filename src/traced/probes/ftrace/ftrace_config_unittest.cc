@@ -20,7 +20,7 @@
 
 using testing::Contains;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(ConfigTest, CreateFtraceConfig) {
@@ -34,4 +34,4 @@ TEST(ConfigTest, CreateFtraceConfig) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

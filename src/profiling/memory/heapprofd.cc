@@ -24,22 +24,22 @@
 
 #include <signal.h>
 
-#include "perfetto/ext/base/event_fd.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/watchdog.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/ext/base/event_fd.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/watchdog.h"
+#include "dejaview/tracing/default_socket.h"
 #include "src/profiling/memory/heapprofd_producer.h"
 #include "src/profiling/memory/java_hprof_producer.h"
 #include "src/profiling/memory/wire_protocol.h"
 
-#include "perfetto/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/unix_task_runner.h"
 
 // TODO(rsavitski): the task runner watchdog spawns a thread (normally for
 // tracking cpu/mem usage) that we don't strictly need.
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -48,11 +48,11 @@ int StartCentralHeapprofd();
 int GetListeningSocket() {
   const char* sock_fd = getenv(kHeapprofdSocketEnvVar);
   if (sock_fd == nullptr)
-    PERFETTO_FATAL("Did not inherit socket from init.");
+    DEJAVIEW_FATAL("Did not inherit socket from init.");
   char* end;
   int raw_fd = static_cast<int>(strtol(sock_fd, &end, 10));
   if (*end != '\0')
-    PERFETTO_FATAL("Invalid %s. Expected decimal integer.",
+    DEJAVIEW_FATAL("Invalid %s. Expected decimal integer.",
                    kHeapprofdSocketEnvVar);
   return raw_fd;
 }
@@ -78,7 +78,7 @@ int StartCentralHeapprofd() {
   action.sa_handler = [](int) { g_dump_evt->Notify(); };
   // Allow to trigger a full dump by sending SIGUSR1 to heapprofd.
   // This will allow manually deciding when to dump on userdebug.
-  PERFETTO_CHECK(sigaction(SIGUSR1, &action, nullptr) == 0);
+  DEJAVIEW_CHECK(sigaction(SIGUSR1, &action, nullptr) == 0);
   task_runner.AddFileDescriptorWatch(g_dump_evt->fd(), [&producer] {
     g_dump_evt->Clear();
     producer.DumpAll();
@@ -111,11 +111,11 @@ int HeapprofdMain(int argc, char** argv) {
   }
 
   if (cleanup_crash) {
-    PERFETTO_LOG(
+    DEJAVIEW_LOG(
         "Recovering from crash: unsetting heapprofd system properties. "
         "Expect SELinux denials for unrelated properties.");
     SystemProperties::ResetHeapprofdProperties();
-    PERFETTO_LOG(
+    DEJAVIEW_LOG(
         "Finished unsetting heapprofd system properties. "
         "SELinux denials about properties are unexpected after "
         "this point.");
@@ -127,4 +127,4 @@ int HeapprofdMain(int argc, char** argv) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

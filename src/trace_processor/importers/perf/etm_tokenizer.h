@@ -19,11 +19,11 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/aux_data_tokenizer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace perf_importer {
 
@@ -32,6 +32,6 @@ CreateEtmTokenizerFactory(TraceBlobView info);
 
 }  // namespace perf_importer
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_ETM_TOKENIZER_H_

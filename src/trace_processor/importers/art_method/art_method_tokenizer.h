@@ -22,16 +22,16 @@
 #include <optional>
 #include <string_view>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-namespace perfetto::trace_processor::art_method {
+namespace dejaview::trace_processor::art_method {
 
 class ArtMethodTokenizer : public ChunkedTraceReader {
  public:
@@ -80,6 +80,6 @@ class ArtMethodTokenizer : public ChunkedTraceReader {
   base::FlatHashMap<uint32_t, Method> method_map_;
 };
 
-}  // namespace perfetto::trace_processor::art_method
+}  // namespace dejaview::trace_processor::art_method
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ART_METHOD_ART_METHOD_TOKENIZER_H_

@@ -20,22 +20,22 @@
 
 #include <string.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/version.h"
-#include "perfetto/ext/ipc/client.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/shared_memory_arbiter.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/version.h"
+#include "dejaview/ext/ipc/client.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/shared_memory_arbiter.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/trace_config.h"
 #include "src/tracing/core/in_process_shared_memory.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include "src/tracing/ipc/shared_memory_windows.h"
 #else
 #include "src/tracing/ipc/posix_shared_memory.h"
@@ -45,7 +45,7 @@
 // w.r.t. the Producer pointer. Also think to lifetime of the Producer* during
 // the callbacks.
 
-namespace perfetto {
+namespace dejaview {
 
 // static. (Declared in include/tracing/ipc/producer_ipc_client.h).
 std::unique_ptr<TracingService::ProducerEndpoint> ProducerIPCClient::Connect(
@@ -115,7 +115,7 @@ ProducerIPCClientImpl::ProducerIPCClientImpl(
   // Check for producer-provided SMB (used by Chrome for startup tracing).
   if (shared_memory_) {
     // We also expect a valid (unbound) arbiter. Bind it to this endpoint now.
-    PERFETTO_CHECK(shared_memory_arbiter_);
+    DEJAVIEW_CHECK(shared_memory_arbiter_);
     shared_memory_arbiter_->BindToProducerEndpoint(this, task_runner_);
 
     // If the service accepts our SMB, then it must match our requested page
@@ -125,7 +125,7 @@ ProducerIPCClientImpl::ProducerIPCClientImpl(
   }
 
   if (create_socket_async) {
-    PERFETTO_DCHECK(conn_args.socket_name);
+    DEJAVIEW_DCHECK(conn_args.socket_name);
     auto weak_this = weak_factory_.GetWeakPtr();
     create_socket_async(
         [weak_this, task_runner = task_runner_](base::SocketHandle fd) {
@@ -146,15 +146,15 @@ ProducerIPCClientImpl::ProducerIPCClientImpl(
         ipc::Client::CreateInstance(std::move(conn_args), task_runner);
     ipc_channel_->BindService(producer_port_->GetWeakPtr());
   }
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 }
 
 ProducerIPCClientImpl::~ProducerIPCClientImpl() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 }
 
 void ProducerIPCClientImpl::Disconnect() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!producer_port_)
     return;
   // Reset the producer port so that no further IPCs are received and IPC
@@ -168,7 +168,7 @@ void ProducerIPCClientImpl::Disconnect() {
 
 // Called by the IPC layer if the BindService() succeeds.
 void ProducerIPCClientImpl::OnConnect() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   connected_ = true;
 
   // The IPC layer guarantees that any outstanding callback will be dropped on
@@ -207,7 +207,7 @@ void ProducerIPCClientImpl::OnConnect() {
   int shm_fd = -1;
   if (shared_memory_) {
     req.set_producer_provided_shmem(true);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     auto key = static_cast<SharedMemoryWindows*>(shared_memory_.get())->key();
     req.set_shm_key_windows(key);
 #else
@@ -236,8 +236,8 @@ void ProducerIPCClientImpl::OnConnect() {
 }
 
 void ProducerIPCClientImpl::OnDisconnect() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
-  PERFETTO_DLOG("Tracing service connection failure");
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DLOG("Tracing service connection failure");
   connected_ = false;
   data_sources_setup_.clear();
   producer_->OnDisconnect();  // Note: may delete |this|.
@@ -266,7 +266,7 @@ void ProducerIPCClientImpl::OnConnectionInitialized(
     bool using_shmem_provided_by_producer,
     bool direct_smb_patching_supported,
     bool use_shmem_emulation) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   // If connection_succeeded == false, the OnDisconnect() call will follow next
   // and there we'll notify the |producer_|. TODO: add a test for this.
   if (!connection_succeeded)
@@ -283,7 +283,7 @@ void ProducerIPCClientImpl::OnConnectionInitialized(
   // Bail out if the service failed to adopt our producer-allocated SMB.
   // TODO(eseckler): Handle adoption failure more gracefully.
   if (shared_memory_ && !is_shmem_provided_by_producer_) {
-    PERFETTO_DLOG("Service failed adopt producer-provided SMB, disconnecting.");
+    DEJAVIEW_DLOG("Service failed adopt producer-provided SMB, disconnecting.");
     Disconnect();
     return;
   }
@@ -291,7 +291,7 @@ void ProducerIPCClientImpl::OnConnectionInitialized(
 
 void ProducerIPCClientImpl::OnServiceRequest(
     const protos::gen::GetAsyncCommandResponse& cmd) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 
   // This message is sent only when connecting to a service running Android Q+.
   // See comment below in kStartDataSource.
@@ -325,20 +325,20 @@ void ProducerIPCClientImpl::OnServiceRequest(
 
   if (cmd.has_setup_tracing()) {
     std::unique_ptr<SharedMemory> ipc_shared_memory;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     const std::string& shm_key = cmd.setup_tracing().shm_key_windows();
     if (!shm_key.empty())
       ipc_shared_memory = SharedMemoryWindows::Attach(shm_key);
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
     // On Fuchsia, the embedder is responsible for routing the shared memory
     // FD, which is provided to this code via a blocking callback.
-    PERFETTO_CHECK(receive_shmem_fd_cb_fuchsia_);
+    DEJAVIEW_CHECK(receive_shmem_fd_cb_fuchsia_);
 
     base::ScopedFile shmem_fd(receive_shmem_fd_cb_fuchsia_());
     if (!shmem_fd) {
       // Failure to get a shared memory buffer is a protocol violation and
       // therefore we should drop the Protocol connection.
-      PERFETTO_ELOG("Could not get shared memory FD from embedder.");
+      DEJAVIEW_ELOG("Could not get shared memory FD from embedder.");
       ScheduleDisconnect();
       return;
     }
@@ -356,7 +356,7 @@ void ProducerIPCClientImpl::OnServiceRequest(
     }
 #endif
     if (use_shmem_emulation_) {
-      PERFETTO_CHECK(!ipc_shared_memory);
+      DEJAVIEW_CHECK(!ipc_shared_memory);
       // Need to create an emulated shmem buffer when the transport deosn't
       // support it.
       // TODO(chinglinyu): Let the tracing service decide on the shmem size and
@@ -370,7 +370,7 @@ void ProducerIPCClientImpl::OnServiceRequest(
                             : SharedMemoryABI::ShmemMode::kDefault;
       // This is the nominal case used in most configurations, where the service
       // provides the SMB.
-      PERFETTO_CHECK(!is_shmem_provided_by_producer_ && !shared_memory_);
+      DEJAVIEW_CHECK(!is_shmem_provided_by_producer_ && !shared_memory_);
       shared_memory_ = std::move(ipc_shared_memory);
       shared_buffer_page_size_kb_ =
           cmd.setup_tracing().shared_buffer_page_size_kb();
@@ -381,7 +381,7 @@ void ProducerIPCClientImpl::OnServiceRequest(
         shared_memory_arbiter_->SetDirectSMBPatchingSupportedByService();
     } else {
       // Producer-provided SMB (used by Chrome for startup tracing).
-      PERFETTO_CHECK(is_shmem_provided_by_producer_ && shared_memory_ &&
+      DEJAVIEW_CHECK(is_shmem_provided_by_producer_ && shared_memory_ &&
                      shared_memory_arbiter_);
     }
     producer_->OnTracingSetup();
@@ -416,14 +416,14 @@ void ProducerIPCClientImpl::OnServiceRequest(
     return;
   }
 
-  PERFETTO_DFATAL("Unknown async request received from tracing service");
+  DEJAVIEW_DFATAL("Unknown async request received from tracing service");
 }
 
 void ProducerIPCClientImpl::RegisterDataSource(
     const DataSourceDescriptor& descriptor) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot RegisterDataSource(), not connected to tracing service");
   }
   protos::gen::RegisterDataSourceRequest req;
@@ -432,16 +432,16 @@ void ProducerIPCClientImpl::RegisterDataSource(
   async_response.Bind(
       [](ipc::AsyncResult<protos::gen::RegisterDataSourceResponse> response) {
         if (!response)
-          PERFETTO_DLOG("RegisterDataSource() failed: connection reset");
+          DEJAVIEW_DLOG("RegisterDataSource() failed: connection reset");
       });
   producer_port_->RegisterDataSource(req, std::move(async_response));
 }
 
 void ProducerIPCClientImpl::UpdateDataSource(
     const DataSourceDescriptor& descriptor) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot UpdateDataSource(), not connected to tracing service");
   }
   protos::gen::UpdateDataSourceRequest req;
@@ -450,15 +450,15 @@ void ProducerIPCClientImpl::UpdateDataSource(
   async_response.Bind(
       [](ipc::AsyncResult<protos::gen::UpdateDataSourceResponse> response) {
         if (!response)
-          PERFETTO_DLOG("UpdateDataSource() failed: connection reset");
+          DEJAVIEW_DLOG("UpdateDataSource() failed: connection reset");
       });
   producer_port_->UpdateDataSource(req, std::move(async_response));
 }
 
 void ProducerIPCClientImpl::UnregisterDataSource(const std::string& name) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot UnregisterDataSource(), not connected to tracing service");
     return;
   }
@@ -470,9 +470,9 @@ void ProducerIPCClientImpl::UnregisterDataSource(const std::string& name) {
 
 void ProducerIPCClientImpl::RegisterTraceWriter(uint32_t writer_id,
                                                 uint32_t target_buffer) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot RegisterTraceWriter(), not connected to tracing service");
     return;
   }
@@ -484,9 +484,9 @@ void ProducerIPCClientImpl::RegisterTraceWriter(uint32_t writer_id,
 }
 
 void ProducerIPCClientImpl::UnregisterTraceWriter(uint32_t writer_id) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot UnregisterTraceWriter(), not connected to tracing service");
     return;
   }
@@ -498,9 +498,9 @@ void ProducerIPCClientImpl::UnregisterTraceWriter(uint32_t writer_id) {
 
 void ProducerIPCClientImpl::CommitData(const CommitDataRequest& req,
                                        CommitDataCallback callback) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG("Cannot CommitData(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot CommitData(), not connected to tracing service");
     return;
   }
   ipc::Deferred<protos::gen::CommitDataResponse> async_response;
@@ -510,7 +510,7 @@ void ProducerIPCClientImpl::CommitData(const CommitDataRequest& req,
     async_response.Bind(
         [callback](ipc::AsyncResult<protos::gen::CommitDataResponse> response) {
           if (!response) {
-            PERFETTO_DLOG("CommitData() failed: connection reset");
+            DEJAVIEW_DLOG("CommitData() failed: connection reset");
             return;
           }
           callback();
@@ -520,9 +520,9 @@ void ProducerIPCClientImpl::CommitData(const CommitDataRequest& req,
 }
 
 void ProducerIPCClientImpl::NotifyDataSourceStarted(DataSourceInstanceID id) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot NotifyDataSourceStarted(), not connected to tracing service");
     return;
   }
@@ -533,9 +533,9 @@ void ProducerIPCClientImpl::NotifyDataSourceStarted(DataSourceInstanceID id) {
 }
 
 void ProducerIPCClientImpl::NotifyDataSourceStopped(DataSourceInstanceID id) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot NotifyDataSourceStopped(), not connected to tracing service");
     return;
   }
@@ -547,9 +547,9 @@ void ProducerIPCClientImpl::NotifyDataSourceStopped(DataSourceInstanceID id) {
 
 void ProducerIPCClientImpl::ActivateTriggers(
     const std::vector<std::string>& triggers) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot ActivateTriggers(), not connected to tracing service");
     return;
   }
@@ -562,7 +562,7 @@ void ProducerIPCClientImpl::ActivateTriggers(
 }
 
 void ProducerIPCClientImpl::Sync(std::function<void()> callback) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
     pending_sync_reqs_.emplace_back(std::move(callback));
     return;
@@ -607,4 +607,4 @@ size_t ProducerIPCClientImpl::shared_buffer_page_size_kb() const {
   return shared_buffer_page_size_kb_;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

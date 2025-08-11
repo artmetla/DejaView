@@ -28,8 +28,8 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
 
 #if SQLITE_VERSION_NUMBER < 3041002
 // There is a bug in pre-3.41.2 versions of SQLite where sqlite3_error_offset
@@ -38,7 +38,7 @@
 #error "SQLite version is too old."
 #endif
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -53,7 +53,7 @@ std::pair<uint32_t, uint32_t> GetLineAndColumnForOffset(const std::string& sql,
   const char* new_start = sql.c_str() + offset;
   size_t prev_nl = sql.rfind('\n', offset - 1);
   int64_t nl_count = std::count(sql.c_str(), new_start, '\n');
-  PERFETTO_DCHECK((nl_count == 0) == (prev_nl == std::string_view::npos));
+  DEJAVIEW_DCHECK((nl_count == 0) == (prev_nl == std::string_view::npos));
 
   if (prev_nl == std::string::npos) {
     return std::make_pair(line + static_cast<uint32_t>(nl_count),
@@ -67,7 +67,7 @@ std::pair<uint32_t, uint32_t> GetLineAndColumnForOffset(const std::string& sql,
 
 std::pair<std::string, size_t> SqlContextAndCaretPos(const std::string& sql,
                                                      uint32_t offset) {
-  PERFETTO_DCHECK(offset <= sql.size());
+  DEJAVIEW_DCHECK(offset <= sql.size());
 
   // Go back 128 characters, until the start of the string or the start of the
   // line (which we encounter first).
@@ -132,7 +132,7 @@ std::string SqlSource::AsTraceback(uint32_t offset) const {
 std::string SqlSource::AsTracebackForSqliteOffset(
     std::optional<uint32_t> opt_offset) const {
   uint32_t offset = opt_offset.value_or(0);
-  PERFETTO_CHECK(offset <= sql().size());
+  DEJAVIEW_CHECK(offset <= sql().size());
   return AsTraceback(offset);
 }
 
@@ -159,7 +159,7 @@ std::string SqlSource::ApplyRewrites(const std::string& original_sql,
   std::string sql;
   uint32_t prev_idx = 0;
   for (const auto& rewrite : rewrites) {
-    PERFETTO_CHECK(prev_idx <= rewrite.original_sql_start);
+    DEJAVIEW_CHECK(prev_idx <= rewrite.original_sql_start);
     sql.append(
         original_sql.substr(prev_idx, rewrite.original_sql_start - prev_idx));
     sql.append(rewrite.rewrite_node.rewritten_sql);
@@ -170,13 +170,13 @@ std::string SqlSource::ApplyRewrites(const std::string& original_sql,
 }
 
 std::string SqlSource::Node::AsTraceback(uint32_t rewritten_offset) const {
-  PERFETTO_CHECK(rewritten_offset <= rewritten_sql.size());
+  DEJAVIEW_CHECK(rewritten_offset <= rewritten_sql.size());
   uint32_t original_offset = RewrittenOffsetToOriginalOffset(rewritten_offset);
   std::string res = SelfTraceback(rewritten_offset, original_offset);
   if (auto opt_idx = RewriteForOriginalOffset(original_offset); opt_idx) {
     const Rewrite& rewrite = rewrites[*opt_idx];
-    PERFETTO_CHECK(rewritten_offset >= rewrite.rewritten_sql_start);
-    PERFETTO_CHECK(rewritten_offset < rewrite.rewritten_sql_end);
+    DEJAVIEW_CHECK(rewritten_offset >= rewrite.rewritten_sql_start);
+    DEJAVIEW_CHECK(rewritten_offset < rewrite.rewritten_sql_end);
     res.append(rewrite.rewrite_node.AsTraceback(rewritten_offset -
                                                 rewrite.rewritten_sql_start));
   }
@@ -185,7 +185,7 @@ std::string SqlSource::Node::AsTraceback(uint32_t rewritten_offset) const {
 
 std::string SqlSource::Node::SelfTraceback(uint32_t rewritten_offset,
                                            uint32_t original_offset) const {
-  PERFETTO_DCHECK(original_offset <= original_sql.size());
+  DEJAVIEW_DCHECK(original_offset <= original_sql.size());
   auto [o_context, o_caret_pos] =
       SqlContextAndCaretPos(original_sql, original_offset);
   std::string header;
@@ -213,7 +213,7 @@ std::string SqlSource::Node::SelfTraceback(uint32_t rewritten_offset,
 
 SqlSource::Node SqlSource::Node::Substr(uint32_t offset, uint32_t len) const {
   uint32_t offset_end = offset + len;
-  PERFETTO_CHECK(offset_end <= rewritten_sql.size());
+  DEJAVIEW_CHECK(offset_end <= rewritten_sql.size());
 
   uint32_t original_offset_start = RewrittenOffsetToOriginalOffset(offset);
   uint32_t original_offset_end = RewrittenOffsetToOriginalOffset(offset_end);
@@ -248,7 +248,7 @@ SqlSource::Node SqlSource::Node::Substr(uint32_t offset, uint32_t len) const {
   std::string new_original = original_sql.substr(
       original_offset_start, original_offset_end - original_offset_start);
   std::string new_rewritten = rewritten_sql.substr(offset, len);
-  PERFETTO_DCHECK(ApplyRewrites(new_original, new_rewrites) == new_rewritten);
+  DEJAVIEW_DCHECK(ApplyRewrites(new_original, new_rewrites) == new_rewritten);
 
   auto line_and_col =
       GetLineAndColumnForOffset(original_sql, line, col, original_offset_start);
@@ -309,8 +309,8 @@ SqlSource::Rewriter::Rewriter(Node source) : orig_(std::move(source)) {
 void SqlSource::Rewriter::Rewrite(uint32_t rewritten_start,
                                   uint32_t rewritten_end,
                                   SqlSource source) {
-  PERFETTO_CHECK(rewritten_start <= rewritten_end);
-  PERFETTO_CHECK(rewritten_end <= orig_.rewritten_sql.size());
+  DEJAVIEW_CHECK(rewritten_start <= rewritten_end);
+  DEJAVIEW_CHECK(rewritten_end <= orig_.rewritten_sql.size());
 
   uint32_t original_start =
       orig_.RewrittenOffsetToOriginalOffset(rewritten_start);
@@ -356,7 +356,7 @@ SqlSource SqlSource::Rewriter::Build() && {
               return a.original_sql_start < b.original_sql_start;
             });
   for (uint32_t i = 1; i < all_rewrites.size(); ++i) {
-    PERFETTO_CHECK(all_rewrites[i - 1].original_sql_end <=
+    DEJAVIEW_CHECK(all_rewrites[i - 1].original_sql_end <=
                    all_rewrites[i].original_sql_start);
   }
 
@@ -385,4 +385,4 @@ SqlSource SqlSource::Rewriter::Build() && {
   return SqlSource(std::move(orig_));
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

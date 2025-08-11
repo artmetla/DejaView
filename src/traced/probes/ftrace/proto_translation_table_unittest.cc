@@ -22,8 +22,8 @@
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/generic.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/generic.pbzero.h"
 
 using testing::_;
 using testing::AllOf;
@@ -38,7 +38,7 @@ using testing::TestWithParam;
 using testing::Values;
 using testing::ValuesIn;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 using protozero::proto_utils::ProtoSchemaType;
 
@@ -61,7 +61,7 @@ class AllTranslationTableTest : public TestWithParam<const char*> {
     FtraceProcfs ftrace_procfs(path);
     table_ = ProtoTranslationTable::Create(&ftrace_procfs, GetStaticEventInfo(),
                                            GetStaticCommonFieldsInfo());
-    PERFETTO_CHECK(table_);
+    DEJAVIEW_CHECK(table_);
   }
 
   std::unique_ptr<ProtoTranslationTable> table_;
@@ -117,7 +117,7 @@ TEST(TranslationTableTest, Seed) {
   FtraceProcfs ftrace_procfs(path);
   auto table = ProtoTranslationTable::Create(
       &ftrace_procfs, GetStaticEventInfo(), GetStaticCommonFieldsInfo());
-  PERFETTO_CHECK(table);
+  DEJAVIEW_CHECK(table);
   const Field& pid_field = table->common_fields().at(0);
   EXPECT_EQ(std::string(pid_field.ftrace_name), "common_pid");
   EXPECT_EQ(pid_field.proto_field_id, 2u);
@@ -236,7 +236,7 @@ print fmt: "some format")"));
 
   auto table = ProtoTranslationTable::Create(&ftrace, std::move(events),
                                              std::move(common_fields));
-  PERFETTO_CHECK(table);
+  DEJAVIEW_CHECK(table);
   EXPECT_EQ(table->largest_id(), 42ul);
   EXPECT_EQ(table->EventToFtraceId(GroupAndName("group", "foo")), 42ul);
   EXPECT_EQ(table->EventToFtraceId(GroupAndName("group", "bar")), 0ul);
@@ -271,7 +271,7 @@ TEST(TranslationTableTest, CompactSchedFormatParsingWalleyeData) {
   FtraceProcfs ftrace_procfs(path);
   auto table = ProtoTranslationTable::Create(
       &ftrace_procfs, GetStaticEventInfo(), GetStaticCommonFieldsInfo());
-  PERFETTO_CHECK(table);
+  DEJAVIEW_CHECK(table);
   const CompactSchedEventFormat& format = table->compact_sched_format();
 
   // Format matches compile-time assumptions.
@@ -306,7 +306,7 @@ TEST(TranslationTableTest, CompactSchedFormatParsingSeedData) {
   FtraceProcfs ftrace_procfs(path);
   auto table = ProtoTranslationTable::Create(
       &ftrace_procfs, GetStaticEventInfo(), GetStaticCommonFieldsInfo());
-  PERFETTO_CHECK(table);
+  DEJAVIEW_CHECK(table);
   const CompactSchedEventFormat& format = table->compact_sched_format();
 
   // We consider the entire format invalid as there's no sched_waking event
@@ -467,7 +467,7 @@ print fmt: "some format")"));
 
   auto table = ProtoTranslationTable::Create(&ftrace, std::move(events),
                                              std::move(common_fields));
-  PERFETTO_CHECK(table);
+  DEJAVIEW_CHECK(table);
   EXPECT_EQ(table->largest_id(), 0ul);
   GroupAndName group_and_name("group", "foo");
   const Event* e = table->GetOrCreateEvent(group_and_name);
@@ -558,7 +558,7 @@ TEST(TranslationTableTest, FuncgraphEvents) {
   FtraceProcfs ftrace_procfs(path);
   auto table = ProtoTranslationTable::Create(
       &ftrace_procfs, GetStaticEventInfo(), GetStaticCommonFieldsInfo());
-  PERFETTO_CHECK(table);
+  DEJAVIEW_CHECK(table);
 
   {
     auto* event = table->GetEvent(GroupAndName("ftrace", "funcgraph_entry"));
@@ -601,4 +601,4 @@ TEST(TranslationTableTest, FuncgraphEvents) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

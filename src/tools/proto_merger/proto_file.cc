@@ -21,9 +21,9 @@
 #include <google/protobuf/dynamic_message.h>
 #include <google/protobuf/text_format.h>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 namespace {
 
@@ -121,7 +121,7 @@ std::unique_ptr<google::protobuf::Message> NormalizeOptionsMessage(
 
   std::unique_ptr<google::protobuf::Message> dynamic_options(
       factory->GetPrototype(option_descriptor)->New());
-  PERFETTO_CHECK(dynamic_options->ParseFromString(message.SerializeAsString()));
+  DEJAVIEW_CHECK(dynamic_options->ParseFromString(message.SerializeAsString()));
   return dynamic_options;
 }
 
@@ -276,4 +276,4 @@ ProtoFile ProtoFileFromDescriptor(
 }
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview

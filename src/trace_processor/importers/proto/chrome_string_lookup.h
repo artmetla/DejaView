@@ -22,9 +22,9 @@
 #include <optional>
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class ChromeStringLookup {
@@ -42,6 +42,6 @@ class ChromeStringLookup {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_CHROME_STRING_LOOKUP_H_

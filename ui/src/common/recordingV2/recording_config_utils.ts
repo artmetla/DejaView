@@ -434,7 +434,7 @@ export function genTraceConfig(
         uiCfg.androidNetworkTracingPollMs;
       protoCfg.dataSources.push(net);
 
-      // Record package info so that Perfetto can display the package name for
+      // Record package info so that DejaView can display the package name for
       // network packet events based on the event uid.
       const pkg = new TraceConfig.DataSource();
       pkg.config = new DataSourceConfig();

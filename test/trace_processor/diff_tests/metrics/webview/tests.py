@@ -26,7 +26,7 @@ class WebView(TestSuite):
         trace=DataPath('webview_jank.pb'),
         query=Metric('webview_jank_approximation'),
         out=TextProto(r"""
-            [perfetto.protos.webview_jank_approximation] {
+            [dejaview.protos.webview_jank_approximation] {
                 webview_janks: 4
                 webview_janks_without_startup: 4
                 webview_app_janks: 12

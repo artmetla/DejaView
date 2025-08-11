@@ -16,15 +16,15 @@
 
 #include "src/tracing/service/metatrace_writer.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
 
-#include "protos/perfetto/trace/perfetto/perfetto_metatrace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/dejaview/dejaview_metatrace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 MetatraceWriter::MetatraceWriter() : weak_ptr_factory_(this) {}
 
@@ -35,9 +35,9 @@ MetatraceWriter::~MetatraceWriter() {
 void MetatraceWriter::Enable(base::TaskRunner* task_runner,
                              std::unique_ptr<TraceWriter> trace_writer,
                              uint32_t tags) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (started_) {
-    PERFETTO_DFATAL_OR_ELOG("Metatrace already started from this instance");
+    DEJAVIEW_DFATAL_OR_ELOG("Metatrace already started from this instance");
     return;
   }
   task_runner_ = task_runner;
@@ -55,7 +55,7 @@ void MetatraceWriter::Enable(base::TaskRunner* task_runner,
 }
 
 void MetatraceWriter::Disable() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!started_)
     return;
   metatrace::Disable();
@@ -64,7 +64,7 @@ void MetatraceWriter::Disable() {
 }
 
 void MetatraceWriter::WriteAllAvailableEvents() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!started_)
     return;
   for (auto it = metatrace::RingBuffer::GetReadIterator(); it; ++it) {
@@ -74,7 +74,7 @@ void MetatraceWriter::WriteAllAvailableEvents() {
 
     auto packet = trace_writer_->NewTracePacket();
     packet->set_timestamp(it->timestamp_ns());
-    auto* evt = packet->set_perfetto_metatrace();
+    auto* evt = packet->set_dejaview_metatrace();
     uint16_t type = type_and_id & metatrace::Record::kTypeMask;
     uint16_t id = type_and_id & ~metatrace::Record::kTypeMask;
     if (type == metatrace::Record::kTypeCounter) {
@@ -96,11 +96,11 @@ void MetatraceWriter::WriteAllAvailableEvents() {
 
 void MetatraceWriter::WriteAllAndFlushTraceWriter(
     std::function<void()> callback) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!started_)
     return;
   WriteAllAvailableEvents();
   trace_writer_->Flush(std::move(callback));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

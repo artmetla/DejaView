@@ -23,13 +23,13 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column::utils {
+namespace dejaview::trace_processor::column::utils {
 
 SearchValidationResult CompareIntColumnWithDouble(FilterOp op,
                                                   SqlValue* sql_val) {
@@ -62,9 +62,9 @@ SearchValidationResult CompareIntColumnWithDouble(FilterOp op,
     case FilterOp::kIsNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Invalid filter operation");
+      DEJAVIEW_FATAL("Invalid filter operation");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 std::vector<uint32_t> ToIndexVectorForTests(RangeOrBitVector& r_or_bv) {
@@ -106,7 +106,7 @@ std::optional<Range> CanReturnEarly(SearchValidationResult res, Range range) {
     case SearchValidationResult::kNoData:
       return Range();
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 std::optional<Range> CanReturnEarly(SearchValidationResult res,
@@ -119,7 +119,7 @@ std::optional<Range> CanReturnEarly(SearchValidationResult res,
     case SearchValidationResult::kNoData:
       return Range();
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 bool CanReturnEarly(SearchValidationResult res,
@@ -133,7 +133,7 @@ bool CanReturnEarly(SearchValidationResult res,
       indices.tokens.clear();
       return true;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
-}  // namespace perfetto::trace_processor::column::utils
+}  // namespace dejaview::trace_processor::column::utils

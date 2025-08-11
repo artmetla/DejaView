@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 assert(is_android)
 
-static_library("perfetto_vts_deps") {
+static_library("dejaview_vts_deps") {
   complete_static_lib = true
   testonly = true
   deps = [

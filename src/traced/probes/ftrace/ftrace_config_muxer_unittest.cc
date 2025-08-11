@@ -19,7 +19,7 @@
 #include <memory>
 
 #include "ftrace_config_muxer.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/traced/probes/ftrace/atrace_wrapper.h"
 #include "src/traced/probes/ftrace/compact_sched.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
@@ -40,7 +40,7 @@ using testing::Not;
 using testing::Return;
 using testing::UnorderedElementsAre;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 constexpr int kFakeSchedSwitchEventId = 1;
@@ -1422,4 +1422,4 @@ TEST_F(FtraceConfigMuxerMockTableTest, AddSameNameEvents) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

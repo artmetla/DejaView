@@ -24,7 +24,7 @@
 #include <string>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class StringView;
@@ -179,6 +179,6 @@ class KernelSymbolMap {
   std::vector<std::pair<uint32_t /*rel_addr*/, uint32_t /*offset*/>> index_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_KALLSYMS_KERNEL_SYMBOL_MAP_H_

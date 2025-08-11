@@ -16,14 +16,14 @@
 
 #include "src/trace_processor/importers/systrace/systrace_line_tokenizer.h"
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
 // On windows std::isspace if overloaded in <locale>. MSBUILD via bazel
 // attempts to use that version instead of the intended one defined in
 // <cctype>
 #include <cctype>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -100,4 +100,4 @@ util::Status SystraceLineTokenizer::Tokenize(const std::string& buffer,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

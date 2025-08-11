@@ -24,10 +24,10 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/compiler.h"
+#include "dejaview/base/compiler.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 inline bool operator==(const Interval& a, const Interval& b) {
   return std::tie(a.start, a.end, a.id) == std::tie(b.start, b.end, b.id);
@@ -159,4 +159,4 @@ TEST(IntervalIntersector, LinearScan_NoOverlap) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

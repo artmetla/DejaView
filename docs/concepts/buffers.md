@@ -1,12 +1,12 @@
 # Buffers and dataflow
 
-This page describes the dataflow in Perfetto when recording traces. It describes
+This page describes the dataflow in DejaView when recording traces. It describes
 all the buffering stages, explains how to size the buffers and how to debug
 data losses.
 
 ## Concepts
 
-Tracing in Perfetto is an asynchronous multiple-writer single-reader pipeline.
+Tracing in DejaView is an asynchronous multiple-writer single-reader pipeline.
 In many senses, its architecture is very similar to modern GPUs' command
 buffers.
 
@@ -36,7 +36,7 @@ producers.
 This is the place where the tracing data is ultimately kept, while in memory,
 whether it comes from the kernel ftrace infrastructure, from some other data
 source in `traced_probes` or from another userspace process using the
-[Perfetto SDK](/docs/instrumentation/tracing-sdk.md).
+[DejaView SDK](/docs/instrumentation/tracing-sdk.md).
 At the end of the trace (or during, if in [streaming mode]) these buffers are
 written into the output trace file.
 
@@ -136,7 +136,7 @@ to avoid losses.
 Empirical measurements suggest that on most Android systems a shared memory
 buffer size of 128-512 KB is good enough.
 
-The default shared memory buffer size is 256 KB. When using the Perfetto Client
+The default shared memory buffer size is 256 KB. When using the DejaView Client
 Library, this value can be tweaked setting `TracingInitArgs.shmem_size_hint_kb`.
 
 WARNING: if a data source writes very large trace packets in a single batch,
@@ -169,7 +169,7 @@ In a case like this these options are:
 * Adopt the `BufferExhaustedPolicy::kStall` when defining the data source:
 
 ```c++
-class ScreenshotDataSource : public perfetto::DataSource<ScreenshotDataSource> {
+class ScreenshotDataSource : public dejaview::DataSource<ScreenshotDataSource> {
  public:
   constexpr static BufferExhaustedPolicy kBufferExhaustedPolicy =
       BufferExhaustedPolicy::kStall;
@@ -312,7 +312,7 @@ Here are two concrete examples:
    keyed by thread id. In most cases users want to map those events back to the
    parent process (the thread-group). To solve this, when both the
    `linux.ftrace` and the `linux.process_stats` data sources are enabled in a
-   Perfetto trace, the latter does capture process<>thread associations from
+   DejaView trace, the latter does capture process<>thread associations from
    the /proc pseudo-filesystem, whenever a new thread-id is seen by ftrace.
    A typical trace in this case looks as follows:
     ```bash
@@ -329,7 +329,7 @@ Here are two concrete examples:
   dropped in the ring buffer, there will be no way left to work out the process
   details for all the other ftrace events that refer to that PID.
 
-2. The [Track Event library](/docs/instrumentation/track-events) in the Perfetto
+2. The [Track Event library](/docs/instrumentation/track-events) in the DejaView
    SDK makes extensive use of string interning. Most strings and descriptors
    (e.g. details about processes / threads) are emitted only once and later
    referred to using a monotonic ID. In case a loss of the descriptor packet,

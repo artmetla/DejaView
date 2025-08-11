@@ -23,10 +23,10 @@
 #include <array>
 #include <atomic>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/thread_annotations.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/thread_annotations.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 // Defined out of line because a static constexpr requires static storage if
@@ -75,14 +75,14 @@ class LogRingBuffer {
     // the write in reverse order. So Read() would need to synchronize with
     // something else (either a per-slot atomic flag or with a second atomic
     // counter which is incremented after the snprintf). Both options increase
-    // the cost of Append() with no huge benefits (90% of the perfetto services
+    // the cost of Append() with no huge benefits (90% of the dejaview services
     // where we use it is single thread, and the log ring buffer is disabled
     // on non-standalone builds like the SDK).
     uint32_t slot = event_slot_.fetch_add(1, std::memory_order_relaxed);
     slot = slot % kLogRingBufEntries;
 
     char* const msg = events_[slot];
-    PERFETTO_ANNOTATE_BENIGN_RACE_SIZED(msg, kLogRingBufMsgLen,
+    DEJAVIEW_ANNOTATE_BENIGN_RACE_SIZED(msg, kLogRingBufMsgLen,
                                         "see comments in log_ring_buffer.h")
     snprintf(msg, kLogRingBufMsgLen, "%.*s%.*s %.*s",
              static_cast<int>(tstamp.size()), tstamp.data(),
@@ -127,7 +127,7 @@ class LogRingBuffer {
       }
     }
     // Ensure that the output string is null-terminated.
-    PERFETTO_DCHECK(dst_written <= len);
+    DEJAVIEW_DCHECK(dst_written <= len);
     if (dst_written == len) {
       // In case of truncation we replace the last char with \0. But the return
       // value is the number of chars without \0, hence the --.
@@ -155,6 +155,6 @@ class LogRingBuffer {
 };
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_BASE_LOG_RING_BUFFER_H_

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("//gn/perfetto.gni")
+import("//gn/dejaview.gni")
 import("//gn/standalone/android.gni")
 import("//gn/standalone/wasm.gni")
 import("llvm.gni")
@@ -175,7 +175,7 @@ declare_args() {
     target_linker = ""
   }
 
-  if (!is_cross_compiling || is_perfetto_build_generator ||
+  if (!is_cross_compiling || is_dejaview_build_generator ||
       is_system_compiler) {
     target_ar = ar
     target_cc = cc

@@ -22,16 +22,16 @@
 #include <memory>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
 struct z_stream_s;
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 
 // Returns whether gzip related functioanlity is supported with the current
 // build flags.
 constexpr bool IsGzipSupported() {
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
   return true;
 #else
   return false;
@@ -136,6 +136,6 @@ class GzipDecompressor {
   std::unique_ptr<z_stream_s, Deleter> z_stream_;
 };
 
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_GZIP_UTILS_H_

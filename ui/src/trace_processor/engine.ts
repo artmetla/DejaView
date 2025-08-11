@@ -162,7 +162,7 @@ export abstract class EngineBase implements Engine, Disposable {
     // Here we override the protobufjs-generated code to skip the parsing of the
     // new streaming QueryResult and instead passing it through like a buffer.
     // This is the overall problem: All trace processor responses are wrapped
-    // into a perfetto.protos.TraceProcessorRpc proto message. In all cases %
+    // into a dejaview.protos.TraceProcessorRpc proto message. In all cases %
     // TPM_QUERY_STREAMING, we want protobufjs to decode the proto bytes and
     // give us a structured object. In the case of TPM_QUERY_STREAMING, instead,
     // we want to deal with the proto parsing ourselves using the new

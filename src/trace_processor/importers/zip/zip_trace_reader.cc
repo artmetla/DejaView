@@ -25,11 +25,11 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
 #include "src/trace_processor/importers/android_bugreport/android_bugreport_reader.h"
 #include "src/trace_processor/importers/common/trace_file_tracker.h"
@@ -38,7 +38,7 @@
 #include "src/trace_processor/util/trace_type.h"
 #include "src/trace_processor/util/zip_reader.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ZipTraceReader::ZipTraceReader(TraceProcessorContext* context)
     : context_(context) {}
@@ -107,7 +107,7 @@ base::Status ZipTraceReader::NotifyEndOfFile() {
 
     // Make sure the ForwardingTraceParser determined the same trace type as we
     // did.
-    PERFETTO_CHECK(parser.trace_type() == e.trace_type);
+    DEJAVIEW_CHECK(parser.trace_type() == e.trace_type);
   }
   return base::OkStatus();
 }
@@ -135,4 +135,4 @@ ZipTraceReader::ExtractEntries(std::vector<util::ZipFile> files) {
   return std::move(entries);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

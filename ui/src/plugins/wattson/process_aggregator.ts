@@ -43,7 +43,7 @@ export class WattsonProcessSelectionAggregator
     engine.query(`
       -- Only get idle attribution in user defined window and filter by selected
       -- CPUs and GROUP BY process
-      CREATE OR REPLACE PERFETTO TABLE _per_process_idle_attribution AS
+      CREATE OR REPLACE DEJAVIEW TABLE _per_process_idle_attribution AS
       SELECT
         ROUND(SUM(idle_cost_mws), 2) as idle_cost_mws,
         upid

@@ -16,9 +16,9 @@
 
 #include "src/traced/probes/ftrace/ftrace_stats.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 void FtraceStats::Write(protos::pbzero::FtraceStats* writer) const {
   for (const FtraceCpuStats& cpu_specific_stats : cpu_stats) {
@@ -46,4 +46,4 @@ void FtraceCpuStats::Write(protos::pbzero::FtraceCpuStats* writer) const {
   writer->set_read_events(read_events);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

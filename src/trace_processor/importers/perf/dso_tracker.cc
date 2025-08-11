@@ -18,14 +18,14 @@
 
 #include <cstdint>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
 #include "protos/third_party/simpleperf/record_file.pbzero.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 namespace {
 
 using third_party::simpleperf::proto::pbzero::FileFeature;
@@ -131,4 +131,4 @@ bool DsoTracker::TrySymbolizeFrame(
   return true;
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

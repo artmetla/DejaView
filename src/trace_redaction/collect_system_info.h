@@ -19,7 +19,7 @@
 
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Collects system info (e.g. tids and cpu info). These will provide the raw
 // material needed by BuildThreadMap.
@@ -45,6 +45,6 @@ class BuildSyntheticThreads : public BuildPrimitive {
   base::Status Build(Context* context) const override;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_COLLECT_SYSTEM_INFO_H_

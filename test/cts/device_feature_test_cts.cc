@@ -18,12 +18,12 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
-TEST(PerfettoDeviceFeatureTest, TestMaxCpusForAtraceChmod) {
+TEST(DejaViewDeviceFeatureTest, TestMaxCpusForAtraceChmod) {
   // Check that there are no more than 24 CPUs so that the assumption in the
   // atrace.rc for clearing CPU buffers is valid.
   ASSERT_LE(sysconf(_SC_NPROCESSORS_CONF), 24);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

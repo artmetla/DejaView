@@ -24,7 +24,7 @@ class AndroidInputEvent(TestSuite):
     return DiffTestBlueprint(
       trace=Path('input_event_trace.textproto'),
       query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
           event_id, ts
         FROM
@@ -40,7 +40,7 @@ class AndroidInputEvent(TestSuite):
     return DiffTestBlueprint(
       trace=Path('input_event_trace.textproto'),
       query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
           args.key, args.display_value
         FROM
@@ -69,7 +69,7 @@ class AndroidInputEvent(TestSuite):
     return DiffTestBlueprint(
       trace=Path('input_event_trace.textproto'),
       query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
           event_id, ts
         FROM
@@ -89,7 +89,7 @@ class AndroidInputEvent(TestSuite):
     return DiffTestBlueprint(
       trace=Path('input_event_trace.textproto'),
       query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
           args.key, args.display_value
         FROM
@@ -138,7 +138,7 @@ class AndroidInputEvent(TestSuite):
     return DiffTestBlueprint(
       trace=Path('input_event_trace.textproto'),
       query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
           id, event_id, vsync_id, window_id
         FROM
@@ -182,7 +182,7 @@ class AndroidInputEvent(TestSuite):
     return DiffTestBlueprint(
       trace=Path('input_event_trace.textproto'),
       query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
           d.id, args.key, args.display_value
         FROM
@@ -263,7 +263,7 @@ class AndroidInputEvent(TestSuite):
     return DiffTestBlueprint(
       trace=Path('input_event_trace.textproto'),
       query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
           d.id, args.key, args.display_value
         FROM

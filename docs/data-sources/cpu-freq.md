@@ -75,7 +75,7 @@ Known issues:
 * The event is emitted only when the frequency changes. This might
   not happen for long periods of times. In short traces
   it's possible that some CPU might not report any event, showing a gap on the
-  left-hand side of the trace, or none at all. Perfetto doesn't currently record
+  left-hand side of the trace, or none at all. DejaView doesn't currently record
   the initial cpu frequency when the trace is started.
 
 * Currently the UI doesn't render the cpufreq track if idle states (see below)

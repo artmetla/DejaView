@@ -71,11 +71,11 @@ def main():
         out_path, 'gen', 'protos', 'third_party', 'chromium',
         'chrome_track_event.descriptor')
   if args.test_extensions is None:
-    args.test_extensions = os.path.join(out_path, 'gen', 'protos', 'perfetto',
+    args.test_extensions = os.path.join(out_path, 'gen', 'protos', 'dejaview',
                                         'trace', 'test_extensions.descriptor')
   if args.winscope_extensions is None:
     args.winscope_extensions = os.path.join(out_path, 'gen', 'protos',
-                                            'perfetto', 'trace', 'android',
+                                            'dejaview', 'trace', 'android',
                                             'winscope.descriptor')
 
   test_runner = DiffTestsRunner(args.name_filter, args.trace_processor,

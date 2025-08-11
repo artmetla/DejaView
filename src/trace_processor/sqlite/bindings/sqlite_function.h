@@ -19,7 +19,7 @@
 
 #include <sqlite3.h>  // IWYU pragma: export
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Prototype for a function which can be registered with SQLite.
 //
@@ -46,6 +46,6 @@ class SqliteFunction {
   }
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_FUNCTION_H_

@@ -21,9 +21,9 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class AtraceHalWrapper {
  public:
@@ -40,6 +40,6 @@ class AtraceHalWrapper {
   std::unique_ptr<DynamicLibLoader> lib_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_ATRACE_HAL_WRAPPER_H_

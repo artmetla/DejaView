@@ -19,19 +19,19 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/table.h"
 #include "src/trace_processor/tables/py_tables_benchmark_py.h"
 
-namespace perfetto::trace_processor::tables {
+namespace dejaview::trace_processor::tables {
 
 RootTestTable::~RootTestTable() = default;
 ChildTestTable::~ChildTestTable() = default;
 
-}  // namespace perfetto::trace_processor::tables
+}  // namespace dejaview::trace_processor::tables
 
 namespace {
 
@@ -57,13 +57,13 @@ void TableSortArgs(benchmark::internal::Benchmark* b) {
 
 }  // namespace
 
-using perfetto::trace_processor::Query;
-using perfetto::trace_processor::RowMap;
-using perfetto::trace_processor::SqlValue;
-using perfetto::trace_processor::StringPool;
-using perfetto::trace_processor::Table;
-using perfetto::trace_processor::tables::ChildTestTable;
-using perfetto::trace_processor::tables::RootTestTable;
+using dejaview::trace_processor::Query;
+using dejaview::trace_processor::RowMap;
+using dejaview::trace_processor::SqlValue;
+using dejaview::trace_processor::StringPool;
+using dejaview::trace_processor::Table;
+using dejaview::trace_processor::tables::ChildTestTable;
+using dejaview::trace_processor::tables::RootTestTable;
 
 static void BM_TableInsert(benchmark::State& state) {
   StringPool pool;

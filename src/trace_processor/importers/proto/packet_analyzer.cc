@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/proto/packet_analyzer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 PacketAnalyzer::~PacketAnalyzer() = default;
 
 }
-}  // namespace perfetto
+}  // namespace dejaview

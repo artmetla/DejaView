@@ -18,19 +18,19 @@
 #include <cstdint>
 #include <string>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/importers/common/global_args_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/perf_events.gen.h"
-#include "protos/perfetto/trace/profiling/profile_packet.gen.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.gen.h"
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/common/perf_events.gen.h"
+#include "protos/dejaview/trace/profiling/profile_packet.gen.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.gen.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -303,4 +303,4 @@ TEST_F(PerfSampleTrackerTest, ProcessShardingStatsEntries) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -16,7 +16,7 @@
 
 #include "src/tracing/test/test_shared_memory.h"
 
-namespace perfetto {
+namespace dejaview {
 
 TestRefSharedMemory::~TestRefSharedMemory() = default;
 
@@ -27,4 +27,4 @@ size_t TestRefSharedMemory::size() const {
   return size_;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

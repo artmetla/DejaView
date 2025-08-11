@@ -23,7 +23,7 @@
 #include <string>
 #include <string_view>
 
-namespace perfetto::trace_processor::perf_text_importer {
+namespace dejaview::trace_processor::perf_text_importer {
 
 struct SampleLine {
   std::string comm;
@@ -41,6 +41,6 @@ std::optional<SampleLine> ParseSampleLine(std::string_view line);
 // bytes), returns whether the file is a perf text format trace.
 bool IsPerfTextFormatTrace(const uint8_t* ptr, size_t size);
 
-}  // namespace perfetto::trace_processor::perf_text_importer
+}  // namespace dejaview::trace_processor::perf_text_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_TEXT_PERF_TEXT_SAMPLE_LINE_PARSER_H_

@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-// This example demonstrates system-wide tracing with Perfetto.
+// This example demonstrates system-wide tracing with DejaView.
 //
 // 1). To use it, first build the `tracebox` and this file. The tracebox will
 // internally build tracing service (traced, which is long running
-// process / daemon ) and perfetto consumer client, and many other perfetto
+// process / daemon ) and dejaview consumer client, and many other dejaview
 // tracing related tools.
 // `ninja -C out/default/ tracebox example_system_wide`
 //
@@ -28,8 +28,8 @@
 // 3). Run this file. This is main application to trace.
 // `./out/default/example_system_wide`
 //
-// 4). Use perfetto client to start a session and record trace in a file.
-// `./out/default/tracebox perfetto -c /tmp/trace_config.txt --txt
+// 4). Use dejaview client to start a session and record trace in a file.
+// `./out/default/tracebox dejaview -c /tmp/trace_config.txt --txt
 //      -o /tmp/trace_output`
 //
 // but before running that command, put following trace config (protobuf config)
@@ -49,7 +49,7 @@
 // After running the command above, trace will be saved in `/tmp/trace_output`
 // file. It is a binary content. We can read it by running:
 // `./tools/traceconv text /tmp/trace_output`
-// Or we can use "Open Trace File" option in the perfetto UI
+// Or we can use "Open Trace File" option in the dejaview UI
 // (https://ui.perfetto.dev)
 //
 // Learn More:
@@ -64,37 +64,37 @@
 
 namespace {
 
-class Observer : public perfetto::TrackEventSessionObserver {
+class Observer : public dejaview::TrackEventSessionObserver {
  public:
-  Observer() { perfetto::TrackEvent::AddSessionObserver(this); }
-  ~Observer() override { perfetto::TrackEvent::RemoveSessionObserver(this); }
+  Observer() { dejaview::TrackEvent::AddSessionObserver(this); }
+  ~Observer() override { dejaview::TrackEvent::RemoveSessionObserver(this); }
 
-  void OnStart(const perfetto::DataSourceBase::StartArgs&) override {
+  void OnStart(const dejaview::DataSourceBase::StartArgs&) override {
     std::unique_lock<std::mutex> lock(mutex);
     cv.notify_one();
   }
 
   void WaitForTracingStart() {
-    PERFETTO_LOG("Waiting for tracing to start...");
+    DEJAVIEW_LOG("Waiting for tracing to start...");
     std::unique_lock<std::mutex> lock(mutex);
-    cv.wait(lock, [] { return perfetto::TrackEvent::IsEnabled(); });
-    PERFETTO_LOG("Tracing started");
+    cv.wait(lock, [] { return dejaview::TrackEvent::IsEnabled(); });
+    DEJAVIEW_LOG("Tracing started");
   }
 
   std::mutex mutex;
   std::condition_variable cv;
 };
 
-void InitializePerfetto() {
-  perfetto::TracingInitArgs args;
+void InitializeDejaView() {
+  dejaview::TracingInitArgs args;
   // The backends determine where trace events are recorded. For this example we
   // are going to use the system-wide tracing service, so that we can see our
   // app's events in context with system profiling information.
-  args.backends = perfetto::kSystemBackend;
+  args.backends = dejaview::kSystemBackend;
   args.enable_system_consumer = false;
 
-  perfetto::Tracing::Initialize(args);
-  perfetto::TrackEvent::Register();
+  dejaview::Tracing::Initialize(args);
+  dejaview::TrackEvent::Register();
 }
 
 void DrawPlayer(int player_number) {
@@ -112,19 +112,19 @@ void DrawGame() {
 }  // namespace
 
 int main(int, const char**) {
-  InitializePerfetto();
+  InitializeDejaView();
 
   Observer observer;
   observer.WaitForTracingStart();
 
   // Simulate some work that emits trace events.
   // Note that we don't start and stop tracing here; for system-wide tracing
-  // this needs to be done through the "perfetto" command line tool or the
-  // Perfetto UI (https://ui.perfetto.dev).
+  // this needs to be done through the "dejaview" command line tool or the
+  // DejaView UI (https://ui.perfetto.dev).
   DrawGame();
 
   // Make sure the last event is closed for this example.
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
 
   return 0;
 }

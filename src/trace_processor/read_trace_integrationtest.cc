@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/read_trace.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/read_trace.h"
 
 #include "src/base/test/utils.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -47,7 +47,7 @@ std::vector<uint8_t> ReadAllData(const base::ScopedFstream& f) {
 }
 
 bool ZlibSupported() {
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
   return true;
 #else
   return false;
@@ -134,4 +134,4 @@ TEST_F(ReadTraceIntegrationTest, DoubleGzipDecompressTrace) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

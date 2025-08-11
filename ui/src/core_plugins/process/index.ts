@@ -15,14 +15,14 @@
 import {addSqlTableTab} from '../../frontend/sql_table_tab_interface';
 import {sqlTableRegistry} from '../../frontend/widgets/sql/table/sql_table_registry';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {getProcessTable} from './table';
 
-class ProcessPlugin implements PerfettoPlugin {
+class ProcessPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace) {
     sqlTableRegistry['process'] = getProcessTable();
     ctx.commands.registerCommand({
-      id: 'perfetto.ShowTable.process',
+      id: 'dejaview.ShowTable.process',
       name: 'Open table: process',
       callback: () => {
         addSqlTableTab(ctx, {
@@ -34,6 +34,6 @@ class ProcessPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.Process',
+  pluginId: 'dejaview.Process',
   plugin: ProcessPlugin,
 };

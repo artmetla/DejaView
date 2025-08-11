@@ -21,12 +21,12 @@
 #include <stdint.h>
 #include <functional>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/fuchsia/fuchsia_record.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace fuchsia_trace_utils {
 
@@ -136,47 +136,47 @@ class ArgValue {
   ArgType Type() const { return type_; }
 
   int32_t Int32() const {
-    PERFETTO_DCHECK(type_ == ArgType::kInt32);
+    DEJAVIEW_DCHECK(type_ == ArgType::kInt32);
     return int32_;
   }
 
   uint32_t Uint32() const {
-    PERFETTO_DCHECK(type_ == ArgType::kUint32);
+    DEJAVIEW_DCHECK(type_ == ArgType::kUint32);
     return uint32_;
   }
 
   int64_t Int64() const {
-    PERFETTO_DCHECK(type_ == ArgType::kInt64);
+    DEJAVIEW_DCHECK(type_ == ArgType::kInt64);
     return int64_;
   }
 
   uint64_t Uint64() const {
-    PERFETTO_DCHECK(type_ == ArgType::kUint64);
+    DEJAVIEW_DCHECK(type_ == ArgType::kUint64);
     return uint64_;
   }
 
   double Double() const {
-    PERFETTO_DCHECK(type_ == ArgType::kDouble);
+    DEJAVIEW_DCHECK(type_ == ArgType::kDouble);
     return double_;
   }
 
   StringId String() const {
-    PERFETTO_DCHECK(type_ == ArgType::kString);
+    DEJAVIEW_DCHECK(type_ == ArgType::kString);
     return string_;
   }
 
   uint64_t Pointer() const {
-    PERFETTO_DCHECK(type_ == ArgType::kPointer);
+    DEJAVIEW_DCHECK(type_ == ArgType::kPointer);
     return pointer_;
   }
 
   uint64_t Koid() const {
-    PERFETTO_DCHECK(type_ == ArgType::kKoid);
+    DEJAVIEW_DCHECK(type_ == ArgType::kKoid);
     return koid_;
   }
 
   uint64_t Bool() const {
-    PERFETTO_DCHECK(type_ == ArgType::kBool);
+    DEJAVIEW_DCHECK(type_ == ArgType::kBool);
     return bool_;
   }
 
@@ -231,6 +231,6 @@ class RecordCursor {
 
 }  // namespace fuchsia_trace_utils
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FUCHSIA_FUCHSIA_TRACE_UTILS_H_

@@ -19,13 +19,13 @@
 #include <cstdio>
 #include <memory>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/read_trace.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/read_trace.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 // This binary exists just for the purpose of debugging the binary size of
@@ -45,10 +45,10 @@ base::Status MinimalMain(int, char**) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 int main(int argc, char** argv) {
-  auto status = perfetto::trace_processor::MinimalMain(argc, argv);
+  auto status = dejaview::trace_processor::MinimalMain(argc, argv);
   if (!status.ok()) {
     fprintf(stderr, "%s\n", status.c_message());
     return 1;

@@ -13,19 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "perfetto/ext/base/http/http_server.h"
+#include "dejaview/ext/base/http/http_server.h"
 
 #include <cinttypes>
 
 #include <vector>
 
-#include "perfetto/ext/base/base64.h"
-#include "perfetto/ext/base/endian.h"
-#include "perfetto/ext/base/http/sha1.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/base64.h"
+#include "dejaview/ext/base/endian.h"
+#include "dejaview/ext/base/http/sha1.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -60,7 +60,7 @@ void HttpServer::Start(int port) {
                               SockType::kStream);
   bool ipv4_listening = sock4_ && sock4_->is_listening();
   if (!ipv4_listening) {
-    PERFETTO_PLOG("Failed to listen on IPv4 socket: \"%s\"", ipv4_addr.c_str());
+    DEJAVIEW_PLOG("Failed to listen on IPv4 socket: \"%s\"", ipv4_addr.c_str());
     sock4_.reset();
   }
 
@@ -68,7 +68,7 @@ void HttpServer::Start(int port) {
                               SockType::kStream);
   bool ipv6_listening = sock6_ && sock6_->is_listening();
   if (!ipv6_listening) {
-    PERFETTO_PLOG("Failed to listen on IPv6 socket: \"%s\"", ipv6_addr.c_str());
+    DEJAVIEW_PLOG("Failed to listen on IPv6 socket: \"%s\"", ipv6_addr.c_str());
     sock6_.reset();
   }
 }
@@ -80,14 +80,14 @@ void HttpServer::AddAllowedOrigin(const std::string& origin) {
 void HttpServer::OnNewIncomingConnection(
     UnixSocket*,  // The listening socket, irrelevant here.
     std::unique_ptr<UnixSocket> sock) {
-  PERFETTO_LOG("[HTTP] New connection");
+  DEJAVIEW_LOG("[HTTP] New connection");
   clients_.emplace_back(std::move(sock));
 }
 
 void HttpServer::OnConnect(UnixSocket*, bool) {}
 
 void HttpServer::OnDisconnect(UnixSocket* sock) {
-  PERFETTO_LOG("[HTTP] Client disconnected");
+  DEJAVIEW_LOG("[HTTP] Client disconnected");
   for (auto it = clients_.begin(); it != clients_.end(); ++it) {
     if (it->sock.get() == sock) {
       req_handler_->OnHttpConnectionClosed(&*it);
@@ -95,19 +95,19 @@ void HttpServer::OnDisconnect(UnixSocket* sock) {
       return;
     }
   }
-  PERFETTO_DFATAL("[HTTP] Untracked client in OnDisconnect()");
+  DEJAVIEW_DFATAL("[HTTP] Untracked client in OnDisconnect()");
 }
 
 void HttpServer::OnDataAvailable(UnixSocket* sock) {
   HttpServerConnection* conn = nullptr;
   for (auto it = clients_.begin(); it != clients_.end() && !conn; ++it)
     conn = (it->sock.get() == sock) ? &*it : nullptr;
-  PERFETTO_CHECK(conn);
+  DEJAVIEW_CHECK(conn);
 
   char* rxbuf = reinterpret_cast<char*>(conn->rxbuf.Get());
   for (;;) {
     size_t avail = conn->rxbuf_avail();
-    PERFETTO_CHECK(avail <= kMaxRequestSize);
+    DEJAVIEW_CHECK(avail <= kMaxRequestSize);
     if (avail == 0) {
       conn->SendResponseAndClose("413 Payload Too Large");
       return;
@@ -178,7 +178,7 @@ size_t HttpServer::ParseOneHttpRequest(HttpServerConnection* conn) {
       // Parse HTTP headers, e.g. "Content-Length: 1234".
       size_t col = line.find(':');
       if (col == StringView::npos) {
-        PERFETTO_DLOG("[HTTP] Malformed HTTP header: \"%s\"",
+        DEJAVIEW_DLOG("[HTTP] Malformed HTTP header: \"%s\"",
                       line.ToStdString().c_str());
         conn->SendResponseAndClose("400 Bad Request", {}, "Bad HTTP header");
         return 0;
@@ -208,7 +208,7 @@ size_t HttpServer::ParseOneHttpRequest(HttpServerConnection* conn) {
 
   // At this point |buf_view| has been stripped of the header and contains the
   // request body. We don't know yet if we have all the bytes for it or not.
-  PERFETTO_CHECK(buf_view.size() <= conn->rxbuf_used);
+  DEJAVIEW_CHECK(buf_view.size() <= conn->rxbuf_used);
   const size_t headers_size = conn->rxbuf_used - buf_view.size();
 
   if (body_size + headers_size >= kMaxRequestSize ||
@@ -224,7 +224,7 @@ size_t HttpServer::ParseOneHttpRequest(HttpServerConnection* conn) {
 
   http_req.body = buf_view.substr(0, body_size);
 
-  PERFETTO_LOG("[HTTP] %.*s %.*s [body=%zuB, origin=\"%.*s\"]",
+  DEJAVIEW_LOG("[HTTP] %.*s %.*s [body=%zuB, origin=\"%.*s\"]",
                static_cast<int>(http_req.method.size()), http_req.method.data(),
                static_cast<int>(http_req.uri.size()), http_req.uri.data(),
                http_req.body.size(), static_cast<int>(http_req.origin.size()),
@@ -266,7 +266,7 @@ bool HttpServer::IsOriginAllowed(StringView origin) {
   }
   if (!origin_error_logged_ && !origin.empty()) {
     origin_error_logged_ = true;
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "[HTTP] The origin \"%.*s\" is not allowed, Access-Control-Allow-Origin"
         " won't be emitted. If this request comes from a browser it will fail.",
         static_cast<int>(origin.size()), origin.data());
@@ -275,7 +275,7 @@ bool HttpServer::IsOriginAllowed(StringView origin) {
 }
 
 void HttpServerConnection::UpgradeToWebsocket(const HttpRequest& req) {
-  PERFETTO_CHECK(req.is_websocket_handshake);
+  DEJAVIEW_CHECK(req.is_websocket_handshake);
 
   // |origin_allowed_| is set to the req.origin only if it's in the allowlist.
   if (origin_allowed_.empty())
@@ -314,10 +314,10 @@ void HttpServerConnection::UpgradeToWebsocket(const HttpRequest& req) {
       "Connection: Upgrade",  //
       accept_hdr.c_str(),     //
   };
-  PERFETTO_DLOG("[HTTP] Handshaking WebSocket for %.*s",
+  DEJAVIEW_DLOG("[HTTP] Handshaking WebSocket for %.*s",
                 static_cast<int>(req.uri.size()), req.uri.data());
   for (const char* hdr : headers)
-    PERFETTO_DLOG("> %s", hdr);
+    DEJAVIEW_DLOG("> %s", hdr);
 
   SendResponseHeaders("101 Switching Protocols", headers,
                       HttpServerConnection::kOmitContentLength);
@@ -332,7 +332,7 @@ size_t HttpServer::ParseOneWebsocketFrame(HttpServerConnection* conn) {
   uint8_t* const end = rxbuf + frame_size;
 
   auto avail = [&] {
-    PERFETTO_CHECK(rd <= end);
+    DEJAVIEW_CHECK(rd <= end);
     return static_cast<size_t>(end - rd);
   };
 
@@ -383,7 +383,7 @@ size_t HttpServer::ParseOneWebsocketFrame(HttpServerConnection* conn) {
   }
 
   if (payload_len_u64 >= kMaxPayloadSize) {
-    PERFETTO_ELOG("[HTTP] Websocket payload too big (%" PRIu64 " > %zu)",
+    DEJAVIEW_ELOG("[HTTP] Websocket payload too big (%" PRIu64 " > %zu)",
                   payload_len_u64, kMaxPayloadSize);
     conn->Close();
     return 0;
@@ -394,7 +394,7 @@ size_t HttpServer::ParseOneWebsocketFrame(HttpServerConnection* conn) {
     // https://datatracker.ietf.org/doc/html/rfc6455#section-5.1
     // The server MUST close the connection upon receiving a frame that is
     // not masked.
-    PERFETTO_ELOG("[HTTP] Websocket inbound frames must be masked");
+    DEJAVIEW_ELOG("[HTTP] Websocket inbound frames must be masked");
     conn->Close();
     return 0;
   }
@@ -414,7 +414,7 @@ size_t HttpServer::ParseOneWebsocketFrame(HttpServerConnection* conn) {
     payload_start[i] ^= mask[i % sizeof(mask)];
 
   if (opcode == kOpcodePing) {
-    PERFETTO_DLOG("[HTTP] Websocket PING");
+    DEJAVIEW_DLOG("[HTTP] Websocket PING");
     conn->SendWebsocketFrame(kOpcodePong, payload_start, payload_len);
   } else if (opcode == kOpcodeBinary || opcode == kOpcodeText ||
              opcode == kOpcodeContinuation) {
@@ -435,7 +435,7 @@ size_t HttpServer::ParseOneWebsocketFrame(HttpServerConnection* conn) {
   } else if (opcode == kOpcodeClose) {
     conn->Close();
   } else {
-    PERFETTO_LOG("Unsupported WebSocket opcode: %d", opcode);
+    DEJAVIEW_LOG("Unsupported WebSocket opcode: %d", opcode);
   }
   return static_cast<size_t>(rd - rxbuf) + payload_len;
 }
@@ -444,8 +444,8 @@ void HttpServerConnection::SendResponseHeaders(
     const char* http_code,
     std::initializer_list<const char*> headers,
     size_t content_length) {
-  PERFETTO_CHECK(!headers_sent_);
-  PERFETTO_CHECK(!is_websocket_);
+  DEJAVIEW_CHECK(!headers_sent_);
+  DEJAVIEW_CHECK(!is_websocket_);
   headers_sent_ = true;
   std::vector<char> resp_hdr;
   resp_hdr.reserve(512);
@@ -492,13 +492,13 @@ void HttpServerConnection::SendResponseHeaders(
 }
 
 void HttpServerConnection::SendResponseBody(const void* data, size_t len) {
-  PERFETTO_CHECK(!is_websocket_);
+  DEJAVIEW_CHECK(!is_websocket_);
   if (data == nullptr) {
-    PERFETTO_DCHECK(len == 0);
+    DEJAVIEW_DCHECK(len == 0);
     return;
   }
   content_len_actual_ += len;
-  PERFETTO_CHECK(content_len_actual_ <= content_len_headers_ ||
+  DEJAVIEW_CHECK(content_len_actual_ <= content_len_headers_ ||
                  content_len_headers_ == kOmitContentLength);
   sock->Send(data, len);
 }
@@ -527,7 +527,7 @@ void HttpServerConnection::SendWebsocketMessage(const void* data, size_t len) {
 void HttpServerConnection::SendWebsocketFrame(uint8_t opcode,
                                               const void* payload,
                                               size_t payload_len) {
-  PERFETTO_CHECK(is_websocket_);
+  DEJAVIEW_CHECK(is_websocket_);
 
   uint8_t hdr[10]{};
   uint32_t hdr_len = 0;
@@ -571,4 +571,4 @@ void HttpRequestHandler::OnWebsocketMessage(const WebsocketMessage&) {}
 void HttpRequestHandler::OnHttpConnectionClosed(HttpServerConnection*) {}
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

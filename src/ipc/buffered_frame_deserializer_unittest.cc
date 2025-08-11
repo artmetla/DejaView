@@ -19,13 +19,13 @@
 #include <algorithm>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 namespace {
 
@@ -46,7 +46,7 @@ std::vector<char> GetSimpleFrame(size_t size) {
   char padding_char = '0';
   const uint32_t payload_size = static_cast<uint32_t>(size - kHeaderSize);
   for (uint32_t size_left = payload_size; size_left > 0;) {
-    PERFETTO_CHECK(size_left >= 2);  // We cannot produce frames < 2 bytes.
+    DEJAVIEW_CHECK(size_left >= 2);  // We cannot produce frames < 2 bytes.
     uint32_t padding_size;
     if (size_left <= 127) {
       padding_size = size_left - 2;
@@ -62,7 +62,7 @@ std::vector<char> GetSimpleFrame(size_t size) {
     }
     frame.add_data_for_testing(std::string(padding.data(), padding_size));
   }
-  PERFETTO_CHECK(frame.SerializeAsString().size() == payload_size);
+  DEJAVIEW_CHECK(frame.SerializeAsString().size() == payload_size);
   std::vector<char> encoded_frame;
   encoded_frame.resize(size);
   char* enc_buf = encoded_frame.data();
@@ -70,7 +70,7 @@ std::vector<char> GetSimpleFrame(size_t size) {
   std::string payload = frame.SerializeAsString();
   memcpy(enc_buf, base::AssumeLittleEndian(&payload_size), kHeaderSize);
   memcpy(enc_buf + kHeaderSize, payload.data(), payload.size());
-  PERFETTO_CHECK(encoded_frame.size() == size);
+  DEJAVIEW_CHECK(encoded_frame.size() == size);
   return encoded_frame;
 }
 
@@ -379,4 +379,4 @@ TEST(BufferedFrameDeserializerTest, FillCapacity) {
 
 }  // namespace
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,19 +19,19 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
 
 // Skippy is a program that produces a visually identifiable stepping pattern
 // in the systrace UI that is useful for debugging dropped or corrupted data.
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 void SetAffinity(size_t cpu) {
   cpu_set_t set{};
   CPU_SET(cpu, &set);
-  PERFETTO_CHECK(
+  DEJAVIEW_CHECK(
       sched_setaffinity(0 /* calling process */, sizeof(cpu_set_t), &set) == 0);
 }
 
@@ -53,8 +53,8 @@ int SkippyMain() {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main() {
-  return perfetto::SkippyMain();
+  return dejaview::SkippyMain();
 }

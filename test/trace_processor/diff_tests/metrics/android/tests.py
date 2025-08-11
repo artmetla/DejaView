@@ -348,7 +348,7 @@ class AndroidMetrics(TestSuite):
     return DiffTestBlueprint(
         trace=Path("android_auto_multiuser.textproto"),
         query="""
-        INCLUDE PERFETTO MODULE android.auto.multiuser;
+        INCLUDE DEJAVIEW MODULE android.auto.multiuser;
         SELECT * FROM android_auto_multiuser_timing;
         """,
         out=Csv("""

@@ -18,10 +18,10 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/deobfuscation_mapping_table.h"
@@ -42,17 +42,17 @@
 #include "src/trace_processor/util/build_id.h"
 #include "src/trace_processor/util/profiler_util.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/common/perf_events.pbzero.h"
-#include "protos/perfetto/trace/profiling/deobfuscation.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/profiling/smaps.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/common/perf_events.pbzero.h"
+#include "protos/dejaview/trace/profiling/deobfuscation.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/profiling/smaps.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 using protozero::ConstBytes;
 
 ProfileModule::ProfileModule(TraceProcessorContext* context)
@@ -170,7 +170,7 @@ void ProfileModule::ParseStreamingProfilePacket(
        ++callstack_it, ++timestamp_it) {
     if (!timestamp_it) {
       context_->storage->IncrementStats(stats::stackprofile_parser_error);
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "StreamingProfilePacket has less callstack IDs than timestamps!");
       break;
     }
@@ -207,7 +207,7 @@ void ProfileModule::ParsePerfSample(
   // Not a sample, but an indication of data loss in the ring buffer shared with
   // the kernel.
   if (sample.kernel_records_lost() > 0) {
-    PERFETTO_DCHECK(sample.pid() == 0);
+    DEJAVIEW_DCHECK(sample.pid() == 0);
 
     context_->storage->IncrementIndexedStats(
         stats::perf_cpu_lost_records, static_cast<int>(sample.cpu()),
@@ -286,7 +286,7 @@ void ProfileModule::ParsePerfSample(
   //     SEQ_NEEDS_INCREMENTAL_STATE sequence flag in perf_sample packets.
   //     Such packets should be discarded.
   if (!cs_id && callstack_iid != 1) {
-    PERFETTO_DLOG("Discarding perf_sample since callstack_iid [%" PRIu64
+    DEJAVIEW_DLOG("Discarding perf_sample since callstack_iid [%" PRIu64
                   "] references a missing/partially lost interning according "
                   "to stack_profile_tracker",
                   callstack_iid);
@@ -613,4 +613,4 @@ void ProfileModule::NotifyEndOfFile() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

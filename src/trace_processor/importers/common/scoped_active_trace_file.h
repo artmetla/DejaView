@@ -22,7 +22,7 @@
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -72,6 +72,6 @@ class ScopedActiveTraceFile {
   bool is_valid_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_SCOPED_ACTIVE_TRACE_FILE_H_

@@ -109,11 +109,11 @@ def main(argv):
   cmd = [
       'sudo', 'docker', 'run', '--name', container, '--hostname', container,
       '--cap-add', 'SYS_PTRACE', '--rm', '--env',
-      'PERFETTO_TEST_JOB=%s' % job_id, '--tmpfs', '/tmp:exec'
+      'DEJAVIEW_TEST_JOB=%s' % job_id, '--tmpfs', '/tmp:exec'
   ]
 
   # Propagate environment variables coming from the job config.
-  for kv in [kv for kv in os.environ.items() if kv[0].startswith('PERFETTO_')]:
+  for kv in [kv for kv in os.environ.items() if kv[0].startswith('DEJAVIEW_')]:
     cmd += ['--env', '%s=%s' % kv]
 
   # We use the tmpfs mount created by gce-startup-script.sh, if present. The

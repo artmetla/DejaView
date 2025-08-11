@@ -21,7 +21,7 @@
 
 #include "src/trace_processor/sqlite/bindings/sqlite_module.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class QueryConstraints;
 class TraceStorage;
@@ -77,6 +77,6 @@ struct SqlStatsModule : sqlite::Module<SqlStatsModule> {
   static constexpr sqlite3_module kModule = CreateModule();
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_SQL_STATS_TABLE_H_

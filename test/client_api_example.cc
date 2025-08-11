@@ -20,28 +20,28 @@
 
 // This source file is built in two ways:
 // 1. As part of the regular GN build, against standard includes.
-// 2. To test that the amalgmated SDK works, against the perfetto.h source.
+// 2. To test that the amalgmated SDK works, against the dejaview.h source.
 
-#ifdef PERFETTO_AMALGAMATED_SDK_TEST
-#include "perfetto.h"
+#ifdef DEJAVIEW_AMALGAMATED_SDK_TEST
+#include "dejaview.h"
 #else
-#include "perfetto/tracing.h"
-#include "protos/perfetto/config/gpu/gpu_counter_config.pbzero.h"
-#include "protos/perfetto/trace/gpu/gpu_counter_event.pbzero.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/tracing.h"
+#include "protos/dejaview/config/gpu/gpu_counter_config.pbzero.h"
+#include "protos/dejaview/trace/gpu/gpu_counter_event.pbzero.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #endif
 
-// Deliberately not pulling any non-public perfetto header to spot accidental
+// Deliberately not pulling any non-public dejaview header to spot accidental
 // header public -> non-public dependency while building this file.
 namespace {
-class MyDataSource : public perfetto::DataSource<MyDataSource> {
+class MyDataSource : public dejaview::DataSource<MyDataSource> {
  public:
   void OnSetup(const SetupArgs& args) override {
     // This can be used to access the domain-specific DataSourceConfig, via
     // args.config->xxx_config_raw().
     const std::string& config_raw = args.config->gpu_counter_config_raw();
-    perfetto::protos::pbzero::GpuCounterConfig::Decoder config(config_raw);
+    dejaview::protos::pbzero::GpuCounterConfig::Decoder config(config_raw);
 
     int sample_period = 0;
     if (config.has_counter_period_ns())
@@ -55,7 +55,7 @@ class MyDataSource : public perfetto::DataSource<MyDataSource> {
       }
     }
 
-    PERFETTO_ILOG(
+    DEJAVIEW_ILOG(
         "OnSetup called, name: %s,"
         "counter_period_ms: %d, tracing_session_id: %" PRIu64
         " num counters: %zu",
@@ -63,17 +63,17 @@ class MyDataSource : public perfetto::DataSource<MyDataSource> {
         args.config->tracing_session_id(), counter_ids.size());
   }
 
-  void OnStart(const StartArgs&) override { PERFETTO_ILOG("OnStart called"); }
+  void OnStart(const StartArgs&) override { DEJAVIEW_ILOG("OnStart called"); }
 
   void OnStop(const StopArgs& stop_args) override {
-    PERFETTO_ILOG("OnStop called");
+    DEJAVIEW_ILOG("OnStop called");
 
     auto stop_closure = stop_args.HandleStopAsynchronously();
 
     // It is possible to trace on stop as well, but doing so requires manually
     // calling Flush() at the end.
     MyDataSource::Trace([](MyDataSource::TraceContext ctx) {
-      PERFETTO_LOG("Tracing lambda called while stopping");
+      DEJAVIEW_LOG("Tracing lambda called while stopping");
       // This block here is to auto-finalize the packet before calling Flush.
       {
         auto packet = ctx.NewTracePacket();
@@ -88,22 +88,22 @@ class MyDataSource : public perfetto::DataSource<MyDataSource> {
 
 }  // namespace
 
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(MyDataSource);
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(MyDataSource);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(MyDataSource);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(MyDataSource);
 
 int main() {
-  perfetto::TracingInitArgs args;
-  args.backends = perfetto::kSystemBackend;
-  perfetto::Tracing::Initialize(args);
+  dejaview::TracingInitArgs args;
+  args.backends = dejaview::kSystemBackend;
+  dejaview::Tracing::Initialize(args);
 
   // DataSourceDescriptor can be used to advertise domain-specific features.
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("com.example.mytrace");
   MyDataSource::Register(dsd);
 
   for (;;) {
     MyDataSource::Trace([](MyDataSource::TraceContext ctx) {
-      PERFETTO_LOG("Tracing lambda called");
+      DEJAVIEW_LOG("Tracing lambda called");
       auto packet = ctx.NewTracePacket();
       packet->set_timestamp(42);
       auto* gpu_packet = packet->set_gpu_counter_event();

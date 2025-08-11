@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/memory_allocator_node_id.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/memory_allocator_node_id.h"
 
 #include <stdio.h>
 
 #include <cinttypes>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 MemoryAllocatorNodeId::MemoryAllocatorNodeId(uint64_t id) : id_(id) {}
@@ -40,4 +40,4 @@ std::string MemoryAllocatorNodeId::ToString() const {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

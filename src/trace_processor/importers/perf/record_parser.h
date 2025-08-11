@@ -21,15 +21,15 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/importers/perf/mmap_record.h"
 #include "src/trace_processor/importers/perf/record.h"
 #include "src/trace_processor/importers/perf/sample.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class DummyMemoryMapping;
@@ -78,6 +78,6 @@ class RecordParser : public PerfRecordParser {
 
 }  // namespace perf_importer
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_RECORD_PARSER_H_

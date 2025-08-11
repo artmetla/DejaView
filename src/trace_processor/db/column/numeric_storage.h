@@ -26,15 +26,15 @@
 #include <variant>
 #include <vector>
 
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/storage_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/column/utils.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 // Storage for all numeric type data (i.e. doubles, int32, int64, uint32).
 class NumericStorageBase : public StorageLayer {
@@ -83,7 +83,7 @@ class NumericStorageBase : public StorageLayer {
 template <typename T>
 class NumericStorage final : public NumericStorageBase {
  public:
-  PERFETTO_NO_INLINE NumericStorage(const std::vector<T>* vec,
+  DEJAVIEW_NO_INLINE NumericStorage(const std::vector<T>* vec,
                                     ColumnType type,
                                     bool is_sorted);
 
@@ -204,6 +204,6 @@ NumericStorage<int32_t>::MakeChain();
 extern template std::unique_ptr<DataLayerChain>
 NumericStorage<int64_t>::MakeChain();
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_NUMERIC_STORAGE_H_

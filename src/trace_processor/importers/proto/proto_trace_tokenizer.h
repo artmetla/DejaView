@@ -23,20 +23,20 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/util/gzip_utils.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Reads a protobuf trace in chunks and extracts boundaries of trace packets
 // with their timestamps.
@@ -63,7 +63,7 @@ class ProtoTraceTokenizer {
 
       // This means that kMinHeaderBytes was not available. Just wait for the
       // next round.
-      if (PERFETTO_UNLIKELY(!header)) {
+      if (DEJAVIEW_UNLIKELY(!header)) {
         return base::OkStatus();
       }
 
@@ -72,13 +72,13 @@ class ProtoTraceTokenizer {
       const uint8_t* tag_end = protozero::proto_utils::ParseVarInt(
           tag_start, header->data() + header->size(), &tag);
 
-      if (PERFETTO_UNLIKELY(tag_end == tag_start)) {
+      if (DEJAVIEW_UNLIKELY(tag_end == tag_start)) {
         return header->size() < kMaxHeaderBytes
                    ? base::OkStatus()
                    : base::ErrStatus("Failed to parse tag");
       }
 
-      if (PERFETTO_UNLIKELY(tag != kTracePacketTag)) {
+      if (DEJAVIEW_UNLIKELY(tag != kTracePacketTag)) {
         // Other field. Skip.
         auto field_type = static_cast<uint8_t>(tag & 0b111);
         switch (field_type) {
@@ -88,12 +88,12 @@ class ProtoTraceTokenizer {
             const uint8_t* varint_start = tag_end;
             const uint8_t* varint_end = protozero::proto_utils::ParseVarInt(
                 tag_end, header->data() + header->size(), &varint);
-            if (PERFETTO_UNLIKELY(varint_end == varint_start)) {
+            if (DEJAVIEW_UNLIKELY(varint_end == varint_start)) {
               return header->size() < kMaxHeaderBytes
                          ? base::OkStatus()
                          : base::ErrStatus("Failed to skip varint");
             }
-            PERFETTO_CHECK(reader_.PopFrontBytes(
+            DEJAVIEW_CHECK(reader_.PopFrontBytes(
                 static_cast<size_t>(varint_end - tag_start)));
             continue;
           }
@@ -103,7 +103,7 @@ class ProtoTraceTokenizer {
             const uint8_t* varint_start = tag_end;
             const uint8_t* varint_end = protozero::proto_utils::ParseVarInt(
                 tag_end, header->data() + header->size(), &varint);
-            if (PERFETTO_UNLIKELY(varint_end == varint_start)) {
+            if (DEJAVIEW_UNLIKELY(varint_end == varint_start)) {
               return header->size() < kMaxHeaderBytes
                          ? base::OkStatus()
                          : base::ErrStatus("Failed to skip delimited");
@@ -114,7 +114,7 @@ class ProtoTraceTokenizer {
             if (size_incl_header > avail) {
               return base::OkStatus();
             }
-            PERFETTO_CHECK(reader_.PopFrontBytes(size_incl_header));
+            DEJAVIEW_CHECK(reader_.PopFrontBytes(size_incl_header));
             continue;
           }
           case static_cast<uint8_t>(
@@ -124,7 +124,7 @@ class ProtoTraceTokenizer {
             if (size_incl_header > avail) {
               return base::OkStatus();
             }
-            PERFETTO_CHECK(reader_.PopFrontBytes(size_incl_header));
+            DEJAVIEW_CHECK(reader_.PopFrontBytes(size_incl_header));
             continue;
           }
           case static_cast<uint8_t>(
@@ -134,7 +134,7 @@ class ProtoTraceTokenizer {
             if (size_incl_header > avail) {
               return base::OkStatus();
             }
-            PERFETTO_CHECK(reader_.PopFrontBytes(size_incl_header));
+            DEJAVIEW_CHECK(reader_.PopFrontBytes(size_incl_header));
             continue;
           }
           default:
@@ -149,7 +149,7 @@ class ProtoTraceTokenizer {
 
       // If we had less than the maximum number of header bytes, it's possible
       // that we just need more to actually parse. Otherwise, this is an error.
-      if (PERFETTO_UNLIKELY(size_start == size_end)) {
+      if (DEJAVIEW_UNLIKELY(size_start == size_end)) {
         return header->size() < kMaxHeaderBytes
                    ? base::OkStatus()
                    : base::ErrStatus("Failed to parse TracePacket size");
@@ -158,8 +158,8 @@ class ProtoTraceTokenizer {
       // Empty packets can legitimately happen if the producer ends up emitting
       // no data: just ignore them.
       auto hdr_size = static_cast<size_t>(size_end - header->data());
-      if (PERFETTO_UNLIKELY(field_size == 0)) {
-        PERFETTO_CHECK(reader_.PopFrontBytes(hdr_size));
+      if (DEJAVIEW_UNLIKELY(field_size == 0)) {
+        DEJAVIEW_CHECK(reader_.PopFrontBytes(hdr_size));
         continue;
       }
 
@@ -170,8 +170,8 @@ class ProtoTraceTokenizer {
       }
 
       auto packet = reader_.SliceOff(start_offset + hdr_size, field_size);
-      PERFETTO_CHECK(packet);
-      PERFETTO_CHECK(reader_.PopFrontBytes(hdr_size + field_size));
+      DEJAVIEW_CHECK(packet);
+      DEJAVIEW_CHECK(reader_.PopFrontBytes(hdr_size + field_size));
       protos::pbzero::TracePacket::Decoder decoder(packet->data(),
                                                    packet->length());
       if (!decoder.has_compressed_packets()) {
@@ -194,14 +194,14 @@ class ProtoTraceTokenizer {
       const uint8_t* ptr = start;
       while ((end - ptr) > 2) {
         const uint8_t* packet_outer = ptr;
-        if (PERFETTO_UNLIKELY(*ptr != kTracePacketTag)) {
+        if (DEJAVIEW_UNLIKELY(*ptr != kTracePacketTag)) {
           return base::ErrStatus("Expected TracePacket tag");
         }
         uint64_t packet_size = 0;
         ptr = protozero::proto_utils::ParseVarInt(++ptr, end, &packet_size);
         const uint8_t* packet_start = ptr;
         ptr += packet_size;
-        if (PERFETTO_UNLIKELY((ptr - packet_outer) < 2 || ptr > end)) {
+        if (DEJAVIEW_UNLIKELY((ptr - packet_outer) < 2 || ptr > end)) {
           return base::ErrStatus("Invalid packet size");
         }
         TraceBlobView sliced =
@@ -226,6 +226,6 @@ class ProtoTraceTokenizer {
   util::GzipDecompressor decompressor_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROTO_TRACE_TOKENIZER_H_

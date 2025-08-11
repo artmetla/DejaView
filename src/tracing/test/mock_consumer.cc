@@ -16,14 +16,14 @@
 
 #include "src/tracing/test/mock_consumer.h"
 
-#include "perfetto/ext/tracing/core/trace_stats.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/ext/tracing/core/trace_stats.h"
+#include "dejaview/tracing/core/trace_config.h"
 #include "src/base/test/test_task_runner.h"
 
 using ::testing::_;
 using ::testing::Invoke;
 
-namespace perfetto {
+namespace dejaview {
 
 MockConsumer::MockConsumer(base::TestTaskRunner* task_runner)
     : task_runner_(task_runner) {}
@@ -208,4 +208,4 @@ void MockConsumer::Attach(std::string key) {
   service_endpoint_->Attach(key);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

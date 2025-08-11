@@ -16,25 +16,25 @@
 
 #include <stdio.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/profiling/deobfuscator.h"
 #include "src/traceconv/deobfuscate_profile.h"
 #include "src/traceconv/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 int DeobfuscateProfile(std::istream* input, std::ostream* output) {
   base::ignore_result(input);
   base::ignore_result(output);
-  auto maybe_map = profiling::GetPerfettoProguardMapPath();
+  auto maybe_map = profiling::GetDejaViewProguardMapPath();
   if (maybe_map.empty()) {
-    PERFETTO_ELOG("No PERFETTO_PROGUARD_MAP specified.");
+    DEJAVIEW_ELOG("No DEJAVIEW_PROGUARD_MAP specified.");
     return 1;
   }
   if (!profiling::ReadProguardMapsToDeobfuscationPackets(
@@ -48,4 +48,4 @@ int DeobfuscateProfile(std::istream* input, std::ostream* output) {
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

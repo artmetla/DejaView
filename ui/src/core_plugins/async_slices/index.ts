@@ -16,7 +16,7 @@ import {removeFalsyValues} from '../../base/array_utils';
 import {TrackNode} from '../../public/workspace';
 import {SLICE_TRACK_KIND} from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {getThreadUriPrefix, getTrackName} from '../../public/utils';
 import {NUM, NUM_NULL, STR, STR_NULL} from '../../trace_processor/query_result';
 import {AsyncSliceTrack} from './async_slice_track';
@@ -28,7 +28,7 @@ import {exists} from '../../base/utils';
 import {ThreadSliceDetailsPanel} from '../../frontend/thread_slice_details_tab';
 import {assertExists, assertTrue} from '../../base/logging';
 
-class AsyncSlicePlugin implements PerfettoPlugin {
+class AsyncSlicePlugin implements DejaViewPlugin {
   private readonly trackIdsToUris = new Map<number, string>();
 
   async onTraceLoad(ctx: Trace): Promise<void> {
@@ -78,7 +78,7 @@ class AsyncSlicePlugin implements PerfettoPlugin {
     // by a mechanism for more specific plugins to override tracks from more generic plugins.
     const suspendResumeLatencyTrackName = 'Suspend/Resume Latency';
     const rawGlobalAsyncTracks = await engine.query(`
-      include perfetto module graphs.search;
+      include dejaview module graphs.search;
 
       with global_tracks_grouped as (
         select
@@ -274,9 +274,9 @@ class AsyncSlicePlugin implements PerfettoPlugin {
 
   async addThreadAsyncSliceTracks(ctx: Trace): Promise<void> {
     const result = await ctx.engine.query(`
-      include perfetto module viz.summary.slices;
-      include perfetto module viz.summary.threads;
-      include perfetto module viz.threads;
+      include dejaview module viz.summary.slices;
+      include dejaview module viz.summary.threads;
+      include dejaview module viz.threads;
 
       select
         t.utid,
@@ -453,6 +453,6 @@ class AsyncSlicePlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.AsyncSlices',
+  pluginId: 'dejaview.AsyncSlices',
   plugin: AsyncSlicePlugin,
 };

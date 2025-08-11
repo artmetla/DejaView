@@ -15,7 +15,7 @@
 import {uuidv4Sql} from '../../base/uuid';
 import {generateSqlWithInternalLayout} from '../../trace_processor/sql_utils/layout';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {EventLatencySliceDetailsPanel} from './event_latency_details_panel';
 import {EventLatencyTrack, JANKY_LATENCY_NAME} from './event_latency_track';
 import {ScrollDetailsPanel} from './scroll_details_panel';
@@ -37,9 +37,9 @@ import {featureFlags, OverrideState} from '../../core/feature_flags';
 // enough time on stable for most relevant users to have run it at least once.
 function patchChromeScrollJankFlag() {
   try {
-    const flagsKey = 'perfettoFeatureFlags';
+    const flagsKey = 'dejaviewFeatureFlags';
     const enableScrollJankPluginV2FlagKey = 'enableScrollJankPluginV2';
-    const chromeScrollJankPuginFlagKey = 'plugin_perfetto.ChromeScrollJank';
+    const chromeScrollJankPuginFlagKey = 'plugin_dejaview.ChromeScrollJank';
 
     const flagsRaw = localStorage.getItem(flagsKey);
     if (flagsRaw) {
@@ -65,7 +65,7 @@ function patchChromeScrollJankFlag() {
 
 patchChromeScrollJankFlag();
 
-class ChromeScrollJankPlugin implements PerfettoPlugin {
+class ChromeScrollJankPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const group = new TrackNode({
       title: 'Chrome Scroll Jank',
@@ -85,11 +85,11 @@ class ChromeScrollJankPlugin implements PerfettoPlugin {
     group: TrackNode,
   ): Promise<void> {
     await ctx.engine.query(`
-      INCLUDE PERFETTO MODULE chrome.chrome_scrolls;
-      INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_offsets;
+      INCLUDE DEJAVIEW MODULE chrome.chrome_scrolls;
+      INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_offsets;
     `);
 
-    const uri = 'perfetto.ChromeScrollJank#toplevelScrolls';
+    const uri = 'dejaview.ChromeScrollJank#toplevelScrolls';
     const title = 'Chrome Scrolls';
 
     ctx.tracks.registerTrack({
@@ -204,11 +204,11 @@ class ChromeScrollJankPlugin implements PerfettoPlugin {
       FROM latency_stages stage;`;
 
     await ctx.engine.query(
-      `INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_intervals`,
+      `INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_intervals`,
     );
     await ctx.engine.query(tableDefSql);
 
-    const uri = 'perfetto.ChromeScrollJank#eventLatency';
+    const uri = 'dejaview.ChromeScrollJank#eventLatency';
     const title = 'Chrome Scroll Input Latencies';
 
     ctx.tracks.registerTrack({
@@ -229,10 +229,10 @@ class ChromeScrollJankPlugin implements PerfettoPlugin {
     group: TrackNode,
   ): Promise<void> {
     await ctx.engine.query(
-      `INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_intervals`,
+      `INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_intervals`,
     );
 
-    const uri = 'perfetto.ChromeScrollJank#scrollJankV3';
+    const uri = 'dejaview.ChromeScrollJank#scrollJankV3';
     const title = 'Chrome Scroll Janks';
 
     ctx.tracks.registerTrack({
@@ -251,6 +251,6 @@ class ChromeScrollJankPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.ChromeScrollJank',
+  pluginId: 'dejaview.ChromeScrollJank',
   plugin: ChromeScrollJankPlugin,
 };

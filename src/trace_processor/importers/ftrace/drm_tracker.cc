@@ -15,17 +15,17 @@
  */
 
 #include "src/trace_processor/importers/ftrace/drm_tracker.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/trace/ftrace/dma_fence.pbzero.h"
-#include "protos/perfetto/trace/ftrace/drm.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/gpu_scheduler.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/trace/ftrace/dma_fence.pbzero.h"
+#include "protos/dejaview/trace/ftrace/drm.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/gpu_scheduler.pbzero.h"
 #include "src/trace_processor/importers/common/flow_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -117,7 +117,7 @@ void DrmTracker::ParseDrm(int64_t timestamp,
       break;
     }
     default:
-      PERFETTO_DFATAL("Unexpected field id");
+      DEJAVIEW_DFATAL("Unexpected field id");
       break;
   }
 }
@@ -177,7 +177,7 @@ DrmTracker::SchedRing& DrmTracker::GetSchedRingByName(base::StringView name) {
 }
 
 void DrmTracker::BeginSchedRingSlice(int64_t timestamp, SchedRing& ring) {
-  PERFETTO_DCHECK(!ring.running_jobs.empty());
+  DEJAVIEW_DCHECK(!ring.running_jobs.empty());
   uint64_t job_id = ring.running_jobs.front();
 
   auto args_inserter = [this, job_id](ArgsTracker::BoundInserter* inserter) {
@@ -275,7 +275,7 @@ DrmTracker::FenceTimeline& DrmTracker::GetFenceTimelineByContext(
 
 void DrmTracker::BeginFenceTimelineSlice(int64_t timestamp,
                                          const FenceTimeline& timeline) {
-  PERFETTO_DCHECK(!timeline.pending_fences.empty());
+  DEJAVIEW_DCHECK(!timeline.pending_fences.empty());
   uint32_t seqno = timeline.pending_fences.front();
 
   auto args_inserter = [this, seqno](ArgsTracker::BoundInserter* inserter) {
@@ -375,4 +375,4 @@ void DrmTracker::DmaFenceWaitEnd(int64_t timestamp, uint32_t pid) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

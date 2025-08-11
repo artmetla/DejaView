@@ -123,7 +123,7 @@ const FTRACE_DROP_UNTIL_FLAG = featureFlags.register({
 // ensure it's only run once.
 async function defineMaxLayoutDepthSqlFunction(engine: Engine): Promise<void> {
   await engine.query(`
-    create perfetto function __max_layout_depth(track_count INT, track_ids STRING)
+    create dejaview function __max_layout_depth(track_count INT, track_ids STRING)
     returns INT AS
     select iif(
       $track_count = 1,
@@ -522,19 +522,19 @@ async function initialiseHelperViews(trace: TraceImpl) {
 async function includeSummaryTables(trace: TraceImpl) {
   const engine = trace.engine;
   updateStatus(trace, 'Creating slice summaries');
-  await engine.query(`include perfetto module viz.summary.slices;`);
+  await engine.query(`include dejaview module viz.summary.slices;`);
 
   updateStatus(trace, 'Creating counter summaries');
-  await engine.query(`include perfetto module viz.summary.counters;`);
+  await engine.query(`include dejaview module viz.summary.counters;`);
 
   updateStatus(trace, 'Creating thread summaries');
-  await engine.query(`include perfetto module viz.summary.threads;`);
+  await engine.query(`include dejaview module viz.summary.threads;`);
 
   updateStatus(trace, 'Creating processes summaries');
-  await engine.query(`include perfetto module viz.summary.processes;`);
+  await engine.query(`include dejaview module viz.summary.processes;`);
 
   updateStatus(trace, 'Creating track summaries');
-  await engine.query(`include perfetto module viz.summary.tracks;`);
+  await engine.query(`include dejaview module viz.summary.tracks;`);
 }
 
 function updateStatus(traceOrApp: TraceImpl | AppImpl, msg: string): void {

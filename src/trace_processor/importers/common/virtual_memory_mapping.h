@@ -24,16 +24,16 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/create_mapping_params.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // TODO(carlscab): Reconsider whether jit is the best abstraction here. All we
@@ -188,6 +188,6 @@ class DummyMemoryMapping : public VirtualMemoryMapping {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_VIRTUAL_MEMORY_MAPPING_H_

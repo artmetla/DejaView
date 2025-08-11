@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/protozero/proto_utils.h"
 
 #include <limits>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
 namespace protozero {
 namespace proto_utils {
 namespace {
 
-using ::perfetto::base::ArraySize;
+using ::dejaview::base::ArraySize;
 
 struct VarIntExpectation {
   const char* encoded;

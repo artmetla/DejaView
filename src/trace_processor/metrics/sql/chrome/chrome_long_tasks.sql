@@ -17,13 +17,13 @@
 --          active development and the values & meaning might change without
 --          notice.
 
-INCLUDE PERFETTO MODULE chrome.tasks;
+INCLUDE DEJAVIEW MODULE chrome.tasks;
 
 -- Extract mojo information for the long-task-tracking scenario for specific
 -- names. For example, LongTaskTracker slices may have associated IPC
 -- metadata, or InterestingTask slices for input may have associated IPC to
 -- determine whether the task is fling/etc.
-CREATE OR REPLACE PERFETTO FUNCTION select_long_task_slices(name STRING)
+CREATE OR REPLACE DEJAVIEW FUNCTION select_long_task_slices(name STRING)
 RETURNS TABLE(
   interface_name STRING,
   ipc_hash INT,
@@ -56,14 +56,14 @@ SELECT
   printf("%s %s(hash=%s)", interface_name, message_type, ipc_hash) as task_name
 FROM slices_with_mojo_data;
 
-CREATE OR REPLACE PERFETTO FUNCTION is_long_choreographer_task(dur LONG)
+CREATE OR REPLACE DEJAVIEW FUNCTION is_long_choreographer_task(dur LONG)
 RETURNS BOOL AS
 SELECT $dur >= 4 * 1e6;
 
 -- Note that not all slices will be mojo slices; filter on interface_name IS
 -- NOT NULL for mojo slices specifically.
 DROP TABLE IF EXISTS long_tasks_extracted_slices;
-CREATE PERFETTO TABLE long_tasks_extracted_slices AS
+CREATE DEJAVIEW TABLE long_tasks_extracted_slices AS
 SELECT * FROM SELECT_LONG_TASK_SLICES(/*name*/'LongTaskTracker');
 
 -- Create |long_tasks_internal_tbl| table, which gathers all of the
@@ -72,7 +72,7 @@ SELECT * FROM SELECT_LONG_TASK_SLICES(/*name*/'LongTaskTracker');
 -- have nested descendants, LongTaskTracker slices will store all of
 -- the relevant information within the single slice.
 DROP TABLE IF EXISTS long_tasks_internal_tbl;
-CREATE PERFETTO TABLE long_tasks_internal_tbl AS
+CREATE DEJAVIEW TABLE long_tasks_internal_tbl AS
 WITH
   raw_extracted_values AS (
     SELECT
@@ -100,7 +100,7 @@ FROM raw_extracted_values;
 -- chrome_slices_with_java_views_internal, differing only in how a
 -- descendent is calculated.
 DROP VIEW IF EXISTS long_task_slices_with_java_views;
-CREATE PERFETTO VIEW long_task_slices_with_java_views AS
+CREATE DEJAVIEW VIEW long_task_slices_with_java_views AS
 WITH
   -- Select UI thread BeginMainFrames frames.
   root_slices AS (
@@ -131,7 +131,7 @@ LEFT JOIN root_slice_and_java_view_not_grouped s2
 GROUP BY s1.id;
 
 DROP VIEW IF EXISTS chrome_long_tasks_internal;
-CREATE PERFETTO VIEW chrome_long_tasks_internal AS
+CREATE DEJAVIEW VIEW chrome_long_tasks_internal AS
 WITH -- Generate full names for tasks with java views.
   java_views_tasks AS (
     SELECT
@@ -180,7 +180,7 @@ FROM long_task_slices_with_java_views
 WHERE kind = "Choreographer";
 
 DROP VIEW IF EXISTS chrome_long_tasks;
-CREATE PERFETTO VIEW chrome_long_tasks AS
+CREATE DEJAVIEW VIEW chrome_long_tasks AS
 SELECT
   full_name,
   task_type,

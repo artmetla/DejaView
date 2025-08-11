@@ -22,10 +22,10 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 std::vector<base::StringView> FindLines(const uint8_t* data, size_t size) {
@@ -81,4 +81,4 @@ bool AndroidLogEvent::IsAndroidLogcat(const uint8_t* data, size_t size) {
   return it != lines.end() && DetectFormat(*it).has_value();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

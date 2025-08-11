@@ -22,15 +22,15 @@
 #include <type_traits>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/db/column.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/column_storage.h"
 #include "src/trace_processor/db/typed_column_internal.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // TypedColumn<T>
 //
@@ -146,7 +146,7 @@ class TypedColumn : public ColumnLegacy {
         (column->IsNullable() == TH::is_optional) && !column->IsId()) {
       return static_cast<TypedColumn<T>*>(column);
     } else {
-      PERFETTO_FATAL("Unsafe to convert Column TypedColumn (%s)",
+      DEJAVIEW_FATAL("Unsafe to convert Column TypedColumn (%s)",
                      column->name());
     }
   }
@@ -198,6 +198,6 @@ class IdColumn : public ColumnLegacy {
   friend class Table;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_TYPED_COLUMN_H_

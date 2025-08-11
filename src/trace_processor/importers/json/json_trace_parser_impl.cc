@@ -22,11 +22,11 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/flow_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -39,10 +39,10 @@
 #include "src/trace_processor/tables/slice_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 namespace {
 
 std::optional<uint64_t> MaybeExtractFlowIdentifier(const Json::Value& value,
@@ -60,7 +60,7 @@ std::optional<uint64_t> MaybeExtractFlowIdentifier(const Json::Value& value,
 }
 
 }  // namespace
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 
 JsonTraceParserImpl::JsonTraceParserImpl(TraceProcessorContext* context)
     : context_(context), systrace_line_parser_(context) {}
@@ -73,9 +73,9 @@ void JsonTraceParserImpl::ParseSystraceLine(int64_t, SystraceLine line) {
 
 void JsonTraceParserImpl::ParseJsonPacket(int64_t timestamp,
                                           std::string string_value) {
-  PERFETTO_DCHECK(json::IsJsonSupported());
+  DEJAVIEW_DCHECK(json::IsJsonSupported());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   auto opt_value = json::ParseJsonString(base::StringView(string_value));
   if (!opt_value) {
     context_->storage->IncrementStats(stats::json_parser_failure);
@@ -209,7 +209,7 @@ void JsonTraceParserImpl::ParseJsonPacket(int64_t timestamp,
             name_id, upid, cookie, false /* source_id_is_process_scoped */,
             kNullStringId /* source_scope */);
       } else {
-        PERFETTO_DCHECK(!local.empty());
+        DEJAVIEW_DCHECK(!local.empty());
         int64_t cookie =
             static_cast<int64_t>(base::Hasher::Combine(cat_id.raw_id(), local));
         track_id = context_->track_tracker->LegacyInternLegacyChromeAsyncTrack(
@@ -382,17 +382,17 @@ void JsonTraceParserImpl::ParseJsonPacket(int64_t timestamp,
     }
   }
 #else
-  perfetto::base::ignore_result(timestamp);
-  perfetto::base::ignore_result(context_);
-  perfetto::base::ignore_result(string_value);
-  PERFETTO_ELOG("Cannot parse JSON trace due to missing JSON support");
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+  dejaview::base::ignore_result(timestamp);
+  dejaview::base::ignore_result(context_);
+  dejaview::base::ignore_result(string_value);
+  DEJAVIEW_ELOG("Cannot parse JSON trace due to missing JSON support");
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 }
 
 void JsonTraceParserImpl::MaybeAddFlow(TrackId track_id,
                                        const Json::Value& event) {
-  PERFETTO_DCHECK(json::IsJsonSupported());
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+  DEJAVIEW_DCHECK(json::IsJsonSupported());
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   auto opt_bind_id = MaybeExtractFlowIdentifier(event, /* version2 = */ true);
   if (opt_bind_id) {
     FlowTracker* flow_tracker = context_->flow_tracker.get();
@@ -411,10 +411,10 @@ void JsonTraceParserImpl::MaybeAddFlow(TrackId track_id,
     }
   }
 #else
-  perfetto::base::ignore_result(track_id);
-  perfetto::base::ignore_result(event);
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+  dejaview::base::ignore_result(track_id);
+  dejaview::base::ignore_result(event);
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

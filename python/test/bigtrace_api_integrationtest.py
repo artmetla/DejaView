@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import os
-import perfetto.bigtrace.api
+import dejaview.bigtrace.api
 import subprocess
 import unittest
 
-from perfetto.common.exceptions import PerfettoException
+from dejaview.common.exceptions import DejaViewException
 
 class BigtraceTest(unittest.TestCase):
 
@@ -34,7 +34,7 @@ class BigtraceTest(unittest.TestCase):
         os.environ["ORCHESTRATOR_PATH"], "-n", "3", "-w", "127.0.0.1", "-p",
         "5052"
     ])
-    self.client = perfetto.bigtrace.api.Bigtrace(
+    self.client = dejaview.bigtrace.api.Bigtrace(
         wait_for_ready_for_testing=True)
 
   @classmethod
@@ -51,70 +51,70 @@ class BigtraceTest(unittest.TestCase):
 
   def test_simple_valid_request(self):
     result = self.client.query([
-        f"/local/{self.root_dir}/test/data/api24_startup_cold.perfetto-trace",
-        f"/local/{self.root_dir}/test/data/api24_startup_hot.perfetto-trace"
+        f"/local/{self.root_dir}/test/data/api24_startup_cold.dejaview-trace",
+        f"/local/{self.root_dir}/test/data/api24_startup_hot.dejaview-trace"
     ], "SELECT count(1) as count FROM slice LIMIT 5")
 
     self.assertEqual(
         result.loc[result['_trace_address'] ==
                    f"/local/{self.root_dir}/test/data/"
-                   "api24_startup_cold.perfetto-trace", 'count'].iloc[0], 9726)
+                   "api24_startup_cold.dejaview-trace", 'count'].iloc[0], 9726)
     self.assertEqual(
         result.loc[result['_trace_address'] ==
                    f"/local/{self.root_dir}/test/data/"
-                   "api24_startup_hot.perfetto-trace", 'count'].iloc[0], 5726)
+                   "api24_startup_hot.dejaview-trace", 'count'].iloc[0], 5726)
 
-  def test_include_perfetto_module_query(self):
+  def test_include_dejaview_module_query(self):
     traces = [
-        f"/local/{self.root_dir}/test/data/android_startup_real.perfetto_trace"
+        f"/local/{self.root_dir}/test/data/android_startup_real.dejaview_trace"
     ]
     result = self.client.query(
-        traces, "INCLUDE PERFETTO MODULE android.binder; "
+        traces, "INCLUDE DEJAVIEW MODULE android.binder; "
         "SELECT client_process FROM android_binder_txns")
     self.assertEqual(len(result), 15874)
     self.assertEqual(len(result.columns), 2)
 
   def test_empty_trace_list(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query([], "SELECT count(1) FROM slice LIMIT 5")
 
   def test_empty_sql_string(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query([
-          f"/local/{self.root_dir}/test/data/api24_startup_cold.perfetto-trace",
-          f"/local/{self.root_dir}/test/data/api24_startup_hot.perfetto-trace"
+          f"/local/{self.root_dir}/test/data/api24_startup_cold.dejaview-trace",
+          f"/local/{self.root_dir}/test/data/api24_startup_hot.dejaview-trace"
       ], "")
 
   def test_empty_trace_string(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query([""], "SELECT count(1) FROM slice LIMIT 5")
 
   def test_prefix_present_no_trace_path(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query(["/local"],
                                  "SELECT count(1) FROM slice LIMIT 5")
 
   def test_invalid_prefix_format(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query([
-          f"??{self.root_dir}/test/data/api24_startup_cold.perfetto-trace",
+          f"??{self.root_dir}/test/data/api24_startup_cold.dejaview-trace",
       ], "")
 
   def test_invalid_prefix_name(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query([
           f"/badprefix/{self.root_dir}/test/data/"
-          "api24_startup_cold.perfetto-trace"
+          "api24_startup_cold.dejaview-trace"
       ], "SELECT count(1) FROM slice LIMIT 5"),
 
   def test_no_prefix(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query(
-          [f"/{self.root_dir}/test/data/api24_startup_cold.perfetto-trace"],
+          [f"/{self.root_dir}/test/data/api24_startup_cold.dejaview-trace"],
           "SELECT count(1) FROM slice LIMIT 5")
 
   def test_unauthenticated_gcs(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       result = self.client.query(
-          [f"/gcs/trace_bucket_example/o/api24_startup_cold.perfetto-trace"],
+          [f"/gcs/trace_bucket_example/o/api24_startup_cold.dejaview-trace"],
           "SELECT count(1) FROM slice LIMIT 5")

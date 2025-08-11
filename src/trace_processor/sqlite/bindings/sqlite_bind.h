@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace perfetto::trace_processor::sqlite::bind {
+namespace dejaview::trace_processor::sqlite::bind {
 
 // This file contains wraps the SQLite functions which operate on stmt
 // bindings and start with sqlite3_bind_*.
@@ -45,6 +45,6 @@ inline int UniquePointer(sqlite3_stmt* stmt,
       [](void* tab) { std::unique_ptr<T>(static_cast<T*>(tab)); });
 }
 
-}  // namespace perfetto::trace_processor::sqlite::bind
+}  // namespace dejaview::trace_processor::sqlite::bind
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_BIND_H_

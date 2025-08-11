@@ -24,11 +24,11 @@
 #include <ostream>
 #include <vector>
 
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 namespace {
 
 using ::testing::ElementsAreArray;
@@ -163,4 +163,4 @@ TEST(TraceBlobViewReader, PopRemovesData) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util

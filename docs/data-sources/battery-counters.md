@@ -1,6 +1,6 @@
 # Power data sources
 
-On Android Perfetto bundles data sources to retrieve power
+On Android DejaView bundles data sources to retrieve power
 counters from the device power management units (where supported).
 
 ## Battery counters
@@ -10,7 +10,7 @@ presence of power-management hardware on the device. This is available on
 most Google Pixel smartphones._
 
 Modern smartphones are equipped with a power monitoring IC which is able to
-measure the charge flowing in and out of the battery. This allows Perfetto to
+measure the charge flowing in and out of the battery. This allows DejaView to
 observe the total and instantaneous charge drained from the battery by the
 overall device (the union of SoC, display, radios and all other hardware
 units).

@@ -21,14 +21,14 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -47,9 +47,9 @@ class CpuTracker {
 
   tables::CpuTable::Id GetOrCreateCpu(uint32_t cpu) {
     // CPU core number is in the range of 0..kMaxCpusPerMachine-1.
-    PERFETTO_CHECK(cpu < kMaxCpusPerMachine);
+    DEJAVIEW_CHECK(cpu < kMaxCpusPerMachine);
     auto ucpu = ucpu_offset_ + cpu;
-    if (PERFETTO_LIKELY(cpu_ids_[cpu]))
+    if (DEJAVIEW_LIKELY(cpu_ids_[cpu]))
       return tables::CpuTable::Id(ucpu);
     cpu_ids_.set(cpu);
 
@@ -74,6 +74,6 @@ class CpuTracker {
   uint32_t ucpu_offset_ = 0;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_CPU_TRACKER_H_

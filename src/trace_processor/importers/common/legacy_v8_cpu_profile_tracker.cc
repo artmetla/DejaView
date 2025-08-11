@@ -20,10 +20,10 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
@@ -31,7 +31,7 @@
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 LegacyV8CpuProfileTracker::LegacyV8CpuProfileTracker(
     TraceProcessorContext* context)
@@ -116,4 +116,4 @@ base::Status LegacyV8CpuProfileTracker::AddSample(int64_t ts,
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/proto/proto_trace_tokenizer.h"
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using testing::Invoke;
@@ -146,4 +146,4 @@ TEST(ProtoTraceTokenizerTest, SkipFieldsSingleByteByByte) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

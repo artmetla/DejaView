@@ -18,14 +18,14 @@
 
 #include <stdint.h>
 
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -381,4 +381,4 @@ ProtoToArgsParser::ScopedNestedKeyContext ProtoToArgsParser::EnterDictionary(
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

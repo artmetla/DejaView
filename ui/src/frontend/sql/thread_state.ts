@@ -73,9 +73,9 @@ export async function breakDownIntervalByThreadState(
   // TODO(altimin): this probably should share some code with pivot tables when
   // we actually get some pivot tables we like.
   const query = await engine.query(`
-    INCLUDE PERFETTO MODULE sched.time_in_state;
-    INCLUDE PERFETTO MODULE sched.states;
-    INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+    INCLUDE DEJAVIEW MODULE sched.time_in_state;
+    INCLUDE DEJAVIEW MODULE sched.states;
+    INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
     SELECT
       sched_state_io_to_human_readable_string(state, io_wait) as state,

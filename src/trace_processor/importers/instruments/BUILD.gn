@@ -23,7 +23,7 @@ source_set("row") {
   ]
 }
 
-if (enable_perfetto_trace_processor_mac_instruments) {
+if (enable_dejaview_trace_processor_mac_instruments) {
   source_set("instruments") {
     sources = [
       "instruments_xml_tokenizer.cc",
@@ -37,10 +37,10 @@ if (enable_perfetto_trace_processor_mac_instruments) {
     deps = [
       "../../../../gn:default_deps",
       "../../../../gn:expat",
-      "../../../../include/perfetto/ext/base:base",
-      "../../../../include/perfetto/public",
-      "../../../../include/perfetto/trace_processor:trace_processor",
-      "../../../../protos/perfetto/trace:zero",
+      "../../../../include/dejaview/ext/base:base",
+      "../../../../include/dejaview/public",
+      "../../../../include/dejaview/trace_processor:trace_processor",
+      "../../../../protos/dejaview/trace:zero",
       "../../sorter",
       "../../storage",
       "../../types",

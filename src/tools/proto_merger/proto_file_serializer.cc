@@ -16,9 +16,9 @@
 
 #include "src/tools/proto_merger/proto_file_serializer.h"
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 namespace {
 
@@ -223,4 +223,4 @@ std::string ProtoFileToDotProto(const ProtoFile& proto_file) {
 }
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview

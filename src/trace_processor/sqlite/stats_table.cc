@@ -19,12 +19,12 @@
 #include <sqlite3.h>
 #include <memory>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/sqlite/bindings/sqlite_result.h"
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 int StatsModule::Connect(sqlite3* db,
                          void* aux,
@@ -159,7 +159,7 @@ int StatsModule::Column(sqlite3_vtab_cursor* cursor,
       sqlite::result::StaticString(ctx, stats::kDescriptions[c->key]);
       break;
     default:
-      PERFETTO_FATAL("Unknown column %d", N);
+      DEJAVIEW_FATAL("Unknown column %d", N);
       break;
   }
   return SQLITE_OK;
@@ -169,4 +169,4 @@ int StatsModule::Rowid(sqlite3_vtab_cursor*, sqlite_int64*) {
   return SQLITE_ERROR;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

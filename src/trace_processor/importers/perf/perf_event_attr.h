@@ -25,13 +25,13 @@
 #include <unordered_map>
 #include <utility>
 
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/perf/perf_counter.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -122,6 +122,6 @@ class PerfEventAttr : public RefCounted {
 };
 
 }  // namespace perf_importer
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_PERF_EVENT_ATTR_H_

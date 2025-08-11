@@ -17,15 +17,15 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_SYSTEM_PROBES_MODULE_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_SYSTEM_PROBES_MODULE_H_
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/system_probes_parser.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class SystemProbesModule : public ProtoImporterModule {
@@ -48,6 +48,6 @@ class SystemProbesModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_SYSTEM_PROBES_MODULE_H_

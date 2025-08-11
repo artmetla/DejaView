@@ -17,13 +17,13 @@ import {
   addDebugSliceTrack,
 } from '../../public/lib/debug_tracks/debug_tracks';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {Optional, exists} from '../../base/utils';
 
-class DebugTracksPlugin implements PerfettoPlugin {
+class DebugTracksPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     ctx.commands.registerCommand({
-      id: 'perfetto.DebugTracks#addDebugSliceTrack',
+      id: 'dejaview.DebugTracks#addDebugSliceTrack',
       name: 'Add debug slice track',
       callback: async (arg: unknown) => {
         // This command takes a query and creates a debug track out of it The
@@ -45,7 +45,7 @@ class DebugTracksPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.DebugTracks#addDebugCounterTrack',
+      id: 'dejaview.DebugTracks#addDebugCounterTrack',
       name: 'Add debug counter track',
       callback: async (arg: unknown) => {
         const query = await getStringFromArgOrPrompt(ctx, arg);
@@ -79,6 +79,6 @@ async function getStringFromArgOrPrompt(
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.DebugTracks',
+  pluginId: 'dejaview.DebugTracks',
   plugin: DebugTracksPlugin,
 };

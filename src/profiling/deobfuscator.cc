@@ -17,17 +17,17 @@
 #include "src/profiling/deobfuscator.h"
 
 #include <optional>
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/trace/profiling/deobfuscation.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/trace/profiling/deobfuscation.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -40,34 +40,34 @@ std::optional<ProguardClass> ParseClass(std::string line) {
   base::StringSplitter ss(std::move(line), ' ');
 
   if (!ss.Next()) {
-    PERFETTO_ELOG("Missing deobfuscated name.");
+    DEJAVIEW_ELOG("Missing deobfuscated name.");
     return std::nullopt;
   }
   std::string deobfuscated_name(ss.cur_token(), ss.cur_token_size());
 
   if (!ss.Next() || ss.cur_token_size() != 2 ||
       strncmp("->", ss.cur_token(), 2) != 0) {
-    PERFETTO_ELOG("Missing ->");
+    DEJAVIEW_ELOG("Missing ->");
     return std::nullopt;
   }
 
   if (!ss.Next()) {
-    PERFETTO_ELOG("Missing obfuscated name.");
+    DEJAVIEW_ELOG("Missing obfuscated name.");
     return std::nullopt;
   }
   std::string obfuscated_name(ss.cur_token(), ss.cur_token_size());
   if (obfuscated_name.empty()) {
-    PERFETTO_ELOG("Empty obfuscated name.");
+    DEJAVIEW_ELOG("Empty obfuscated name.");
     return std::nullopt;
   }
   if (obfuscated_name.back() != ':') {
-    PERFETTO_ELOG("Expected colon.");
+    DEJAVIEW_ELOG("Expected colon.");
     return std::nullopt;
   }
 
   obfuscated_name.resize(obfuscated_name.size() - 1);
   if (ss.Next()) {
-    PERFETTO_ELOG("Unexpected data.");
+    DEJAVIEW_ELOG("Unexpected data.");
     return std::nullopt;
   }
   return ProguardClass{std::move(obfuscated_name),
@@ -89,31 +89,31 @@ std::optional<ProguardMember> ParseMember(std::string line) {
   base::StringSplitter ss(std::move(line), ' ');
 
   if (!ss.Next()) {
-    PERFETTO_ELOG("Missing type name.");
+    DEJAVIEW_ELOG("Missing type name.");
     return std::nullopt;
   }
   std::string type_name(ss.cur_token(), ss.cur_token_size());
 
   if (!ss.Next()) {
-    PERFETTO_ELOG("Missing deobfuscated name.");
+    DEJAVIEW_ELOG("Missing deobfuscated name.");
     return std::nullopt;
   }
   std::string deobfuscated_name(ss.cur_token(), ss.cur_token_size());
 
   if (!ss.Next() || ss.cur_token_size() != 2 ||
       strncmp("->", ss.cur_token(), 2) != 0) {
-    PERFETTO_ELOG("Missing ->");
+    DEJAVIEW_ELOG("Missing ->");
     return std::nullopt;
   }
 
   if (!ss.Next()) {
-    PERFETTO_ELOG("Missing obfuscated name.");
+    DEJAVIEW_ELOG("Missing obfuscated name.");
     return std::nullopt;
   }
   std::string obfuscated_name(ss.cur_token(), ss.cur_token_size());
 
   if (ss.Next()) {
-    PERFETTO_ELOG("Unexpected data.");
+    DEJAVIEW_ELOG("Unexpected data.");
     return std::nullopt;
   }
 
@@ -208,7 +208,7 @@ bool ProguardParser::AddLines(std::string contents) {
   for (base::StringSplitter lines(std::move(contents), '\n'); lines.Next();) {
     auto status = AddLine(lines.cur_token());
     if (!status.ok()) {
-      PERFETTO_ELOG("Failed to parse proguard map (line %zu): %s", lineno,
+      DEJAVIEW_ELOG("Failed to parse proguard map (line %zu): %s", lineno,
                     status.c_message());
       return false;
     }
@@ -221,7 +221,7 @@ void MakeDeobfuscationPackets(
     const std::string& package_name,
     const std::map<std::string, profiling::ObfuscatedClass>& mapping,
     std::function<void(const std::string&)> callback) {
-  protozero::HeapBuffered<perfetto::protos::pbzero::Trace> trace;
+  protozero::HeapBuffered<dejaview::protos::pbzero::Trace> trace;
   auto* packet = trace->add_packet();
   // TODO(fmayer): Add handling for package name and version code here so we
   // can support multiple dumps in the same trace.
@@ -259,14 +259,14 @@ bool ReadProguardMapsToDeobfuscationPackets(
     const char* filename = map.filename.c_str();
     base::ScopedFstream f(fopen(filename, "re"));
     if (!f) {
-      PERFETTO_ELOG("Failed to open %s", filename);
+      DEJAVIEW_ELOG("Failed to open %s", filename);
       return false;
     }
     profiling::ProguardParser parser;
     std::string contents;
-    PERFETTO_CHECK(base::ReadFileStream(*f, &contents));
+    DEJAVIEW_CHECK(base::ReadFileStream(*f, &contents));
     if (!parser.AddLines(std::move(contents))) {
-      PERFETTO_ELOG("Failed to parse %s", filename);
+      DEJAVIEW_ELOG("Failed to parse %s", filename);
       return false;
     }
     std::map<std::string, profiling::ObfuscatedClass> obfuscation_map =
@@ -280,8 +280,8 @@ bool ReadProguardMapsToDeobfuscationPackets(
   return true;
 }
 
-std::vector<ProguardMap> GetPerfettoProguardMapPath() {
-  const char* env = getenv("PERFETTO_PROGUARD_MAP");
+std::vector<ProguardMap> GetDejaViewProguardMapPath() {
+  const char* env = getenv("DEJAVIEW_PROGUARD_MAP");
   if (env == nullptr)
     return {};
   std::vector<ProguardMap> res;
@@ -289,8 +289,8 @@ std::vector<ProguardMap> GetPerfettoProguardMapPath() {
     std::string token(sp.cur_token(), sp.cur_token_size());
     size_t eq = token.find('=');
     if (eq == std::string::npos) {
-      PERFETTO_ELOG(
-          "Invalid PERFETTO_PROGUARD_MAP. "
+      DEJAVIEW_ELOG(
+          "Invalid DEJAVIEW_PROGUARD_MAP. "
           "Expected format packagename=filename[:packagename=filename...], "
           "e.g. com.example.package1=foo.txt:com.example.package2=bar.txt.");
       return {};
@@ -301,4 +301,4 @@ std::vector<ProguardMap> GetPerfettoProguardMapPath() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

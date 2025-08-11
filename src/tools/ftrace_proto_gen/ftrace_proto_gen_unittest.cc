@@ -17,7 +17,7 @@
 #include "src/tools/ftrace_proto_gen/ftrace_proto_gen.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(FtraceEventParserTest, InferProtoType) {
@@ -71,4 +71,4 @@ TEST(FtraceEventParserTest, EventNameToProtoName) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

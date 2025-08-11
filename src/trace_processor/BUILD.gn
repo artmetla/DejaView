@@ -13,25 +13,25 @@
 # limitations under the License.
 
 import("../../gn/fuzzer.gni")
-import("../../gn/perfetto.gni")
-import("../../gn/perfetto_cc_proto_descriptor.gni")
-import("../../gn/perfetto_host_executable.gni")
+import("../../gn/dejaview.gni")
+import("../../gn/dejaview_cc_proto_descriptor.gni")
+import("../../gn/dejaview_host_executable.gni")
 import("../../gn/test.gni")
 import("../../gn/wasm.gni")
 
 # Prevent that this file is accidentally included in embedder builds.
-assert(enable_perfetto_trace_processor)
+assert(enable_dejaview_trace_processor)
 
-# The library which eases processing of Perfetto traces by exposing reading
+# The library which eases processing of DejaView traces by exposing reading
 # friendly APIs.
-if (enable_perfetto_trace_processor_sqlite) {
+if (enable_dejaview_trace_processor_sqlite) {
   static_library("trace_processor") {
     complete_static_lib = true
     public_deps = [ ":lib" ]
   }
 }
 
-if (enable_perfetto_ui) {
+if (enable_dejaview_ui) {
   wasm_lib("trace_processor_wasm") {
     name = "trace_processor"
     deps = [
@@ -54,7 +54,7 @@ source_set("export_json") {
   deps = [
     ":storage_minimal",
     "../../gn:default_deps",
-    "../../include/perfetto/ext/trace_processor:export_json",
+    "../../include/dejaview/ext/trace_processor:export_json",
     "../base",
     "containers",
     "importers/json:minimal",
@@ -63,7 +63,7 @@ source_set("export_json") {
     "types",
     "util",
   ]
-  public_deps = [ "../../include/perfetto/ext/trace_processor:export_json" ]
+  public_deps = [ "../../include/dejaview/ext/trace_processor:export_json" ]
 }
 
 source_set("metatrace") {
@@ -73,18 +73,18 @@ source_set("metatrace") {
   ]
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/ext/base",
-    "../../include/perfetto/trace_processor",
-    "../../protos/perfetto/trace_processor:zero",
+    "../../include/dejaview/ext/base",
+    "../../include/dejaview/trace_processor",
+    "../../protos/dejaview/trace_processor:zero",
   ]
 }
 
 # In Bazel builds the ":demangle" target (below) should be a static_library so
 # it gets mapped to an actual target (rather than being squashed as a filegroup)
-# and can be replaced in Google internal builds via perfetto_cfg.bzl.
+# and can be replaced in Google internal builds via dejaview_cfg.bzl.
 # Unfortunately, however, static_library targets seem to break Wasm builds on
 # Mac. For this reason we just make it a source_set for all other build types.
-if (is_perfetto_build_generator) {
+if (is_dejaview_build_generator) {
   _demangle_target_type = "static_library"
 } else {
   _demangle_target_type = "source_set"
@@ -94,11 +94,11 @@ target(_demangle_target_type, "demangle") {
   sources = [ "demangle.cc" ]
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/base",
-    "../../include/perfetto/ext/base",
+    "../../include/dejaview/base",
+    "../../include/dejaview/ext/base",
   ]
-  public_deps = [ "../../include/perfetto/ext/trace_processor:demangle" ]
-  if (enable_perfetto_llvm_demangle) {
+  public_deps = [ "../../include/dejaview/ext/trace_processor:demangle" ]
+  if (enable_dejaview_llvm_demangle) {
     deps += [ "../../gn:llvm_demangle" ]
   }
 }
@@ -141,10 +141,10 @@ source_set("storage_minimal") {
     "util:proto_to_args_parser",
     "util:trace_type",
   ]
-  public_deps = [ "../../include/perfetto/trace_processor:storage" ]
+  public_deps = [ "../../include/dejaview/trace_processor:storage" ]
 }
 
-if (enable_perfetto_trace_processor_sqlite) {
+if (enable_dejaview_trace_processor_sqlite) {
   source_set("lib") {
     sources = [
       "iterator_impl.cc",
@@ -160,10 +160,10 @@ if (enable_perfetto_trace_processor_sqlite) {
       ":metatrace",
       ":storage_minimal",
       "../../gn:default_deps",
-      "../../protos/perfetto/common:zero",
-      "../../protos/perfetto/trace:zero",
-      "../../protos/perfetto/trace/perfetto:zero",
-      "../../protos/perfetto/trace_processor:zero",
+      "../../protos/dejaview/common:zero",
+      "../../protos/dejaview/trace:zero",
+      "../../protos/dejaview/trace/dejaview:zero",
+      "../../protos/dejaview/trace_processor:zero",
       "../base",
       "../protozero",
       "db",
@@ -184,11 +184,11 @@ if (enable_perfetto_trace_processor_sqlite) {
       "importers/systrace:full",
       "importers/zip:full",
       "metrics",
-      "perfetto_sql/engine",
-      "perfetto_sql/intrinsics/functions",
-      "perfetto_sql/intrinsics/operators",
-      "perfetto_sql/intrinsics/table_functions",
-      "perfetto_sql/stdlib",
+      "dejaview_sql/engine",
+      "dejaview_sql/intrinsics/functions",
+      "dejaview_sql/intrinsics/operators",
+      "dejaview_sql/intrinsics/table_functions",
+      "dejaview_sql/stdlib",
       "sqlite",
       "storage",
       "tables",
@@ -203,12 +203,12 @@ if (enable_perfetto_trace_processor_sqlite) {
     ]
     public_deps = [
       "../../gn:sqlite",  # iterator_impl.h includes sqlite3.h.
-      "../../include/perfetto/trace_processor",
+      "../../include/dejaview/trace_processor",
     ]
-    if (enable_perfetto_trace_processor_mac_instruments) {
+    if (enable_dejaview_trace_processor_mac_instruments) {
       deps += [ "importers/instruments" ]
     }
-    if (enable_perfetto_trace_processor_json) {
+    if (enable_dejaview_trace_processor_json) {
       deps += [ "importers/gecko" ]
     }
   }
@@ -218,7 +218,7 @@ if (enable_perfetto_trace_processor_sqlite) {
       ":lib",
       "../../gn:default_deps",
       "../../gn:protobuf_full",
-      "../../protos/perfetto/trace_processor:zero",
+      "../../protos/dejaview/trace_processor:zero",
       "../../src/profiling:deobfuscator",
       "../../src/profiling/symbolizer",
       "../../src/profiling/symbolizer:symbolize_database",
@@ -230,21 +230,21 @@ if (enable_perfetto_trace_processor_sqlite) {
       "util",
       "util:stdlib",
     ]
-    if (enable_perfetto_trace_processor_linenoise) {
+    if (enable_dejaview_trace_processor_linenoise) {
       deps += [ "../../gn:linenoise" ]
     }
-    if (enable_perfetto_trace_processor_httpd) {
+    if (enable_dejaview_trace_processor_httpd) {
       deps += [ "rpc:httpd" ]
     }
     sources = [ "trace_processor_shell.cc" ]
-    if ((perfetto_build_standalone || build_with_chromium) &&
-        !is_perfetto_build_generator) {
+    if ((dejaview_build_standalone || build_with_chromium) &&
+        !is_dejaview_build_generator) {
       data_deps = [
         # The diff testing framework depends on these descriptors.
-        "../../protos/perfetto/metrics:descriptor",
-        "../../protos/perfetto/trace:descriptor",
-        "../../protos/perfetto/trace:test_extensions_descriptor",
-        "../../protos/perfetto/trace_processor:stack_descriptor",
+        "../../protos/dejaview/metrics:descriptor",
+        "../../protos/dejaview/trace:descriptor",
+        "../../protos/dejaview/trace:test_extensions_descriptor",
+        "../../protos/dejaview/trace_processor:stack_descriptor",
         "../../protos/third_party/pprof:profile_descriptor",
       ]
     }
@@ -261,9 +261,9 @@ if (enable_perfetto_trace_processor_sqlite) {
     ]
     sources = [ "minimal_shell.cc" ]
   }
-}  # if (enable_perfetto_trace_processor_sqlite)
+}  # if (enable_dejaview_trace_processor_sqlite)
 
-perfetto_unittest_source_set("top_level_unittests") {
+dejaview_unittest_source_set("top_level_unittests") {
   testonly = true
 
   sources = [
@@ -275,18 +275,18 @@ perfetto_unittest_source_set("top_level_unittests") {
     ":storage_minimal",
     "../../gn:default_deps",
     "../../gn:gtest_and_gmock",
-    "../../include/perfetto/trace_processor",
+    "../../include/dejaview/trace_processor",
     "util:trace_type",
   ]
 
-  if (enable_perfetto_trace_processor_json && !is_win) {
+  if (enable_dejaview_trace_processor_json && !is_win) {
     # export_json_unittest.cc uses base::TempFile, which is not supported on
     # windows.
     sources += [ "export_json_unittest.cc" ]
     deps += [
       ":export_json",
       "../../gn:jsoncpp",
-      "../../include/perfetto/ext/trace_processor:export_json",
+      "../../include/dejaview/ext/trace_processor:export_json",
       "containers",
       "importers/common",
       "importers/proto:minimal",
@@ -297,7 +297,7 @@ perfetto_unittest_source_set("top_level_unittests") {
   }
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
 
   # Do not add sources to this target: use top_level_unittests
@@ -322,24 +322,24 @@ perfetto_unittest_source_set("unittests") {
     "types:unittests",
     "util:unittests",
   ]
-  if (enable_perfetto_trace_processor_json) {
+  if (enable_dejaview_trace_processor_json) {
     deps += [ "importers/json:unittests" ]
   }
-  if (enable_perfetto_trace_processor_sqlite) {
+  if (enable_dejaview_trace_processor_sqlite) {
     deps += [
-      "perfetto_sql/engine:unittests",
-      "perfetto_sql/intrinsics/functions:unittests",
-      "perfetto_sql/intrinsics/operators:unittests",
-      "perfetto_sql/intrinsics/table_functions:unittests",
-      "perfetto_sql/parser:unittests",
-      "perfetto_sql/preprocessor:unittests",
-      "perfetto_sql/tokenizer:unittests",
+      "dejaview_sql/engine:unittests",
+      "dejaview_sql/intrinsics/functions:unittests",
+      "dejaview_sql/intrinsics/operators:unittests",
+      "dejaview_sql/intrinsics/table_functions:unittests",
+      "dejaview_sql/parser:unittests",
+      "dejaview_sql/preprocessor:unittests",
+      "dejaview_sql/tokenizer:unittests",
       "sqlite:unittests",
     ]
   }
 }
 
-perfetto_cc_proto_descriptor("gen_cc_test_messages_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_test_messages_descriptor") {
   descriptor_name = "test_messages.descriptor"
   descriptor_target = "../protozero:test_messages_descriptor"
 }
@@ -348,7 +348,7 @@ source_set("integrationtests") {
   testonly = true
   sources = []
   deps = []
-  if (enable_perfetto_trace_processor_sqlite) {
+  if (enable_dejaview_trace_processor_sqlite) {
     sources += [
       "read_trace_integrationtest.cc",
       "trace_database_integrationtest.cc",
@@ -357,9 +357,9 @@ source_set("integrationtests") {
       ":lib",
       "../../gn:default_deps",
       "../../gn:gtest_and_gmock",
-      "../../protos/perfetto/common:zero",
-      "../../protos/perfetto/trace:zero",
-      "../../protos/perfetto/trace_processor:zero",
+      "../../protos/dejaview/common:zero",
+      "../../protos/dejaview/trace:zero",
+      "../../protos/dejaview/trace_processor:zero",
       "../base",
       "../base:test_support",
       "sqlite",
@@ -367,7 +367,7 @@ source_set("integrationtests") {
   }
 }
 
-if (enable_perfetto_trace_processor_json) {
+if (enable_dejaview_trace_processor_json) {
   source_set("storage_minimal_smoke_tests") {
     testonly = true
     sources = [ "storage_minimal_smoke_test.cc" ]
@@ -383,7 +383,7 @@ if (enable_perfetto_trace_processor_json) {
   }
 }
 
-perfetto_fuzzer_test("trace_processor_fuzzer") {
+dejaview_fuzzer_test("trace_processor_fuzzer") {
   testonly = true
   sources = [ "trace_parsing_fuzzer.cc" ]
   deps = [

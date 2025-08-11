@@ -22,10 +22,10 @@
 #include "src/trace_processor/tables/counter_tables_py.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 // Helper class to keep track of perf counters and convert delta values found in
-// perf files to absolute values needed for the perfetto counter table.
+// perf files to absolute values needed for the dejaview counter table.
 class PerfCounter {
  public:
   PerfCounter(tables::CounterTable* counter_table,
@@ -46,6 +46,6 @@ class PerfCounter {
   double last_count_{0};
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_PERF_COUNTER_H_

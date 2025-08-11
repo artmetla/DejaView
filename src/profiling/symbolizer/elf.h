@@ -20,13 +20,13 @@
 #include <stddef.h>
 #include <cinttypes>
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
 // We cannot just include elf.h, as that only exists on Linux, and we want to
 // allow symbolization on other platforms as well. As we only need a small
 // subset, it is easiest to define the constants and structs ourselves.
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 constexpr auto PT_LOAD = 1;
@@ -167,6 +167,6 @@ typename E::Phdr* GetPhdr(void* mem, const typename E::Ehdr* ehdr, size_t i) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_ELF_H_

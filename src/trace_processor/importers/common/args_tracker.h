@@ -18,13 +18,13 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_ARGS_TRACKER_H_
 
 #include <cstdint>
-#include "perfetto/ext/base/small_vector.h"
+#include "dejaview/ext/base/small_vector.h"
 #include "src/trace_processor/importers/common/global_args_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Tracks and stores args for rows until the end of the packet. This allows
@@ -256,6 +256,6 @@ class ArgsTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_ARGS_TRACKER_H_

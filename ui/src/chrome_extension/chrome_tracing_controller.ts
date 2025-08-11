@@ -24,7 +24,7 @@ import {
 } from '../controller/consumer_port_types';
 import {RpcConsumerPort} from '../controller/record_controller_interfaces';
 import {
-  browserSupportsPerfettoConfig,
+  browserSupportsDejaViewConfig,
   extractTraceConfig,
   hasSystemDataSourceConfig,
 } from '../core/trace_config_utils';
@@ -281,7 +281,7 @@ export class ChromeTracingController extends RpcConsumerPort {
       };
 
       const traceConfig = TraceConfig.decode(traceConfigProto);
-      if (browserSupportsPerfettoConfig()) {
+      if (browserSupportsDejaViewConfig()) {
         const configEncoded = base64Encode(traceConfigProto);
         await this.api.Tracing.start({
           perfettoConfig: configEncoded,

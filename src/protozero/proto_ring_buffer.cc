@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/protozero/proto_ring_buffer.h"
+#include "dejaview/ext/protozero/proto_ring_buffer.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/protozero/proto_utils.h"
 
 namespace protozero {
 
@@ -45,7 +45,7 @@ ProtoRingBuffer::Message TryReadProtoMessage(const uint8_t* start,
   const uint32_t tag = field_tag & 0x07;
   if (tag !=
       static_cast<uint32_t>(proto_utils::ProtoWireType::kLengthDelimited)) {
-    PERFETTO_ELOG("RPC framing error, unexpected msg tag 0x%xu", tag);
+    DEJAVIEW_ELOG("RPC framing error, unexpected msg tag 0x%xu", tag);
     return FramingError();
   }
 
@@ -55,7 +55,7 @@ ProtoRingBuffer::Message TryReadProtoMessage(const uint8_t* start,
     return ProtoRingBuffer::Message{};  // Not enough data.
 
   if (msg_len > ProtoRingBuffer::kMaxMsgSize) {
-    PERFETTO_ELOG("RPC framing error, message too large (%" PRIu64 " > %zu)",
+    DEJAVIEW_ELOG("RPC framing error, message too large (%" PRIu64 " > %zu)",
                   msg_len, ProtoRingBuffer::kMaxMsgSize);
     return FramingError();
   }
@@ -73,15 +73,15 @@ ProtoRingBuffer::Message TryReadProtoMessage(const uint8_t* start,
 }  // namespace
 
 RingBufferMessageReader::RingBufferMessageReader()
-    : buf_(perfetto::base::PagedMemory::Allocate(kGrowBytes)) {}
+    : buf_(dejaview::base::PagedMemory::Allocate(kGrowBytes)) {}
 RingBufferMessageReader::~RingBufferMessageReader() = default;
 
 void RingBufferMessageReader::Append(const void* data_void, size_t data_len) {
   if (failed_)
     return;
   const uint8_t* data = static_cast<const uint8_t*>(data_void);
-  PERFETTO_DCHECK(wr_ <= buf_.size());
-  PERFETTO_DCHECK(wr_ >= rd_);
+  DEJAVIEW_DCHECK(wr_ <= buf_.size());
+  DEJAVIEW_DCHECK(wr_ >= rd_);
 
   // If the last call to ReadMessage() consumed all the data in the buffer and
   // there are no incomplete messages pending, restart from the beginning rather
@@ -90,7 +90,7 @@ void RingBufferMessageReader::Append(const void* data_void, size_t data_len) {
     rd_ = wr_ = 0;
 
   // The caller is expected to always issue a ReadMessage() after each Append().
-  PERFETTO_CHECK(!fastpath_.valid());
+  DEJAVIEW_CHECK(!fastpath_.valid());
   if (rd_ == wr_) {
     auto msg = TryReadMessage(data, data + data_len);
     if (msg.valid() && msg.end() == (data + data_len)) {
@@ -136,7 +136,7 @@ void RingBufferMessageReader::Append(const void* data_void, size_t data_len) {
         failed_ = true;
         return;
       }
-      auto new_buf = perfetto::base::PagedMemory::Allocate(new_size);
+      auto new_buf = dejaview::base::PagedMemory::Allocate(new_size);
       memcpy(new_buf.Get(), buf_.Get(), buf_.size());
       buf_ = std::move(new_buf);
       avail = new_size - wr_;
@@ -156,7 +156,7 @@ RingBufferMessageReader::Message RingBufferMessageReader::ReadMessage() {
 
   if (fastpath_.valid()) {
     // The fastpath can only be hit when the buffer is empty.
-    PERFETTO_CHECK(rd_ == wr_);
+    DEJAVIEW_CHECK(rd_ == wr_);
     auto msg = std::move(fastpath_);
     fastpath_ = Message{};
     return msg;
@@ -164,7 +164,7 @@ RingBufferMessageReader::Message RingBufferMessageReader::ReadMessage() {
 
   uint8_t* buf = static_cast<uint8_t*>(buf_.Get());
 
-  PERFETTO_DCHECK(rd_ <= wr_);
+  DEJAVIEW_DCHECK(rd_ <= wr_);
   if (rd_ >= wr_)
     return Message{};  // Completely empty.
 
@@ -175,7 +175,7 @@ RingBufferMessageReader::Message RingBufferMessageReader::ReadMessage() {
   }
 
   const uint8_t* msg_end = msg.start + msg.len;
-  PERFETTO_CHECK(msg_end > &buf[rd_] && msg_end <= &buf[wr_]);
+  DEJAVIEW_CHECK(msg_end > &buf[rd_] && msg_end <= &buf[wr_]);
   auto msg_outer_len = static_cast<size_t>(msg_end - &buf[rd_]);
   rd_ += msg_outer_len;
   return msg;

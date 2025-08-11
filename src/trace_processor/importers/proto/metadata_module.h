@@ -21,10 +21,10 @@
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class MetadataModule : public ProtoImporterModule {
@@ -57,6 +57,6 @@ class MetadataModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_METADATA_MODULE_H_

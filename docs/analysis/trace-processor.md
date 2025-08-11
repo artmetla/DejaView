@@ -37,7 +37,7 @@ Features of the trace processor include:
 
 The formats supported by trace processor include:
 
-* Perfetto native protobuf format
+* DejaView native protobuf format
 * Linux ftrace
 * Android systrace
 * Chrome JSON (including JSON embedding Android systrace text)
@@ -48,7 +48,7 @@ The trace processor is embedded in a wide variety of trace analysis tools, inclu
 
 * [trace_processor](/docs/analysis/trace-processor.md), a standalone binary
    providing a shell interface (and the reference embedder).
-* [Perfetto UI](https://ui.perfetto.dev), in the form of a WebAssembly module.
+* [DejaView UI](https://ui.perfetto.dev), in the form of a WebAssembly module.
 * [Android GPU Inspector](https://gpuinspector.dev/).
 * [Android Studio](https://developer.android.com/studio/).
 
@@ -550,8 +550,8 @@ Trace processor is mainly tested in two ways:
 2. "Diff" tests which parse traces and check the output of queries
 
 ### Unit tests
-Unit testing trace processor is the same as in other parts of Perfetto and
-other C++ projects. However, unlike the rest of Perfetto, unit testing is
+Unit testing trace processor is the same as in other parts of DejaView and
+other C++ projects. However, unlike the rest of DejaView, unit testing is
 relatively light in trace processor.
 
 We have discovered over time that unit tests are generally too brittle
@@ -602,16 +602,16 @@ every change to trace processor code or builtin metrics.
 #### Choosing where to add diff tests
 `diff_tests/` folder contains four directories corresponding to different
 areas of trace processor.
-1. __stdlib__: Tests focusing on testing Perfetto Standard Library, both
+1. __stdlib__: Tests focusing on testing DejaView Standard Library, both
    prelude and the regular modules. The subdirectories in this folder
-   should generally correspond to directories in `perfetto_sql/stdlib`.
+   should generally correspond to directories in `dejaview_sql/stdlib`.
 2. __parser__: Tests focusing on ensuring that different trace files are
    parsed correctly and the corresponding built-in tables are populated.
 3. __metrics__: Tests focusing on testing metrics located in
    `trace_processor/metrics/sql`. This organisation is mostly historical
    and code (and corresponding tests) is expected to move to `stdlib` over time.
-4. __syntax__: Tests focusing on testing the core syntax of PerfettoSQL
-   (i.e. `CREATE PERFETTO TABLE` or `CREATE PERFETTO FUNCTION`).
+4. __syntax__: Tests focusing on testing the core syntax of DejaViewSQL
+   (i.e. `CREATE DEJAVIEW TABLE` or `CREATE DEJAVIEW FUNCTION`).
 
 __Scenario__: A new stdlib module `foo/bar.sql` is being added.
 

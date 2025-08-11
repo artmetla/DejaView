@@ -16,17 +16,17 @@
  */
 
 #include "src/trace_redaction/collect_timeline_events.h"
-#include "protos/perfetto/trace/ftrace/sched.gen.h"
+#include "protos/dejaview/trace/ftrace/sched.gen.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/ftrace/task.gen.h"
-#include "protos/perfetto/trace/ps/process_tree.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/ftrace/task.gen.h"
+#include "protos/dejaview/trace/ps/process_tree.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 
@@ -178,4 +178,4 @@ TEST_F(CollectTimelineEventsTest, ProcFreeEndsThread) {
   ASSERT_FALSE(after);
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

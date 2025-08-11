@@ -38,20 +38,20 @@ def _proto_gen_impl(ctx):
     strip_base_path = ""
     if ctx.attr.root != "//":
         # This path is hit in Google internal builds, where root is typically
-        # //third_party/perfetto.
+        # //third_party/dejaview.
         proto_path = "."
 
-        # The below will likely be //third_party/perfetto/ but may also be any
-        # subdir under //third_party/perfetto.
+        # The below will likely be //third_party/dejaview/ but may also be any
+        # subdir under //third_party/dejaview.
         strip_base_path = ctx.label.package + "/"
     elif ctx.label.workspace_root:
-        # This path is hit when proto targets are built as @perfetto//:xxx
+        # This path is hit when proto targets are built as @dejaview//:xxx
         # instead of //:xxx. This happens in embedder builds.
         proto_path = ctx.label.workspace_root
 
         # We could be using the sibling repository layout, in which case we do nothing.
         if not ctx.label.workspace_root.startswith("../"):
-            # workspace_root == "external/perfetto" and we need to rebase the paths
+            # workspace_root == "external/dejaview" and we need to rebase the paths
             # passed to protoc.
             out_dir += "/" + ctx.label.workspace_root
         strip_base_path = ctx.label.workspace_root + "/"

@@ -25,7 +25,7 @@ class PerfTextParser(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('trace_processor_perf_as_text.txt'),
         query="""
-          INCLUDE PERFETTO MODULE stacks.cpu_profiling;
+          INCLUDE DEJAVIEW MODULE stacks.cpu_profiling;
 
           SELECT id, parent_id, name, mapping_name, self_count, cumulative_count
           FROM cpu_profiling_summary_tree
@@ -49,7 +49,7 @@ class PerfTextParser(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('simpleperf_as_text.txt'),
         query="""
-          INCLUDE PERFETTO MODULE stacks.cpu_profiling;
+          INCLUDE DEJAVIEW MODULE stacks.cpu_profiling;
 
           SELECT id, parent_id, name, mapping_name, self_count, cumulative_count
           FROM cpu_profiling_summary_tree

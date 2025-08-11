@@ -19,13 +19,13 @@
 #include <benchmark/benchmark.h>
 #include <sqlite3.h>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
 namespace {
 
-using namespace perfetto;
+using namespace dejaview;
 using benchmark::Counter;
-using perfetto::trace_processor::util::GlobMatcher;
+using dejaview::trace_processor::util::GlobMatcher;
 
 static const char kAndroidGlob[] = "*android*";
 static const char kLaunchingGlob[] = "launching: *";

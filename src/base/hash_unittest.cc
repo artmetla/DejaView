@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/hash.h"
+#include "dejaview/ext/base/hash.h"
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -31,4 +31,4 @@ TEST(HashTest, StringView) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

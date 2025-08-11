@@ -22,7 +22,7 @@
 #include "src/trace_processor/sqlite/bindings/sqlite_module.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // The stats table contains diagnostic info and errors that are either:
 // - Collected at trace time (e.g., ftrace buffer overruns).
@@ -71,6 +71,6 @@ struct StatsModule : sqlite::Module<StatsModule> {
   static constexpr sqlite3_module kModule = CreateModule();
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_STATS_TABLE_H_

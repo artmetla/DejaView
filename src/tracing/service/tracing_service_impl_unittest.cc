@@ -30,34 +30,34 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/proc_utils.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/sys_types.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/uuid.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/protozero/contiguous_memory_range.h"
-#include "perfetto/protozero/message_arena.h"
-#include "perfetto/protozero/scattered_stream_writer.h"
-#include "perfetto/tracing/buffer_exhausted_policy.h"
-#include "perfetto/tracing/core/flush_flags.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "protos/perfetto/common/builtin_clock.gen.h"
-#include "protos/perfetto/trace/clock_snapshot.gen.h"
-#include "protos/perfetto/trace/remote_clock_sync.gen.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/proc_utils.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/sys_types.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/uuid.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/protozero/contiguous_memory_range.h"
+#include "dejaview/protozero/message_arena.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
+#include "dejaview/tracing/buffer_exhausted_policy.h"
+#include "dejaview/tracing/core/flush_flags.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "protos/dejaview/common/builtin_clock.gen.h"
+#include "protos/dejaview/trace/clock_snapshot.gen.h"
+#include "protos/dejaview/trace/remote_clock_sync.gen.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/protozero/filtering/filter_bytecode_generator.h"
 #include "src/tracing/core/shared_memory_arbiter_impl.h"
@@ -68,17 +68,17 @@
 #include "src/tracing/test/test_shared_memory.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/track_event_descriptor.gen.h"
-#include "protos/perfetto/trace/perfetto/tracing_service_event.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_uuid.gen.h"
-#include "protos/perfetto/trace/trigger.gen.h"
+#include "protos/dejaview/common/track_event_descriptor.gen.h"
+#include "protos/dejaview/trace/dejaview/tracing_service_event.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_uuid.gen.h"
+#include "protos/dejaview/trace/trigger.gen.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 #include <zlib.h>
 #include "src/tracing/service/zlib_compressor.h"
 #endif
@@ -112,7 +112,7 @@ using ::testing::StringMatchResultListener;
 using ::testing::StrNe;
 using ::testing::UnorderedElementsAre;
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr size_t kDefaultShmSizeKb = TracingServiceImpl::kDefaultShmSize / 1024;
@@ -148,7 +148,7 @@ MATCHER_P(LowerCase,
   return ExplainMatchResult(m, base::ToLower(arg), result_listener);
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 std::string Decompress(const std::string& data) {
   uint8_t out[1024];
 
@@ -193,7 +193,7 @@ std::vector<protos::gen::TracePacket> DecompressTrace(
   }
   return decompressed;
 }
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 std::vector<std::string> GetReceivedTriggers(
     const std::vector<protos::gen::TracePacket>& trace) {
@@ -1731,7 +1731,7 @@ TEST_F(TracingServiceImplTest, CompressionConfiguredButUnsupported) {
                                                   Eq("payload-2")))));
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 TEST_F(TracingServiceImplTest, CompressionReadIpc) {
   TracingService::InitOpts init_opts;
   init_opts.compressor_fn = ZlibCompressFn;
@@ -1926,7 +1926,7 @@ TEST_F(TracingServiceImplTest, CloneSessionWithCompression) {
                             Not(IsEmpty()))));
 }
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 // Note: file_write_period_ms is set to a large enough to have exactly one flush
 // of the tracing buffers (and therefore at most one synchronization section),
@@ -2949,7 +2949,7 @@ TEST_F(TracingServiceImplTest, ProducerUIDsAndPacketSequenceIDs) {
                    Eq(4u)))));
 }
 
-#if !PERFETTO_DCHECK_IS_ON()
+#if !DEJAVIEW_DCHECK_IS_ON()
 TEST_F(TracingServiceImplTest, CommitToForbiddenBufferIsDiscarded) {
   std::unique_ptr<MockConsumer> consumer = CreateMockConsumer();
   consumer->Connect(svc.get());
@@ -3049,7 +3049,7 @@ TEST_F(TracingServiceImplTest, CommitToForbiddenBufferIsDiscarded) {
 
   consumer->FreeBuffers();
 }
-#endif  // !PERFETTO_DCHECK_IS_ON()
+#endif  // !DEJAVIEW_DCHECK_IS_ON()
 
 TEST_F(TracingServiceImplTest, ScrapeBuffersOnFlush) {
   svc->SetSMBScrapingEnabled(true);
@@ -3405,10 +3405,10 @@ class TracingServiceImplScrapingWithSmbTest : public TracingServiceImplTest {
 
   struct : public protozero::ScatteredStreamWriter::Delegate {
     protozero::ContiguousMemoryRange GetNewBuffer() override {
-      PERFETTO_FATAL("Unreachable");
+      DEJAVIEW_FATAL("Unreachable");
     }
 
-    uint8_t* AnnotatePatch(uint8_t*) override { PERFETTO_FATAL("Unreachable"); }
+    uint8_t* AnnotatePatch(uint8_t*) override { DEJAVIEW_FATAL("Unreachable"); }
   } empty_delegate_;
   PatchList empty_patch_list_;
 };
@@ -3428,7 +3428,7 @@ TEST_F(TracingServiceImplScrapingWithSmbTest, ScrapeAfterInflatedCount) {
 
   chunk.IncrementPacketCount();
 
-  perfetto::protos::pbzero::TracePacket trace_packet;
+  dejaview::protos::pbzero::TracePacket trace_packet;
   protozero::MessageArena arena;
   trace_packet.Reset(&stream_writer, &arena);
   trace_packet.set_size_field(stream_writer.ReserveBytes(4));
@@ -3499,7 +3499,7 @@ TEST_F(TracingServiceImplScrapingWithSmbTest, ScrapeAfterCompleteChunk) {
 
   chunk.IncrementPacketCount();
 
-  perfetto::protos::pbzero::TracePacket trace_packet;
+  dejaview::protos::pbzero::TracePacket trace_packet;
   protozero::MessageArena arena;
   trace_packet.Reset(&stream_writer, &arena);
   trace_packet.set_size_field(stream_writer.ReserveBytes(4));
@@ -3663,7 +3663,7 @@ TEST_F(TracingServiceImplTest, TraceWriterStats) {
     for (const auto& wri : packet.trace_stats().writer_stats()) {
       for (size_t i = 0; i < wri.chunk_payload_histogram_counts().size() - 1;
            i++) {
-        PERFETTO_DLOG("Seq=%" PRIu64 ", %" PRIu64 " : %" PRIu64,
+        DEJAVIEW_DLOG("Seq=%" PRIu64 ", %" PRIu64 " : %" PRIu64,
                       wri.sequence_id(),
                       packet.trace_stats().chunk_payload_histogram_def()[i],
                       wri.chunk_payload_histogram_counts()[i]);
@@ -4262,8 +4262,8 @@ TEST_F(TracingServiceImplTest, UpdateDataSource) {
 
   TracingServiceState svc_state = consumer->QueryServiceState();
 
-  auto parse_desc = [](const perfetto::protos::gen::DataSourceDescriptor& dsd) {
-    perfetto::protos::gen::TrackEventDescriptor desc;
+  auto parse_desc = [](const dejaview::protos::gen::DataSourceDescriptor& dsd) {
+    dejaview::protos::gen::TrackEventDescriptor desc;
     auto desc_raw = dsd.track_event_descriptor_raw();
     EXPECT_TRUE(desc.ParseFromArray(desc_raw.data(), desc_raw.size()));
     return desc;
@@ -4564,7 +4564,7 @@ TEST_F(TracingServiceImplTest, CloneSession) {
             ASSERT_TRUE(args.success);
             ASSERT_TRUE(args.error.empty());
             // Ensure the LSB is preserved, but the MSB is different. See
-            // comments in tracing_service_impl.cc and perfetto_cmd.cc around
+            // comments in tracing_service_impl.cc and dejaview_cmd.cc around
             // triggering_subscription_id().
             ASSERT_EQ(args.uuid.lsb(), 4242);
             ASSERT_NE(args.uuid.msb(), 3737);
@@ -4657,7 +4657,7 @@ TEST_F(TracingServiceImplTest, CloneSessionAcrossUidDenied) {
 
 // Test that a consumer can clone a session from the shell uid if the trace is
 // marked as eligible for bugreport. Android only.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 TEST_F(TracingServiceImplTest, CloneSessionAcrossUidForBugreport) {
   // The consumer the creates the initial tracing session.
   std::unique_ptr<MockConsumer> consumer = CreateMockConsumer();
@@ -5953,4 +5953,4 @@ TEST_F(TracingServiceImplTest, FlushTimeoutEventsEmitted) {
   consumer->WaitForTracingDisabled();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

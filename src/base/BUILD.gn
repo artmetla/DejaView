@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/gen_perfetto_version_header.gni")
-import("../../gn/perfetto.gni")
-import("../../gn/perfetto_component.gni")
+import("../../gn/gen_dejaview_version_header.gni")
+import("../../gn/dejaview.gni")
+import("../../gn/dejaview_component.gni")
 import("../../gn/test.gni")
 import("../../gn/wasm.gni")
 
@@ -23,14 +23,14 @@ import("../../gn/wasm.gni")
 _subprocess_supported =
     is_linux || is_chromeos || is_android || is_mac || is_win
 
-perfetto_component("base") {
+dejaview_component("base") {
   deps = [
     "../../gn:base_platform",
     "../../gn:default_deps",
   ]
   public_deps = [
-    "../../include/perfetto/base",
-    "../../include/perfetto/ext/base",
+    "../../include/dejaview/base",
+    "../../include/dejaview/ext/base",
   ]
   sources = [
     "android_utils.cc",
@@ -77,35 +77,35 @@ perfetto_component("base") {
     ]
   }
 
-  if (enable_perfetto_stderr_crash_dump) {
+  if (enable_dejaview_stderr_crash_dump) {
     deps += [ ":debug_crash_stack_trace" ]
   }
 }
 
 # This target needs to be named as such because it's exposed directly in Bazel
 # and Android.bp.
-perfetto_component("perfetto_base_default_platform") {
+dejaview_component("dejaview_base_default_platform") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/ext/base",
+    "../../include/dejaview/ext/base",
   ]
   sources = [ "default_platform.cc" ]
 }
 
-perfetto_component("version") {
+dejaview_component("version") {
   deps = [
     ":base",
     "../../gn:default_deps",
   ]
-  public_deps = [ "../../include/perfetto/ext/base:version" ]
+  public_deps = [ "../../include/dejaview/ext/base:version" ]
   sources = [ "version.cc" ]
 
-  if (enable_perfetto_version_gen) {
+  if (enable_dejaview_version_gen) {
     deps += [ ":version_gen_h" ]
   }
 }
 
-if (enable_perfetto_version_gen) {
+if (enable_dejaview_version_gen) {
   config("version_gen_config") {
     include_dirs = [ root_gen_dir ]
   }
@@ -113,18 +113,18 @@ if (enable_perfetto_version_gen) {
   # Note: the build file translators (tools/gn_utils.py) depend on the hardcoded
   # "//src/base:version_gen_h". If you rename this target, update build file
   # translators accordingly.
-  gen_perfetto_version_header("version_gen_h") {
-    cpp_out = "${root_gen_dir}/perfetto_version.gen.h"
+  gen_dejaview_version_header("version_gen_h") {
+    cpp_out = "${root_gen_dir}/dejaview_version.gen.h"
   }
 }
 
-if (enable_perfetto_stderr_crash_dump) {
+if (enable_dejaview_stderr_crash_dump) {
   source_set("debug_crash_stack_trace") {
     sources = [ "debug_crash_stack_trace.cc" ]
     deps = [
       "../../gn:default_deps",
-      "../../include/perfetto/ext/base",
-      "../../include/perfetto/ext/base",
+      "../../include/dejaview/ext/base",
+      "../../include/dejaview/ext/base",
     ]
     if (is_linux || is_android) {
       deps += [ "../../gn:libbacktrace" ]
@@ -133,18 +133,18 @@ if (enable_perfetto_stderr_crash_dump) {
   }
 }
 
-if (enable_perfetto_ipc) {
+if (enable_dejaview_ipc) {
   # This cannot be in :base as it does not build on WASM.
-  perfetto_component("unix_socket") {
+  dejaview_component("unix_socket") {
     deps = [
       "../../gn:default_deps",
-      "../../include/perfetto/ext/base",
+      "../../include/dejaview/ext/base",
     ]
     sources = [
       "unix_socket.cc",
       "vm_sockets.h",
     ]
-    if (is_win && perfetto_build_standalone) {
+    if (is_win && dejaview_build_standalone) {
       libs = [ "Ws2_32.lib" ]
     }
   }
@@ -177,7 +177,7 @@ source_set("test_support") {
   }
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":base",
@@ -186,7 +186,7 @@ perfetto_unittest_source_set("unittests") {
     "../../gn:gtest_and_gmock",
   ]
 
-  if (enable_perfetto_ipc) {
+  if (enable_dejaview_ipc) {
     deps += [ "http:unittests" ]
   }
 
@@ -235,7 +235,7 @@ perfetto_unittest_source_set("unittests") {
   if (is_fuchsia) {
     deps += [ "//third_party/fuchsia-sdk/sdk/pkg/fdio" ]  # nogncheck
   }
-  if (perfetto_build_standalone || perfetto_build_with_android) {
+  if (dejaview_build_standalone || dejaview_build_with_android) {
     sources += [ "unix_socket_unittest.cc" ]
     deps += [ ":unix_socket" ]
 
@@ -246,27 +246,27 @@ perfetto_unittest_source_set("unittests") {
   }
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   declare_args() {
-    perfetto_benchmark_3p_libs_prefix = ""
+    dejaview_benchmark_3p_libs_prefix = ""
   }
   source_set("benchmarks") {
     # If you intend to reproduce the comparison with {Absl, Folly, Tessil}
     # you need to manually install those libraries and then set the GN arg
-    # perfetto_benchmark_3p_libs_prefix = "/usr/local"
+    # dejaview_benchmark_3p_libs_prefix = "/usr/local"
     testonly = true
     deps = [
       ":base",
       "../../gn:benchmark",
       "../../gn:default_deps",
     ]
-    if (perfetto_benchmark_3p_libs_prefix != "") {
-      defines = [ "PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS" ]
-      cflags = [ "-isystem${perfetto_benchmark_3p_libs_prefix}/include" ]
+    if (dejaview_benchmark_3p_libs_prefix != "") {
+      defines = [ "DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS" ]
+      cflags = [ "-isystem${dejaview_benchmark_3p_libs_prefix}/include" ]
       libs = [
-        "${perfetto_benchmark_3p_libs_prefix}/lib/libfolly.a",
-        "${perfetto_benchmark_3p_libs_prefix}/lib/libabsl_raw_hash_set.a",
-        "${perfetto_benchmark_3p_libs_prefix}/lib/libabsl_hash.a",
+        "${dejaview_benchmark_3p_libs_prefix}/lib/libfolly.a",
+        "${dejaview_benchmark_3p_libs_prefix}/lib/libabsl_raw_hash_set.a",
+        "${dejaview_benchmark_3p_libs_prefix}/lib/libabsl_hash.a",
       ]
     }
     sources = [

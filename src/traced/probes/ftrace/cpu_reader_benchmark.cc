@@ -16,11 +16,11 @@
 
 #include <optional>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/root_message.h"
-#include "perfetto/protozero/scattered_stream_null_delegate.h"
-#include "perfetto/protozero/scattered_stream_writer.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/root_message.h"
+#include "dejaview/protozero/scattered_stream_null_delegate.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
 #include "src/traced/probes/ftrace/cpu_reader.h"
 #include "src/traced/probes/ftrace/ftrace_config_muxer.h"
 #include "src/traced/probes/ftrace/ftrace_print_filter.h"
@@ -28,13 +28,13 @@
 #include "src/traced/probes/ftrace/test/cpu_reader_support.h"
 #include "src/tracing/core/null_trace_writer.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
-using ::perfetto::protos::pbzero::FtraceEventBundle;
+using ::dejaview::protos::pbzero::FtraceEventBundle;
 using ::protozero::ScatteredStreamWriter;
 using ::protozero::ScatteredStreamWriterNullDelegate;
 
@@ -858,7 +858,7 @@ void DoParse(const ExamplePage& test_case,
   if (print_filter.has_value()) {
     ds_config.print_filter =
         FtracePrintFilterConfig::Create(print_filter.value(), table);
-    PERFETTO_CHECK(ds_config.print_filter.has_value());
+    DEJAVIEW_CHECK(ds_config.print_filter.has_value());
   }
   for (const GroupAndName& enabled_event : enabled_events) {
     ds_config.event_filter.AddEnabledEvent(
@@ -935,7 +935,7 @@ void DoProcessPages(const ExamplePage& test_case,
                     const std::vector<GroupAndName>& enabled_events,
                     std::optional<FtraceConfig::PrintFilter> print_filter,
                     benchmark::State& state) {
-  perfetto::NullTraceWriter writer;
+  dejaview::NullTraceWriter writer;
 
   ProtoTranslationTable* table = GetTable(test_case.name);
 
@@ -962,7 +962,7 @@ void DoProcessPages(const ExamplePage& test_case,
   if (print_filter.has_value()) {
     ds_config.print_filter =
         FtracePrintFilterConfig::Create(print_filter.value(), table);
-    PERFETTO_CHECK(ds_config.print_filter.has_value());
+    DEJAVIEW_CHECK(ds_config.print_filter.has_value());
   }
   for (const GroupAndName& enabled_event : enabled_events) {
     ds_config.event_filter.AddEnabledEvent(
@@ -998,4 +998,4 @@ void BM_ProcessPagesFullOfPrint(benchmark::State& state) {
 BENCHMARK(BM_ProcessPagesFullOfPrint)->Range(1, 64);
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,7 +19,7 @@
 #include <sstream>
 #include <string>
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 #include "src/traced/probes/ftrace/ftrace_controller.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "test/gtest_and_gmock.h"
@@ -34,7 +34,7 @@ using testing::UnorderedElementsAre;
 // ftrace, which would be problematic in the CI when multiple tests run
 // concurrently on the same machine. Android instead uses one emulator instance
 // for each worker.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 // On Android these tests conflict with traced_probes which expects to be the
 // only one modifying tracing. This led to the Setup code which attempts to
 // to skip these tests when traced_probes is using tracing. Unfortunately this
@@ -46,7 +46,7 @@ using testing::UnorderedElementsAre;
 #define ANDROID_ONLY_TEST(x) DISABLED_##x
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 std::string GetFtracePath() {
@@ -58,7 +58,7 @@ std::string GetFtracePath() {
 
 std::string ReadFile(const std::string& name) {
   std::string result;
-  PERFETTO_CHECK(base::ReadFile(GetFtracePath() + name, &result));
+  DEJAVIEW_CHECK(base::ReadFile(GetFtracePath() + name, &result));
   return result;
 }
 
@@ -208,4 +208,4 @@ TEST_F(FtraceProcfsIntegrationTest, ANDROID_ONLY_TEST(ReadEnabledEvents)) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

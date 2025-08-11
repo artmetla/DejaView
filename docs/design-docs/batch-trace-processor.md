@@ -2,10 +2,10 @@
 This document describes the overall design of Batch Trace Processor and
 aids in integrating it into other systems.
 
-![BTP Overview](/docs/images/perfetto-btp-overview.svg)
+![BTP Overview](/docs/images/dejaview-btp-overview.svg)
 
 ## Motivation
-The Perfetto trace processor is the de-facto way to perform analysis on a
+The DejaView trace processor is the de-facto way to perform analysis on a
 single trace. Using the
 [trace processor Python API](/docs/analysis/trace-processor#python-api),
 traces can be queried interactively, plots made from those results etc.
@@ -36,7 +36,7 @@ Unfortunately, there are several downsides to this approach:
   rise significantly to the point where a central implementation becomes a
   necessity. Because of this, it's better to have the API first before engineers
   start building their own custom solutions.
-* A big aim for the Perfetto team these days is to make trace analysis more
+* A big aim for the DejaView team these days is to make trace analysis more
   accessible to reduce the number of places where we need to be in the loop.
   Having a well supported API for an important usecase like bulk trace analysis
   directly helps with this.
@@ -134,7 +134,7 @@ So suppose we query three traces with:
 ```SELECT ts, dur FROM slice```
 
 Then in the flattening operation might do something like this behind the scenes:
-![BTP Flattening](/docs/images/perfetto-btp-flattening.svg)
+![BTP Flattening](/docs/images/dejaview-btp-flattening.svg)
 
 
 ## Integration points

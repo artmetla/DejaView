@@ -43,6 +43,6 @@ class Startup(TestSuite):
 
   def test_ttid_and_ttfd(self):
     return DiffTestBlueprint(
-        trace=DataPath('api31_startup_warm.perfetto-trace'),
+        trace=DataPath('api31_startup_warm.dejaview-trace'),
         query=Metric('android_startup'),
         out=Path('ttid_and_ttfd.out'))

@@ -21,7 +21,7 @@
 
 #include "src/trace_processor/importers/perf/perf_event.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 struct PerfFile {
   static constexpr char kPerfMagic[] = {'P', 'E', 'R', 'F', 'I', 'L', 'E', '2'};
@@ -51,6 +51,6 @@ struct PerfFile {
   };
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_PERF_FILE_H_

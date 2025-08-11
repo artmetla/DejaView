@@ -19,9 +19,9 @@
 
 #include <string>
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class DescriptorPool;
@@ -73,6 +73,6 @@ std::string ProtozeroEnumToText(const std::string& type, Enum enum_value) {
 
 }  // namespace protozero_to_text
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_PROTOZERO_TO_TEXT_H_

@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 // Serialised trace with compressed_packets -> serialised trace with those
@@ -27,6 +27,6 @@ namespace trace_to_text {
 bool UnpackCompressedPackets(std::istream* input, std::ostream* output);
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_TRACE_UNPACK_H_

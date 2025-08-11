@@ -21,11 +21,11 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -71,6 +71,6 @@ class NinjaLogParser : public ChunkedTraceReader {
   std::vector<char> log_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_NINJA_NINJA_LOG_PARSER_H_

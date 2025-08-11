@@ -22,7 +22,7 @@
 #include "src/trace_redaction/redact_sched_events.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class ScrubProcessStats : public TransformPrimitive {
  public:
@@ -48,6 +48,6 @@ class ScrubProcessStats : public TransformPrimitive {
   std::unique_ptr<PidFilter> filter_;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_SCRUB_PROCESS_STATS_H_

@@ -25,15 +25,15 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/paged_memory.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/paged_memory.h"
 #include "src/profiling/deobfuscator.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 #include <zlib.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 
 namespace trace_processor {
 class TraceProcessor;
@@ -47,7 +47,7 @@ namespace trace_to_text {
 
 // When running in Web Assembly, fflush() is a no-op and the stdio buffering
 // sends progress updates to JS only when a write ends with \n.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WASM)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WASM)
 constexpr char kProgressChar = '\n';
 #else
 constexpr char kProgressChar = '\r';
@@ -70,7 +70,7 @@ class TraceWriter {
   std::ostream* output_;
 };
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 class DeflateTraceWriter : public TraceWriter {
  public:
   DeflateTraceWriter(std::ostream* output);
@@ -97,9 +97,9 @@ class DeflateTraceWriter : public TraceWriter {
   ~DeflateTraceWriter() override;
 };
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_UTILS_H_

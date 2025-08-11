@@ -23,9 +23,9 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -98,7 +98,7 @@ struct Utf8 {
       return;
     }
 
-    PERFETTO_FATAL("Invalid code point for UTF8 conversion: %" PRIu32,
+    DEJAVIEW_FATAL("Invalid code point for UTF8 conversion: %" PRIu32,
                    code_point);
   }
 };
@@ -136,11 +136,11 @@ class Utf16Iterator {
       return kInvalidCodePoint;
     }
 
-    if (PERFETTO_UNLIKELY(IsLowSurrogate(*maybe_surrogate))) {
+    if (DEJAVIEW_UNLIKELY(IsLowSurrogate(*maybe_surrogate))) {
       return kInvalidCodePoint;
     }
 
-    if (PERFETTO_LIKELY(!IsHighSurrogate(*maybe_surrogate))) {
+    if (DEJAVIEW_LIKELY(!IsHighSurrogate(*maybe_surrogate))) {
       return *maybe_surrogate;
     }
 
@@ -151,7 +151,7 @@ class Utf16Iterator {
       return kInvalidCodePoint;
     }
 
-    if (PERFETTO_UNLIKELY(!IsLowSurrogate(*maybe_surrogate))) {
+    if (DEJAVIEW_UNLIKELY(!IsLowSurrogate(*maybe_surrogate))) {
       return kInvalidCodePoint;
     }
 
@@ -238,4 +238,4 @@ std::string ConvertUtf16BeToUtf8(protozero::ConstBytes utf16_le) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

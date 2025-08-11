@@ -19,10 +19,10 @@
 
 #include <array>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/proto_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using protozero::proto_utils::ProtoSchemaType;
@@ -53,5 +53,5 @@ FtraceMessageDescriptor* GetMessageDescriptorForName(base::StringView name);
 size_t GetDescriptorsSize();
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_FTRACE_DESCRIPTORS_H_

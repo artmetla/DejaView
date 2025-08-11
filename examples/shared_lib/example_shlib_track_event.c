@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/public/abi/track_event_abi.h"
-#include "perfetto/public/producer.h"
-#include "perfetto/public/protos/trace/track_event/track_event.pzc.h"
-#include "perfetto/public/te_category_macros.h"
-#include "perfetto/public/te_macros.h"
-#include "perfetto/public/track_event.h"
+#include "dejaview/public/abi/track_event_abi.h"
+#include "dejaview/public/producer.h"
+#include "dejaview/public/protos/trace/track_event/track_event.pzc.h"
+#include "dejaview/public/te_category_macros.h"
+#include "dejaview/public/te_macros.h"
+#include "dejaview/public/track_event.h"
 
 #include <stdio.h>
 #include <unistd.h>
@@ -31,72 +31,72 @@
   C(c3, "c3", "c3", "tag1", "tag2", "tag3")                     \
   C(c4, "c4", "c4", "tag1", "tag2", "tag3", "tag4")
 
-PERFETTO_TE_CATEGORIES_DEFINE(EXAMPLE_CATEGORIES)
+DEJAVIEW_TE_CATEGORIES_DEFINE(EXAMPLE_CATEGORIES)
 
-static struct PerfettoTeRegisteredTrack mytrack;
-static struct PerfettoTeRegisteredTrack mycounter;
+static struct DejaViewTeRegisteredTrack mytrack;
+static struct DejaViewTeRegisteredTrack mycounter;
 
-static void EnabledCb(struct PerfettoTeCategoryImpl* c,
-                      PerfettoDsInstanceIndex inst_id,
+static void EnabledCb(struct DejaViewTeCategoryImpl* c,
+                      DejaViewDsInstanceIndex inst_id,
                       bool enabled,
                       bool global_state_changed,
                       void* user_arg) {
   printf("Callback: %p id: %u on: %d, global_state_changed: %d, user_arg:%p\n",
-         PERFETTO_STATIC_CAST(void*, c), inst_id,
-         PERFETTO_STATIC_CAST(int, enabled),
-         PERFETTO_STATIC_CAST(int, global_state_changed), user_arg);
+         DEJAVIEW_STATIC_CAST(void*, c), inst_id,
+         DEJAVIEW_STATIC_CAST(int, enabled),
+         DEJAVIEW_STATIC_CAST(int, global_state_changed), user_arg);
   if (enabled) {
-    PERFETTO_TE(physics, PERFETTO_TE_INSTANT("callback"), PERFETTO_TE_FLUSH());
+    DEJAVIEW_TE(physics, DEJAVIEW_TE_INSTANT("callback"), DEJAVIEW_TE_FLUSH());
   }
 }
 
 int main(void) {
   uint64_t flow_counter = 0;
-  struct PerfettoProducerInitArgs args = PERFETTO_PRODUCER_INIT_ARGS_INIT();
-  args.backends = PERFETTO_BACKEND_SYSTEM;
-  PerfettoProducerInit(args);
-  PerfettoTeInit();
-  PERFETTO_TE_REGISTER_CATEGORIES(EXAMPLE_CATEGORIES);
-  PerfettoTeNamedTrackRegister(&mytrack, "mytrack", 0,
-                               PerfettoTeProcessTrackUuid());
-  PerfettoTeCounterTrackRegister(&mycounter, "mycounter",
-                                 PerfettoTeProcessTrackUuid());
-  PerfettoTeCategorySetCallback(&physics, EnabledCb, PERFETTO_NULL);
+  struct DejaViewProducerInitArgs args = DEJAVIEW_PRODUCER_INIT_ARGS_INIT();
+  args.backends = DEJAVIEW_BACKEND_SYSTEM;
+  DejaViewProducerInit(args);
+  DejaViewTeInit();
+  DEJAVIEW_TE_REGISTER_CATEGORIES(EXAMPLE_CATEGORIES);
+  DejaViewTeNamedTrackRegister(&mytrack, "mytrack", 0,
+                               DejaViewTeProcessTrackUuid());
+  DejaViewTeCounterTrackRegister(&mycounter, "mycounter",
+                                 DejaViewTeProcessTrackUuid());
+  DejaViewTeCategorySetCallback(&physics, EnabledCb, DEJAVIEW_NULL);
   for (;;) {
-    PERFETTO_TE(rendering, PERFETTO_TE_INSTANT("name1"));
-    PERFETTO_TE(physics, PERFETTO_TE_INSTANT("name2"),
-                PERFETTO_TE_ARG_BOOL("dbg_arg", false),
-                PERFETTO_TE_ARG_STRING("dbg_arg2", "mystring"));
-    PERFETTO_TE(cat, PERFETTO_TE_SLICE_BEGIN("name"));
-    PERFETTO_TE(cat, PERFETTO_TE_SLICE_END());
+    DEJAVIEW_TE(rendering, DEJAVIEW_TE_INSTANT("name1"));
+    DEJAVIEW_TE(physics, DEJAVIEW_TE_INSTANT("name2"),
+                DEJAVIEW_TE_ARG_BOOL("dbg_arg", false),
+                DEJAVIEW_TE_ARG_STRING("dbg_arg2", "mystring"));
+    DEJAVIEW_TE(cat, DEJAVIEW_TE_SLICE_BEGIN("name"));
+    DEJAVIEW_TE(cat, DEJAVIEW_TE_SLICE_END());
     flow_counter++;
-    PERFETTO_TE(physics, PERFETTO_TE_SLICE_BEGIN("name4"),
-                PERFETTO_TE_REGISTERED_TRACK(&mytrack),
-                PERFETTO_TE_FLOW(PerfettoTeProcessScopedFlow(flow_counter)));
-    PERFETTO_TE(physics, PERFETTO_TE_SLICE_END(),
-                PERFETTO_TE_REGISTERED_TRACK(&mytrack));
-    PERFETTO_TE(cat, PERFETTO_TE_INSTANT("name5"),
-                PERFETTO_TE_TIMESTAMP(PerfettoTeGetTimestamp()));
-    PERFETTO_TE(PERFETTO_TE_DYNAMIC_CATEGORY, PERFETTO_TE_INSTANT("name6"),
-                PERFETTO_TE_DYNAMIC_CATEGORY_STRING("physics"),
-                PERFETTO_TE_TERMINATING_FLOW(
-                    PerfettoTeProcessScopedFlow(flow_counter)));
-    PERFETTO_TE(physics, PERFETTO_TE_COUNTER(),
-                PERFETTO_TE_REGISTERED_TRACK(&mycounter),
-                PERFETTO_TE_INT_COUNTER(79));
-    PERFETTO_TE(physics, PERFETTO_TE_INSTANT("name8"),
-                PERFETTO_TE_NAMED_TRACK("dynamictrack", 2,
-                                        PerfettoTeProcessTrackUuid()),
-                PERFETTO_TE_TIMESTAMP(PerfettoTeGetTimestamp()));
-    PERFETTO_TE(physics, PERFETTO_TE_INSTANT("name9"),
-                PERFETTO_TE_PROTO_FIELDS(PERFETTO_TE_PROTO_FIELD_NESTED(
-                    perfetto_protos_TrackEvent_source_location_field_number,
-                    PERFETTO_TE_PROTO_FIELD_CSTR(2, __FILE__),
-                    PERFETTO_TE_PROTO_FIELD_VARINT(4, __LINE__))));
-    PERFETTO_TE(PERFETTO_TE_DYNAMIC_CATEGORY, PERFETTO_TE_COUNTER(),
-                PERFETTO_TE_DOUBLE_COUNTER(3.14),
-                PERFETTO_TE_REGISTERED_TRACK(&mycounter),
-                PERFETTO_TE_DYNAMIC_CATEGORY_STRING("physics"));
+    DEJAVIEW_TE(physics, DEJAVIEW_TE_SLICE_BEGIN("name4"),
+                DEJAVIEW_TE_REGISTERED_TRACK(&mytrack),
+                DEJAVIEW_TE_FLOW(DejaViewTeProcessScopedFlow(flow_counter)));
+    DEJAVIEW_TE(physics, DEJAVIEW_TE_SLICE_END(),
+                DEJAVIEW_TE_REGISTERED_TRACK(&mytrack));
+    DEJAVIEW_TE(cat, DEJAVIEW_TE_INSTANT("name5"),
+                DEJAVIEW_TE_TIMESTAMP(DejaViewTeGetTimestamp()));
+    DEJAVIEW_TE(DEJAVIEW_TE_DYNAMIC_CATEGORY, DEJAVIEW_TE_INSTANT("name6"),
+                DEJAVIEW_TE_DYNAMIC_CATEGORY_STRING("physics"),
+                DEJAVIEW_TE_TERMINATING_FLOW(
+                    DejaViewTeProcessScopedFlow(flow_counter)));
+    DEJAVIEW_TE(physics, DEJAVIEW_TE_COUNTER(),
+                DEJAVIEW_TE_REGISTERED_TRACK(&mycounter),
+                DEJAVIEW_TE_INT_COUNTER(79));
+    DEJAVIEW_TE(physics, DEJAVIEW_TE_INSTANT("name8"),
+                DEJAVIEW_TE_NAMED_TRACK("dynamictrack", 2,
+                                        DejaViewTeProcessTrackUuid()),
+                DEJAVIEW_TE_TIMESTAMP(DejaViewTeGetTimestamp()));
+    DEJAVIEW_TE(physics, DEJAVIEW_TE_INSTANT("name9"),
+                DEJAVIEW_TE_PROTO_FIELDS(DEJAVIEW_TE_PROTO_FIELD_NESTED(
+                    dejaview_protos_TrackEvent_source_location_field_number,
+                    DEJAVIEW_TE_PROTO_FIELD_CSTR(2, __FILE__),
+                    DEJAVIEW_TE_PROTO_FIELD_VARINT(4, __LINE__))));
+    DEJAVIEW_TE(DEJAVIEW_TE_DYNAMIC_CATEGORY, DEJAVIEW_TE_COUNTER(),
+                DEJAVIEW_TE_DOUBLE_COUNTER(3.14),
+                DEJAVIEW_TE_REGISTERED_TRACK(&mycounter),
+                DEJAVIEW_TE_DYNAMIC_CATEGORY_STRING("physics"));
     sleep(1);
   }
 }

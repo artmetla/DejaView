@@ -16,14 +16,14 @@
 
 #include "src/profiling/memory/system_property.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/system_properties.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 SystemProperties::Handle::Handle(Handle&& other) noexcept {
@@ -90,13 +90,13 @@ SystemProperties::Handle SystemProperties::SetAll() {
 
 // This is conditionally noreturn, so disable the warning.
 #pragma GCC diagnostic push
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 #pragma GCC diagnostic ignored "-Wmissing-noreturn"
 #endif
 
 // static
 void SystemProperties::ResetHeapprofdProperties() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   int r = __system_property_foreach(
       [](const prop_info* pi, void*) {
         __system_property_read_callback(
@@ -110,15 +110,15 @@ void SystemProperties::ResetHeapprofdProperties() {
               if (found == name && strncmp(name, kDebugModePropName,
                                            strlen(kDebugModePropName))) {
                 int ret = __system_property_set(name, "");
-                PERFETTO_DCHECK(ret == 0);
+                DEJAVIEW_DCHECK(ret == 0);
               }
             },
             nullptr);
       },
       nullptr);
-  PERFETTO_DCHECK(r == 0);
+  DEJAVIEW_DCHECK(r == 0);
 #else
-  PERFETTO_DFATAL_OR_ELOG(
+  DEJAVIEW_DFATAL_OR_ELOG(
       "Cannot ResetHeapprofdProperties on out-of-tree builds.");
 #endif
 }
@@ -126,25 +126,25 @@ void SystemProperties::ResetHeapprofdProperties() {
 #pragma GCC diagnostic pop
 
 SystemProperties::~SystemProperties() {
-  PERFETTO_DCHECK(alls_ == 0 && properties_.empty());
+  DEJAVIEW_DCHECK(alls_ == 0 && properties_.empty());
 }
 
 bool SystemProperties::SetAndroidProperty(const std::string& name,
                                           const std::string& value) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   return __system_property_set(name.c_str(), value.c_str()) == 0;
 #else
   // Allow this to be mocked out for tests on other platforms.
   base::ignore_result(name);
   base::ignore_result(value);
-  PERFETTO_FATAL("Properties can only be set on Android.");
+  DEJAVIEW_FATAL("Properties can only be set on Android.");
 #endif
 }
 
 void SystemProperties::UnsetProperty(const std::string& name) {
   auto it = properties_.find(name);
   if (it == properties_.end()) {
-    PERFETTO_DFATAL_OR_ELOG("Unsetting unknown property.");
+    DEJAVIEW_DFATAL_OR_ELOG("Unsetting unknown property.");
     return;
   }
   if (--(it->second) == 0) {
@@ -172,4 +172,4 @@ void swap(SystemProperties::Handle& a, SystemProperties::Handle& b) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

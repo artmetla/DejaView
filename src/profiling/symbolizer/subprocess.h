@@ -21,15 +21,15 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <sys/types.h>
 #include <unistd.h>
-#include "perfetto/ext/base/pipe.h"
+#include "dejaview/ext/base/pipe.h"
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 class Subprocess {
@@ -41,7 +41,7 @@ class Subprocess {
   int64_t Read(char* buffer, size_t size);
 
  private:
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   void* child_pipe_in_read_ = nullptr;
   void* child_pipe_in_write_ = nullptr;
   void* child_pipe_out_read_ = nullptr;
@@ -55,6 +55,6 @@ class Subprocess {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_SUBPROCESS_H_

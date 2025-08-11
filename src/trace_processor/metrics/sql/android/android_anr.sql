@@ -13,10 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE android.anrs;
+INCLUDE DEJAVIEW MODULE android.anrs;
 
 DROP VIEW IF EXISTS android_anr_output;
-CREATE PERFETTO VIEW android_anr_output AS
+CREATE DEJAVIEW VIEW android_anr_output AS
 SELECT
   AndroidAnrMetric(
     'anr', (

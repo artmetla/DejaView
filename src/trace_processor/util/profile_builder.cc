@@ -23,10 +23,10 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/trace_processor/demangle.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/trace_processor/demangle.h"
 #include "protos/third_party/pprof/profile.pbzero.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/containers/string_pool.h"
@@ -34,7 +34,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/annotated_callsites.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -57,7 +57,7 @@ base::StringView ToString(CallsiteAnnotation annotation) {
     case CallsiteAnnotation::kCommonFrameInterp:
       return "common-frame-interp";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 }  // namespace
@@ -70,7 +70,7 @@ GProfileBuilder::StringTable::StringTable(
   // String at index 0 of the string table must be the empty string (see
   // profile.proto)
   int64_t empty_index = WriteString("");
-  PERFETTO_CHECK(empty_index == kEmptyStringIndex);
+  DEJAVIEW_CHECK(empty_index == kEmptyStringIndex);
 }
 
 int64_t GProfileBuilder::StringTable::InternString(base::StringView str) {
@@ -265,7 +265,7 @@ void GProfileBuilder::WriteSampleTypes(
 
 bool GProfileBuilder::AddSample(const Stack::Decoder& stack,
                                 const std::vector<int64_t>& values) {
-  PERFETTO_CHECK(!finalized_);
+  DEJAVIEW_CHECK(!finalized_);
 
   auto it = stack.entries();
   if (!it) {
@@ -464,7 +464,7 @@ std::vector<GProfileBuilder::Line> GProfileBuilder::GetLinesForSymbolSetId(
   auto& symbols = context_.storage->symbol_table();
 
   using RowRef =
-      perfetto::trace_processor::tables::SymbolTable::ConstRowReference;
+      dejaview::trace_processor::tables::SymbolTable::ConstRowReference;
   std::vector<RowRef> symbol_set;
   Query q;
   q.constraints = {symbols.symbol_set_id().eq(*symbol_set_id)};
@@ -660,4 +660,4 @@ std::optional<uint64_t> GProfileBuilder::GuessMainBinary() const {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

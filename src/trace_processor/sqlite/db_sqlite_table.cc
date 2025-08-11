@@ -29,29 +29,29 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/small_vector.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/small_vector.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/runtime_table.h"
 #include "src/trace_processor/db/table.h"
-#include "src/trace_processor/perfetto_sql/intrinsics/table_functions/static_table_function.h"
+#include "src/trace_processor/dejaview_sql/intrinsics/table_functions/static_table_function.h"
 #include "src/trace_processor/sqlite/module_lifecycle_manager.h"
 #include "src/trace_processor/sqlite/sqlite_utils.h"
 #include "src/trace_processor/tp_metatrace.h"
 #include "src/trace_processor/util/regex.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 std::optional<FilterOp> SqliteOpToFilterOp(int sqlite_op) {
@@ -87,7 +87,7 @@ std::optional<FilterOp> SqliteOpToFilterOp(int sqlite_op) {
     case SQLITE_INDEX_CONSTRAINT_ISNOT:
       return std::nullopt;
     default:
-      PERFETTO_FATAL("Currently unsupported constraint");
+      DEJAVIEW_FATAL("Currently unsupported constraint");
   }
 }
 
@@ -129,7 +129,7 @@ std::string CreateTableStatementFromSchema(const Table::Schema& schema,
       std::find_if(schema.columns.begin(), schema.columns.end(),
                    [](const Table::Schema::Column& c) { return c.is_id; });
   if (it == schema.columns.end()) {
-    PERFETTO_FATAL(
+    DEJAVIEW_FATAL(
         "id column not found in %s. All tables need to contain an id column;",
         table_name);
   }
@@ -157,16 +157,16 @@ int SqliteValueToSqlValueChecked(SqlValue* sql_val,
 }
 
 inline uint32_t ReadLetterAndInt(char letter, base::StringSplitter* splitter) {
-  PERFETTO_CHECK(splitter->Next());
-  PERFETTO_DCHECK(splitter->cur_token_size() >= 2);
-  PERFETTO_DCHECK(splitter->cur_token()[0] == letter);
+  DEJAVIEW_CHECK(splitter->Next());
+  DEJAVIEW_DCHECK(splitter->cur_token_size() >= 2);
+  DEJAVIEW_DCHECK(splitter->cur_token()[0] == letter);
   return *base::CStringToUInt32(splitter->cur_token() + 1);
 }
 
 inline uint64_t ReadLetterAndLong(char letter, base::StringSplitter* splitter) {
-  PERFETTO_CHECK(splitter->Next());
-  PERFETTO_DCHECK(splitter->cur_token_size() >= 2);
-  PERFETTO_DCHECK(splitter->cur_token()[0] == letter);
+  DEJAVIEW_CHECK(splitter->Next());
+  DEJAVIEW_DCHECK(splitter->cur_token_size() >= 2);
+  DEJAVIEW_DCHECK(splitter->cur_token()[0] == letter);
   return *base::CStringToUInt64(splitter->cur_token() + 1);
 }
 
@@ -182,9 +182,9 @@ int ReadIdxStrAndUpdateCursor(DbSqliteModule::Cursor* cursor,
 
   uint32_t c_offset = 0;
   for (auto& cs : q.constraints) {
-    PERFETTO_CHECK(splitter.Next());
+    DEJAVIEW_CHECK(splitter.Next());
     cs.col_idx = *base::CStringToUInt32(splitter.cur_token());
-    PERFETTO_CHECK(splitter.Next());
+    DEJAVIEW_CHECK(splitter.Next());
     cs.op = static_cast<FilterOp>(*base::CStringToUInt32(splitter.cur_token()));
 
     if (int ret = SqliteValueToSqlValueChecked(&cs.value, argv[c_offset++], cs,
@@ -198,9 +198,9 @@ int ReadIdxStrAndUpdateCursor(DbSqliteModule::Cursor* cursor,
 
   q.orders.resize(ob_count);
   for (auto& ob : q.orders) {
-    PERFETTO_CHECK(splitter.Next());
+    DEJAVIEW_CHECK(splitter.Next());
     ob.col_idx = *base::CStringToUInt32(splitter.cur_token());
-    PERFETTO_CHECK(splitter.Next());
+    DEJAVIEW_CHECK(splitter.Next());
     ob.desc = *base::CStringToUInt32(splitter.cur_token());
   }
 
@@ -235,7 +235,7 @@ int ReadIdxStrAndUpdateCursor(DbSqliteModule::Cursor* cursor,
   return SQLITE_OK;
 }
 
-PERFETTO_ALWAYS_INLINE void TryCacheCreateSortedTable(
+DEJAVIEW_ALWAYS_INLINE void TryCacheCreateSortedTable(
     DbSqliteModule::Cursor* cursor,
     const Table::Schema& schema,
     bool is_same_idx) {
@@ -358,10 +358,10 @@ int DbSqliteModule::Create(sqlite3* db,
                            const char* const* argv,
                            sqlite3_vtab** vtab,
                            char**) {
-  PERFETTO_CHECK(argc == 3);
+  DEJAVIEW_CHECK(argc == 3);
   auto* context = GetContext(ctx);
   auto state = std::move(context->temporary_create_state);
-  PERFETTO_CHECK(state);
+  DEJAVIEW_CHECK(state);
 
   std::string sql = CreateTableStatementFromSchema(state->schema, argv[2]);
   if (int ret = sqlite3_declare_vtab(db, sql.c_str()); ret != SQLITE_OK) {
@@ -393,7 +393,7 @@ int DbSqliteModule::Connect(sqlite3* db,
                             const char* const* argv,
                             sqlite3_vtab** vtab,
                             char**) {
-  PERFETTO_CHECK(argc == 3);
+  DEJAVIEW_CHECK(argc == 3);
   auto* context = GetContext(ctx);
 
   std::unique_ptr<Vtab> res = std::make_unique<Vtab>();
@@ -591,7 +591,7 @@ int DbSqliteModule::BestIndex(sqlite3_vtab* vtab, sqlite3_index_info* info) {
     o.argvIndex = argv_index++;
 
     auto op = SqliteOpToFilterOp(c.op);
-    PERFETTO_DCHECK(op);
+    DEJAVIEW_DCHECK(op);
 
     idx_str += ',';
     idx_str += std::to_string(c.iColumn);
@@ -613,7 +613,7 @@ int DbSqliteModule::BestIndex(sqlite3_vtab* vtab, sqlite3_index_info* info) {
 
   // Distinct:
   idx_str += "D";
-  if (ob_idxes.size() == 1 && PERFETTO_POPCOUNT(info->colUsed) == 1) {
+  if (ob_idxes.size() == 1 && DEJAVIEW_POPCOUNT(info->colUsed) == 1) {
     switch (sqlite3_vtab_distinct(info)) {
       case 0:
       case 1:
@@ -628,7 +628,7 @@ int DbSqliteModule::BestIndex(sqlite3_vtab* vtab, sqlite3_index_info* info) {
             static_cast<int>(Query::OrderType::kDistinctAndSort));
         break;
       default:
-        PERFETTO_FATAL("Invalid sqlite3_vtab_distinct result");
+        DEJAVIEW_FATAL("Invalid sqlite3_vtab_distinct result");
     }
   } else {
     // TODO(mayzner): Remove this if condition after implementing multicolumn
@@ -721,7 +721,7 @@ int DbSqliteModule::Filter(sqlite3_vtab_cursor* cursor,
 
   size_t offset = c->table_function_arguments.size();
   bool is_same_idx = idx_num == c->last_idx_num;
-  if (PERFETTO_LIKELY(is_same_idx)) {
+  if (DEJAVIEW_LIKELY(is_same_idx)) {
     for (auto& cs : c->query.constraints) {
       if (int ret = SqliteValueToSqlValueChecked(&cs.value, argv[offset++], cs,
                                                  c->pVtab);
@@ -746,7 +746,7 @@ int DbSqliteModule::Filter(sqlite3_vtab_cursor* cursor,
       TryCacheCreateSortedTable(c, s->schema, is_same_idx);
       break;
     case TableComputation::kTableFunction: {
-      PERFETTO_TP_TRACE(
+      DEJAVIEW_TP_TRACE(
           metatrace::Category::QUERY_DETAILED, "TABLE_FUNCTION_CALL",
           [t](metatrace::Record* r) { r->AddArg("Name", t->table_name); });
       for (uint32_t i = 0; i < c->table_function_arguments.size(); ++i) {
@@ -766,7 +766,7 @@ int DbSqliteModule::Filter(sqlite3_vtab_cursor* cursor,
     }
   }
 
-  PERFETTO_TP_TRACE(metatrace::Category::QUERY_DETAILED,
+  DEJAVIEW_TP_TRACE(metatrace::Category::QUERY_DETAILED,
                     "DB_TABLE_FILTER_AND_SORT",
                     [s, t, c](metatrace::Record* r) {
                       FilterAndSortMetatrace(t->table_name, s->schema, c, r);
@@ -875,9 +875,9 @@ DbSqliteModule::QueryCost DbSqliteModule::EstimateCost(
       break;
     }
     const auto& c = info->aConstraint[i];
-    PERFETTO_DCHECK(c.usable);
-    PERFETTO_DCHECK(info->aConstraintUsage[i].omit);
-    PERFETTO_DCHECK(info->aConstraintUsage[i].argvIndex > 0);
+    DEJAVIEW_DCHECK(c.usable);
+    DEJAVIEW_DCHECK(info->aConstraintUsage[i].omit);
+    DEJAVIEW_DCHECK(info->aConstraintUsage[i].argvIndex > 0);
     const auto& col_schema = schema.columns[static_cast<uint32_t>(c.iColumn)];
     if (sqlite::utils::IsOpEq(c.op) && col_schema.is_id) {
       // If we have an id equality constraint, we can very efficiently filter
@@ -968,4 +968,4 @@ DbSqliteModule::State::State(TableComputation _computation,
                              Table::Schema _schema)
     : computation(_computation), schema(std::move(_schema)) {}
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

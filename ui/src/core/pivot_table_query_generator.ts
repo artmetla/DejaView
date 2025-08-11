@@ -151,7 +151,7 @@ export function generateQueryFromState(
         .join(' and\n')}`
     : '';
   const text = `
-    INCLUDE PERFETTO MODULE slices.slices;
+    INCLUDE DEJAVIEW MODULE slices.slices;
 
     select
       ${renderedPivots.concat(aggregations).join(',\n')}

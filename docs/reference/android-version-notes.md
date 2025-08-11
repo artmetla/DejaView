@@ -1,5 +1,5 @@
 # Android Version Notes
-This page documents all the caveats of using Perfetto on older versions of
+This page documents all the caveats of using DejaView on older versions of
 Android. Because of the yearly release cycle, it's often the case that a
 feature is shipped but we later discover a bug/problem which makes the feature
 not usable or needs to be used in a very specific way.
@@ -26,7 +26,7 @@ not usable or needs to be used in a very specific way.
 
 ## P
 ### New features
-* Perfetto was included in the system image!
+* DejaView was included in the system image!
 
 ### Caveats
 * --txt option is not supported so configs must be binary encoded.

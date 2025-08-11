@@ -16,7 +16,7 @@
 -- This file established the tables that define the relationships between rails
 -- and subrails as well as the hierarchical power estimates of each rail
 
-INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
 
 -- Take only the Wattson estimations that are in the window of interest
 DROP TABLE IF EXISTS _windowed_wattson;
@@ -28,7 +28,7 @@ USING
 -- other rails and components are derived. Average power over the entire trace
 -- for each of these rail components.
 DROP VIEW IF EXISTS _wattson_base_components_avg_mw;
-CREATE PERFETTO VIEW _wattson_base_components_avg_mw AS
+CREATE DEJAVIEW VIEW _wattson_base_components_avg_mw AS
 SELECT
   (SELECT m.policy FROM _dev_cpu_policy_map AS m WHERE m.cpu = 0) as cpu0_poli,
   (SELECT m.policy FROM _dev_cpu_policy_map AS m WHERE m.cpu = 1) as cpu1_poli,
@@ -55,7 +55,7 @@ GROUP BY period_id;
 
 -- Macro that filters out CPUs that are unrelated to the policy of the table
 -- passed in, and does some bookkeeping to put data in expected format
-CREATE OR REPLACE PERFETTO MACRO
+CREATE OR REPLACE DEJAVIEW MACRO
 _get_valid_cpu_mw(policy_tbl_w_cpus TableOrSubQuery)
 RETURNS TableOrSubquery AS
 (
@@ -126,7 +126,7 @@ RETURNS TableOrSubquery AS
 -- Automatically determines CPUs that correspond to policyX, and picks up NULL
 -- otherwise.
 DROP VIEW IF EXISTS _estimate_policy0_proto;
-CREATE PERFETTO VIEW _estimate_policy0_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy0_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -146,7 +146,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_policy1_proto;
-CREATE PERFETTO VIEW _estimate_policy1_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy1_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -166,7 +166,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_policy2_proto;
-CREATE PERFETTO VIEW _estimate_policy2_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy2_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -186,7 +186,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_policy3_proto;
-CREATE PERFETTO VIEW _estimate_policy3_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy3_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -206,7 +206,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_policy4_proto;
-CREATE PERFETTO VIEW _estimate_policy4_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy4_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -226,7 +226,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_policy5_proto;
-CREATE PERFETTO VIEW _estimate_policy5_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy5_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -246,7 +246,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_policy6_proto;
-CREATE PERFETTO VIEW _estimate_policy6_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy6_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -266,7 +266,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_policy7_proto;
-CREATE PERFETTO VIEW _estimate_policy7_proto AS
+CREATE DEJAVIEW VIEW _estimate_policy7_proto AS
 SELECT * FROM _get_valid_cpu_mw!(
   (
     SELECT
@@ -286,7 +286,7 @@ SELECT * FROM _get_valid_cpu_mw!(
 );
 
 DROP VIEW IF EXISTS _estimate_dsu_scu;
-CREATE PERFETTO VIEW _estimate_dsu_scu AS
+CREATE DEJAVIEW VIEW _estimate_dsu_scu AS
 SELECT
   period_id,
   period_dur,
@@ -298,7 +298,7 @@ GROUP BY period_id, period_dur;
 -- trace. For policies that do not exist on the device, a NULL proto/estimate is
 -- populated.
 DROP VIEW IF EXISTS _estimate_cpu_subsystem_sum;
-CREATE PERFETTO VIEW _estimate_cpu_subsystem_sum AS
+CREATE DEJAVIEW VIEW _estimate_cpu_subsystem_sum AS
 WITH components AS (
   SELECT
     period_id,

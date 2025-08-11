@@ -21,12 +21,12 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/traced/probes/ftrace/atrace_hal_wrapper.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "src/traced/probes/ftrace/proto_translation_table.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace vendor_tracepoints {
 
 // Path to the vendor categories file in Android (since Android 14).
@@ -54,6 +54,6 @@ base::Status DiscoverAccessibleVendorTracepointsWithFile(
     FtraceProcfs* ftrace);
 
 }  // namespace vendor_tracepoints
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_VENDOR_TRACEPOINTS_H_

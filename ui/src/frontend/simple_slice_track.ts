@@ -23,7 +23,7 @@ import {
 } from '../public/lib/debug_tracks/debug_tracks';
 import {uuidv4Sql} from '../base/uuid';
 import {ARG_PREFIX} from '../public/lib/debug_tracks/details_tab';
-import {createPerfettoTable} from '../trace_processor/sql_utils';
+import {createDejaViewTable} from '../trace_processor/sql_utils';
 import {Trace} from '../public/trace';
 
 export interface SimpleSliceTrackConfig {
@@ -47,7 +47,7 @@ export class SimpleSliceTrack extends CustomSqlTableSliceTrack {
   }
 
   async getSqlDataSource(): Promise<CustomSqlTableDefConfig> {
-    const table = await createPerfettoTable(
+    const table = await createDejaViewTable(
       this.engine,
       this.sqlTableName,
       this.createTableQuery(

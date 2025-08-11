@@ -14,7 +14,7 @@ packet {
     types {
       id: 55
       location_id: 5
-      class_name: "dev.perfetto.BigStuff"
+      class_name: "dev.dejaview.BigStuff"
       object_size: 1000000000 # Three of these overflow signed 32-bit
       superclass_id: 54
       kind: KIND_NORMAL
@@ -23,7 +23,7 @@ packet {
     types {
       id: 56
       location_id: 5
-      class_name: "dev.perfetto.Container"
+      class_name: "dev.dejaview.Container"
       object_size: 36
       superclass_id: 54
       reference_field_id: 601 # obj1
@@ -34,19 +34,19 @@ packet {
     }
     objects {
       id: 0x1
-      type_id: 55 # dev.perfetto.BigStuff
+      type_id: 55 # dev.dejaview.BigStuff
     }
     objects {
       id: 0x2
-      type_id: 55 # dev.perfetto.BigStuff
+      type_id: 55 # dev.dejaview.BigStuff
     }
     objects {
       id: 0x3
-      type_id: 55 # dev.perfetto.BigStuff
+      type_id: 55 # dev.dejaview.BigStuff
     }
     objects {
       id: 0x4
-      type_id: 56 # dev.perfetto.Container
+      type_id: 56 # dev.dejaview.Container
       reference_object_id: 0x1 # obj1
       reference_object_id: 0x2 # obj2
       reference_object_id: 0x3 # obj3
@@ -57,15 +57,15 @@ packet {
     }
     field_names {
       iid: 601
-      str: "dev.perfetto.BigStuff dev.perfetto.Container.obj1"
+      str: "dev.dejaview.BigStuff dev.dejaview.Container.obj1"
     }
     field_names {
       iid: 602
-      str: "dev.perfetto.BigStuff dev.perfetto.Container.obj2"
+      str: "dev.dejaview.BigStuff dev.dejaview.Container.obj2"
     }
     field_names {
       iid: 603
-      str: "dev.perfetto.BigStuff dev.perfetto.Container.obj3"
+      str: "dev.dejaview.BigStuff dev.dejaview.Container.obj3"
     }
     location_names {
       iid: 5

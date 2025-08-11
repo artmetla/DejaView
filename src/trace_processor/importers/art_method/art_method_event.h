@@ -22,7 +22,7 @@
 
 #include "src/trace_processor/containers/string_pool.h"
 
-namespace perfetto::trace_processor::art_method {
+namespace dejaview::trace_processor::art_method {
 
 struct alignas(8) ArtMethodEvent {
   uint32_t tid;
@@ -32,6 +32,6 @@ struct alignas(8) ArtMethodEvent {
   std::optional<uint32_t> line_number;
 };
 
-}  // namespace perfetto::trace_processor::art_method
+}  // namespace dejaview::trace_processor::art_method
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ART_METHOD_ART_METHOD_EVENT_H_

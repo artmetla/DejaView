@@ -23,13 +23,13 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace test {
 
 namespace {
 
-#define PERFETTO_TEST_LOG(...) \
-  __android_log_print(ANDROID_LOG_DEBUG, "perfetto", ##__VA_ARGS__)
+#define DEJAVIEW_TEST_LOG(...) \
+  __android_log_print(ANDROID_LOG_DEBUG, "dejaview", ##__VA_ARGS__)
 
 class LogcatPrinter : public testing::EmptyTestEventListener {
  public:
@@ -47,11 +47,11 @@ LogcatPrinter::LogcatPrinter() = default;
 LogcatPrinter::~LogcatPrinter() = default;
 
 void LogcatPrinter::OnTestCaseStart(const testing::TestCase& test_case) {
-  PERFETTO_TEST_LOG("Test case start: %s", test_case.name());
+  DEJAVIEW_TEST_LOG("Test case start: %s", test_case.name());
 }
 
 void LogcatPrinter::OnTestStart(const testing::TestInfo& test_info) {
-  PERFETTO_TEST_LOG("Test start: %s.%s", test_info.test_case_name(),
+  DEJAVIEW_TEST_LOG("Test start: %s.%s", test_info.test_case_name(),
                     test_info.name());
 }
 
@@ -66,12 +66,12 @@ void LogcatPrinter::OnTestEnd(const testing::TestInfo& test_info) {
     else if (result->Failed())
       state = "FAIL";
   }
-  PERFETTO_TEST_LOG("Test end: %s.%s [%s]", test_info.test_case_name(),
+  DEJAVIEW_TEST_LOG("Test end: %s.%s [%s]", test_info.test_case_name(),
                     test_info.name(), state);
 }
 
 void LogcatPrinter::OnTestCaseEnd(const testing::TestCase& test_case) {
-  PERFETTO_TEST_LOG("Test case end: %s. succeeded=%d, failed=%d",
+  DEJAVIEW_TEST_LOG("Test case end: %s. succeeded=%d, failed=%d",
                     test_case.name(), test_case.successful_test_count(),
                     test_case.failed_test_count());
 }
@@ -86,4 +86,4 @@ SetupGtestLogcatPrinter() {
 
 }  // namespace
 }  // namespace test
-}  // namespace perfetto
+}  // namespace dejaview

@@ -23,18 +23,18 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
 #include "src/traced/probes/ftrace/atrace_hal_wrapper.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "src/traced/probes/ftrace/proto_translation_table.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace vendor_tracepoints {
 namespace {
 
-using EmptyTokenMode = ::perfetto::base::StringSplitter::EmptyTokenMode;
+using EmptyTokenMode = ::dejaview::base::StringSplitter::EmptyTokenMode;
 
 std::vector<GroupAndName> DiscoverTracepoints(AtraceHalWrapper* hal,
                                               FtraceProcfs* ftrace,
@@ -45,7 +45,7 @@ std::vector<GroupAndName> DiscoverTracepoints(AtraceHalWrapper* hal,
   std::vector<GroupAndName> events;
   for (const std::string& group_name : ftrace->ReadEnabledEvents()) {
     size_t pos = group_name.find('/');
-    PERFETTO_CHECK(pos != std::string::npos);
+    DEJAVIEW_CHECK(pos != std::string::npos);
     events.push_back(
         GroupAndName(group_name.substr(0, pos), group_name.substr(pos + 1)));
   }
@@ -170,4 +170,4 @@ base::Status DiscoverAccessibleVendorTracepointsWithFile(
 }
 
 }  // namespace vendor_tracepoints
-}  // namespace perfetto
+}  // namespace dejaview

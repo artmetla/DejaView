@@ -19,7 +19,7 @@
 #include <memory>
 #include <optional>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
@@ -51,7 +51,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/trace_reader_registry.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 TraceProcessorContext::TraceProcessorContext(const InitArgs& args)
     : config(args.config), storage(args.storage) {
@@ -86,18 +86,18 @@ TraceProcessorContext::TraceProcessorContext(const InitArgs& args)
     auto status = descriptor_pool_->AddFromFileDescriptorSet(
         kTrackEventDescriptor.data(), kTrackEventDescriptor.size());
 
-    PERFETTO_DCHECK(status.ok());
+    DEJAVIEW_DCHECK(status.ok());
 
     status = descriptor_pool_->AddFromFileDescriptorSet(
         kChromeTrackEventDescriptor.data(), kChromeTrackEventDescriptor.size());
 
-    PERFETTO_DCHECK(status.ok());
+    DEJAVIEW_DCHECK(status.ok());
 
     status = descriptor_pool_->AddFromFileDescriptorSet(
         kAndroidTrackEventDescriptor.data(),
         kAndroidTrackEventDescriptor.size());
 
-    PERFETTO_DCHECK(status.ok());
+    DEJAVIEW_DCHECK(status.ok());
   }
 
   slice_tracker->SetOnSliceBeginCallback(
@@ -125,4 +125,4 @@ std::optional<MachineId> TraceProcessorContext::machine_id() const {
   return machine_tracker->machine_id();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -14,70 +14,70 @@
  * limitations under the License.
  */
 
-#include "perfetto/public/abi/producer_abi.h"
+#include "dejaview/public/abi/producer_abi.h"
 
-#include "perfetto/tracing/backend_type.h"
-#include "perfetto/tracing/tracing.h"
+#include "dejaview/tracing/backend_type.h"
+#include "dejaview/tracing/tracing.h"
 #include "src/shared_lib/reset_for_testing.h"
 #include "src/tracing/internal/tracing_muxer_impl.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace shlib {
 
 void ResetForTesting() {
   auto* muxer = static_cast<internal::TracingMuxerImpl*>(
       internal::TracingMuxerImpl::instance_);
   muxer->AppendResetForTestingCallback([] {
-    perfetto::shlib::ResetDataSourceTls();
-    perfetto::shlib::ResetTrackEventTls();
+    dejaview::shlib::ResetDataSourceTls();
+    dejaview::shlib::ResetTrackEventTls();
   });
-  perfetto::Tracing::ResetForTesting();
+  dejaview::Tracing::ResetForTesting();
 }
 
 }  // namespace shlib
-}  // namespace perfetto
+}  // namespace dejaview
 
-struct PerfettoProducerBackendInitArgs {
+struct DejaViewProducerBackendInitArgs {
   uint32_t shmem_size_hint_kb = 0;
 };
 
-struct PerfettoProducerBackendInitArgs*
-PerfettoProducerBackendInitArgsCreate() {
-  return new PerfettoProducerBackendInitArgs();
+struct DejaViewProducerBackendInitArgs*
+DejaViewProducerBackendInitArgsCreate() {
+  return new DejaViewProducerBackendInitArgs();
 }
 
-void PerfettoProducerBackendInitArgsSetShmemSizeHintKb(
-    struct PerfettoProducerBackendInitArgs* backend_args,
+void DejaViewProducerBackendInitArgsSetShmemSizeHintKb(
+    struct DejaViewProducerBackendInitArgs* backend_args,
     uint32_t size) {
   backend_args->shmem_size_hint_kb = size;
 }
 
-void PerfettoProducerBackendInitArgsDestroy(
-    struct PerfettoProducerBackendInitArgs* backend_args) {
+void DejaViewProducerBackendInitArgsDestroy(
+    struct DejaViewProducerBackendInitArgs* backend_args) {
   delete backend_args;
 }
 
-void PerfettoProducerInProcessInit(
-    const struct PerfettoProducerBackendInitArgs* backend_args) {
-  perfetto::TracingInitArgs args;
-  args.backends = perfetto::kInProcessBackend;
+void DejaViewProducerInProcessInit(
+    const struct DejaViewProducerBackendInitArgs* backend_args) {
+  dejaview::TracingInitArgs args;
+  args.backends = dejaview::kInProcessBackend;
   args.shmem_size_hint_kb = backend_args->shmem_size_hint_kb;
-  perfetto::Tracing::Initialize(args);
+  dejaview::Tracing::Initialize(args);
 }
 
-void PerfettoProducerSystemInit(
-    const struct PerfettoProducerBackendInitArgs* backend_args) {
-  perfetto::TracingInitArgs args;
-  args.backends = perfetto::kSystemBackend;
+void DejaViewProducerSystemInit(
+    const struct DejaViewProducerBackendInitArgs* backend_args) {
+  dejaview::TracingInitArgs args;
+  args.backends = dejaview::kSystemBackend;
   args.shmem_size_hint_kb = backend_args->shmem_size_hint_kb;
-  perfetto::Tracing::Initialize(args);
+  dejaview::Tracing::Initialize(args);
 }
 
-void PerfettoProducerActivateTriggers(const char* trigger_names[],
+void DejaViewProducerActivateTriggers(const char* trigger_names[],
                                       uint32_t ttl_ms) {
   std::vector<std::string> triggers;
   for (size_t i = 0; trigger_names[i] != nullptr; i++) {
     triggers.push_back(trigger_names[i]);
   }
-  perfetto::Tracing::ActivateTriggers(triggers, ttl_ms);
+  dejaview::Tracing::ActivateTriggers(triggers, ttl_ms);
 }

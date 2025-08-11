@@ -24,11 +24,11 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/base64.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/base64.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
@@ -39,7 +39,7 @@
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 std::pair<FrameId, bool> JitCache::JittedFunction::InternFrame(
@@ -72,12 +72,12 @@ tables::JitCodeTable::Id JitCache::LoadCode(
     StringId function_name,
     std::optional<SourceLocation> source_location,
     TraceBlobView native_code) {
-  PERFETTO_CHECK(range_.Contains(code_range));
-  PERFETTO_CHECK(context_->storage->thread_table()
+  DEJAVIEW_CHECK(range_.Contains(code_range));
+  DEJAVIEW_CHECK(context_->storage->thread_table()
                      .FindById(tables::ThreadTable::Id(utid))
                      ->upid() == upid_);
 
-  PERFETTO_CHECK(native_code.size() == 0 ||
+  DEJAVIEW_CHECK(native_code.size() == 0 ||
                  native_code.size() == code_range.size());
 
   std::optional<uint32_t> symbol_set_id;
@@ -151,4 +151,4 @@ StringId JitCache::Base64Encode(const TraceBlobView& data) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

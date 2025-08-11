@@ -13,10 +13,10 @@
 # limitations under the License.
 
 import("../../../gn/fuzzer.gni")
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 import("../../../gn/test.gni")
 
-assert(enable_perfetto_traced_perf)
+assert(enable_dejaview_traced_perf)
 
 executable("traced_perf") {
   deps = [
@@ -45,18 +45,18 @@ source_set("producer") {
     ":common_types",
     ":regs_parsing",
     ":unwinding",
-    "../../../include/perfetto/tracing/core",
+    "../../../include/dejaview/tracing/core",
     "../../../src/tracing/service",  # for metatrace
   ]
   deps = [
     ":proc_descriptors",
     "../../../gn:default_deps",
-    "../../../protos/perfetto/common:cpp",
-    "../../../protos/perfetto/common:zero",
-    "../../../protos/perfetto/config:cpp",
-    "../../../protos/perfetto/config/profiling:cpp",
-    "../../../protos/perfetto/trace:zero",
-    "../../../protos/perfetto/trace/profiling:zero",
+    "../../../protos/dejaview/common:cpp",
+    "../../../protos/dejaview/common:zero",
+    "../../../protos/dejaview/config:cpp",
+    "../../../protos/dejaview/config/profiling:cpp",
+    "../../../protos/dejaview/trace:zero",
+    "../../../protos/dejaview/trace/profiling:zero",
     "../../../src/base",
     "../../../src/base:unix_socket",
     "../../../src/traced/probes/ftrace:ftrace_procfs",
@@ -95,7 +95,7 @@ source_set("unwinding") {
   deps = [
     ":common_types",
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/tracing/core",
+    "../../../include/dejaview/ext/tracing/core",
     "../../../src/base",
     "../../../src/kallsyms",
     "../common:unwind_support",
@@ -138,10 +138,10 @@ source_set("producer_unittests") {
     ":unwinding",
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../protos/perfetto/common:cpp",
-    "../../../protos/perfetto/config:cpp",
-    "../../../protos/perfetto/config/profiling:cpp",
-    "../../../protos/perfetto/trace:zero",
+    "../../../protos/dejaview/common:cpp",
+    "../../../protos/dejaview/config:cpp",
+    "../../../protos/dejaview/config/profiling:cpp",
+    "../../../protos/dejaview/trace:zero",
     "../../../src/protozero",
     "../../base",
   ]

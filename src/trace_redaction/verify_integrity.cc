@@ -19,12 +19,12 @@
 
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/common/trace_stats.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/trace_stats.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status VerifyIntegrity::Collect(
     const protos::pbzero::TracePacket::Decoder& packet,
@@ -71,7 +71,7 @@ base::Status VerifyIntegrity::OnFtraceEvents(
   protos::pbzero::FtraceEventBundle::Decoder events(bytes);
 
   // Any ftrace lost events should cause the trace to be dropped:
-  // protos/perfetto/trace/ftrace/ftrace_event_bundle.proto
+  // protos/dejaview/trace/ftrace/ftrace_event_bundle.proto
   if (events.has_lost_events() && events.has_lost_events()) {
     return base::ErrStatus(
         "VerifyIntegrity: detected FtraceEventBundle error.");
@@ -94,7 +94,7 @@ base::Status VerifyIntegrity::OnFtraceEvents(
   }
 
   // Any ftrace errors should cause the trace to be dropped:
-  // protos/perfetto/trace/ftrace/ftrace_event_bundle.proto
+  // protos/dejaview/trace/ftrace/ftrace_event_bundle.proto
   if (events.has_error()) {
     return base::ErrStatus("VerifyIntegrity: detected FtraceEvent errors.");
   }
@@ -171,4 +171,4 @@ base::Status VerifyIntegrity::OnBufferStats(
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

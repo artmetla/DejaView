@@ -22,7 +22,7 @@
 
 using testing::ElementsAre;
 
-namespace perfetto {
+namespace dejaview {
 
 std::ostream& operator<<(std::ostream& o, const Patch& p);
 std::ostream& operator<<(std::ostream& o, const Patch& p) {
@@ -89,4 +89,4 @@ TEST(PatchListTest, PointerStability) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

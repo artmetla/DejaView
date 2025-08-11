@@ -19,12 +19,12 @@
 
 #include <string>
 
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/ext/base/status_or.h"
 #include "src/base/test/tmp_dir_tree.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 #include "src/trace_redaction/trace_redactor.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class TraceRedactionIntegrationFixure {
  protected:
@@ -53,6 +53,6 @@ class TraceRedactionIntegrationFixure {
   std::string dest_trace_;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_TRACE_REDACTION_INTEGRATION_FIXTURE_H_

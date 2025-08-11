@@ -18,17 +18,17 @@
 
 #include <string>
 
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_redaction/proto_util.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 ProcessTreeModifier::~ProcessTreeModifier() = default;
 
@@ -40,7 +40,7 @@ base::Status ProcessTreeDoNothing::Modify(const Context&,
 base::Status ProcessTreeCreateSynthThreads::Modify(
     const Context& context,
     protos::pbzero::ProcessTree* message) const {
-  PERFETTO_DCHECK(message);
+  DEJAVIEW_DCHECK(message);
 
   if (!context.synthetic_process) {
     return base::ErrStatus(
@@ -81,7 +81,7 @@ base::Status ProcessTreeCreateSynthThreads::Modify(
 
 base::Status RedactProcessTrees::Transform(const Context& context,
                                            std::string* packet) const {
-  PERFETTO_DCHECK(packet);
+  DEJAVIEW_DCHECK(packet);
 
   if (!context.package_uid.has_value()) {
     return base::ErrStatus("RedactProcessTrees: missing package uid.");
@@ -146,7 +146,7 @@ base::Status RedactProcessTrees::OnProcessTree(
     }
   }
 
-  PERFETTO_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(modifier_);
   return modifier_->Modify(context, message);
 }
 
@@ -163,7 +163,7 @@ base::Status RedactProcessTrees::OnProcess(
     return base::ErrStatus("RedactProcessTrees: process with no pid");
   }
 
-  PERFETTO_DCHECK(filter_);
+  DEJAVIEW_DCHECK(filter_);
 
   if (filter_->Includes(context, ts, pid.as_int32())) {
     proto_util::AppendField(field, message);
@@ -185,7 +185,7 @@ base::Status RedactProcessTrees::OnThread(
     return base::ErrStatus("RedactProcessTrees: thread with no tid");
   }
 
-  PERFETTO_DCHECK(filter_);
+  DEJAVIEW_DCHECK(filter_);
 
   if (filter_->Includes(context, ts, tid.as_int32())) {
     proto_util::AppendField(field, message);
@@ -194,4 +194,4 @@ base::Status RedactProcessTrees::OnThread(
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

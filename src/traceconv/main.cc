@@ -21,9 +21,9 @@
 #include <limits>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/version.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/version.h"
 #include "src/traceconv/deobfuscate_profile.h"
 #include "src/traceconv/symbolize_profile.h"
 #include "src/traceconv/trace_to_firefox.h"
@@ -34,14 +34,14 @@
 #include "src/traceconv/trace_to_text.h"
 #include "src/traceconv/trace_unpack.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <fcntl.h>
 #include <io.h>
 #else
 #include <unistd.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 namespace {
 
@@ -70,7 +70,7 @@ uint64_t StringToUint64OrDie(const char* str) {
   char* end;
   uint64_t number = static_cast<uint64_t>(strtoll(str, &end, 10));
   if (*end != '\0') {
-    PERFETTO_ELOG("Invalid %s. Expected decimal integer.", str);
+    DEJAVIEW_ELOG("Invalid %s. Expected decimal integer.", str);
     exit(1);
   }
   return number;
@@ -96,7 +96,7 @@ int Main(int argc, char** argv) {
       } else if (i <= argc && strcmp(argv[i], "end") == 0) {
         truncate_keep = Keep::kEnd;
       } else {
-        PERFETTO_ELOG(
+        DEJAVIEW_ELOG(
             "--truncate must specify whether to keep the end or the "
             "start of the trace.");
         return Usage(argv[0]);
@@ -130,21 +130,21 @@ int Main(int argc, char** argv) {
     const char* file_path = positional_args[1];
     file_istream.open(file_path, std::ios_base::in | std::ios_base::binary);
     if (!file_istream.is_open())
-      PERFETTO_FATAL("Could not open %s", file_path);
+      DEJAVIEW_FATAL("Could not open %s", file_path);
     input_stream = &file_istream;
   } else {
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     if (isatty(STDIN_FILENO)) {
-      PERFETTO_ELOG("Reading from stdin but it's connected to a TTY");
-      PERFETTO_LOG("It is unlikely that you want to type in some binary.");
-      PERFETTO_LOG("Either pass a file path to the cmdline or pipe stdin");
+      DEJAVIEW_ELOG("Reading from stdin but it's connected to a TTY");
+      DEJAVIEW_LOG("It is unlikely that you want to type in some binary.");
+      DEJAVIEW_LOG("Either pass a file path to the cmdline or pipe stdin");
       return Usage(argv[0]);
     }
 #endif
     input_stream = &std::cin;
   }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // We don't want the runtime to replace "\n" with "\r\n" on `std::cout`.
   _setmode(_fileno(stdout), _O_BINARY);
 #endif
@@ -156,7 +156,7 @@ int Main(int argc, char** argv) {
     file_ostream.open(file_path, std::ios_base::out | std::ios_base::trunc |
                                      std::ios_base::binary);
     if (!file_ostream.is_open())
-      PERFETTO_FATAL("Could not open %s", file_path);
+      DEJAVIEW_FATAL("Could not open %s", file_path);
     output_stream = &file_ostream;
   } else {
     output_stream = &std::cout;
@@ -166,13 +166,13 @@ int Main(int argc, char** argv) {
 
   if ((format != "profile" && format != "hprof") &&
       (pid != 0 || !timestamps.empty())) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "--pid and --timestamps are supported only for profile "
         "formats.");
     return 1;
   }
   if (perf_profile && format != "profile") {
-    PERFETTO_ELOG("--perf requires profile format.");
+    DEJAVIEW_ELOG("--perf requires profile format.");
     return 1;
   }
 
@@ -189,14 +189,14 @@ int Main(int argc, char** argv) {
                            truncate_keep, full_sort);
 
   if (truncate_keep != Keep::kAll) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "--truncate is unsupported for "
         "text|profile|symbolize|decompress_packets format.");
     return 1;
   }
 
   if (full_sort) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "--full-sort is unsupported for "
         "text|profile|symbolize|decompress_packets format.");
     return 1;
@@ -239,8 +239,8 @@ int Main(int argc, char** argv) {
 
 }  // namespace
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  return perfetto::trace_to_text::Main(argc, argv);
+  return dejaview::trace_to_text::Main(argc, argv);
 }

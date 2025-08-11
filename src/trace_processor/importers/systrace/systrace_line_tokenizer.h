@@ -19,11 +19,11 @@
 
 #include <regex>
 
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/trace_processor/status.h"
 
 #include "src/trace_processor/importers/systrace/systrace_line.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class SystraceLineTokenizer {
@@ -37,6 +37,6 @@ class SystraceLineTokenizer {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_SYSTRACE_SYSTRACE_LINE_TOKENIZER_H_

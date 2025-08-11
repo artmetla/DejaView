@@ -21,10 +21,10 @@
 #include "src/trace_redaction/modify.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class InternTable {
  public:
@@ -116,6 +116,6 @@ class RedactSchedEvents : public TransformPrimitive {
   std::unique_ptr<PidFilter> waking_filter_;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_REDACT_SCHED_EVENTS_H_

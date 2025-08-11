@@ -20,13 +20,13 @@
 #include <memory>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "protos/perfetto/trace/filesystem/inode_file_map.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "protos/dejaview/trace/filesystem/inode_file_map.pbzero.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using ::testing::Contains;
@@ -82,7 +82,7 @@ struct FileEntry {
 
 struct stat CheckStat(const std::string& path) {
   struct stat buf;
-  PERFETTO_CHECK(lstat(path.c_str(), &buf) != -1);
+  DEJAVIEW_CHECK(lstat(path.c_str(), &buf) != -1);
   return buf;
 }
 
@@ -198,4 +198,4 @@ TEST(FileScannerTest, TestAsynchronousFindFiles) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

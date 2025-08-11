@@ -18,9 +18,9 @@
 
 #include <google/protobuf/descriptor.pb.h>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 namespace {
 
@@ -127,4 +127,4 @@ base::Status AllowlistFromFieldList(
 }
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview

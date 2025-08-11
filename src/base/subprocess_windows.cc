@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/subprocess.h"
+#include "dejaview/ext/base/subprocess.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 #include <stdio.h>
 
@@ -28,12 +28,12 @@
 
 #include <Windows.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 // static
@@ -41,7 +41,7 @@ const int Subprocess::kTimeoutSignal = static_cast<int>(STATUS_TIMEOUT);
 
 void Subprocess::Start() {
   if (args.exec_cmd.empty()) {
-    PERFETTO_ELOG("Subprocess.exec_cmd cannot be empty on Windows");
+    DEJAVIEW_ELOG("Subprocess.exec_cmd cannot be empty on Windows");
     return;
   }
 
@@ -64,14 +64,14 @@ void Subprocess::Start() {
   if (args.stdin_mode == InputMode::kBuffer) {
     s_->stdin_pipe = Pipe::Create();
     // Allow the child process to inherit the other end of the pipe.
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         ::SetHandleInformation(*s_->stdin_pipe.rd, HANDLE_FLAG_INHERIT, 1));
   }
 
   if (args.stderr_mode == OutputMode::kBuffer ||
       args.stdout_mode == OutputMode::kBuffer) {
     s_->stdouterr_pipe = Pipe::Create();
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         ::SetHandleInformation(*s_->stdouterr_pipe.wr, HANDLE_FLAG_INHERIT, 1));
   }
 
@@ -81,7 +81,7 @@ void Subprocess::Start() {
     nul_handle.reset(::CreateFileA(
         "NUL", GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
         nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr));
-    PERFETTO_CHECK(::SetHandleInformation(*nul_handle, HANDLE_FLAG_INHERIT, 1));
+    DEJAVIEW_CHECK(::SetHandleInformation(*nul_handle, HANDLE_FLAG_INHERIT, 1));
   }
 
   PROCESS_INFORMATION proc_info{};
@@ -95,11 +95,11 @@ void Subprocess::Start() {
   } else if (args.stderr_mode == OutputMode::kDevNull) {
     start_info.hStdError = *nul_handle;
   } else if (args.stderr_mode == OutputMode::kFd) {
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         ::SetHandleInformation(*args.out_fd, HANDLE_FLAG_INHERIT, 1));
     start_info.hStdError = *args.out_fd;
   } else {
-    PERFETTO_CHECK(false);
+    DEJAVIEW_CHECK(false);
   }
 
   if (args.stdout_mode == OutputMode::kInherit) {
@@ -109,11 +109,11 @@ void Subprocess::Start() {
   } else if (args.stdout_mode == OutputMode::kDevNull) {
     start_info.hStdOutput = *nul_handle;
   } else if (args.stdout_mode == OutputMode::kFd) {
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         ::SetHandleInformation(*args.out_fd, HANDLE_FLAG_INHERIT, 1));
     start_info.hStdOutput = *args.out_fd;
   } else {
-    PERFETTO_CHECK(false);
+    DEJAVIEW_CHECK(false);
   }
 
   if (args.stdin_mode == InputMode::kBuffer) {
@@ -147,7 +147,7 @@ void Subprocess::Start() {
     s_->status = kTerminated;
     s_->stdin_pipe.wr.reset();
     s_->stdouterr_pipe.rd.reset();
-    PERFETTO_ELOG("CreateProcess failed: %lx, cmd: %s", GetLastError(),
+    DEJAVIEW_ELOG("CreateProcess failed: %lx, cmd: %s", GetLastError(),
                   &cmd[0]);
     return;
   }
@@ -164,7 +164,7 @@ void Subprocess::Start() {
 
   if (args.stderr_mode == OutputMode::kBuffer ||
       args.stdout_mode == OutputMode::kBuffer) {
-    PERFETTO_DCHECK(s_->stdouterr_pipe.rd);
+    DEJAVIEW_DCHECK(s_->stdouterr_pipe.rd);
     s_->stdouterr_thread = std::thread(&Subprocess::StdoutErrThread, s);
   }
 }
@@ -183,7 +183,7 @@ void Subprocess::StdinThread(MovableState* s, std::string input) {
       // accepting input.
       auto err = ::GetLastError();
       if (err != ERROR_BROKEN_PIPE)
-        PERFETTO_PLOG("Subprocess WriteFile(stdin) failed %lx", err);
+        DEJAVIEW_PLOG("Subprocess WriteFile(stdin) failed %lx", err);
       break;
     }
   }  // while(...)
@@ -201,7 +201,7 @@ void Subprocess::StdoutErrThread(MovableState* s) {
     if (!res) {
       auto err = GetLastError();
       if (err != ERROR_BROKEN_PIPE)
-        PERFETTO_PLOG("Subprocess ReadFile(stdouterr) failed %ld", err);
+        DEJAVIEW_PLOG("Subprocess ReadFile(stdouterr) failed %ld", err);
     }
 
     if (rsize > 0) {
@@ -229,7 +229,7 @@ Subprocess::Status Subprocess::Poll() {
 }
 
 bool Subprocess::Wait(int timeout_ms) {
-  PERFETTO_CHECK(s_->status != kNotStarted);
+  DEJAVIEW_CHECK(s_->status != kNotStarted);
   const bool wait_forever = timeout_ms == 0;
   const int64_t wait_start_ms = base::GetWallTimeMs().count();
 
@@ -255,7 +255,7 @@ bool Subprocess::Wait(int timeout_ms) {
     bool process_exited = !s_->win_proc_handle;
     if (!process_exited) {
       DWORD exit_code = STILL_ACTIVE;
-      PERFETTO_CHECK(::GetExitCodeProcess(*s_->win_proc_handle, &exit_code));
+      DEJAVIEW_CHECK(::GetExitCodeProcess(*s_->win_proc_handle, &exit_code));
       if (exit_code != STILL_ACTIVE) {
         s_->returncode = static_cast<int>(exit_code);
         s_->status = kTerminated;
@@ -264,7 +264,7 @@ bool Subprocess::Wait(int timeout_ms) {
         process_exited = true;
       }
     } else {
-      PERFETTO_DCHECK(s_->status != kRunning);
+      DEJAVIEW_DCHECK(s_->status != kRunning);
     }
     if (!process_exited) {
       wait_handles[num_handles++] = *s_->win_proc_handle;
@@ -286,7 +286,7 @@ bool Subprocess::Wait(int timeout_ms) {
     }  // lock(s_->mutex)
 
     if (num_handles == 0) {
-      PERFETTO_DCHECK(process_exited && stdouterr_complete);
+      DEJAVIEW_DCHECK(process_exited && stdouterr_complete);
       break;
     }
 
@@ -303,11 +303,11 @@ bool Subprocess::Wait(int timeout_ms) {
 
     auto wait_res =
         ::WaitForMultipleObjects(num_handles, wait_handles, false, wait_ms);
-    PERFETTO_CHECK(wait_res != WAIT_FAILED);
+    DEJAVIEW_CHECK(wait_res != WAIT_FAILED);
   }
 
-  PERFETTO_DCHECK(!s_->win_proc_handle);
-  PERFETTO_DCHECK(!s_->win_thread_handle);
+  DEJAVIEW_DCHECK(!s_->win_proc_handle);
+  DEJAVIEW_DCHECK(!s_->win_thread_handle);
 
   if (s_->stdin_thread.joinable())  // Might not exist if CreateProcess failed.
     s_->stdin_thread.join();
@@ -328,11 +328,11 @@ void Subprocess::KillAndWaitForTermination(int exit_code) {
   ::TerminateProcess(*s_->win_proc_handle, code);
   Wait();
   // TryReadExitStatus must have joined the threads.
-  PERFETTO_DCHECK(!s_->stdin_thread.joinable());
-  PERFETTO_DCHECK(!s_->stdouterr_thread.joinable());
+  DEJAVIEW_DCHECK(!s_->stdin_thread.joinable());
+  DEJAVIEW_DCHECK(!s_->stdouterr_thread.joinable());
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // PERFETTO_OS_WIN
+#endif  // DEJAVIEW_OS_WIN

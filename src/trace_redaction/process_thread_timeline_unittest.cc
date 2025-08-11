@@ -20,7 +20,7 @@
 #include "src/trace_redaction/process_thread_timeline.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 
@@ -254,4 +254,4 @@ TEST_F(ProcessThreadTimelineIsConnectedTest, PrematureDirectPidAndUid) {
   ASSERT_FALSE(timeline_.PidConnectsToUid(kTimeA, kPidA, kUidA));
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

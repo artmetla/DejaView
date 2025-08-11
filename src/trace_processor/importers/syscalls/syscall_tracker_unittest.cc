@@ -20,7 +20,7 @@
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -149,4 +149,4 @@ TEST_F(SyscallTrackerTest, SyscallNumberTooLarge) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

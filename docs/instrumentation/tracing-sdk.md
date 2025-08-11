@@ -1,13 +1,13 @@
 # Tracing SDK
 
-The Perfetto Tracing SDK is a C++17 library that allows userspace applications
-to emit trace events and add more app-specific context to a Perfetto trace.
+The DejaView Tracing SDK is a C++17 library that allows userspace applications
+to emit trace events and add more app-specific context to a DejaView trace.
 
 When using the Tracing SDK there are two main aspects to consider:
 
 1. Whether you are interested only in tracing events coming from your own app
    or want to collect full-stack traces that overlay app trace events with
-   system trace events like scheduler traces, syscalls or any other Perfetto
+   system trace events like scheduler traces, syscalls or any other DejaView
    data source.
 
 2. For app-specific tracing, whether you need to trace simple types of timeline
@@ -18,7 +18,7 @@ When using the Tracing SDK there are two main aspects to consider:
 For Android-only instrumentation, the advice is to keep using the existing
 [android.os.Trace (SDK)][atrace-sdk] / [ATrace_* (NDK)][atrace-ndk] if they
 are sufficient for your use cases. Atrace-based instrumentation is fully
-supported in Perfetto.
+supported in DejaView.
 See the [Data Sources -> Android System -> Atrace Instrumentation][atrace-ds]
 for details.
 
@@ -33,7 +33,7 @@ To start using the Client API, first check out the latest SDK release:
 git clone https://android.googlesource.com/platform/external/perfetto -b v47.0
 ```
 
-The SDK consists of two files, `sdk/perfetto.h` and `sdk/perfetto.cc`. These are
+The SDK consists of two files, `sdk/dejaview.h` and `sdk/dejaview.cc`. These are
 an amalgamation of the Client API designed to easy to integrate to existing
 build systems. The sources are self-contained and require only a C++17 compliant
 standard library.
@@ -42,21 +42,21 @@ For example, to add the SDK to a CMake project, edit your CMakeLists.txt:
 
 ```cmake
 cmake_minimum_required(VERSION 3.13)
-project(PerfettoExample)
+project(DejaViewExample)
 find_package(Threads)
 
-# Define a static library for Perfetto.
-include_directories(perfetto/sdk)
-add_library(perfetto STATIC perfetto/sdk/perfetto.cc)
+# Define a static library for DejaView.
+include_directories(dejaview/sdk)
+add_library(dejaview STATIC dejaview/sdk/dejaview.cc)
 
 # Link the library to your main executable.
 add_executable(example example.cc)
-target_link_libraries(example perfetto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(example dejaview ${CMAKE_THREAD_LIBS_INIT})
 
 if (WIN32)
-  # The perfetto library contains many symbols, so it needs the big object
+  # The dejaview library contains many symbols, so it needs the big object
   # format.
-  target_compile_options(perfetto PRIVATE "/bigobj")
+  target_compile_options(dejaview PRIVATE "/bigobj")
   # Disable legacy features in windows.h.
   add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
   # On Windows we should link to WinSock2.
@@ -69,27 +69,27 @@ if (MSVC)
 endif (MSVC)
 ```
 
-Next, initialize Perfetto in your program:
+Next, initialize DejaView in your program:
 
 ```C++
-#include <perfetto.h>
+#include <dejaview.h>
 
 int main(int argc, char** argv) {
-  perfetto::TracingInitArgs args;
+  dejaview::TracingInitArgs args;
 
   // The backends determine where trace events are recorded. You may select one
   // or more of:
 
   // 1) The in-process backend only records within the app itself.
-  args.backends |= perfetto::kInProcessBackend;
+  args.backends |= dejaview::kInProcessBackend;
 
-  // 2) The system backend writes events into a system Perfetto daemon,
+  // 2) The system backend writes events into a system DejaView daemon,
   //    allowing merging app and system events (e.g., ftrace) on the same
-  //    timeline. Requires the Perfetto `traced` daemon to be running (e.g.,
+  //    timeline. Requires the DejaView `traced` daemon to be running (e.g.,
   //    on Android Pie and newer).
-  args.backends |= perfetto::kSystemBackend;
+  args.backends |= dejaview::kSystemBackend;
 
-  perfetto::Tracing::Initialize(args);
+  dejaview::Tracing::Initialize(args);
 }
 ```
 
@@ -110,21 +110,21 @@ Track events are time bounded events (e.g., slices, counter) based on simple
 `TRACE_EVENT` annotation tags in the codebase, like this:
 
 ```c++
-#include <perfetto.h>
+#include <dejaview.h>
 
-PERFETTO_DEFINE_CATEGORIES(
-    perfetto::Category("rendering")
+DEJAVIEW_DEFINE_CATEGORIES(
+    dejaview::Category("rendering")
         .SetDescription("Events from the graphics subsystem"),
-    perfetto::Category("network")
+    dejaview::Category("network")
         .SetDescription("Network upload and download statistics"));
 
-PERFETTO_TRACK_EVENT_STATIC_STORAGE();
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE();
 ...
 
 int main(int argc, char** argv) {
   ...
-  perfetto::Tracing::Initialize(args);
-  perfetto::TrackEvent::Register();
+  dejaview::Tracing::Initialize(args);
+  dejaview::TrackEvent::Register();
 }
 
 ...
@@ -171,18 +171,18 @@ apps for tracing. However, in some rare circumstances they are not
 flexible enough, e.g., when the data doesn't fit the notion of a track or is
 high volume enough that it needs a strongly typed schema to minimize the size of
 each event. In this case, you can implement a *custom data source* for
-Perfetto.
+DejaView.
 
 Unlike track events, when working with custom data sources, you will also need
 corresponding changes in [trace processor](/docs/analysis/trace-processor.md)
 to enable importing your data format.
 
-A custom data source is a subclass of `perfetto::DataSource`. Perfetto will
+A custom data source is a subclass of `dejaview::DataSource`. DejaView will
 automatically create one instance of the class for each tracing session it is
 active in (usually just one).
 
 ```C++
-class CustomDataSource : public perfetto::DataSource<CustomDataSource> {
+class CustomDataSource : public dejaview::DataSource<CustomDataSource> {
  public:
   void OnSetup(const SetupArgs&) override {
     // Use this callback to apply any custom configuration to your data source
@@ -203,23 +203,23 @@ class CustomDataSource : public perfetto::DataSource<CustomDataSource> {
   int my_custom_state = 0;
 };
 
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
 ```
 
 The data source's static data should be defined in one source file like this:
 
 ```C++
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
 ```
 
-Custom data sources need to be registered with Perfetto:
+Custom data sources need to be registered with DejaView:
 
 ```C++
 int main(int argc, char** argv) {
   ...
-  perfetto::Tracing::Initialize(args);
+  dejaview::Tracing::Initialize(args);
   // Add the following:
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("com.example.custom_data_source");
   CustomDataSource::Register(dsd);
 }
@@ -229,7 +229,7 @@ As with all data sources, the custom data source needs to be specified in the
 trace config to enable tracing:
 
 ```C++
-perfetto::TraceConfig cfg;
+dejaview::TraceConfig cfg;
 auto* ds_cfg = cfg.add_data_sources()->mutable_config();
 ds_cfg->set_name("com.example.custom_data_source");
 ```
@@ -242,7 +242,7 @@ multiple concurrent tracing sessions are active.
 ```C++
 CustomDataSource::Trace([](CustomDataSource::TraceContext ctx) {
   auto packet = ctx.NewTracePacket();
-  packet->set_timestamp(perfetto::TrackEvent::GetTraceTimeNs());
+  packet->set_timestamp(dejaview::TrackEvent::GetTraceTimeNs());
   packet->set_for_testing()->set_str("Hello world!");
 });
 ```
@@ -267,12 +267,12 @@ tracing requests. Both modes generate the same trace file format.
 
 ### In-process mode
 
-In this mode both the perfetto service and the app-defined data sources are
+In this mode both the dejaview service and the app-defined data sources are
 hosted fully in-process, in the same process of the profiled app. No connection
 to the system `traced` daemon will be attempted.
 
 In-process mode can be enabled by setting
-`TracingInitArgs.backends = perfetto::kInProcessBackend` when initializing the
+`TracingInitArgs.backends = dejaview::kInProcessBackend` when initializing the
 SDK, see examples below.
 
 This mode is used to generate traces that contain only events emitted by
@@ -290,7 +290,7 @@ In this mode the app-defined data sources will connect to the external `traced`
 service using the [IPC over UNIX socket][ipc].
 
 System mode can be enabled by setting
-`TracingInitArgs.backends = perfetto::kSystemBackend` when initializing the SDK,
+`TracingInitArgs.backends = dejaview::kSystemBackend` when initializing the SDK,
 see examples below.
 
 The main advantage of this mode is that it is possible to create fused traces where
@@ -306,8 +306,8 @@ This is suggested for local debugging or lab testing scenarios where the user
 Android).
 
 When using system mode, the tracing session must be controlled from the outside,
-using the `perfetto` command-line client
-(See [reference](/docs/reference/perfetto-cli)). This is because when collecting
+using the `dejaview` command-line client
+(See [reference](/docs/reference/dejaview-cli)). This is because when collecting
 system traces, tracing data producers are not allowed to read back the trace
 data as it might disclose information about other processes and allow
 side-channel attacks.
@@ -325,7 +325,7 @@ side-channel attacks.
 ## {#recording} Recording traces through the API
 
 _Tracing through the API is currently only supported with the in-process mode.
-When using system mode, use the `perfetto` cmdline client (see quickstart
+When using system mode, use the `dejaview` cmdline client (see quickstart
 guides)._
 
 First initialize a [TraceConfig](/docs/reference/trace-config-proto.autogen)
@@ -338,7 +338,7 @@ By default, all non-debug categories are enabled, but you can enable a specific
 one like this:
 
 ```C++
-perfetto::protos::gen::TrackEventConfig track_event_cfg;
+dejaview::protos::gen::TrackEventConfig track_event_cfg;
 track_event_cfg.add_disabled_categories("*");
 track_event_cfg.add_enabled_categories("rendering");
 ```
@@ -346,7 +346,7 @@ track_event_cfg.add_enabled_categories("rendering");
 Next, build the main trace config together with the track event part:
 
 ```C++
-perfetto::TraceConfig cfg;
+dejaview::TraceConfig cfg;
 cfg.add_buffers()->set_size_kb(1024);  // Record up to 1 MiB.
 auto* ds_cfg = cfg.add_data_sources()->mutable_config();
 ds_cfg->set_name("track_event");
@@ -363,8 +363,8 @@ ds_cfg->set_name("my_data_source");
 After building the trace config, you can begin tracing:
 
 ```C++
-std::unique_ptr<perfetto::TracingSession> tracing_session(
-    perfetto::Tracing::NewTrace());
+std::unique_ptr<dejaview::TracingSession> tracing_session(
+    dejaview::Tracing::NewTrace());
 tracing_session->Setup(cfg);
 tracing_session->StartBlocking();
 ```
@@ -383,17 +383,17 @@ std::vector<char> trace_data(tracing_session->ReadTraceBlocking());
 
 // Write the trace into a file.
 std::ofstream output;
-output.open("example.perfetto-trace", std::ios::out | std::ios::binary);
+output.open("example.dejaview-trace", std::ios::out | std::ios::binary);
 output.write(&trace_data[0], trace_data.size());
 output.close();
 ```
 
-To save memory with longer traces, you can also tell Perfetto to write
+To save memory with longer traces, you can also tell DejaView to write
 directly into a file by passing a file descriptor into Setup(), remembering
 to close the file after tracing is done:
 
 ```C++
-int fd = open("example.perfetto-trace", O_RDWR | O_CREAT | O_TRUNC, 0600);
+int fd = open("example.dejaview-trace", O_RDWR | O_CREAT | O_TRUNC, 0600);
 tracing_session->Setup(cfg, fd);
 tracing_session->StartBlocking();
 // ...
@@ -401,7 +401,7 @@ tracing_session->StopBlocking();
 close(fd);
 ```
 
-The resulting trace file can be directly opened in the [Perfetto
+The resulting trace file can be directly opened in the [DejaView
 UI](https://ui.perfetto.dev) or the [Trace Processor](/docs/analysis/trace-processor.md).
 
 [ipc]: /docs/design-docs/api-and-abi.md#socket-protocol

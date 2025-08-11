@@ -26,16 +26,16 @@
 #include <set>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Used for conversion to REAL and MONO clocks for provided timestamps. Can only
@@ -91,6 +91,6 @@ class ClockConverter {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_CLOCK_CONVERTER_H_

@@ -19,9 +19,9 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column/data_layer.h"
@@ -29,7 +29,7 @@
 #include "src/trace_processor/db/column/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 
 using testing::ElementsAre;
@@ -208,7 +208,7 @@ TEST(StringStorage, IndexSearch) {
   ASSERT_THAT(utils::ExtractPayloadForTesting(indices), ElementsAre(2, 4, 5));
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 TEST(StringStorage, LinearSearchRegex) {
   std::vector<std::string> strings{"cheese",  "pasta", "pizza",
                                    "pierogi", "onion", "fries"};
@@ -515,4 +515,4 @@ TEST(StringStorage, DistinctFromIndexVector) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

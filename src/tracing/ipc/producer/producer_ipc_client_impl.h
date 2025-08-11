@@ -22,18 +22,18 @@
 #include <set>
 #include <vector>
 
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/ipc/client.h"
-#include "perfetto/ext/ipc/service_proxy.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/ipc/client.h"
+#include "dejaview/ext/ipc/service_proxy.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
 
-#include "protos/perfetto/ipc/producer_port.ipc.h"
+#include "protos/dejaview/ipc/producer_port.ipc.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -138,9 +138,9 @@ class ProducerIPCClientImpl : public TracingService::ProducerEndpoint,
   bool use_shmem_emulation_ = false;
   std::vector<std::function<void()>> pending_sync_reqs_;
   base::WeakPtrFactory<ProducerIPCClientImpl> weak_factory_{this};
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_PRODUCER_PRODUCER_IPC_CLIENT_IMPL_H_

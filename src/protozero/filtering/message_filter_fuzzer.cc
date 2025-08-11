@@ -18,13 +18,13 @@
 #include <stdint.h>
 #include <string.h>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/protozero/filtering/message_filter.h"
 
 namespace protozero {
 namespace {
 
-// A valid filter bytecode obtained from a perfetto.protos.Trace message.
+// A valid filter bytecode obtained from a dejaview.protos.Trace message.
 uint8_t kValidFilter[] = {
     0x0b, 0x01, 0x12, 0x04, 0x00, 0x0b, 0x02, 0x13, 0x0f, 0x19, 0x23, 0x13,
     0x33, 0x14, 0x3b, 0x15, 0x41, 0x4b, 0x11, 0x51, 0x5b, 0x16, 0x63, 0x3b,
@@ -85,12 +85,12 @@ uint8_t kValidFilter[] = {
 
 int FuzzMessageFilter(const uint8_t* data, size_t size) {
   MessageFilter filter;
-  PERFETTO_CHECK(filter.LoadFilterBytecode(kValidFilter, sizeof(kValidFilter)));
+  DEJAVIEW_CHECK(filter.LoadFilterBytecode(kValidFilter, sizeof(kValidFilter)));
 
   auto res = filter.FilterMessage(data, size);
 
   // Either parsing fails or if it succeeds, the output data must be <= input.
-  PERFETTO_CHECK(res.error || res.size <= size);
+  DEJAVIEW_CHECK(res.error || res.size <= size);
   return 0;
 }
 

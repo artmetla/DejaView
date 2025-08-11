@@ -20,19 +20,19 @@
 #include <cstddef>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/perf_file.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 // static
 base::StatusOr<AttrsSectionReader> AttrsSectionReader::Create(
     const PerfFile::Header& header,
     TraceBlobView section) {
-  PERFETTO_CHECK(section.size() == header.attrs.size);
+  DEJAVIEW_CHECK(section.size() == header.attrs.size);
 
   if (header.attr_size == 0) {
     return base::ErrStatus("Invalid attr_size (0) in perf file header.");
@@ -63,7 +63,7 @@ base::StatusOr<AttrsSectionReader> AttrsSectionReader::Create(
 }
 
 base::Status AttrsSectionReader::ReadNext(PerfFile::AttrsEntry& entry) {
-  PERFETTO_CHECK(reader_.ReadPerfEventAttr(entry.attr, attr_size_));
+  DEJAVIEW_CHECK(reader_.ReadPerfEventAttr(entry.attr, attr_size_));
 
   if (entry.attr.size != attr_size_) {
     return base::ErrStatus(
@@ -71,9 +71,9 @@ base::Status AttrsSectionReader::ReadNext(PerfFile::AttrsEntry& entry) {
         entry.attr.size);
   }
 
-  PERFETTO_CHECK(reader_.Read(entry.ids));
+  DEJAVIEW_CHECK(reader_.Read(entry.ids));
   --num_attr_;
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

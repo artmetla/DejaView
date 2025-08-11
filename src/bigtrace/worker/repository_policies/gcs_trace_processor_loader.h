@@ -16,11 +16,11 @@
 #ifndef SRC_BIGTRACE_WORKER_REPOSITORY_POLICIES_GCS_TRACE_PROCESSOR_LOADER_H_
 #define SRC_BIGTRACE_WORKER_REPOSITORY_POLICIES_GCS_TRACE_PROCESSOR_LOADER_H_
 
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/bigtrace/worker/repository_policies/trace_processor_loader.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 class GcsTraceProcessorLoader : public TraceProcessorLoader {
  public:
@@ -28,6 +28,6 @@ class GcsTraceProcessorLoader : public TraceProcessorLoader {
   LoadTraceProcessor(const std::string& path) override;
 };
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 #endif  // SRC_BIGTRACE_WORKER_REPOSITORY_POLICIES_GCS_TRACE_PROCESSOR_LOADER_H_

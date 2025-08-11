@@ -23,11 +23,11 @@
 
 #include <bitset>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/traced/data_source_types.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/traced/data_source_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using BlockDeviceID = decltype(stat::st_dev);
 using Inode = decltype(stat::st_ino);
@@ -67,21 +67,21 @@ struct FtraceMetadata {
 
   void AddDevice(BlockDeviceID device_id) {
     last_seen_device_id = device_id;
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
     seen_device_id = true;
 #endif
   }
 
   void AddInode(Inode inode_number) {
-#if PERFETTO_DCHECK_IS_ON()
-    PERFETTO_DCHECK(seen_device_id);
+#if DEJAVIEW_DCHECK_IS_ON()
+    DEJAVIEW_DCHECK(seen_device_id);
 #endif
     static int32_t cached_pid = 0;
     if (!cached_pid)
       cached_pid = getpid();
 
-    PERFETTO_DCHECK(last_seen_common_pid);
-    PERFETTO_DCHECK(cached_pid == getpid());
+    DEJAVIEW_DCHECK(last_seen_common_pid);
+    DEJAVIEW_DCHECK(cached_pid == getpid());
     // Ignore own scanning activity.
     if (cached_pid != last_seen_common_pid) {
       inode_and_device.insert(
@@ -93,7 +93,7 @@ struct FtraceMetadata {
 
   void AddPid(int32_t pid) {
     const size_t pid_bit = static_cast<size_t>(pid);
-    if (PERFETTO_LIKELY(pid_bit < pids_cache.size())) {
+    if (DEJAVIEW_LIKELY(pid_bit < pids_cache.size())) {
       if (pids_cache.test(pid_bit))
         return;
       pids_cache.set(pid_bit);
@@ -133,13 +133,13 @@ struct FtraceMetadata {
   void FinishEvent() {
     last_seen_device_id = 0;
     last_seen_common_pid = 0;
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
     seen_device_id = false;
 #endif
   }
 
   BlockDeviceID last_seen_device_id = 0;
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   bool seen_device_id = false;
 #endif
   int32_t last_seen_common_pid = 0;
@@ -157,6 +157,6 @@ struct FtraceMetadata {
   std::bitset<32768> pids_cache;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FTRACE_METADATA_H_

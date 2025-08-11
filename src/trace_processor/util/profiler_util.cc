@@ -17,10 +17,10 @@
 #include "src/trace_processor/util/profiler_util.h"
 #include <optional>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -149,7 +149,7 @@ std::optional<std::string> PackageFromLocation(TraceStorage* storage,
       [storage](base::StringView path) -> std::optional<std::string> {
     auto package = PackageFromApp(path);
     if (!package) {
-      PERFETTO_DLOG("Failed to parse %s", path.ToStdString().c_str());
+      DEJAVIEW_DLOG("Failed to parse %s", path.ToStdString().c_str());
       storage->IncrementStats(stats::deobfuscate_location_parse_error);
       return std::nullopt;
     }
@@ -195,4 +195,4 @@ std::string FullyQualifiedDeobfuscatedName(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -18,16 +18,16 @@
 // fallback implementations for TraceToText which simply return an error
 // message.
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/traceconv/trace_to_text.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 bool TraceToText(std::istream*, std::ostream*) {
-  PERFETTO_FATAL(
+  DEJAVIEW_FATAL(
       "The 'text' command is not available in lite builds of trace_to_text");
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,13 +19,13 @@
 
 #include <cstdint>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos::pbzero {
 class TracePacket_Decoder;
@@ -82,6 +82,6 @@ class ProtoTraceParserImpl : public ProtoTraceParser {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROTO_TRACE_PARSER_IMPL_H_

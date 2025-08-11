@@ -20,12 +20,12 @@
 #include <grpcpp/server_context.h>
 #include <grpcpp/support/status.h>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/trace_processor/rpc/query_result_serializer.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/trace_processor/rpc/query_result_serializer.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/bigtrace/worker/worker_impl.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 grpc::Status WorkerImpl::QueryTrace(
     grpc::ServerContext* server_context,
@@ -114,4 +114,4 @@ grpc::Status WorkerImpl::QueryTrace(
   }
 }
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace

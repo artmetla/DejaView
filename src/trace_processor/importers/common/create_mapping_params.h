@@ -23,11 +23,11 @@
 #include <string>
 #include <tuple>
 
-#include "perfetto/ext/base/hash.h"
+#include "dejaview/ext/base/hash.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 struct CreateMappingParams {
@@ -66,6 +66,6 @@ struct CreateMappingParams {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_CREATE_MAPPING_PARAMS_H_

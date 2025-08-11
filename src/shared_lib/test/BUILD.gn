@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 
 source_set("utils") {
   testonly = true
@@ -20,16 +20,16 @@ source_set("utils") {
     "..:shared_lib",
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../include/perfetto/public",
+    "../../../include/dejaview/public",
   ]
   sources = [
     "utils.cc",
     "utils.h",
   ]
-  defines = [ "PERFETTO_SDK_DISABLE_SHLIB_EXPORT" ]
+  defines = [ "DEJAVIEW_SDK_DISABLE_SHLIB_EXPORT" ]
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [
@@ -37,14 +37,14 @@ if (enable_perfetto_benchmarks) {
       "..:shared_lib",
       "../../../gn:benchmark",
       "../../../gn:default_deps",
-      "../../../include/perfetto/public",
+      "../../../include/dejaview/public",
     ]
-    defines = [ "PERFETTO_SDK_DISABLE_SHLIB_EXPORT" ]
+    defines = [ "DEJAVIEW_SDK_DISABLE_SHLIB_EXPORT" ]
     sources = [ "benchmark.cc" ]
   }
 }
 
-if (enable_perfetto_integration_tests) {
+if (enable_dejaview_integration_tests) {
   source_set("integrationtests") {
     testonly = true
     deps = [
@@ -52,10 +52,10 @@ if (enable_perfetto_integration_tests) {
       "..:shared_lib",
       "../../../gn:default_deps",
       "../../../gn:gtest_and_gmock",
-      "../../../include/perfetto/public",
+      "../../../include/dejaview/public",
       "protos",
     ]
-    defines = [ "PERFETTO_SDK_DISABLE_SHLIB_EXPORT" ]
+    defines = [ "DEJAVIEW_SDK_DISABLE_SHLIB_EXPORT" ]
     sources = [ "api_integrationtest.cc" ]
   }
 }

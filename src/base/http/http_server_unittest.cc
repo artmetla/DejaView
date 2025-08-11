@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/http/http_server.h"
+#include "dejaview/ext/base/http/http_server.h"
 
 #include <initializer_list>
 #include <string>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/unix_socket.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -71,7 +71,7 @@ class HttpCli {
     sock.SetBlocking(false);
     task_runner_->AddFileDescriptorWatch(sock.watch_handle(), [&] {
       char buf[1024]{};
-      auto rsize = PERFETTO_EINTR(sock.Receive(buf, sizeof(buf)));
+      auto rsize = DEJAVIEW_EINTR(sock.Receive(buf, sizeof(buf)));
       if (rsize < 0)
         return;
       rxbuf.append(buf, static_cast<size_t>(rsize));
@@ -325,4 +325,4 @@ TEST_F(HttpServerTest, Websocket_OriginNotAllowed) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

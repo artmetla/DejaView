@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <string>
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 struct alignas(8) SystraceLine {
   int64_t ts;
@@ -34,6 +34,6 @@ struct alignas(8) SystraceLine {
   std::string args_str;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_SYSTRACE_SYSTRACE_LINE_H_

@@ -3482,7 +3482,7 @@ android_mem {
     }
   }
   process_metrics {
-    process_name: "perfetto"
+    process_name: "dejaview"
     total_counters {
       anon_rss {
         min: 3489792.0

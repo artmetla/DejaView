@@ -14,12 +14,12 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.app_process_starts;
-INCLUDE PERFETTO MODULE android.garbage_collection;
-INCLUDE PERFETTO MODULE android.suspend;
+INCLUDE DEJAVIEW MODULE android.app_process_starts;
+INCLUDE DEJAVIEW MODULE android.garbage_collection;
+INCLUDE DEJAVIEW MODULE android.suspend;
 
 DROP VIEW IF EXISTS android_boot_unagg_output;
-CREATE PERFETTO VIEW android_boot_unagg_output AS
+CREATE DEJAVIEW VIEW android_boot_unagg_output AS
 SELECT AndroidBootUnagg(
   'android_app_process_start_metric', (
     SELECT AndroidAppProcessStartsMetric(

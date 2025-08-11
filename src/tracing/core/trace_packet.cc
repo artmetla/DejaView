@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/proto_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 TracePacket::TracePacket() = default;
 TracePacket::~TracePacket() = default;
@@ -60,7 +60,7 @@ std::tuple<char*, size_t> TracePacket::GetProtoPreamble() {
   ptr = WriteVarInt(size(), ptr);
   size_t preamble_size = reinterpret_cast<uintptr_t>(ptr) -
                          reinterpret_cast<uintptr_t>(&preamble_[0]);
-  PERFETTO_DCHECK(preamble_size <= sizeof(preamble_));
+  DEJAVIEW_DCHECK(preamble_size <= sizeof(preamble_));
   return std::make_tuple(&preamble_[0], preamble_size);
 }
 
@@ -69,11 +69,11 @@ std::string TracePacket::GetRawBytesForTesting() {
   data.resize(size());
   size_t pos = 0;
   for (const Slice& slice : slices()) {
-    PERFETTO_CHECK(pos + slice.size <= data.size());
+    DEJAVIEW_CHECK(pos + slice.size <= data.size());
     memcpy(&data[pos], slice.start, slice.size);
     pos += slice.size;
   }
   return data;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -120,7 +120,7 @@ function renderHeader() {
   const docsUrl =
       'https://perfetto.dev/docs/design-docs/continuous-integration';
   return m(
-      'header', m('a[href=/#!/cls]', m('h1', 'Perfetto ', m('span', 'CI'))),
+      'header', m('a[href=/#!/cls]', m('h1', 'DejaView ', m('span', 'CI'))),
       m(
           'nav',
           m(`div${active('cls')}`, m('a[href=/#!/cls]', 'CLs')),

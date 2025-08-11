@@ -17,7 +17,7 @@
 #include "src/trace_processor/importers/common/machine_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 MachineTracker::MachineTracker(TraceProcessorContext* context,
                                uint32_t raw_machine_id)
@@ -30,4 +30,4 @@ MachineTracker::MachineTracker(TraceProcessorContext* context,
 }
 MachineTracker::~MachineTracker() = default;
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

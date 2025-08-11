@@ -846,7 +846,7 @@ class Parsing(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.process_metadata;
+        INCLUDE DEJAVIEW MODULE android.process_metadata;
 
         SELECT upid, process_name, uid, shared_uid, package_name, version_code
         FROM android_process_metadata

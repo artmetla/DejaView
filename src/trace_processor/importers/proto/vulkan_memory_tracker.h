@@ -26,10 +26,10 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/gpu/vulkan_memory_event.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/gpu/vulkan_memory_event.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class VulkanMemoryTracker {
  public:
@@ -80,6 +80,6 @@ class VulkanMemoryTracker {
   void SetupSourceAndTypeInternedStrings();
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_VULKAN_MEMORY_TRACKER_H_

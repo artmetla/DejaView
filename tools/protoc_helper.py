@@ -44,10 +44,10 @@ def main():
 
   cmd = [
       args.protoc,
-      '--%s=perfetto.protos.%s' % (args.encode_or_decode, args.proto_name),
+      '--%s=dejaview.protos.%s' % (args.encode_or_decode, args.proto_name),
       '--proto_path=%s' % ROOT_DIR,
-      os.path.join(ROOT_DIR, 'protos/perfetto/config/trace_config.proto'),
-      os.path.join(ROOT_DIR, 'protos/perfetto/trace/trace.proto'),
+      os.path.join(ROOT_DIR, 'protos/dejaview/config/trace_config.proto'),
+      os.path.join(ROOT_DIR, 'protos/dejaview/trace/trace.proto'),
   ]
   in_file = sys.stdin if args.input == '-' else open(args.input, 'rb')
   out_file = sys.stdout if args.output == '-' else open(args.output, 'wb')

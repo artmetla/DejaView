@@ -27,14 +27,14 @@
 #include <thread>
 #include <tuple>
 
-#include "perfetto/base/platform_handle.h"
-#include "perfetto/ext/base/event_fd.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/ipc/basic_types.h"
+#include "dejaview/base/platform_handle.h"
+#include "dejaview/ext/base/event_fd.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/ipc/basic_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // FdPoller is a utility for waiting for IO events of a set of watched file
 // descriptors. It's used for multiplexing non-blocking IO operations.
@@ -112,12 +112,12 @@ class SocketWithBuffer {
 
   // Called when |bytes| of data is enqueued to the buffer.
   void EnqueueData(size_t bytes) {
-    PERFETTO_CHECK(bytes <= available_bytes());
+    DEJAVIEW_CHECK(bytes <= available_bytes());
     data_size_ += bytes;
   }
   // Called when |bytes| of data is dequeued from the buffer.
   void DequeueData(size_t bytes) {
-    PERFETTO_CHECK(bytes <= data_size());
+    DEJAVIEW_CHECK(bytes <= data_size());
     memmove(data(), data() + bytes, data_size() - bytes);
     data_size_ -= bytes;
   }
@@ -186,5 +186,5 @@ class SocketRelayHandler : public FdPoller::Watcher {
   std::deque<std::packaged_task<void()>> pending_tasks_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // SRC_TRACED_RELAY_SOCKET_RELAY_HANDLER_H_

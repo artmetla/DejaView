@@ -20,12 +20,12 @@
 #include <memory>
 #include <vector>
 
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 #include "src/traced_relay/socket_relay_handler.h"
 #include "src/tracing/ipc/producer/relay_ipc_client.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -63,13 +63,13 @@ class RelayClient : private base::UnixSocket::EventListener,
   void OnNewIncomingConnection(base::UnixSocket*,
                                std::unique_ptr<base::UnixSocket>) override {
     // This class doesn't open a socket in listening mode.
-    PERFETTO_DFATAL("Should be unreachable.");
+    DEJAVIEW_DFATAL("Should be unreachable.");
   }
   void OnConnect(base::UnixSocket* self, bool connected) override;
   void OnDisconnect(base::UnixSocket*) override { NotifyError(); }
   void OnDataAvailable(base::UnixSocket*) override {
     // Should be handled in the IPC client.
-    PERFETTO_DFATAL("Should be unreachable.");
+    DEJAVIEW_DFATAL("Should be unreachable.");
   }
 
   void NotifyError();
@@ -169,6 +169,6 @@ class RelayService : public base::UnixSocket::EventListener {
   bool relay_client_disabled_for_testing_ = false;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_RELAY_RELAY_SERVICE_H_

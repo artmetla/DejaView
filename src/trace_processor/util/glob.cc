@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/util/glob.h"
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -34,9 +34,9 @@ GlobMatcher::GlobMatcher(base::StringView pattern_str)
   auto create_segment = [this, &segment_start, &segment_potential_matched_chars,
                          &pattern](size_t i) {
     base::StringView segment = pattern.substr(segment_start, i - segment_start);
-    PERFETTO_DCHECK(segment_potential_matched_chars <= segment.size());
+    DEJAVIEW_DCHECK(segment_potential_matched_chars <= segment.size());
     if (!segment.empty()) {
-      PERFETTO_DCHECK(segment_potential_matched_chars > 0);
+      DEJAVIEW_DCHECK(segment_potential_matched_chars > 0);
       segments_.emplace_back(Segment{segment, segment_potential_matched_chars});
     }
     return segment.empty();
@@ -84,7 +84,7 @@ bool GlobMatcher::Matches(base::StringView in) const {
   // we are match if either a) there is a leading star (== trailing star) or
   // b) the input string is empty.
   if (segments_.empty()) {
-    PERFETTO_DCHECK(leading_star_ == trailing_star_);
+    DEJAVIEW_DCHECK(leading_star_ == trailing_star_);
     return leading_star_ || in.empty();
   }
 
@@ -188,7 +188,7 @@ base::StringView GlobMatcher::ExtractCharacterClass(base::StringView in) {
 }
 
 bool GlobMatcher::MatchesCharacterClass(char in, base::StringView char_class) {
-  PERFETTO_DCHECK(!char_class.empty());
+  DEJAVIEW_DCHECK(!char_class.empty());
 
   const char* start = char_class.data();
   const char* end = start + char_class.size();
@@ -196,7 +196,7 @@ bool GlobMatcher::MatchesCharacterClass(char in, base::StringView char_class) {
   bool invert = *start == '^';
   start += invert;
 
-  PERFETTO_DCHECK(start != end);
+  DEJAVIEW_DCHECK(start != end);
 
   for (auto* ptr = start; ptr != end; ++ptr) {
     char cur = *ptr;
@@ -228,4 +228,4 @@ bool GlobMatcher::MatchesCharacterClass(char in, base::StringView char_class) {
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

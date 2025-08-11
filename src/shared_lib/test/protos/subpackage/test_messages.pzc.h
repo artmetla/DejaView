@@ -23,46 +23,46 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "perfetto/public/pb_macros.h"
+#include "dejaview/public/pb_macros.h"
 
-PERFETTO_PB_MSG_DECL(protozero_test_protos_subpackage_Message_NestedMessage);
+DEJAVIEW_PB_MSG_DECL(protozero_test_protos_subpackage_Message_NestedMessage);
 
-PERFETTO_PB_ENUM(protozero_test_protos_subpackage_Enum){
-    PERFETTO_PB_ENUM_ENTRY(protozero_test_protos_subpackage_A) = 1,
-    PERFETTO_PB_ENUM_ENTRY(protozero_test_protos_subpackage_B) = 2,
+DEJAVIEW_PB_ENUM(protozero_test_protos_subpackage_Enum){
+    DEJAVIEW_PB_ENUM_ENTRY(protozero_test_protos_subpackage_A) = 1,
+    DEJAVIEW_PB_ENUM_ENTRY(protozero_test_protos_subpackage_B) = 2,
 };
 
-PERFETTO_PB_ENUM_IN_MSG(protozero_test_protos_subpackage_Message, NestedEnum){
-    PERFETTO_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_subpackage_Message,
+DEJAVIEW_PB_ENUM_IN_MSG(protozero_test_protos_subpackage_Message, NestedEnum){
+    DEJAVIEW_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_subpackage_Message,
                                   C) = 3,
-    PERFETTO_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_subpackage_Message,
+    DEJAVIEW_PB_ENUM_IN_MSG_ENTRY(protozero_test_protos_subpackage_Message,
                                   D) = 4,
 };
 
-PERFETTO_PB_MSG(protozero_test_protos_subpackage_Message);
-PERFETTO_PB_FIELD(protozero_test_protos_subpackage_Message,
+DEJAVIEW_PB_MSG(protozero_test_protos_subpackage_Message);
+DEJAVIEW_PB_FIELD(protozero_test_protos_subpackage_Message,
                   VARINT,
                   int32_t,
                   field_int32,
                   1);
-PERFETTO_PB_FIELD(protozero_test_protos_subpackage_Message,
+DEJAVIEW_PB_FIELD(protozero_test_protos_subpackage_Message,
                   VARINT,
                   enum protozero_test_protos_subpackage_Enum,
                   field_enum,
                   2);
-PERFETTO_PB_FIELD(protozero_test_protos_subpackage_Message,
+DEJAVIEW_PB_FIELD(protozero_test_protos_subpackage_Message,
                   VARINT,
                   enum protozero_test_protos_subpackage_Message_NestedEnum,
                   field_nested_enum,
                   3);
-PERFETTO_PB_FIELD(protozero_test_protos_subpackage_Message,
+DEJAVIEW_PB_FIELD(protozero_test_protos_subpackage_Message,
                   MSG,
                   protozero_test_protos_subpackage_Message_NestedMessage,
                   field_nested_message,
                   4);
 
-PERFETTO_PB_MSG(protozero_test_protos_subpackage_Message_NestedMessage);
-PERFETTO_PB_FIELD(protozero_test_protos_subpackage_Message_NestedMessage,
+DEJAVIEW_PB_MSG(protozero_test_protos_subpackage_Message_NestedMessage);
+DEJAVIEW_PB_FIELD(protozero_test_protos_subpackage_Message_NestedMessage,
                   VARINT,
                   int32_t,
                   field_int32,

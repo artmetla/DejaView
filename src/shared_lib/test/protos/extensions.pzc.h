@@ -23,43 +23,43 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "perfetto/public/pb_macros.h"
+#include "dejaview/public/pb_macros.h"
 
-PERFETTO_PB_MSG(protozero_test_protos_SystemB);
-PERFETTO_PB_FIELD(protozero_test_protos_SystemB, VARINT, uint32_t, int_b, 1);
-PERFETTO_PB_FIELD(protozero_test_protos_SystemB,
+DEJAVIEW_PB_MSG(protozero_test_protos_SystemB);
+DEJAVIEW_PB_FIELD(protozero_test_protos_SystemB, VARINT, uint32_t, int_b, 1);
+DEJAVIEW_PB_FIELD(protozero_test_protos_SystemB,
                   STRING,
                   const char*,
                   string_b,
                   2);
 
-PERFETTO_PB_MSG(protozero_test_protos_SystemA);
-PERFETTO_PB_FIELD(protozero_test_protos_SystemA, VARINT, uint32_t, int_a, 1);
-PERFETTO_PB_FIELD(protozero_test_protos_SystemA,
+DEJAVIEW_PB_MSG(protozero_test_protos_SystemA);
+DEJAVIEW_PB_FIELD(protozero_test_protos_SystemA, VARINT, uint32_t, int_a, 1);
+DEJAVIEW_PB_FIELD(protozero_test_protos_SystemA,
                   STRING,
                   const char*,
                   string_a,
                   2);
 
-PERFETTO_PB_MSG(protozero_test_protos_RealFakeEvent);
-PERFETTO_PB_FIELD(protozero_test_protos_RealFakeEvent,
+DEJAVIEW_PB_MSG(protozero_test_protos_RealFakeEvent);
+DEJAVIEW_PB_FIELD(protozero_test_protos_RealFakeEvent,
                   VARINT,
                   uint32_t,
                   base_int,
                   1);
-PERFETTO_PB_FIELD(protozero_test_protos_RealFakeEvent,
+DEJAVIEW_PB_FIELD(protozero_test_protos_RealFakeEvent,
                   STRING,
                   const char*,
                   base_string,
                   2);
 
-PERFETTO_PB_EXTENSION_FIELD(protozero_test_protos_BrowserExtension,
+DEJAVIEW_PB_EXTENSION_FIELD(protozero_test_protos_BrowserExtension,
                             protozero_test_protos_RealFakeEvent,
                             MSG,
                             protozero_test_protos_SystemA,
                             extension_a,
                             10);
-PERFETTO_PB_EXTENSION_FIELD(protozero_test_protos_BrowserExtension,
+DEJAVIEW_PB_EXTENSION_FIELD(protozero_test_protos_BrowserExtension,
                             protozero_test_protos_RealFakeEvent,
                             MSG,
                             protozero_test_protos_SystemB,

@@ -27,7 +27,7 @@
 #include "src/profiling/common/interner.h"
 #include "src/profiling/common/unwind_support.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 struct Mapping {
@@ -115,7 +115,7 @@ class GlobalCallstackTrie {
     Node(Interned<Frame> frame, uint64_t id, Node* parent)
         : id_(id), parent_(parent), location_(frame) {}
 
-    ~Node() { PERFETTO_DCHECK(!ref_count_); }
+    ~Node() { DEJAVIEW_DCHECK(!ref_count_); }
 
     uint64_t id() const { return id_; }
 
@@ -169,7 +169,7 @@ class GlobalCallstackTrie {
   // restarting any interning sequences. Incompatible with external refcounting
   // of nodes (Node.ref_count_).
   void ClearTrie() {
-    PERFETTO_DLOG("Clearing trie");
+    DEJAVIEW_DLOG("Clearing trie");
     root_.DeleteChildren();
   }
 
@@ -190,15 +190,15 @@ class GlobalCallstackTrie {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 template <>
-struct std::hash<::perfetto::profiling::Mapping> {
-  using argument_type = ::perfetto::profiling::Mapping;
+struct std::hash<::dejaview::profiling::Mapping> {
+  using argument_type = ::dejaview::profiling::Mapping;
   using result_type = size_t;
   result_type operator()(const argument_type& mapping) {
     size_t h =
-        std::hash<::perfetto::profiling::InternID>{}(mapping.build_id.id());
+        std::hash<::dejaview::profiling::InternID>{}(mapping.build_id.id());
     h ^= std::hash<uint64_t>{}(mapping.exact_offset);
     h ^= std::hash<uint64_t>{}(mapping.start_offset);
     h ^= std::hash<uint64_t>{}(mapping.start);
@@ -211,12 +211,12 @@ struct std::hash<::perfetto::profiling::Mapping> {
 };
 
 template <>
-struct std::hash<::perfetto::profiling::Frame> {
-  using argument_type = ::perfetto::profiling::Frame;
+struct std::hash<::dejaview::profiling::Frame> {
+  using argument_type = ::dejaview::profiling::Frame;
   using result_type = size_t;
   result_type operator()(const argument_type& frame) {
-    size_t h = std::hash<::perfetto::profiling::InternID>{}(frame.mapping.id());
-    h ^= std::hash<::perfetto::profiling::InternID>{}(frame.function_name.id());
+    size_t h = std::hash<::dejaview::profiling::InternID>{}(frame.mapping.id());
+    h ^= std::hash<::dejaview::profiling::InternID>{}(frame.function_name.id());
     h ^= std::hash<uint64_t>{}(frame.rel_pc);
     return h;
   }

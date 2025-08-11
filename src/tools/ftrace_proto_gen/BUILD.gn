@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto_host_executable.gni")
+import("../../../gn/dejaview_host_executable.gni")
 import("../../../gn/test.gni")
 
-perfetto_host_executable("ftrace_proto_gen") {
+dejaview_host_executable("ftrace_proto_gen") {
   testonly = true
   sources = [ "main.cc" ]
   deps = [
@@ -27,7 +27,7 @@ perfetto_host_executable("ftrace_proto_gen") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":lib",

@@ -23,9 +23,9 @@
 #include <google/protobuf/compiler/importer.h>
 #include <string>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 class MultiFileErrorCollectorImpl
@@ -44,6 +44,6 @@ class MultiFileErrorCollectorImpl
 };
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_PROTO_FULL_UTILS_H_

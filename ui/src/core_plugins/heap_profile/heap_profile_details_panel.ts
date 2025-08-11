@@ -243,7 +243,7 @@ function flamegraphAttrsForHeapProfile(
           )
         `,
         metrics,
-        'include perfetto module android.memory.heap_profile.callstacks',
+        'include dejaview module android.memory.heap_profile.callstacks',
         [{name: 'mapping_name', displayName: 'Mapping'}],
         [
           {
@@ -274,7 +274,7 @@ function flamegraphAttrsForHeapGraph(
         name: 'Object Size',
         unit: 'B',
         dependencySql:
-          'include perfetto module android.memory.heap_graph.class_tree;',
+          'include dejaview module android.memory.heap_graph.class_tree;',
         statement: `
           select
             id,
@@ -301,7 +301,7 @@ function flamegraphAttrsForHeapGraph(
         name: 'Object Count',
         unit: '',
         dependencySql:
-          'include perfetto module android.memory.heap_graph.class_tree;',
+          'include dejaview module android.memory.heap_graph.class_tree;',
         statement: `
           select
             id,
@@ -321,7 +321,7 @@ function flamegraphAttrsForHeapGraph(
         name: 'Dominated Object Size',
         unit: 'B',
         dependencySql:
-          'include perfetto module android.memory.heap_graph.dominator_class_tree;',
+          'include dejaview module android.memory.heap_graph.dominator_class_tree;',
         statement: `
           select
             id,
@@ -348,7 +348,7 @@ function flamegraphAttrsForHeapGraph(
         name: 'Dominated Object Count',
         unit: '',
         dependencySql:
-          'include perfetto module android.memory.heap_graph.dominator_class_tree;',
+          'include dejaview module android.memory.heap_graph.dominator_class_tree;',
         statement: `
           select
             id,

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/proto/string_encoding_utils.h"
 
 #include <cstdint>
@@ -23,10 +23,10 @@
 #include <limits>
 #include <string>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -129,4 +129,4 @@ TEST(ConvertUtf16BeToUtf8, InvalidValidInput) {
 }  // namespace
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

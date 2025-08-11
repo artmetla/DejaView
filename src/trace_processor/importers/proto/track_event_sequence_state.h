@@ -19,9 +19,9 @@
 
 #include <utility>
 
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TrackEventSequenceState {
@@ -44,19 +44,19 @@ class TrackEventSequenceState {
   bool timestamps_valid() const { return timestamps_valid_; }
 
   int64_t IncrementAndGetTrackEventTimeNs(int64_t delta_ns) {
-    PERFETTO_DCHECK(timestamps_valid());
+    DEJAVIEW_DCHECK(timestamps_valid());
     timestamp_ns_ += delta_ns;
     return timestamp_ns_;
   }
 
   int64_t IncrementAndGetTrackEventThreadTimeNs(int64_t delta_ns) {
-    PERFETTO_DCHECK(timestamps_valid());
+    DEJAVIEW_DCHECK(timestamps_valid());
     thread_timestamp_ns_ += delta_ns;
     return thread_timestamp_ns_;
   }
 
   int64_t IncrementAndGetTrackEventThreadInstructionCount(int64_t delta) {
-    PERFETTO_DCHECK(timestamps_valid());
+    DEJAVIEW_DCHECK(timestamps_valid());
     thread_instruction_count_ += delta;
     return thread_instruction_count_;
   }
@@ -94,6 +94,6 @@ class TrackEventSequenceState {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_TRACK_EVENT_SEQUENCE_STATE_H_

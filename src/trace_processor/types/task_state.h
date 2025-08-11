@@ -23,12 +23,12 @@
 
 #include "src/trace_processor/types/version_number.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace ftrace_utils {
 
 // Linux kernel scheduling events (sched_switch) contain a bitmask of the
-// switched-out task's state (prev_state). Perfetto doesn't record the event
+// switched-out task's state (prev_state). DejaView doesn't record the event
 // format string during tracing, the trace contains only the raw bitmask as an
 // integer. Certain kernel versions made backwards incompatible changes to the
 // bitmask's raw representation, so this class guesses how to decode the flags
@@ -125,6 +125,6 @@ class TaskState {
 
 }  // namespace ftrace_utils
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_TASK_STATE_H_

@@ -19,15 +19,15 @@
 
 #include <vector>
 
-#include "perfetto/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Matches TracingServiceImpl::kMaxTracePacketSliceSize. Exposed for testing.
 static constexpr size_t kZlibCompressSliceSize = 128 * 1024 - 512;
 
 void ZlibCompressFn(std::vector<TracePacket>*);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_SERVICE_ZLIB_COMPRESSOR_H_

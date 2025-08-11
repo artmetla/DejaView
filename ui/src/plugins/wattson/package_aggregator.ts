@@ -29,7 +29,7 @@ export class WattsonPackageSelectionAggregator
     await engine.query(`drop view if exists ${this.id};`);
 
     const packageInfo = await engine.query(`
-      INCLUDE PERFETTO MODULE android.process_metadata;
+      INCLUDE DEJAVIEW MODULE android.process_metadata;
       SELECT COUNT(*) as isValid FROM android_process_metadata
       WHERE package_name IS NOT NULL
     `);

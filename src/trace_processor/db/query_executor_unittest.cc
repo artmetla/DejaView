@@ -23,8 +23,8 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
@@ -40,7 +40,7 @@
 #include "src/trace_processor/db/column/types.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using testing::ElementsAre;
@@ -628,7 +628,7 @@ TEST(QueryExecutor, MismatchedTypeSetIdWithDouble) {
   ASSERT_EQ(res.size(), 9u);
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 TEST(QueryExecutor, StringBinarySearchRegex) {
   StringPool pool;
   std::vector<std::string> strings{"cheese",  "pasta", "pizza",
@@ -681,4 +681,4 @@ TEST(QueryExecutor, StringBinarySearchRegexWithNum) {
 #endif
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

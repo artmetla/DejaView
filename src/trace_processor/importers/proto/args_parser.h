@@ -22,7 +22,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // A ProtoToArgsParser::Delegate that writes the parsed proto data into
 // TraceStorage after interning key strings.
@@ -63,6 +63,6 @@ class ArgsParser : public util::ProtoToArgsParser::Delegate {
   TraceStorage& storage_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_ARGS_PARSER_H_

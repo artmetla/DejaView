@@ -21,7 +21,7 @@
 #include <limits>
 #include <vector>
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class ProcessThreadTimeline {
  public:
@@ -125,6 +125,6 @@ class ProcessThreadTimeline {
   Mode mode_ = Mode::kRead;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_PROCESS_THREAD_TIMELINE_H_

@@ -20,19 +20,19 @@
 
 #include <cinttypes>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/ipc/client.h"
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/observable_events.h"
-#include "perfetto/ext/tracing/core/trace_stats.h"
-#include "perfetto/tracing/core/trace_config.h"
-#include "perfetto/tracing/core/tracing_service_state.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/ipc/client.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/observable_events.h"
+#include "dejaview/ext/tracing/core/trace_stats.h"
+#include "dejaview/tracing/core/trace_config.h"
+#include "dejaview/tracing/core/tracing_service_state.h"
 
 // TODO(fmayer): Add a test to check to what happens when ConsumerIPCClientImpl
 // gets destroyed w.r.t. the Consumer pointer. Also think to lifetime of the
 // Consumer* during the callbacks.
 
-namespace perfetto {
+namespace dejaview {
 
 // static. (Declared in include/tracing/ipc/consumer_ipc_client.h).
 std::unique_ptr<TracingService::ConsumerEndpoint> ConsumerIPCClient::Connect(
@@ -64,7 +64,7 @@ void ConsumerIPCClientImpl::OnConnect() {
 }
 
 void ConsumerIPCClientImpl::OnDisconnect() {
-  PERFETTO_DLOG("Tracing service connection failure");
+  DEJAVIEW_DLOG("Tracing service connection failure");
   connected_ = false;
   consumer_->OnDisconnect();  // Note: may delete |this|.
 }
@@ -72,11 +72,11 @@ void ConsumerIPCClientImpl::OnDisconnect() {
 void ConsumerIPCClientImpl::EnableTracing(const TraceConfig& trace_config,
                                           base::ScopedFile fd) {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot EnableTracing(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot EnableTracing(), not connected to tracing service");
     return;
   }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   if (fd) {
     consumer_->OnTracingDisabled(
         "Passing FDs for write_into_file is not supported on Windows");
@@ -102,7 +102,7 @@ void ConsumerIPCClientImpl::EnableTracing(const TraceConfig& trace_config,
 
 void ConsumerIPCClientImpl::ChangeTraceConfig(const TraceConfig& trace_config) {
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot ChangeTraceConfig(), not connected to tracing service");
     return;
   }
@@ -111,7 +111,7 @@ void ConsumerIPCClientImpl::ChangeTraceConfig(const TraceConfig& trace_config) {
   async_response.Bind(
       [](ipc::AsyncResult<protos::gen::ChangeTraceConfigResponse> response) {
         if (!response)
-          PERFETTO_DLOG("ChangeTraceConfig() failed");
+          DEJAVIEW_DLOG("ChangeTraceConfig() failed");
       });
   protos::gen::ChangeTraceConfigRequest req;
   *req.mutable_trace_config() = trace_config;
@@ -120,7 +120,7 @@ void ConsumerIPCClientImpl::ChangeTraceConfig(const TraceConfig& trace_config) {
 
 void ConsumerIPCClientImpl::StartTracing() {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot StartTracing(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot StartTracing(), not connected to tracing service");
     return;
   }
 
@@ -128,7 +128,7 @@ void ConsumerIPCClientImpl::StartTracing() {
   async_response.Bind(
       [](ipc::AsyncResult<protos::gen::StartTracingResponse> response) {
         if (!response)
-          PERFETTO_DLOG("StartTracing() failed");
+          DEJAVIEW_DLOG("StartTracing() failed");
       });
   protos::gen::StartTracingRequest req;
   consumer_port_.StartTracing(req, std::move(async_response));
@@ -136,7 +136,7 @@ void ConsumerIPCClientImpl::StartTracing() {
 
 void ConsumerIPCClientImpl::DisableTracing() {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot DisableTracing(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot DisableTracing(), not connected to tracing service");
     return;
   }
 
@@ -144,7 +144,7 @@ void ConsumerIPCClientImpl::DisableTracing() {
   async_response.Bind(
       [](ipc::AsyncResult<protos::gen::DisableTracingResponse> response) {
         if (!response)
-          PERFETTO_DLOG("DisableTracing() failed");
+          DEJAVIEW_DLOG("DisableTracing() failed");
       });
   consumer_port_.DisableTracing(protos::gen::DisableTracingRequest(),
                                 std::move(async_response));
@@ -152,7 +152,7 @@ void ConsumerIPCClientImpl::DisableTracing() {
 
 void ConsumerIPCClientImpl::ReadBuffers() {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot ReadBuffers(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot ReadBuffers(), not connected to tracing service");
     return;
   }
 
@@ -173,7 +173,7 @@ void ConsumerIPCClientImpl::ReadBuffers() {
 void ConsumerIPCClientImpl::OnReadBuffersResponse(
     ipc::AsyncResult<protos::gen::ReadBuffersResponse> response) {
   if (!response) {
-    PERFETTO_DLOG("ReadBuffers() failed");
+    DEJAVIEW_DLOG("ReadBuffers() failed");
     return;
   }
   std::vector<TracePacket> trace_packets;
@@ -207,7 +207,7 @@ void ConsumerIPCClientImpl::OnEnableTracingResponse(
 
 void ConsumerIPCClientImpl::FreeBuffers() {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot FreeBuffers(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot FreeBuffers(), not connected to tracing service");
     return;
   }
 
@@ -216,7 +216,7 @@ void ConsumerIPCClientImpl::FreeBuffers() {
   async_response.Bind(
       [](ipc::AsyncResult<protos::gen::FreeBuffersResponse> response) {
         if (!response)
-          PERFETTO_DLOG("FreeBuffers() failed");
+          DEJAVIEW_DLOG("FreeBuffers() failed");
       });
   consumer_port_.FreeBuffers(req, std::move(async_response));
 }
@@ -225,7 +225,7 @@ void ConsumerIPCClientImpl::Flush(uint32_t timeout_ms,
                                   FlushCallback callback,
                                   FlushFlags flush_flags) {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot Flush(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot Flush(), not connected to tracing service");
     return callback(/*success=*/false);
   }
 
@@ -242,7 +242,7 @@ void ConsumerIPCClientImpl::Flush(uint32_t timeout_ms,
 
 void ConsumerIPCClientImpl::Detach(const std::string& key) {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot Detach(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot Detach(), not connected to tracing service");
     return;
   }
 
@@ -261,7 +261,7 @@ void ConsumerIPCClientImpl::Detach(const std::string& key) {
 
 void ConsumerIPCClientImpl::Attach(const std::string& key) {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot Attach(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot Attach(), not connected to tracing service");
     return;
   }
 
@@ -303,7 +303,7 @@ void ConsumerIPCClientImpl::Attach(const std::string& key) {
 
 void ConsumerIPCClientImpl::GetTraceStats() {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot GetTraceStats(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot GetTraceStats(), not connected to tracing service");
     return;
   }
 
@@ -327,7 +327,7 @@ void ConsumerIPCClientImpl::GetTraceStats() {
 
 void ConsumerIPCClientImpl::ObserveEvents(uint32_t enabled_event_types) {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot ObserveEvents(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot ObserveEvents(), not connected to tracing service");
     return;
   }
 
@@ -347,7 +347,7 @@ void ConsumerIPCClientImpl::ObserveEvents(uint32_t enabled_event_types) {
       [this](ipc::AsyncResult<protos::gen::ObserveEventsResponse> response) {
         // Skip empty response, which the service sends to close the stream.
         if (!response.has_more()) {
-          PERFETTO_DCHECK(!response.success());
+          DEJAVIEW_DCHECK(!response.success());
           return;
         }
         consumer_->OnObservableEvents(response->events());
@@ -359,7 +359,7 @@ void ConsumerIPCClientImpl::QueryServiceState(
     QueryServiceStateArgs args,
     QueryServiceStateCallback callback) {
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot QueryServiceState(), not connected to tracing service");
     return;
   }
@@ -382,7 +382,7 @@ void ConsumerIPCClientImpl::QueryServiceState(
 void ConsumerIPCClientImpl::OnQueryServiceStateResponse(
     ipc::AsyncResult<protos::gen::QueryServiceStateResponse> response,
     PendingQueryServiceRequests::iterator req_it) {
-  PERFETTO_DCHECK(req_it->callback);
+  DEJAVIEW_DCHECK(req_it->callback);
 
   if (!response) {
     auto callback = std::move(req_it->callback);
@@ -407,7 +407,7 @@ void ConsumerIPCClientImpl::OnQueryServiceStateResponse(
   protos::gen::TracingServiceState svc_state;
   bool ok = svc_state.ParseFromArray(merged_resp.data(), merged_resp.size());
   if (!ok)
-    PERFETTO_ELOG("Failed to decode merged QueryServiceStateResponse");
+    DEJAVIEW_ELOG("Failed to decode merged QueryServiceStateResponse");
   auto callback = std::move(req_it->callback);
   pending_query_svc_reqs_.erase(req_it);
   callback(ok, std::move(svc_state));
@@ -416,7 +416,7 @@ void ConsumerIPCClientImpl::OnQueryServiceStateResponse(
 void ConsumerIPCClientImpl::QueryCapabilities(
     QueryCapabilitiesCallback callback) {
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot QueryCapabilities(), not connected to tracing service");
     return;
   }
@@ -441,7 +441,7 @@ void ConsumerIPCClientImpl::QueryCapabilities(
 void ConsumerIPCClientImpl::SaveTraceForBugreport(
     SaveTraceForBugreportCallback callback) {
   if (!connected_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Cannot SaveTraceForBugreport(), not connected to tracing service");
     return;
   }
@@ -467,7 +467,7 @@ void ConsumerIPCClientImpl::SaveTraceForBugreport(
 void ConsumerIPCClientImpl::CloneSession(TracingSessionID tsid,
                                          CloneSessionArgs args) {
   if (!connected_) {
-    PERFETTO_DLOG("Cannot CloneSession(), not connected to tracing service");
+    DEJAVIEW_DLOG("Cannot CloneSession(), not connected to tracing service");
     return;
   }
 
@@ -496,4 +496,4 @@ void ConsumerIPCClientImpl::CloneSession(TracingSessionID tsid,
       });
   consumer_port_.CloneSession(req, std::move(async_response));
 }
-}  // namespace perfetto
+}  // namespace dejaview

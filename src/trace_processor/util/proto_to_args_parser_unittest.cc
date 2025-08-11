@@ -16,13 +16,13 @@
 
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/source_location.pbzero.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/source_location.pbzero.h"
 #include "src/protozero/test/example_proto/test_messages.pbzero.h"
 #include "src/trace_processor/test_messages.descriptor.h"
 #include "src/trace_processor/util/interned_message_view.h"
@@ -32,7 +32,7 @@
 #include <limits>
 #include <sstream>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 namespace {
@@ -665,4 +665,4 @@ TEST_F(ProtoToArgsParserTest, PackedFields) {
 }  // namespace
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

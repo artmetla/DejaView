@@ -17,19 +17,19 @@
 #include <memory>
 #include <string>
 #include <vector>
-#include "perfetto/ext/base/unix_socket.h"
-#include "protos/perfetto/trace/remote_clock_sync.gen.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "protos/dejaview/trace/remote_clock_sync.gen.h"
 #include "src/traced_relay/relay_service.h"
 
 #include "src/base/test/test_task_runner.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/config/trace_config.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/config/trace_config.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 struct TestParams {
@@ -71,15 +71,15 @@ TEST(TracedRelayIntegrationTest, BasicCase) {
   relay_service->Start("@traced_relay", sock_name.c_str());
 
   auto producer_connected =
-      task_runner.CreateCheckpoint("perfetto.FakeProducer.connected");
+      task_runner.CreateCheckpoint("dejaview.FakeProducer.connected");
   auto noop = []() {};
   auto connected = [&]() { task_runner.PostTask(producer_connected); };
 
   // We won't use the built-in fake producer and will start our own.
   auto producer_thread = std::make_unique<FakeProducerThread>(
-      "@traced_relay", connected, noop, noop, "perfetto.FakeProducer");
+      "@traced_relay", connected, noop, noop, "dejaview.FakeProducer");
   producer_thread->Connect();
-  task_runner.RunUntilCheckpoint("perfetto.FakeProducer.connected");
+  task_runner.RunUntilCheckpoint("dejaview.FakeProducer.connected");
 
   helper.ConnectConsumer();
   helper.WaitForConsumerConnect();
@@ -92,7 +92,7 @@ TEST(TracedRelayIntegrationTest, BasicCase) {
   static constexpr uint32_t kRandomSeed = 42;
   // Enable the producer.
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.FakeProducer");
+  ds_config->set_name("dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
   ds_config->mutable_for_testing()->set_seed(kRandomSeed);
   ds_config->mutable_for_testing()->set_message_count(12);
@@ -141,7 +141,7 @@ TEST(TracedRelayIntegrationTest, MachineID_MultiRelayService) {
     param.relay_service->SetMachineIdHintForTesting("test-machine-id-" +
                                                     param.id);
     param.unix_sock_name = std::string("@traced_relay_") + param.id;
-    param.producer_name = std::string("perfetto.FakeProducer.") + param.id;
+    param.producer_name = std::string("dejaview.FakeProducer.") + param.id;
   }
   for (auto& param : test_params) {
     // Shut down listening sockets to free the port. It's unlikely that the port
@@ -165,7 +165,7 @@ TEST(TracedRelayIntegrationTest, MachineID_MultiRelayService) {
   helper.StartServiceIfRequired();
 
   for (auto& param : test_params) {
-    auto checkpoint_name = "perfetto.FakeProducer.connected." + param.id;
+    auto checkpoint_name = "dejaview.FakeProducer.connected." + param.id;
     auto producer_connected = task_runner.CreateCheckpoint(checkpoint_name);
     auto noop = []() {};
     auto connected = std::bind(
@@ -192,14 +192,14 @@ TEST(TracedRelayIntegrationTest, MachineID_MultiRelayService) {
 
   // Enable the 1st producer.
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.FakeProducer.1");
+  ds_config->set_name("dejaview.FakeProducer.1");
   ds_config->set_target_buffer(0);
   ds_config->mutable_for_testing()->set_message_count(12);
   ds_config->mutable_for_testing()->set_message_size(kMsgSize);
   ds_config->mutable_for_testing()->set_send_batch_on_register(true);
   // Enable the 2nd producer.
   ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.FakeProducer.2");
+  ds_config->set_name("dejaview.FakeProducer.2");
   ds_config->set_target_buffer(0);
   ds_config->mutable_for_testing()->set_message_count(24);
   ds_config->mutable_for_testing()->set_message_size(kMsgSize);
@@ -270,15 +270,15 @@ TEST(TracedRelayIntegrationTest, RelayClient) {
   ASSERT_TRUE(!!relay_service->relay_client_for_testing());
 
   auto producer_connected =
-      task_runner.CreateCheckpoint("perfetto.FakeProducer.connected");
+      task_runner.CreateCheckpoint("dejaview.FakeProducer.connected");
   auto noop = []() {};
   auto connected = [&]() { task_runner.PostTask(producer_connected); };
 
   // We won't use the built-in fake producer and will start our own.
   auto producer_thread = std::make_unique<FakeProducerThread>(
-      "@traced_relay", connected, noop, noop, "perfetto.FakeProducer");
+      "@traced_relay", connected, noop, noop, "dejaview.FakeProducer");
   producer_thread->Connect();
-  task_runner.RunUntilCheckpoint("perfetto.FakeProducer.connected");
+  task_runner.RunUntilCheckpoint("dejaview.FakeProducer.connected");
 
   helper.ConnectConsumer();
   helper.WaitForConsumerConnect();
@@ -293,7 +293,7 @@ TEST(TracedRelayIntegrationTest, RelayClient) {
 
   // // Enable the producer.
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.FakeProducer");
+  ds_config->set_name("dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
 
   helper.StartTracing(trace_config);
@@ -321,4 +321,4 @@ TEST(TracedRelayIntegrationTest, RelayClient) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

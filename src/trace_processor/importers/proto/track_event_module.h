@@ -20,16 +20,16 @@
 #include <cstdint>
 #include <memory>
 
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/track_event_parser.h"
 #include "src/trace_processor/importers/proto/track_event_tokenizer.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TrackEventModule : public ProtoImporterModule {
  public:
@@ -65,6 +65,6 @@ class TrackEventModule : public ProtoImporterModule {
   TrackEventParser parser_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_TRACK_EVENT_MODULE_H_

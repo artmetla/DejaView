@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/traced_value.h"
+#include "dejaview/tracing/traced_value.h"
 
 #include <array>
 #include <deque>
@@ -28,18 +28,18 @@
 #include <unordered_map>
 #include <unordered_set>
 
-#include "perfetto/base/template_util.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/test/traced_value_test_support.h"
-#include "perfetto/tracing/debug_annotation.h"
-#include "perfetto/tracing/track_event.h"
-#include "protos/perfetto/trace/test_event.pb.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.gen.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pb.h"
+#include "dejaview/base/template_util.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/test/traced_value_test_support.h"
+#include "dejaview/tracing/debug_annotation.h"
+#include "dejaview/tracing/track_event.h"
+#include "protos/dejaview/trace/test_event.pb.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.gen.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pb.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // static asserts checking for conversion support for known types.
 
@@ -416,7 +416,7 @@ TEST(TracedValueTest, WriteAsLambda) {
             }));
 }
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 // This death test makes sense only when dchecks are enabled.
 TEST(TracedValueTest, FailOnIncorrectUsage) {
   // A new call to AddItem is not allowed before the previous result is
@@ -461,7 +461,7 @@ TEST(TracedValueTest, FailOnIncorrectUsage) {
       },
       "");
 }
-#endif  // PERFETTO_DCHECK_IS_ON()
+#endif  // DEJAVIEW_DCHECK_IS_ON()
 
 TEST(TracedValueTest, PrimitiveTypesSupport) {
   EXPECT_EQ("0x0", TracedValueToString(nullptr));
@@ -625,8 +625,8 @@ TEST(TracedValueTest, WriteTypedProto_Explicit) {
   protozero::HeapBuffered<protos::pbzero::DebugAnnotation> message;
   WriteIntoTracedValue(
       internal::CreateTracedValueFromProto(message.get()),
-      [](perfetto::TracedValue context) {
-        perfetto::TracedProto<protos::pbzero::TestEvent::TestPayload> proto =
+      [](dejaview::TracedValue context) {
+        dejaview::TracedProto<protos::pbzero::TestEvent::TestPayload> proto =
             std::move(context)
                 .WriteProto<protos::pbzero::TestEvent::TestPayload>();
         proto->set_single_string("payload");
@@ -635,7 +635,7 @@ TEST(TracedValueTest, WriteTypedProto_Explicit) {
   protos::DebugAnnotation annotation;
   annotation.ParseFromString(message.SerializeAsString());
   EXPECT_EQ(annotation.proto_type_name(),
-            ".perfetto.protos.TestEvent.TestPayload");
+            ".dejaview.protos.TestEvent.TestPayload");
 
   protos::TestEvent::TestPayload payload;
   payload.ParseFromString(annotation.proto_value());
@@ -646,14 +646,14 @@ TEST(TracedValueTest, WriteTypedProto_Implicit) {
   protozero::HeapBuffered<protos::pbzero::DebugAnnotation> message;
   WriteIntoTracedValue(
       internal::CreateTracedValueFromProto(message.get()),
-      [](perfetto::TracedProto<protos::pbzero::TestEvent::TestPayload> proto) {
+      [](dejaview::TracedProto<protos::pbzero::TestEvent::TestPayload> proto) {
         proto->set_single_string("payload");
       });
 
   protos::DebugAnnotation annotation;
   annotation.ParseFromString(message.SerializeAsString());
   EXPECT_EQ(annotation.proto_type_name(),
-            ".perfetto.protos.TestEvent.TestPayload");
+            ".dejaview.protos.TestEvent.TestPayload");
 
   protos::TestEvent::TestPayload payload;
   payload.ParseFromString(annotation.proto_value());
@@ -674,7 +674,7 @@ TEST(TracedValueTest, ImplicitTracedArray) {
 TEST(TracedValueTest, TracedProtoInDict) {
   struct Foo {
     void WriteIntoTrace(
-        perfetto::TracedProto<protos::pbzero::TestEvent::TestPayload> message) {
+        dejaview::TracedProto<protos::pbzero::TestEvent::TestPayload> message) {
       message->set_single_int(42);
     }
   };
@@ -687,7 +687,7 @@ TEST(TracedValueTest, TracedProtoInDict) {
   EXPECT_EQ(annotation.dict_entries_size(), 1);
   EXPECT_EQ(annotation.dict_entries(0).name(), "foo");
   EXPECT_EQ(annotation.dict_entries(0).proto_type_name(),
-            ".perfetto.protos.TestEvent.TestPayload");
+            ".dejaview.protos.TestEvent.TestPayload");
 
   protos::TestEvent::TestPayload payload;
   payload.ParseFromString(annotation.dict_entries(0).proto_value());
@@ -697,7 +697,7 @@ TEST(TracedValueTest, TracedProtoInDict) {
 TEST(TracedValueTest, PointerToTracedProtoInDict) {
   struct Foo {
     void WriteIntoTrace(
-        perfetto::TracedProto<protos::pbzero::TestEvent::TestPayload> message) {
+        dejaview::TracedProto<protos::pbzero::TestEvent::TestPayload> message) {
       message->set_single_int(42);
     }
   };
@@ -710,7 +710,7 @@ TEST(TracedValueTest, PointerToTracedProtoInDict) {
   EXPECT_EQ(annotation.dict_entries_size(), 1);
   EXPECT_EQ(annotation.dict_entries(0).name(), "foo");
   EXPECT_EQ(annotation.dict_entries(0).proto_type_name(),
-            ".perfetto.protos.TestEvent.TestPayload");
+            ".dejaview.protos.TestEvent.TestPayload");
 
   protos::TestEvent::TestPayload payload;
   payload.ParseFromString(annotation.dict_entries(0).proto_value());
@@ -720,7 +720,7 @@ TEST(TracedValueTest, PointerToTracedProtoInDict) {
 TEST(TracedValueTest, UniquePointerToTracedProtoInDict) {
   struct Foo {
     void WriteIntoTrace(
-        perfetto::TracedProto<protos::pbzero::TestEvent::TestPayload> message) {
+        dejaview::TracedProto<protos::pbzero::TestEvent::TestPayload> message) {
       message->set_single_int(42);
     }
   };
@@ -733,11 +733,11 @@ TEST(TracedValueTest, UniquePointerToTracedProtoInDict) {
   EXPECT_EQ(annotation.dict_entries_size(), 1);
   EXPECT_EQ(annotation.dict_entries(0).name(), "foo");
   EXPECT_EQ(annotation.dict_entries(0).proto_type_name(),
-            ".perfetto.protos.TestEvent.TestPayload");
+            ".dejaview.protos.TestEvent.TestPayload");
 
   protos::TestEvent::TestPayload payload;
   payload.ParseFromString(annotation.dict_entries(0).proto_value());
   EXPECT_EQ(payload.single_int(), 42);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

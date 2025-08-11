@@ -98,7 +98,7 @@ class Simpleperf(TestSuite):
 
   # simpleperf report -i perf.data --print-event-count --csv
   # The thread name in this trace changes over time. simpleperf shows samples
-  # with the old and new name. Perfetto does not support threads changing names,
+  # with the old and new name. DejaView does not support threads changing names,
   # it only keeps the last name, thus there is a slight mismatch in the outputs.
   def test_perf_with_add_counter(self):
     return DiffTestBlueprint(
@@ -269,7 +269,7 @@ class Simpleperf(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('simpleperf/spe.trace.zip'),
         query='''
-        INCLUDE PERFETTO MODULE linux.perf.spe;
+        INCLUDE DEJAVIEW MODULE linux.perf.spe;
         SELECT
           operation,
           count(*) AS cnt
@@ -288,7 +288,7 @@ class Simpleperf(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('simpleperf/spe.trace.zip'),
         query='''
-        INCLUDE PERFETTO MODULE linux.perf.spe;
+        INCLUDE DEJAVIEW MODULE linux.perf.spe;
         SELECT
           printf('0x%08x', rel_pc + m.start - exact_offset) AS pc,
           exception_level,
@@ -328,7 +328,7 @@ class Simpleperf(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('simpleperf/perf.data'),
         query='''
-          INCLUDE PERFETTO MODULE linux.perf.samples;
+          INCLUDE DEJAVIEW MODULE linux.perf.samples;
 
           SELECT *
           FROM linux_perf_samples_summary_tree

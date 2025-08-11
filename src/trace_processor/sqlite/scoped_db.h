@@ -19,7 +19,7 @@
 
 #include <sqlite3.h>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
 extern "C" {
 struct sqlite3;
@@ -28,7 +28,7 @@ SQLITE_API extern int sqlite3_close(sqlite3*);
 SQLITE_API extern int sqlite3_finalize(sqlite3_stmt* pStmt);
 }
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using ScopedDb = base::ScopedResource<sqlite3*, sqlite3_close, nullptr>;
@@ -45,6 +45,6 @@ using ScopedSqliteString =
     base::ScopedResource<char*, FreeSqliteString, nullptr>;
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_SCOPED_DB_H_

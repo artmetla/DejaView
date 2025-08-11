@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/metatrace.h"
+#include "dejaview/ext/base/metatrace.h"
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/thread_annotations.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/thread_annotations.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace metatrace {
 
 std::atomic<uint32_t> g_enabled_tags{0};
@@ -55,8 +55,8 @@ struct Delegate {
 bool Enable(std::function<void()> read_task,
             base::TaskRunner* task_runner,
             uint32_t tags) {
-  PERFETTO_DCHECK(read_task);
-  PERFETTO_DCHECK(task_runner->RunsTasksOnCurrentThread());
+  DEJAVIEW_DCHECK(read_task);
+  DEJAVIEW_DCHECK(task_runner->RunsTasksOnCurrentThread());
   if (g_enabled_tags.load(std::memory_order_acquire))
     return false;
 
@@ -72,7 +72,7 @@ bool Enable(std::function<void()> read_task,
 void Disable() {
   g_enabled_tags.store(0, std::memory_order_release);
   Delegate* dg = Delegate::GetInstance();
-  PERFETTO_DCHECK(!dg->task_runner ||
+  DEJAVIEW_DCHECK(!dg->task_runner ||
                   dg->task_runner->RunsTasksOnCurrentThread());
   dg->task_runner = nullptr;
   dg->read_task = nullptr;
@@ -97,9 +97,9 @@ Record* RingBuffer::AppendNewRecord() {
   // older value, we'll just hit the slow-path a bit earlier if it happens.
   auto rd_index = rd_index_.load(std::memory_order_relaxed);
 
-  PERFETTO_DCHECK(wr_index >= rd_index);
+  DEJAVIEW_DCHECK(wr_index >= rd_index);
   auto size = wr_index - rd_index;
-  if (PERFETTO_LIKELY(size < kCapacity / 2))
+  if (DEJAVIEW_LIKELY(size < kCapacity / 2))
     return At(wr_index);
 
   // Slow-path: Enqueue the read task and handle overruns.
@@ -117,7 +117,7 @@ Record* RingBuffer::AppendNewRecord() {
     }
   }
 
-  if (PERFETTO_LIKELY(size < kCapacity))
+  if (DEJAVIEW_LIKELY(size < kCapacity))
     return At(wr_index);
 
   has_overruns_.store(true, std::memory_order_release);
@@ -126,7 +126,7 @@ Record* RingBuffer::AppendNewRecord() {
   // In the case of overflows, threads will race writing on the same memory
   // location and TSan will rightly complain. This is fine though because nobody
   // will read the bankruptcy record and it's designed to contain garbage.
-  PERFETTO_ANNOTATE_BENIGN_RACE_SIZED(&bankruptcy_record_, sizeof(Record),
+  DEJAVIEW_ANNOTATE_BENIGN_RACE_SIZED(&bankruptcy_record_, sizeof(Record),
                                       "nothing reads bankruptcy_record_")
   return &bankruptcy_record_;
 }
@@ -138,4 +138,4 @@ bool RingBuffer::IsOnValidTaskRunner() {
 }
 
 }  // namespace metatrace
-}  // namespace perfetto
+}  // namespace dejaview

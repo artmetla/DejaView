@@ -25,10 +25,10 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/small_vector.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/small_vector.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 using Ts = uint64_t;
 using Id = uint32_t;
@@ -48,7 +48,7 @@ class IntervalTree {
   // Creates an interval tree from the vector of intervals if needed. Otherwise
   // copies the vector of intervals.
   explicit IntervalTree(const std::vector<Interval>& sorted_intervals) {
-    PERFETTO_CHECK(!sorted_intervals.empty());
+    DEJAVIEW_CHECK(!sorted_intervals.empty());
     nodes_.reserve(sorted_intervals.size());
     Node root_node(sorted_intervals.data(), sorted_intervals.size(), nodes_);
     nodes_.emplace_back(std::move(root_node));
@@ -179,6 +179,6 @@ class IntervalTree {
   size_t root_;
   std::vector<Node> nodes_;
 };
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_CONTAINERS_INTERVAL_TREE_H_

@@ -17,15 +17,15 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 #include "src/profiling/common/unwind_support.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 #include "src/profiling/memory/unwinding.h"
 #include "src/profiling/memory/unwound_messages.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -67,10 +67,10 @@ int FuzzUnwinding(const uint8_t* data, size_t size) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  return perfetto::profiling::FuzzUnwinding(data, size);
+  return dejaview::profiling::FuzzUnwinding(data, size);
 }

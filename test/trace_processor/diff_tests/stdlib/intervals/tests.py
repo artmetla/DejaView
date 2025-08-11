@@ -25,7 +25,7 @@ class StdlibIntervals(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        INCLUDE PERFETTO MODULE intervals.overlap;
+        INCLUDE DEJAVIEW MODULE intervals.overlap;
 
         WITH data(ts, dur) AS (
           VALUES
@@ -57,7 +57,7 @@ class StdlibIntervals(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        INCLUDE PERFETTO MODULE intervals.overlap;
+        INCLUDE DEJAVIEW MODULE intervals.overlap;
 
         WITH data_no_overlaps(ts, dur) AS (
           VALUES
@@ -87,7 +87,7 @@ class StdlibIntervals(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        INCLUDE PERFETTO MODULE intervals.overlap;
+        INCLUDE DEJAVIEW MODULE intervals.overlap;
 
         WITH roots_data (id, ts, dur) AS (
           VALUES

@@ -18,30 +18,30 @@
 #include <initializer_list>
 #include <thread>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/traced/traced.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/tracing_service_state.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/traced/traced.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/tracing_service_state.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/utils.h"
-#include "src/perfetto_cmd/bugreport_path.h"
+#include "src/dejaview_cmd/bugreport_path.h"
 #include "src/protozero/filtering/filter_bytecode_generator.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/config/trace_config.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trigger.gen.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/config/trace_config.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trigger.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -54,8 +54,8 @@ using ::testing::Property;
 using ::testing::SizeIs;
 
 std::string RandomTraceFileName() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
-  constexpr char kSysTmpPath[] = "/data/misc/perfetto-traces";
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
+  constexpr char kSysTmpPath[] = "/data/misc/dejaview-traces";
 #else
   constexpr char kSysTmpPath[] = "/tmp";
 #endif
@@ -92,7 +92,7 @@ TraceConfig CreateTraceConfigForBugreportTest(int score = 1,
   }
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
 
   ds_config->mutable_for_testing()->set_message_count(msg_count);
   ds_config->mutable_for_testing()->set_message_size(msg_size);
@@ -106,7 +106,7 @@ class ScopedFileRemove {
   std::string path_;
 };
 
-class PerfettoCmdlineTest : public ::testing::Test {
+class DejaViewCmdlineTest : public ::testing::Test {
  public:
   void StartServiceIfRequiredNoNewExecsAfterThis() {
     exec_allowed_ = false;
@@ -115,26 +115,26 @@ class PerfettoCmdlineTest : public ::testing::Test {
 
   TestHelper& test_helper() { return test_helper_; }
 
-  // Creates a process that represents the perfetto binary that will
+  // Creates a process that represents the dejaview binary that will
   // start when Run() is called. |args| will be passed as part of
   // the command line and |std_in| will be piped into std::cin.
-  Exec ExecPerfetto(std::initializer_list<std::string> args,
+  Exec ExecDejaView(std::initializer_list<std::string> args,
                     std::string std_in = "") {
     // You can not fork after you've started the service due to risk of
     // deadlocks.
-    PERFETTO_CHECK(exec_allowed_);
-    return Exec("perfetto", std::move(args), std::move(std_in));
+    DEJAVIEW_CHECK(exec_allowed_);
+    return Exec("dejaview", std::move(args), std::move(std_in));
   }
 
-  // Creates a process that represents the trigger_perfetto binary that will
+  // Creates a process that represents the trigger_dejaview binary that will
   // start when Run() is called. |args| will be passed as part of
   // the command line and |std_in| will be piped into std::cin.
   Exec ExecTrigger(std::initializer_list<std::string> args,
                    std::string std_in = "") {
     // You can not fork after you've started the service due to risk of
     // deadlocks.
-    PERFETTO_CHECK(exec_allowed_);
-    return Exec("trigger_perfetto", std::move(args), std::move(std_in));
+    DEJAVIEW_CHECK(exec_allowed_);
+    return Exec("trigger_dejaview", std::move(args), std::move(std_in));
   }
 
   // This is in common to the 3 TEST_F SaveForBugreport* fixtures, which differ
@@ -145,7 +145,7 @@ class PerfettoCmdlineTest : public ::testing::Test {
     const std::string path = RandomTraceFileName();
     ScopedFileRemove remove_on_test_exit(path);
 
-    auto perfetto_proc = ExecPerfetto(
+    auto dejaview_proc = ExecDejaView(
         {
             "-o",
             path,
@@ -154,10 +154,10 @@ class PerfettoCmdlineTest : public ::testing::Test {
         },
         trace_config.SerializeAsString());
 
-    Exec perfetto_br_proc =
+    Exec dejaview_br_proc =
         use_explicit_clone
-            ? ExecPerfetto({"--out", GetBugreportTracePath(), "--clone", "-1"})
-            : ExecPerfetto({"--save-for-bugreport"});
+            ? ExecDejaView({"--out", GetBugreportTracePath(), "--clone", "-1"})
+            : ExecDejaView({"--save-for-bugreport"});
 
     // Start the service and connect a simple fake producer.
     StartServiceIfRequiredNoNewExecsAfterThis();
@@ -165,9 +165,9 @@ class PerfettoCmdlineTest : public ::testing::Test {
     auto* fake_producer = test_helper().ConnectFakeProducer();
     ASSERT_TRUE(fake_producer);
 
-    std::thread background_trace([&perfetto_proc]() {
+    std::thread background_trace([&dejaview_proc]() {
       std::string stderr_str;
-      ASSERT_EQ(0, perfetto_proc.Run(&stderr_str)) << stderr_str;
+      ASSERT_EQ(0, dejaview_proc.Run(&stderr_str)) << stderr_str;
     });
 
     // Wait for the producer to start, and then write out packets.
@@ -176,8 +176,8 @@ class PerfettoCmdlineTest : public ::testing::Test {
     fake_producer->ProduceEventBatch(test_helper().WrapTask(on_data_written));
     task_runner_.RunUntilCheckpoint("data_written");
 
-    ASSERT_EQ(0, perfetto_br_proc.Run(&stderr_)) << "stderr: " << stderr_;
-    perfetto_proc.SendSigterm();
+    ASSERT_EQ(0, dejaview_br_proc.Run(&stderr_)) << "stderr: " << stderr_;
+    dejaview_proc.SendSigterm();
     background_trace.join();
 
     uint32_t expected_packets = 0;
@@ -188,7 +188,7 @@ class PerfettoCmdlineTest : public ::testing::Test {
 
     auto check_trace_contents = [expected_packets](std::string trace_path) {
       // Read the trace written in the fixed location
-      // (/data/misc/perfetto-traces/ on Android, /tmp/ on Linux/Mac) and make
+      // (/data/misc/dejaview-traces/ on Android, /tmp/ on Linux/Mac) and make
       // sure it has the right contents.
       std::string trace_str;
       base::ReadFile(trace_path, &trace_str);
@@ -219,48 +219,48 @@ class PerfettoCmdlineTest : public ::testing::Test {
 
 }  // namespace
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #define AndroidOnly(x) x
 #else
 #define AndroidOnly(x) DISABLED_##x
 #endif
 
-TEST_F(PerfettoCmdlineTest, InvalidCases) {
+TEST_F(DejaViewCmdlineTest, InvalidCases) {
   std::string cfg("duration_ms: 100");
 
-  auto invalid_arg = ExecPerfetto({"--invalid-arg"});
-  auto empty_config = ExecPerfetto({"-c", "-", "-o", "-"}, "");
+  auto invalid_arg = ExecDejaView({"--invalid-arg"});
+  auto empty_config = ExecDejaView({"-c", "-", "-o", "-"}, "");
 
   // Cannot make assertions on --dropbox because on standalone builds it fails
   // prematurely due to lack of dropbox.
   auto missing_dropbox =
-      ExecPerfetto({"-c", "-", "--txt", "-o", "-", "--dropbox=foo"}, cfg);
-  auto either_out_or_dropbox = ExecPerfetto({"-c", "-", "--txt"}, cfg);
+      ExecDejaView({"-c", "-", "--txt", "-o", "-", "--dropbox=foo"}, cfg);
+  auto either_out_or_dropbox = ExecDejaView({"-c", "-", "--txt"}, cfg);
 
   // Disallow mixing simple and file config.
   auto simple_and_file_1 =
-      ExecPerfetto({"-o", "-", "-c", "-", "-t", "2s"}, cfg);
+      ExecDejaView({"-o", "-", "-c", "-", "-t", "2s"}, cfg);
   auto simple_and_file_2 =
-      ExecPerfetto({"-o", "-", "-c", "-", "-b", "2m"}, cfg);
+      ExecDejaView({"-o", "-", "-c", "-", "-b", "2m"}, cfg);
   auto simple_and_file_3 =
-      ExecPerfetto({"-o", "-", "-c", "-", "-s", "2m"}, cfg);
+      ExecDejaView({"-o", "-", "-c", "-", "-s", "2m"}, cfg);
 
   // Invalid --attach / --detach cases.
   auto invalid_stop =
-      ExecPerfetto({"-c", "-", "--txt", "-o", "-", "--stop"}, cfg);
+      ExecDejaView({"-c", "-", "--txt", "-o", "-", "--stop"}, cfg);
   auto attach_and_config_1 =
-      ExecPerfetto({"-c", "-", "--txt", "-o", "-", "--attach=foo"}, cfg);
+      ExecDejaView({"-c", "-", "--txt", "-o", "-", "--attach=foo"}, cfg);
   auto attach_and_config_2 =
-      ExecPerfetto({"-t", "2s", "-o", "-", "--attach=foo"}, cfg);
-  auto attach_needs_argument = ExecPerfetto({"--attach"}, cfg);
+      ExecDejaView({"-t", "2s", "-o", "-", "--attach=foo"}, cfg);
+  auto attach_needs_argument = ExecDejaView({"--attach"}, cfg);
   auto detach_needs_argument =
-      ExecPerfetto({"-t", "2s", "-o", "-", "--detach"}, cfg);
+      ExecDejaView({"-t", "2s", "-o", "-", "--detach"}, cfg);
   auto detach_without_out_or_dropbox =
-      ExecPerfetto({"-t", "2s", "--detach=foo"}, cfg);
+      ExecDejaView({"-t", "2s", "--detach=foo"}, cfg);
 
   // Cannot trace and use --query.
-  auto trace_and_query_1 = ExecPerfetto({"-t", "2s", "--query"}, cfg);
-  auto trace_and_query_2 = ExecPerfetto({"-c", "-", "--query"}, cfg);
+  auto trace_and_query_1 = ExecDejaView({"-t", "2s", "--query"}, cfg);
+  auto trace_and_query_2 = ExecDejaView({"-c", "-", "--query"}, cfg);
 
   // Ensure all Exec:: calls have been saved to prevent deadlocks.
   StartServiceIfRequiredNoNewExecsAfterThis();
@@ -314,31 +314,31 @@ TEST_F(PerfettoCmdlineTest, InvalidCases) {
   EXPECT_THAT(stderr_, HasSubstr("Cannot specify a trace config"));
 }
 
-TEST_F(PerfettoCmdlineTest, Version) {
-  auto perfetto = ExecPerfetto({"--version"});
-  EXPECT_EQ(0, perfetto.Run(&stderr_)) << stderr_;
+TEST_F(DejaViewCmdlineTest, Version) {
+  auto dejaview = ExecDejaView({"--version"});
+  EXPECT_EQ(0, dejaview.Run(&stderr_)) << stderr_;
 }
 
-TEST_F(PerfettoCmdlineTest, TxtConfig) {
+TEST_F(DejaViewCmdlineTest, TxtConfig) {
   std::string cfg("duration_ms: 100");
-  auto perfetto = ExecPerfetto({"-c", "-", "--txt", "-o", "-"}, cfg);
+  auto dejaview = ExecDejaView({"-c", "-", "--txt", "-o", "-"}, cfg);
   StartServiceIfRequiredNoNewExecsAfterThis();
-  EXPECT_EQ(0, perfetto.Run(&stderr_)) << stderr_;
+  EXPECT_EQ(0, dejaview.Run(&stderr_)) << stderr_;
 }
 
-TEST_F(PerfettoCmdlineTest, SimpleConfig) {
-  auto perfetto = ExecPerfetto({"-o", "-", "-c", "-", "-t", "100ms"});
+TEST_F(DejaViewCmdlineTest, SimpleConfig) {
+  auto dejaview = ExecDejaView({"-o", "-", "-c", "-", "-t", "100ms"});
   StartServiceIfRequiredNoNewExecsAfterThis();
-  EXPECT_EQ(0, perfetto.Run(&stderr_)) << stderr_;
+  EXPECT_EQ(0, dejaview.Run(&stderr_)) << stderr_;
 }
 
-TEST_F(PerfettoCmdlineTest, DetachAndAttach) {
-  auto attach_to_not_existing = ExecPerfetto({"--attach=not_existent"});
+TEST_F(DejaViewCmdlineTest, DetachAndAttach) {
+  auto attach_to_not_existing = ExecDejaView({"--attach=not_existent"});
 
   std::string cfg("duration_ms: 10000; write_into_file: true");
   auto detach_valid_stop =
-      ExecPerfetto({"-o", "-", "-c", "-", "--txt", "--detach=valid_stop"}, cfg);
-  auto stop_valid_stop = ExecPerfetto({"--attach=valid_stop", "--stop"});
+      ExecDejaView({"-o", "-", "-c", "-", "--txt", "--detach=valid_stop"}, cfg);
+  auto stop_valid_stop = ExecDejaView({"--attach=valid_stop", "--stop"});
 
   StartServiceIfRequiredNoNewExecsAfterThis();
 
@@ -349,14 +349,14 @@ TEST_F(PerfettoCmdlineTest, DetachAndAttach) {
   EXPECT_EQ(0, stop_valid_stop.Run(&stderr_));
 }
 
-TEST_F(PerfettoCmdlineTest, StartTracingTrigger) {
+TEST_F(DejaViewCmdlineTest, StartTracingTrigger) {
   // See |message_count| and |message_size| in the TraceConfig above.
   constexpr size_t kMessageCount = 11;
   constexpr size_t kMessageSize = 32;
   protos::gen::TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(1024);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(kMessageCount);
   ds_config->mutable_for_testing()->set_message_size(kMessageSize);
   auto* trigger_cfg = trace_config.mutable_trigger_config();
@@ -377,7 +377,7 @@ TEST_F(PerfettoCmdlineTest, StartTracingTrigger) {
   // printf (and thus hold locks).
   const std::string path = RandomTraceFileName();
   ScopedFileRemove remove_on_test_exit(path);
-  auto perfetto_proc = ExecPerfetto(
+  auto dejaview_proc = ExecDejaView(
       {
           "-o",
           path,
@@ -395,10 +395,10 @@ TEST_F(PerfettoCmdlineTest, StartTracingTrigger) {
   EXPECT_TRUE(fake_producer);
 
   // Start a background thread that will deliver the config now that we've
-  // started the service. See |perfetto_proc| above for the args passed.
-  std::thread background_trace([&perfetto_proc]() {
+  // started the service. See |dejaview_proc| above for the args passed.
+  std::thread background_trace([&dejaview_proc]() {
     std::string stderr_str;
-    EXPECT_EQ(0, perfetto_proc.Run(&stderr_str)) << stderr_str;
+    EXPECT_EQ(0, dejaview_proc.Run(&stderr_str)) << stderr_str;
   });
 
   test_helper().WaitForProducerSetup();
@@ -441,14 +441,14 @@ TEST_F(PerfettoCmdlineTest, StartTracingTrigger) {
   EXPECT_EQ(for_testing_packets, kMessageCount);
 }
 
-TEST_F(PerfettoCmdlineTest, StopTracingTrigger) {
+TEST_F(DejaViewCmdlineTest, StopTracingTrigger) {
   // See |message_count| and |message_size| in the TraceConfig above.
   constexpr size_t kMessageCount = 11;
   constexpr size_t kMessageSize = 32;
   protos::gen::TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(1024);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(kMessageCount);
   ds_config->mutable_for_testing()->set_message_size(kMessageSize);
   auto* trigger_cfg = trace_config.mutable_trigger_config();
@@ -472,7 +472,7 @@ TEST_F(PerfettoCmdlineTest, StopTracingTrigger) {
   // printf (and thus hold locks).
   const std::string path = RandomTraceFileName();
   ScopedFileRemove remove_on_test_exit(path);
-  auto perfetto_proc = ExecPerfetto(
+  auto dejaview_proc = ExecDejaView(
       {
           "-o",
           path,
@@ -490,10 +490,10 @@ TEST_F(PerfettoCmdlineTest, StopTracingTrigger) {
   EXPECT_TRUE(fake_producer);
 
   // Start a background thread that will deliver the config now that we've
-  // started the service. See |perfetto_proc| above for the args passed.
-  std::thread background_trace([&perfetto_proc]() {
+  // started the service. See |dejaview_proc| above for the args passed.
+  std::thread background_trace([&dejaview_proc]() {
     std::string stderr_str;
-    EXPECT_EQ(0, perfetto_proc.Run(&stderr_str)) << stderr_str;
+    EXPECT_EQ(0, dejaview_proc.Run(&stderr_str)) << stderr_str;
   });
 
   test_helper().WaitForProducerEnabled();
@@ -545,7 +545,7 @@ TEST_F(PerfettoCmdlineTest, StopTracingTrigger) {
 
 // Dropbox on the commandline client only works on android builds. So disable
 // this test on all other builds.
-TEST_F(PerfettoCmdlineTest, AndroidOnly(NoDataNoFileWithoutTrigger)) {
+TEST_F(DejaViewCmdlineTest, AndroidOnly(NoDataNoFileWithoutTrigger)) {
   // See |message_count| and |message_size| in the TraceConfig above.
   constexpr size_t kMessageCount = 11;
   constexpr size_t kMessageSize = 32;
@@ -555,7 +555,7 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(NoDataNoFileWithoutTrigger)) {
   auto* incident_config = trace_config.mutable_incident_report_config();
   incident_config->set_destination_package("foo.bar.baz");
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(kMessageCount);
   ds_config->mutable_for_testing()->set_message_size(kMessageSize);
   auto* trigger_cfg = trace_config.mutable_trigger_config();
@@ -577,7 +577,7 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(NoDataNoFileWithoutTrigger)) {
   // printf (and thus hold locks).
   const std::string path = RandomTraceFileName();
   ScopedFileRemove remove_on_test_exit(path);
-  auto perfetto_proc = ExecPerfetto(
+  auto dejaview_proc = ExecDejaView(
       {
           "--dropbox",
           "TAG",
@@ -592,8 +592,8 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(NoDataNoFileWithoutTrigger)) {
   EXPECT_TRUE(fake_producer);
 
   std::string stderr_str;
-  std::thread background_trace([&perfetto_proc, &stderr_str]() {
-    EXPECT_EQ(0, perfetto_proc.Run(&stderr_str));
+  std::thread background_trace([&dejaview_proc, &stderr_str]() {
+    EXPECT_EQ(0, dejaview_proc.Run(&stderr_str));
   });
   background_trace.join();
 
@@ -601,14 +601,14 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(NoDataNoFileWithoutTrigger)) {
               ::testing::HasSubstr("Skipping write to incident. Empty trace."));
 }
 
-TEST_F(PerfettoCmdlineTest, StopTracingTriggerFromConfig) {
+TEST_F(DejaViewCmdlineTest, StopTracingTriggerFromConfig) {
   // See |message_count| and |message_size| in the TraceConfig above.
   constexpr size_t kMessageCount = 11;
   constexpr size_t kMessageSize = 32;
   protos::gen::TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(1024);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(kMessageCount);
   ds_config->mutable_for_testing()->set_message_size(kMessageSize);
   auto* trigger_cfg = trace_config.mutable_trigger_config();
@@ -632,7 +632,7 @@ TEST_F(PerfettoCmdlineTest, StopTracingTriggerFromConfig) {
   // printf (and thus hold locks).
   const std::string path = RandomTraceFileName();
   ScopedFileRemove remove_on_test_exit(path);
-  auto perfetto_proc = ExecPerfetto(
+  auto dejaview_proc = ExecDejaView(
       {
           "-o",
           path,
@@ -646,7 +646,7 @@ TEST_F(PerfettoCmdlineTest, StopTracingTriggerFromConfig) {
     activate_triggers: "trigger_name"
     activate_triggers: "trigger_name_3"
   )";
-  auto perfetto_proc_2 = ExecPerfetto(
+  auto dejaview_proc_2 = ExecDejaView(
       {
           "-o",
           path,
@@ -661,9 +661,9 @@ TEST_F(PerfettoCmdlineTest, StopTracingTriggerFromConfig) {
   auto* fake_producer = test_helper().ConnectFakeProducer();
   EXPECT_TRUE(fake_producer);
 
-  std::thread background_trace([&perfetto_proc]() {
+  std::thread background_trace([&dejaview_proc]() {
     std::string stderr_str;
-    EXPECT_EQ(0, perfetto_proc.Run(&stderr_str)) << stderr_str;
+    EXPECT_EQ(0, dejaview_proc.Run(&stderr_str)) << stderr_str;
   });
 
   test_helper().WaitForProducerEnabled();
@@ -673,7 +673,7 @@ TEST_F(PerfettoCmdlineTest, StopTracingTriggerFromConfig) {
   fake_producer->ProduceEventBatch(test_helper().WrapTask(on_data_written));
   task_runner_.RunUntilCheckpoint("data_written_1");
 
-  EXPECT_EQ(0, perfetto_proc_2.Run(&stderr_)) << "stderr: " << stderr_;
+  EXPECT_EQ(0, dejaview_proc_2.Run(&stderr_)) << "stderr: " << stderr_;
 
   background_trace.join();
 
@@ -705,14 +705,14 @@ TEST_F(PerfettoCmdlineTest, StopTracingTriggerFromConfig) {
   }
 }
 
-TEST_F(PerfettoCmdlineTest, TriggerFromConfigStopsFileOpening) {
+TEST_F(DejaViewCmdlineTest, TriggerFromConfigStopsFileOpening) {
   // See |message_count| and |message_size| in the TraceConfig above.
   constexpr size_t kMessageCount = 11;
   constexpr size_t kMessageSize = 32;
   protos::gen::TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(1024);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(kMessageCount);
   ds_config->mutable_for_testing()->set_message_size(kMessageSize);
   auto* trigger_cfg = trace_config.mutable_trigger_config();
@@ -741,7 +741,7 @@ TEST_F(PerfettoCmdlineTest, TriggerFromConfigStopsFileOpening) {
     activate_triggers: "trigger_name"
     activate_triggers: "trigger_name_3"
   )";
-  auto perfetto_proc = ExecPerfetto(
+  auto dejaview_proc = ExecDejaView(
       {
           "-o",
           path,
@@ -759,27 +759,27 @@ TEST_F(PerfettoCmdlineTest, TriggerFromConfigStopsFileOpening) {
   std::string trace_str;
   EXPECT_FALSE(base::ReadFile(path, &trace_str));
 
-  EXPECT_EQ(0, perfetto_proc.Run(&stderr_)) << "stderr: " << stderr_;
+  EXPECT_EQ(0, dejaview_proc.Run(&stderr_)) << "stderr: " << stderr_;
 
   EXPECT_FALSE(base::ReadFile(path, &trace_str));
 }
 
-TEST_F(PerfettoCmdlineTest, Query) {
-  auto query = ExecPerfetto({"--query"});
-  auto query_raw = ExecPerfetto({"--query-raw"});
+TEST_F(DejaViewCmdlineTest, Query) {
+  auto query = ExecDejaView({"--query"});
+  auto query_raw = ExecDejaView({"--query-raw"});
   StartServiceIfRequiredNoNewExecsAfterThis();
   EXPECT_EQ(0, query.Run(&stderr_)) << stderr_;
   EXPECT_EQ(0, query_raw.Run(&stderr_)) << stderr_;
 }
 
-TEST_F(PerfettoCmdlineTest, AndroidOnly(CmdTriggerWithUploadFlag)) {
+TEST_F(DejaViewCmdlineTest, AndroidOnly(CmdTriggerWithUploadFlag)) {
   // See |message_count| and |message_size| in the TraceConfig above.
   constexpr size_t kMessageCount = 2;
   constexpr size_t kMessageSize = 2;
   protos::gen::TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(1024);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(kMessageCount);
   ds_config->mutable_for_testing()->set_message_size(kMessageSize);
   auto* trigger_cfg = trace_config.mutable_trigger_config();
@@ -800,7 +800,7 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(CmdTriggerWithUploadFlag)) {
   // printf (and thus hold locks).
   const std::string path = RandomTraceFileName();
   ScopedFileRemove remove_on_test_exit(path);
-  auto perfetto_proc = ExecPerfetto(
+  auto dejaview_proc = ExecDejaView(
       {
           "-o",
           path,
@@ -812,7 +812,7 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(CmdTriggerWithUploadFlag)) {
   std::string triggers = R"(
     activate_triggers: "trigger_name"
   )";
-  auto perfetto_proc_2 = ExecPerfetto(
+  auto dejaview_proc_2 = ExecDejaView(
       {
           "--upload",
           "-c",
@@ -826,9 +826,9 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(CmdTriggerWithUploadFlag)) {
   auto* fake_producer = test_helper().ConnectFakeProducer();
   EXPECT_TRUE(fake_producer);
 
-  std::thread background_trace([&perfetto_proc]() {
+  std::thread background_trace([&dejaview_proc]() {
     std::string stderr_str;
-    EXPECT_EQ(0, perfetto_proc.Run(&stderr_str)) << stderr_str;
+    EXPECT_EQ(0, dejaview_proc.Run(&stderr_str)) << stderr_str;
   });
 
   test_helper().WaitForProducerEnabled();
@@ -838,7 +838,7 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(CmdTriggerWithUploadFlag)) {
   fake_producer->ProduceEventBatch(test_helper().WrapTask(on_data_written));
   task_runner_.RunUntilCheckpoint("data_written_1");
 
-  EXPECT_EQ(0, perfetto_proc_2.Run(&stderr_)) << "stderr: " << stderr_;
+  EXPECT_EQ(0, dejaview_proc_2.Run(&stderr_)) << "stderr: " << stderr_;
 
   background_trace.join();
 
@@ -853,13 +853,13 @@ TEST_F(PerfettoCmdlineTest, AndroidOnly(CmdTriggerWithUploadFlag)) {
                                          Eq("trigger_name")))));
 }
 
-TEST_F(PerfettoCmdlineTest, TriggerCloneSnapshot) {
+TEST_F(DejaViewCmdlineTest, TriggerCloneSnapshot) {
   constexpr size_t kMessageCount = 2;
   constexpr size_t kMessageSize = 2;
   protos::gen::TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(1024);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(kMessageCount);
   ds_config->mutable_for_testing()->set_message_size(kMessageSize);
   auto* trigger_cfg = trace_config.mutable_trigger_config();
@@ -880,7 +880,7 @@ TEST_F(PerfettoCmdlineTest, TriggerCloneSnapshot) {
   // printf (and thus hold locks).
   const std::string path = RandomTraceFileName();
   ScopedFileRemove remove_on_test_exit(path);
-  auto perfetto_proc = ExecPerfetto(
+  auto dejaview_proc = ExecDejaView(
       {
           "-o",
           path,
@@ -892,7 +892,7 @@ TEST_F(PerfettoCmdlineTest, TriggerCloneSnapshot) {
   std::string triggers = R"(
     activate_triggers: "trigger_name"
   )";
-  auto trigger_proc = ExecPerfetto(
+  auto trigger_proc = ExecDejaView(
       {
           "-c",
           "-",
@@ -905,9 +905,9 @@ TEST_F(PerfettoCmdlineTest, TriggerCloneSnapshot) {
   auto* fake_producer = test_helper().ConnectFakeProducer();
   EXPECT_TRUE(fake_producer);
 
-  std::thread background_trace([&perfetto_proc]() {
+  std::thread background_trace([&dejaview_proc]() {
     std::string stderr_str;
-    EXPECT_EQ(0, perfetto_proc.Run(&stderr_str)) << stderr_str;
+    EXPECT_EQ(0, dejaview_proc.Run(&stderr_str)) << stderr_str;
   });
 
   test_helper().WaitForProducerEnabled();
@@ -919,9 +919,9 @@ TEST_F(PerfettoCmdlineTest, TriggerCloneSnapshot) {
 
   EXPECT_EQ(0, trigger_proc.Run(&stderr_)) << "stderr: " << stderr_;
 
-  // Now we need to wait that the `perfetto_proc` creates the snapshot trace
+  // Now we need to wait that the `dejaview_proc` creates the snapshot trace
   // file in the trace/path.0 file (appending .0). Once that is done we can
-  // kill the perfetto cmd (otherwise it will keep running for the whole
+  // kill the dejaview cmd (otherwise it will keep running for the whole
   // trigger_timeout_ms, unlike the case of STOP_TRACING.
   std::string snapshot_path = path + ".0";
   for (int i = 0; i < 100 && !base::FileExists(snapshot_path); i++) {
@@ -929,7 +929,7 @@ TEST_F(PerfettoCmdlineTest, TriggerCloneSnapshot) {
   }
   ASSERT_TRUE(base::FileExists(snapshot_path));
 
-  perfetto_proc.SendSigterm();
+  dejaview_proc.SendSigterm();
   background_trace.join();
 
   std::string trace_str;
@@ -943,19 +943,19 @@ TEST_F(PerfettoCmdlineTest, TriggerCloneSnapshot) {
                                          Eq("trigger_name")))));
 }
 
-TEST_F(PerfettoCmdlineTest, SaveForBugreport) {
+TEST_F(DejaViewCmdlineTest, SaveForBugreport) {
   TraceConfig trace_config = CreateTraceConfigForBugreportTest();
   RunBugreportTest(std::move(trace_config));
 }
 
-TEST_F(PerfettoCmdlineTest, SaveForBugreport_WriteIntoFile) {
+TEST_F(DejaViewCmdlineTest, SaveForBugreport_WriteIntoFile) {
   TraceConfig trace_config = CreateTraceConfigForBugreportTest();
   trace_config.set_file_write_period_ms(60000);  // Will never hit this.
   trace_config.set_write_into_file(true);
   RunBugreportTest(std::move(trace_config));
 }
 
-TEST_F(PerfettoCmdlineTest, Clone) {
+TEST_F(DejaViewCmdlineTest, Clone) {
   TraceConfig trace_config = CreateTraceConfigForBugreportTest();
   RunBugreportTest(std::move(trace_config), /*check_original_trace=*/true,
                    /*use_explicit_clone=*/true);
@@ -963,11 +963,11 @@ TEST_F(PerfettoCmdlineTest, Clone) {
 
 // Regression test for b/279753347: --save-for-bugreport would create an empty
 // file if no session with bugreport_score was active.
-TEST_F(PerfettoCmdlineTest, UnavailableBugreportLeavesNoEmptyFiles) {
+TEST_F(DejaViewCmdlineTest, UnavailableBugreportLeavesNoEmptyFiles) {
   ScopedFileRemove remove_on_test_exit(GetBugreportTracePath());
-  Exec perfetto_br_proc = ExecPerfetto({"--save-for-bugreport"});
+  Exec dejaview_br_proc = ExecDejaView({"--save-for-bugreport"});
   StartServiceIfRequiredNoNewExecsAfterThis();
-  perfetto_br_proc.Run(&stderr_);
+  dejaview_br_proc.Run(&stderr_);
   // No file exists. Great.
   if (!base::FileExists(GetBugreportTracePath())) {
     return;
@@ -984,13 +984,13 @@ TEST_F(PerfettoCmdlineTest, UnavailableBugreportLeavesNoEmptyFiles) {
 // Tests that SaveTraceForBugreport() works also if the trace has triggers
 // defined and those triggers have not been hit. This is a regression test for
 // b/188008375 .
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
 // Disabled due to b/191940560
 #define MAYBE_SaveForBugreport_Triggers DISABLED_SaveForBugreport_Triggers
 #else
 #define MAYBE_SaveForBugreport_Triggers SaveForBugreport_Triggers
 #endif
-TEST_F(PerfettoCmdlineTest, MAYBE_SaveForBugreport_Triggers) {
+TEST_F(DejaViewCmdlineTest, MAYBE_SaveForBugreport_Triggers) {
   TraceConfig trace_config = CreateTraceConfigForBugreportTest();
   trace_config.set_duration_ms(0);  // set_trigger_timeout_ms is used instead.
   auto* trigger_config = trace_config.mutable_trigger_config();
@@ -1002,14 +1002,14 @@ TEST_F(PerfettoCmdlineTest, MAYBE_SaveForBugreport_Triggers) {
   RunBugreportTest(std::move(trace_config), /*check_original_trace=*/false);
 }
 
-TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_NoTraces) {
-  auto save_all_cmd = ExecPerfetto({"--save-all-for-bugreport"});
+TEST_F(DejaViewCmdlineTest, SaveAllForBugreport_NoTraces) {
+  auto save_all_cmd = ExecDejaView({"--save-all-for-bugreport"});
   StartServiceIfRequiredNoNewExecsAfterThis();
   EXPECT_EQ(0, save_all_cmd.Run(&stderr_));
   EXPECT_THAT(stderr_, HasSubstr("No tracing sessions eligible"));
 }
 
-TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_FourTraces) {
+TEST_F(DejaViewCmdlineTest, SaveAllForBugreport_FourTraces) {
   struct TraceProc {
     explicit TraceProc(TraceConfig c) : cfg(std::move(c)) {}
 
@@ -1051,10 +1051,10 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_FourTraces) {
 
   for (auto& trace : traces) {
     std::string cfg = trace.cfg.SerializeAsString();
-    trace.proc = ExecPerfetto({"-o", base::kDevNull, "-c", "-"}, cfg);
+    trace.proc = ExecDejaView({"-o", base::kDevNull, "-c", "-"}, cfg);
   }
 
-  Exec perfetto_br_proc = ExecPerfetto({"--save-all-for-bugreport"});
+  Exec dejaview_br_proc = ExecDejaView({"--save-all-for-bugreport"});
 
   StartServiceIfRequiredNoNewExecsAfterThis();
 
@@ -1062,7 +1062,7 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_FourTraces) {
     trace.thd = std::thread([&trace] {
       std::string stderr_str;
       ASSERT_EQ(0, trace.proc->Run(&stderr_str)) << stderr_str;
-      PERFETTO_DLOG("perfetto-cmd output:\n%s", stderr_str.c_str());
+      DEJAVIEW_DLOG("dejaview-cmd output:\n%s", stderr_str.c_str());
     });
   }
 
@@ -1085,8 +1085,8 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_FourTraces) {
     base::SleepMicroseconds(100 * 1000);
   }
 
-  EXPECT_EQ(0, perfetto_br_proc.Run(&stderr_)) << stderr_;
-  PERFETTO_DLOG("perfetto --save-all-for-bugreport output:\n-----\n%s\n-----\n",
+  EXPECT_EQ(0, dejaview_br_proc.Run(&stderr_)) << stderr_;
+  DEJAVIEW_DLOG("dejaview --save-all-for-bugreport output:\n-----\n%s\n-----\n",
                 stderr_.c_str());
 
   // Stop all the four ongoing traces, which by now got cloned.
@@ -1115,7 +1115,7 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_FourTraces) {
   check_trace("systrace_1.pftrace", /*expected_score=*/1);
 }
 
-TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_LargeTrace) {
+TEST_F(DejaViewCmdlineTest, SaveAllForBugreport_LargeTrace) {
   auto remove_br_files = [] {
     remove((GetBugreportTraceDir() + "/systrace.pftrace").c_str());
   };
@@ -1132,8 +1132,8 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_LargeTrace) {
 
   cfg.set_unique_session_name(session_name);
   std::string cfg_str = cfg.SerializeAsString();
-  Exec trace_proc = ExecPerfetto({"-o", base::kDevNull, "-c", "-"}, cfg_str);
-  Exec perfetto_br_proc = ExecPerfetto({"--save-all-for-bugreport"});
+  Exec trace_proc = ExecDejaView({"-o", base::kDevNull, "-c", "-"}, cfg_str);
+  Exec dejaview_br_proc = ExecDejaView({"--save-all-for-bugreport"});
 
   StartServiceIfRequiredNoNewExecsAfterThis();
 
@@ -1143,7 +1143,7 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_LargeTrace) {
   std::thread thd([&trace_proc] {
     std::string stderr_str;
     ASSERT_EQ(0, trace_proc.Run(&stderr_str)) << stderr_str;
-    PERFETTO_DLOG("perfetto-cmd output:\n%s", stderr_str.c_str());
+    DEJAVIEW_DLOG("dejaview-cmd output:\n%s", stderr_str.c_str());
   });
 
   // Wait that the tracing session is started.
@@ -1166,8 +1166,8 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_LargeTrace) {
   fake_producer->ProduceEventBatch(test_helper().WrapTask(on_data_written));
   task_runner_.RunUntilCheckpoint("data_written");
 
-  EXPECT_EQ(0, perfetto_br_proc.Run(&stderr_)) << stderr_;
-  PERFETTO_DLOG("perfetto --save-all-for-bugreport output:\n-----\n%s\n-----\n",
+  EXPECT_EQ(0, dejaview_br_proc.Run(&stderr_)) << stderr_;
+  DEJAVIEW_DLOG("dejaview --save-all-for-bugreport output:\n-----\n%s\n-----\n",
                 stderr_.c_str());
 
   // Stop the ongoing trace, which by now got cloned.
@@ -1186,4 +1186,4 @@ TEST_F(PerfettoCmdlineTest, SaveAllForBugreport_LargeTrace) {
   EXPECT_EQ(num_test_packets, static_cast<ssize_t>(kMsgCount));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -18,32 +18,32 @@
 
 #include <sys/types.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/proc_utils.h"
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/proc_utils.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
 #include "src/tracing/service/metatrace_writer.h"
 
-#include "protos/perfetto/config/android/android_sdk_sysprop_guard_config.pbzero.h"
+#include "protos/dejaview/config/android/android_sdk_sysprop_guard_config.pbzero.h"
 
 // This translation unit is only ever used in Android in-tree builds.
 // These producers are here  to dynamically start heapprofd and other services
 // via sysprops when a trace that requests them is active. That can only happen
 // in in-tree builds of Android.
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/system_properties.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -58,17 +58,17 @@ constexpr char kJavaHprofOomActivePropertyName[] =
 
 constexpr char kAndroidSdkSyspropGuardDataSourceName[] =
     "android.sdk_sysprop_guard";
-constexpr char kPerfettoSdkSyspropGuardGenerationPropertyName[] =
-    "debug.tracing.ctl.perfetto.sdk_sysprop_guard_generation";
+constexpr char kDejaViewSdkSyspropGuardGenerationPropertyName[] =
+    "debug.tracing.ctl.dejaview.sdk_sysprop_guard_generation";
 constexpr char kHwuiSkiaBroadTracingPropertyName[] =
     "debug.tracing.ctl.hwui.skia_tracing_enabled";
-constexpr char kHwuiSkiaUsePerfettoPropertyName[] =
-    "debug.tracing.ctl.hwui.skia_use_perfetto_track_events";
+constexpr char kHwuiSkiaUseDejaViewPropertyName[] =
+    "debug.tracing.ctl.hwui.skia_use_dejaview_track_events";
 constexpr char kHwuiSkiaPropertyPackageSeparator[] = ".";
 constexpr char kSurfaceFlingerSkiaBroadTracingPropertyName[] =
     "debug.tracing.ctl.renderengine.skia_tracing_enabled";
-constexpr char kSurfaceFlingerSkiaUsePerfettoPropertyName[] =
-    "debug.tracing.ctl.renderengine.skia_use_perfetto_track_events";
+constexpr char kSurfaceFlingerSkiaUseDejaViewPropertyName[] =
+    "debug.tracing.ctl.renderengine.skia_use_dejaview_track_events";
 
 }  // namespace
 
@@ -89,7 +89,7 @@ BuiltinProducer::~BuiltinProducer() {
 }
 
 void BuiltinProducer::ConnectInProcess(TracingService* svc) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // TODO(primiano): ConnectProducer should take a base::PlatformProcessId not
   // pid_t, as they are different on Windows. But that is a larger refactoring
   // and not worth given this is the only use case where it clashes.
@@ -176,7 +176,7 @@ void BuiltinProducer::SetupDataSource(DataSourceInstanceID ds_id,
     if (sysprop_guard_config.surfaceflinger_skia_track_events() &&
         !android_sdk_sysprop_guard_state_.surfaceflinger_initialized) {
       SetAndroidProperty(kSurfaceFlingerSkiaBroadTracingPropertyName, "true");
-      SetAndroidProperty(kSurfaceFlingerSkiaUsePerfettoPropertyName, "true");
+      SetAndroidProperty(kSurfaceFlingerSkiaUseDejaViewPropertyName, "true");
       android_sdk_sysprop_guard_state_.surfaceflinger_initialized = true;
       increase_generation = true;
     }
@@ -193,7 +193,7 @@ void BuiltinProducer::SetupDataSource(DataSourceInstanceID ds_id,
                     (kHwuiSkiaPropertyPackageSeparator + package),
                 "true");
             SetAndroidProperty(
-                kHwuiSkiaUsePerfettoPropertyName +
+                kHwuiSkiaUseDejaViewPropertyName +
                     (kHwuiSkiaPropertyPackageSeparator + package),
                 "true");
             android_sdk_sysprop_guard_state_.hwui_packages_initialized.insert(
@@ -204,7 +204,7 @@ void BuiltinProducer::SetupDataSource(DataSourceInstanceID ds_id,
       } else if (!android_sdk_sysprop_guard_state_.hwui_globally_initialized) {
         // Set global flag
         SetAndroidProperty(kHwuiSkiaBroadTracingPropertyName, "true");
-        SetAndroidProperty(kHwuiSkiaUsePerfettoPropertyName, "true");
+        SetAndroidProperty(kHwuiSkiaUseDejaViewPropertyName, "true");
         android_sdk_sysprop_guard_state_.hwui_globally_initialized = true;
         increase_generation = true;
       }
@@ -213,7 +213,7 @@ void BuiltinProducer::SetupDataSource(DataSourceInstanceID ds_id,
     if (increase_generation) {
       android_sdk_sysprop_guard_state_.generation++;
       SetAndroidProperty(
-          kPerfettoSdkSyspropGuardGenerationPropertyName,
+          kDejaViewSdkSyspropGuardGenerationPropertyName,
           std::to_string(android_sdk_sysprop_guard_state_.generation));
     }
 
@@ -231,7 +231,7 @@ void BuiltinProducer::StartDataSource(DataSourceInstanceID ds_id,
 
     auto it_and_inserted = metatrace_.writers.emplace(
         std::piecewise_construct, std::make_tuple(ds_id), std::make_tuple());
-    PERFETTO_DCHECK(it_and_inserted.second);
+    DEJAVIEW_DCHECK(it_and_inserted.second);
     // Note: only the first concurrent writer will actually be active.
     metatrace_.writers[ds_id].Enable(task_runner_, std::move(writer),
                                      metatrace::TAG_ANY);
@@ -300,7 +300,7 @@ void BuiltinProducer::Flush(FlushRequestID flush_id,
 
 bool BuiltinProducer::SetAndroidProperty(const std::string& name,
                                          const std::string& value) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   return __system_property_set(name.c_str(), value.c_str()) == 0;
 #else
   // Allow this to be mocked out for tests on other platforms.
@@ -310,4 +310,4 @@ bool BuiltinProducer::SetAndroidProperty(const std::string& name,
 #endif
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,11 +21,11 @@
 
 #include <map>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/unix_socket.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Callback interface for receiving /proc/<pid>/ file descriptors (proc-fds)
 // from |ProcDescriptorGetter|.
@@ -99,6 +99,6 @@ class AndroidRemoteDescriptorGetter : public ProcDescriptorGetter,
       active_connections_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_PROC_DESCRIPTORS_H_

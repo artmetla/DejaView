@@ -12,7 +12,7 @@ The design of Bigtrace consists of four main parts:
 
 ### Client
 There are three clients to interact with Bigtrace: a Python API, clickhouse-client and Apache Superset.
-- The Python API exists in the Perfetto python library and can be used similar to the TraceProcessor and BatchTraceProcessor APIs.
+- The Python API exists in the DejaView python library and can be used similar to the TraceProcessor and BatchTraceProcessor APIs.
 - Clickhouse is a data warehousing solution which gives a SQL based interface for the user to write queries which are sent through gRPC to the Orchestrator. This can be accessed natively using the clickhouse-client which provides a CLI which allows the user to write queries to the DB.
 - Superset is a GUI for Clickhouse which offers an SQLLab to run queries offering support for modern features such as multiple tabs, autocomplete and syntax highlighting as well as providing data visualization tools to create charts easily from query results.
 
@@ -38,7 +38,7 @@ The recommended way to deploy Bigtrace is on Google Kubernetes Engine and this g
 - GCS
 - GKE
 - gcloud (https://cloud.google.com/sdk/gcloud)
-- A clone of the Perfetto directory
+- A clone of the DejaView directory
 
 #### Service account permissions
 In addition to the default API access of the Compute Engine service account, the following permissions are required:
@@ -78,7 +78,7 @@ gcloud container clusters get-credentials [CLUSTER_NAME] --zone [ZONE]--project 
 The deployment of Orchestrator requires two main steps: Building and pushing the images to Artifact Registry & deploying to the cluster.
 
 #### Building and uploading the Orchestrator image
-To build the image and push to Artifact Registry, first navigate to the perfetto directory and then run the following commands:
+To build the image and push to Artifact Registry, first navigate to the dejaview directory and then run the following commands:
 
 ```bash
 docker build -t bigtrace_orchestrator src/bigtrace/orchestrator

@@ -26,10 +26,10 @@ from platform import system
 GN_ARGS = ' '.join(
     quote(s) for s in (
         'is_debug=false',
-        'is_perfetto_build_generator=true',
-        'is_perfetto_embedder=true',
+        'is_dejaview_build_generator=true',
+        'is_dejaview_embedder=true',
         'use_custom_libcxx=false',
-        'enable_perfetto_ipc=true',
+        'enable_dejaview_ipc=true',
     ))
 
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.realpath(__file__)))
@@ -53,8 +53,8 @@ def check_amalgamated_output():
 def check_amalgamated_build():
   args = [
       '-std=c++17', '-Werror', '-Wall', '-Wextra',
-      '-DPERFETTO_AMALGAMATED_SDK_TEST', '-I' + OUT_DIR,
-      OUT_DIR + '/perfetto.cc', 'test/client_api_example.cc', '-o',
+      '-DDEJAVIEW_AMALGAMATED_SDK_TEST', '-I' + OUT_DIR,
+      OUT_DIR + '/dejaview.cc', 'test/client_api_example.cc', '-o',
       OUT_DIR + '/test'
   ]
   if system().lower() == 'linux':

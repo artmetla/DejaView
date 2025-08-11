@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/message.h"
+#include "dejaview/protozero/message.h"
 
 #include <atomic>
 #include <type_traits>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/message_arena.h"
-#include "perfetto/protozero/message_handle.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/message_arena.h"
+#include "dejaview/protozero/message_handle.h"
 
-#if !PERFETTO_IS_LITTLE_ENDIAN()
+#if !DEJAVIEW_IS_LITTLE_ENDIAN()
 // The memcpy() for float and double below needs to be adjusted if we want to
 // support big endian CPUs. There doesn't seem to be a compelling need today.
 #error Unimplemented for big endian archs.
@@ -36,7 +36,7 @@ namespace {
 
 constexpr int kBytesToCompact = proto_utils::kMessageLengthFieldSize - 1u;
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 std::atomic<uint32_t> g_generation;
 #endif
 
@@ -61,7 +61,7 @@ void Message::Reset(ScatteredStreamWriter* stream_writer, MessageArena* arena) {
   size_field_ = nullptr;
   nested_message_ = nullptr;
   message_state_ = MessageState::kNotFinalized;
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   handle_ = nullptr;
   generation_ = g_generation.fetch_add(1, std::memory_order_relaxed);
 #endif
@@ -72,11 +72,11 @@ void Message::AppendString(uint32_t field_id, const char* str) {
 }
 
 void Message::AppendBytes(uint32_t field_id, const void* src, size_t size) {
-  PERFETTO_DCHECK(field_id);
+  DEJAVIEW_DCHECK(field_id);
   if (nested_message_)
     EndNestedMessage();
 
-  PERFETTO_DCHECK(size < proto_utils::kMaxMessageLength);
+  DEJAVIEW_DCHECK(size < proto_utils::kMaxMessageLength);
   // Write the proto preamble (field id, type and length of the field).
   uint8_t buffer[proto_utils::kMaxSimpleFieldEncodedSize];
   uint8_t* pos = buffer;
@@ -92,7 +92,7 @@ void Message::AppendBytes(uint32_t field_id, const void* src, size_t size) {
 size_t Message::AppendScatteredBytes(uint32_t field_id,
                                      ContiguousMemoryRange* ranges,
                                      size_t num_ranges) {
-  PERFETTO_DCHECK(field_id);
+  DEJAVIEW_DCHECK(field_id);
   if (nested_message_)
     EndNestedMessage();
 
@@ -101,7 +101,7 @@ size_t Message::AppendScatteredBytes(uint32_t field_id,
     size += ranges[i].size();
   }
 
-  PERFETTO_DCHECK(size < proto_utils::kMaxMessageLength);
+  DEJAVIEW_DCHECK(size < proto_utils::kMaxMessageLength);
 
   uint8_t buffer[proto_utils::kMaxSimpleFieldEncodedSize];
   uint8_t* pos = buffer;
@@ -130,8 +130,8 @@ uint32_t Message::Finalize() {
   // many reasons, because the TraceWriterImpl delegate is keeping track of the
   // root fragment size independently.
   if (size_field_) {
-    PERFETTO_DCHECK(!is_finalized());
-    PERFETTO_DCHECK(size_ < proto_utils::kMaxMessageLength);
+    DEJAVIEW_DCHECK(!is_finalized());
+    DEJAVIEW_DCHECK(size_ < proto_utils::kMaxMessageLength);
     //
     // Normally the size of a protozero message is written with 4 bytes just
     // before the contents of the message itself:
@@ -157,13 +157,13 @@ uint32_t Message::Finalize() {
     // this by verifying that the size field is immediately before the message
     // in memory and is fully contained by the current chunk.
     //
-    if (PERFETTO_LIKELY(size_ <= proto_utils::kMaxOneByteMessageLength &&
+    if (DEJAVIEW_LIKELY(size_ <= proto_utils::kMaxOneByteMessageLength &&
                         size_field_ ==
                             stream_writer_->write_ptr() - size_ -
                                 proto_utils::kMessageLengthFieldSize &&
                         size_field_ >= stream_writer_->cur_range().begin)) {
       stream_writer_->Rewind(size_, kBytesToCompact);
-      PERFETTO_DCHECK(size_field_ == stream_writer_->write_ptr() - size_ - 1u);
+      DEJAVIEW_DCHECK(size_field_ == stream_writer_->write_ptr() - size_ - 1u);
       *size_field_ = static_cast<uint8_t>(size_);
       message_state_ = MessageState::kFinalizedWithCompaction;
     } else {
@@ -175,7 +175,7 @@ uint32_t Message::Finalize() {
     message_state_ = MessageState::kFinalized;
   }
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   if (handle_)
     handle_->reset_message();
 #endif
@@ -184,7 +184,7 @@ uint32_t Message::Finalize() {
 }
 
 Message* Message::BeginNestedMessageInternal(uint32_t field_id) {
-  PERFETTO_DCHECK(field_id);
+  DEJAVIEW_DCHECK(field_id);
   if (nested_message_)
     EndNestedMessage();
 

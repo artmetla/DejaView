@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/uuid.h"
+#include "dejaview/ext/base/uuid.h"
 
 #include <array>
 #include <optional>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -109,7 +109,7 @@ TEST(UuidTest, DISABLED_BitRandomDistribution) {
 
   const double diff_pct =
       100.0 * static_cast<double>(max_diff) / static_cast<double>(kRounds);
-  PERFETTO_DLOG("Max bit embalance: %.2f %%", diff_pct);
+  DEJAVIEW_DLOG("Max bit embalance: %.2f %%", diff_pct);
 
   // Local runs show a 1% embalance. We take a 5x margin for the test.
   ASSERT_LT(diff_pct, 5.0);
@@ -117,4 +117,4 @@ TEST(UuidTest, DISABLED_BitRandomDistribution) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

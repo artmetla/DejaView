@@ -24,11 +24,11 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
@@ -43,7 +43,7 @@
 #include "src/trace_processor/db/column_storage_overlay.h"
 #include "src/trace_processor/db/query_executor.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 using Indices = column::DataLayerChain::Indices;
@@ -67,7 +67,7 @@ bool IsSortingOp(FilterOp op) {
     case FilterOp::kNe:
       return false;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void ApplyMinMaxQuery(RowMap& rm,
@@ -100,7 +100,7 @@ Table::Table(StringPool* pool,
       row_count_(row_count),
       overlays_(std::move(overlays)),
       columns_(std::move(columns)) {
-  PERFETTO_DCHECK(string_pool_);
+  DEJAVIEW_DCHECK(string_pool_);
 }
 
 Table::~Table() = default;
@@ -151,7 +151,7 @@ RowMap Table::QueryToRowMap(const Query& q) const {
   //
   // From rough benchmarking, this has a negligible impact on peformance as this
   // branch is almost never taken.
-  if (PERFETTO_UNLIKELY(chains_.size() != columns_.size())) {
+  if (DEJAVIEW_UNLIKELY(chains_.size() != columns_.size())) {
     CreateChains();
   }
 
@@ -210,7 +210,7 @@ Table Table::Sort(const std::vector<Order>& ob) const {
   RowMap rm = QueryToRowMap(q);
   for (const ColumnStorageOverlay& overlay : overlays_) {
     table.overlays_.emplace_back(overlay.SelectRows(rm));
-    PERFETTO_DCHECK(table.overlays_.back().size() == table.row_count());
+    DEJAVIEW_DCHECK(table.overlays_.back().size() == table.row_count());
   }
 
   // Remove the sorted and row set flags from all the columns.
@@ -252,9 +252,9 @@ void Table::OnConstructionCompleted(
   for (ColumnLegacy& col : columns_) {
     col.BindToTable(this, string_pool_);
   }
-  PERFETTO_CHECK(storage_layers.size() == columns_.size());
-  PERFETTO_CHECK(null_layers.size() == columns_.size());
-  PERFETTO_CHECK(overlay_layers.size() == overlays_.size());
+  DEJAVIEW_CHECK(storage_layers.size() == columns_.size());
+  DEJAVIEW_CHECK(null_layers.size() == columns_.size());
+  DEJAVIEW_CHECK(overlay_layers.size() == overlays_.size());
   storage_layers_ = std::move(storage_layers);
   null_layers_ = std::move(null_layers);
   overlay_layers_ = std::move(overlay_layers);
@@ -322,18 +322,18 @@ base::Status Table::DropIndex(const std::string& name) {
 
 void Table::ApplyDistinct(const Query& q, RowMap* rm) const {
   const auto& ob = q.orders;
-  PERFETTO_DCHECK(!ob.empty());
+  DEJAVIEW_DCHECK(!ob.empty());
 
   // `q.orders` should be treated here only as information on what should we
   // run distinct on, they should not be used for subsequent sorting.
   // TODO(mayzner): Remove the check after we implement the multi column
   // distinct.
-  PERFETTO_DCHECK(ob.size() == 1);
+  DEJAVIEW_DCHECK(ob.size() == 1);
 
   std::vector<uint32_t> table_indices = std::move(*rm).TakeAsIndexVector();
   auto indices = Indices::Create(table_indices, Indices::State::kMonotonic);
   ChainForColumn(ob.front().col_idx).Distinct(indices);
-  PERFETTO_DCHECK(indices.tokens.size() <= table_indices.size());
+  DEJAVIEW_DCHECK(indices.tokens.size() <= table_indices.size());
 
   for (uint32_t i = 0; i < indices.tokens.size(); ++i) {
     table_indices[i] = indices.tokens[i].payload;
@@ -365,7 +365,7 @@ void Table::ApplySort(const Query& q, RowMap* rm) const {
     // happens any time the |max| function is used in SQLite. We can be
     // more efficient as this column is already sorted so we simply need
     // to reverse the order of this column.
-    PERFETTO_DCHECK(ob.front().desc);
+    DEJAVIEW_DCHECK(ob.front().desc);
     std::reverse(idx.begin(), idx.end());
   } else {
     QueryExecutor::SortLegacy(this, ob, idx);
@@ -452,4 +452,4 @@ RowMap Table::ApplyIdJoinConstraints(const std::vector<Constraint>& cs,
   return RowMap(row, row + 1);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

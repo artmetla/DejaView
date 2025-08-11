@@ -20,14 +20,14 @@
 
 #include <stdio.h>
 
-#include "perfetto/ext/base/small_set.h"
+#include "dejaview/ext/base/small_set.h"
 #include "src/traced/probes/filesystem/inode_file_data_source.h"
 #include "src/traced/probes/filesystem/prefix_finder.h"
 
 #ifndef SRC_TRACED_PROBES_FILESYSTEM_RANGE_TREE_H_
 #define SRC_TRACED_PROBES_FILESYSTEM_RANGE_TREE_H_
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 constexpr size_t kSetSize = 3;
@@ -60,6 +60,6 @@ class RangeTree {
   std::map<Inode, SmallSet<DataType, kSetSize>> map_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FILESYSTEM_RANGE_TREE_H_

@@ -19,23 +19,23 @@
 
 // Note: No non-client API header includes are allowed here.
 
-namespace perfetto {
+namespace dejaview {
 class TrackEventSessionObserver;
 namespace internal {
 struct TrackEventIncrementalState;
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview
 
 namespace tracing_module {
 
 void InitializeCategories();
-void AddSessionObserver(perfetto::TrackEventSessionObserver* observer);
-void RemoveSessionObserver(perfetto::TrackEventSessionObserver* observer);
+void AddSessionObserver(dejaview::TrackEventSessionObserver* observer);
+void RemoveSessionObserver(dejaview::TrackEventSessionObserver* observer);
 bool IsEnabled();
 void EmitTrackEvents();
 void EmitTrackEvents2();
 void EmitTrackEventsFromAllNamespaces();
-perfetto::internal::TrackEventIncrementalState* GetIncrementalState();
+dejaview::internal::TrackEventIncrementalState* GetIncrementalState();
 
 // These functions are used to check the instruction size overhead track events.
 void FunctionWithOneTrackEvent();

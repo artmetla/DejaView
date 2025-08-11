@@ -21,15 +21,15 @@
 #include <map>
 #include <string>
 #include <vector>
-#include "perfetto/ext/traced/data_source_types.h"
+#include "dejaview/ext/traced/data_source_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 constexpr char kMountsPath[] = "/proc/mounts";
 
 std::multimap<BlockDeviceID, std::string> ParseMounts(
     const char* path = kMountsPath);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FILESYSTEM_FS_MOUNT_H_

@@ -17,8 +17,8 @@
 #include "src/trace_processor/importers/proto/v8_sequence_state.h"
 #include <optional>
 
-#include "protos/perfetto/trace/chrome/v8.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/chrome/v8.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/string_encoding_utils.h"
 #include "src/trace_processor/importers/proto/v8_tracker.h"
@@ -26,13 +26,13 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/v8_tables_py.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
-using ::perfetto::protos::pbzero::InternedData;
-using ::perfetto::protos::pbzero::InternedV8JsFunction;
-using ::perfetto::protos::pbzero::InternedV8String;
+using ::dejaview::protos::pbzero::InternedData;
+using ::dejaview::protos::pbzero::InternedV8JsFunction;
+using ::dejaview::protos::pbzero::InternedV8String;
 
 protozero::ConstBytes ToConstBytes(const TraceBlobView& view) {
   return {view.data(), view.size()};
@@ -166,4 +166,4 @@ std::optional<StringId> V8SequenceState::GetOrInsertJsFunctionName(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

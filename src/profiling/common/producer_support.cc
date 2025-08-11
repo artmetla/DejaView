@@ -18,13 +18,13 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/traced/probes/packages_list/packages_list_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -33,13 +33,13 @@ std::optional<Package> FindInPackagesList(
     const std::string& packages_list_path) {
   std::string content;
   if (!base::ReadFile(packages_list_path, &content)) {
-    PERFETTO_ELOG("Failed to read %s", packages_list_path.c_str());
+    DEJAVIEW_ELOG("Failed to read %s", packages_list_path.c_str());
     return std::nullopt;
   }
   for (base::StringSplitter ss(std::move(content), '\n'); ss.Next();) {
     Package pkg;
     if (!ReadPackagesListLine(ss.cur_token(), &pkg)) {
-      PERFETTO_ELOG("Failed to parse packages.list");
+      DEJAVIEW_ELOG("Failed to parse packages.list");
       return std::nullopt;
     }
 
@@ -54,14 +54,14 @@ bool AllPackagesProfileableByTrustedInitiator(
     const std::string& packages_list_path) {
   std::string content;
   if (!base::ReadFile(packages_list_path, &content)) {
-    PERFETTO_ELOG("Failed to read %s", packages_list_path.c_str());
+    DEJAVIEW_ELOG("Failed to read %s", packages_list_path.c_str());
     return false;
   }
   bool ret = true;
   for (base::StringSplitter ss(std::move(content), '\n'); ss.Next();) {
     Package pkg;
     if (!ReadPackagesListLine(ss.cur_token(), &pkg)) {
-      PERFETTO_ELOG("Failed to parse packages.list");
+      DEJAVIEW_ELOG("Failed to parse packages.list");
       return false;
     }
 
@@ -75,12 +75,12 @@ bool AllPackagesProfileableByTrustedInitiator(
 bool CanProfile(const DataSourceConfig& ds_config,
                 uint64_t uid,
                 const std::vector<std::string>& installed_by) {
-// We restrict by !PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD) because a
+// We restrict by !DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD) because a
 // sideloaded heapprofd should not be restricted by this. Do note though that,
 // at the moment, there isn't really a way to sideload a functioning heapprofd
 // onto user builds.
-#if !PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD) || \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD) || \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   base::ignore_result(ds_config);
   base::ignore_result(uid);
   base::ignore_result(installed_by);
@@ -166,7 +166,7 @@ bool CanProfileAndroid(const DataSourceConfig& ds_config,
   // check installer constraint if given
   if (!installed_by.empty()) {
     if (pkg->installed_by.empty()) {
-      PERFETTO_ELOG("Cannot parse installer from packages.list");
+      DEJAVIEW_ELOG("Cannot parse installer from packages.list");
       return false;
     }
     if (std::find(installed_by.cbegin(), installed_by.cend(),
@@ -186,4 +186,4 @@ bool CanProfileAndroid(const DataSourceConfig& ds_config,
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

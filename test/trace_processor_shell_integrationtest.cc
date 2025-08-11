@@ -16,13 +16,13 @@
 
 #include <string_view>
 
-#include "perfetto/ext/base/subprocess.h"
-#include "perfetto/ext/base/utils.h"
-#include "protos/perfetto/trace_processor/trace_processor.gen.h"
+#include "dejaview/ext/base/subprocess.h"
+#include "dejaview/ext/base/utils.h"
+#include "protos/dejaview/trace_processor/trace_processor.gen.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using TraceProcessorRpc = protos::gen::TraceProcessorRpc;
@@ -81,4 +81,4 @@ TEST(TraceProcessorShellIntegrationTest, StdioSimpleRequestResponse) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -18,11 +18,11 @@
 
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 namespace {
 
@@ -105,7 +105,7 @@ std::vector<T> ComputeDeletedByNumber(const std::vector<T>& input,
 
 ProtoFile::Enum::Value MergeEnumValue(const ProtoFile::Enum::Value& input,
                                       const ProtoFile::Enum::Value& upstream) {
-  PERFETTO_CHECK(input.number == upstream.number);
+  DEJAVIEW_CHECK(input.number == upstream.number);
 
   ProtoFile::Enum::Value out;
   out.name = upstream.name;
@@ -122,7 +122,7 @@ ProtoFile::Enum::Value MergeEnumValue(const ProtoFile::Enum::Value& input,
 
 ProtoFile::Enum MergeEnum(const ProtoFile::Enum& input,
                           const ProtoFile::Enum& upstream) {
-  PERFETTO_CHECK(input.name == upstream.name);
+  DEJAVIEW_CHECK(input.name == upstream.name);
 
   ProtoFile::Enum out;
   out.name = upstream.name;
@@ -172,7 +172,7 @@ std::vector<ProtoFile::Enum> MergeEnums(
 base::Status MergeField(const ProtoFile::Field& input,
                         const ProtoFile::Field& upstream,
                         ProtoFile::Field& out) {
-  PERFETTO_CHECK(input.number == upstream.number);
+  DEJAVIEW_CHECK(input.number == upstream.number);
 
   if (input.packageless_type != upstream.packageless_type) {
     return base::ErrStatus(
@@ -294,7 +294,7 @@ base::Status Merge(const ProtoFile::Oneof& input,
                    const ProtoFile::Oneof& upstream,
                    const Allowlist::Oneof& allowlist,
                    ProtoFile::Oneof& out) {
-  PERFETTO_CHECK(input.name == upstream.name);
+  DEJAVIEW_CHECK(input.name == upstream.name);
   out.name = input.name;
 
   // Get the comments from the source of truth.
@@ -313,7 +313,7 @@ base::Status Merge(const ProtoFile::Message& input,
                    const ProtoFile::Message& upstream,
                    const Allowlist::Message& allowlist,
                    ProtoFile::Message& out) {
-  PERFETTO_CHECK(input.name == upstream.name);
+  DEJAVIEW_CHECK(input.name == upstream.name);
   out.name = input.name;
 
   // Get the comments from the source of truth.
@@ -373,4 +373,4 @@ base::Status MergeProtoFiles(const ProtoFile& input,
 }
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview

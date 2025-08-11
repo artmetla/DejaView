@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/platform.h"
-#include "perfetto/tracing/internal/tracing_tls.h"
-#include "perfetto/tracing/trace_writer_base.h"
+#include "dejaview/tracing/platform.h"
+#include "dejaview/tracing/internal/tracing_tls.h"
+#include "dejaview/tracing/trace_writer_base.h"
 
-namespace perfetto {
+namespace dejaview {
 
 PlatformThreadLocalObject::~PlatformThreadLocalObject() = default;
 Platform::~Platform() = default;
@@ -38,4 +38,4 @@ PlatformThreadLocalObject::CreateInstance() {
 // static
 base::PlatformProcessId Platform::process_id_ = 0;
 
-}  // namespace perfetto
+}  // namespace dejaview

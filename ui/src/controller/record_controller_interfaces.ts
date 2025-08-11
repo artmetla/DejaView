@@ -44,8 +44,8 @@ export abstract class RpcConsumerPort {
 
   // Allows the recording controller to customise the suffix added to recorded
   // traces when they are downloaded. In the general case this will be
-  // .perfetto-trace however if the trace is recorded compressed if could be
-  // .perfetto-trace.gz etc.
+  // .dejaview-trace however if the trace is recorded compressed if could be
+  // .dejaview-trace.gz etc.
   getRecordedTraceSuffix(): string {
     return TRACE_SUFFIX;
   }

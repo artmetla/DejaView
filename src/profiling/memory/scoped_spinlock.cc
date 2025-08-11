@@ -20,7 +20,7 @@
 
 #include <atomic>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 
 namespace {
 constexpr bool IsPowerOfTwo(size_t v) {
@@ -35,7 +35,7 @@ static_assert(IsPowerOfTwo(kLockAttemptsPerSleep),
               "lock attempts of power of 2 produce faster code.");
 }  // namespace
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 void PoisonSpinlock(Spinlock* lock) {
@@ -50,7 +50,7 @@ void ScopedSpinlock::LockSlow(Mode mode) {
                            attempt < kLockAttemptsPerSleep * kSleepAttempts;
        attempt++) {
     if (!lock_->locked.load(std::memory_order_relaxed) &&
-        PERFETTO_LIKELY(
+        DEJAVIEW_LIKELY(
             !lock_->locked.exchange(true, std::memory_order_acquire))) {
       locked_ = true;
       break;
@@ -64,4 +64,4 @@ void ScopedSpinlock::LockSlow(Mode mode) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

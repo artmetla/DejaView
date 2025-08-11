@@ -25,7 +25,7 @@
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::perf_text_importer {
+namespace dejaview::trace_processor::perf_text_importer {
 
 PerfTextTraceParserImpl::PerfTextTraceParserImpl(TraceProcessorContext* context)
     : context_(context) {}
@@ -48,4 +48,4 @@ void PerfTextTraceParserImpl::ParsePerfTextEvent(int64_t ts,
   ss->Insert(row);
 }
 
-}  // namespace perfetto::trace_processor::perf_text_importer
+}  // namespace dejaview::trace_processor::perf_text_importer

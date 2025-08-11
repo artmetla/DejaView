@@ -22,7 +22,7 @@ class ExportTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('zip/perf_track_sym.zip'),
         query="""
-          INCLUDE PERFETTO MODULE export.to_firefox_profile;
+          INCLUDE DEJAVIEW MODULE export.to_firefox_profile;
 
           SELECT export_to_firefox_profile();
         """,

@@ -21,7 +21,7 @@
 
 #include "src/trace_processor/db/column/data_layer.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 class OverlayLayer : public DataLayer {
  public:
@@ -42,6 +42,6 @@ class OverlayLayer : public DataLayer {
   explicit OverlayLayer(Impl impl);
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_OVERLAY_LAYER_H_

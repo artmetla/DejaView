@@ -20,7 +20,7 @@
 struct sqlite3_context;
 struct sqlite3_value;
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Prototype for a window function which can be registered with SQLite.
 //
@@ -62,6 +62,6 @@ class SqliteWindowFunction {
   static void Final(sqlite3_context* ctx);
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_WINDOW_FUNCTION_H_

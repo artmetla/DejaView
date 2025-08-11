@@ -24,7 +24,7 @@
 #include <utility>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 class LogHistogram {
@@ -42,6 +42,6 @@ class LogHistogram {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_LOG_HISTOGRAM_H_

@@ -18,7 +18,7 @@
 
 #include "src/trace_processor/importers/common/parser_types.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 void EtwModule::ParseEtwEventData(uint32_t /*cpu*/,
@@ -26,4 +26,4 @@ void EtwModule::ParseEtwEventData(uint32_t /*cpu*/,
                                   const TracePacketData&) {}
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

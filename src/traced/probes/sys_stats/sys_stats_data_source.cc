@@ -24,22 +24,22 @@
 #include <limits>
 #include <utility>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/traced/sys_stats_counters.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/traced/sys_stats_counters.h"
 
-#include "protos/perfetto/common/sys_stats_counters.pbzero.h"
-#include "protos/perfetto/config/sys_stats/sys_stats_config.pbzero.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/sys_stats_counters.pbzero.h"
+#include "protos/dejaview/config/sys_stats/sys_stats_config.pbzero.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using protos::pbzero::SysStatsConfig;
 
@@ -49,13 +49,13 @@ constexpr size_t kReadBufSize = 1024 * 16;
 base::ScopedFile OpenReadOnly(const char* path) {
   base::ScopedFile fd(base::OpenFile(path, O_RDONLY));
   if (!fd)
-    PERFETTO_PLOG("Failed opening %s", path);
+    DEJAVIEW_PLOG("Failed opening %s", path);
   return fd;
 }
 
 uint32_t ClampTo10Ms(uint32_t period_ms, const char* counter_name) {
   if (period_ms > 0 && period_ms < 10) {
-    PERFETTO_ILOG("%s %" PRIu32
+    DEJAVIEW_ILOG("%s %" PRIu32
                   " is less than minimum of 10ms. Increasing to 10ms.",
                   counter_name, period_ms);
     return 10;
@@ -113,7 +113,7 @@ SysStatsDataSource::SysStatsDataSource(
     if (counter > 0 && counter <= kMaxMeminfoEnum) {
       meminfo_counters_enabled.set(counter);
     } else {
-      PERFETTO_DFATAL("Meminfo counter out of bounds %u", counter);
+      DEJAVIEW_DFATAL("Meminfo counter out of bounds %u", counter);
     }
   }
   for (size_t i = 0; i < base::ArraySize(kMeminfoKeys); i++) {
@@ -131,7 +131,7 @@ SysStatsDataSource::SysStatsDataSource(
     if (counter > 0 && counter <= kMaxVmstatEnum) {
       vmstat_counters_enabled.set(counter);
     } else {
-      PERFETTO_DFATAL("Vmstat counter out of bounds %u", counter);
+      DEJAVIEW_DFATAL("Vmstat counter out of bounds %u", counter);
     }
   }
   for (size_t i = 0; i < base::ArraySize(kVmstatKeys); i++) {
@@ -174,7 +174,7 @@ SysStatsDataSource::SysStatsDataSource(
   for (size_t i = 0; i < periods_ms.size(); i++) {
     auto ms = periods_ms[i];
     if (ms && ms % tick_period_ms_ != 0) {
-      PERFETTO_ELOG("SysStat periods are not integer multiples of each other");
+      DEJAVIEW_ELOG("SysStat periods are not integer multiples of each other");
       return;
     }
     ticks[i] = ms / tick_period_ms_;
@@ -215,7 +215,7 @@ void SysStatsDataSource::Tick(base::WeakPtr<SysStatsDataSource> weak_this) {
 SysStatsDataSource::~SysStatsDataSource() = default;
 
 void SysStatsDataSource::ReadSysStats() {
-  PERFETTO_METATRACE_SCOPED(TAG_PROC_POLLERS, READ_SYS_STATS);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PROC_POLLERS, READ_SYS_STATS);
   auto packet = writer_->NewTracePacket();
 
   packet->set_timestamp(static_cast<uint64_t>(base::GetBootTimeNs().count()));
@@ -265,7 +265,7 @@ base::ScopedDir SysStatsDataSource::OpenDirAndLogOnErrorOnce(
     bool* already_logged) {
   base::ScopedDir dir(opendir(dir_path.c_str()));
   if (!dir && !(*already_logged)) {
-    PERFETTO_PLOG("Failed to open %s", dir_path.c_str());
+    DEJAVIEW_PLOG("Failed to open %s", dir_path.c_str());
     *already_logged = true;
   }
   return dir;
@@ -587,7 +587,7 @@ const char* SysStatsDataSource::ReadDevfreqCurFreq(
   base::ScopedFile fd = OpenReadOnly(cur_freq_path.c_str());
   if (!fd && !devfreq_error_logged_) {
     devfreq_error_logged_ = true;
-    PERFETTO_PLOG("Failed to open %s", cur_freq_path.c_str());
+    DEJAVIEW_PLOG("Failed to open %s", cur_freq_path.c_str());
     return "";
   }
   size_t rsize = ReadFile(&fd, cur_freq_path.c_str());
@@ -725,7 +725,7 @@ size_t SysStatsDataSource::ReadFile(base::ScopedFile* fd, const char* path) {
     return 0;
   ssize_t res = pread(**fd, read_buf_.Get(), kReadBufSize - 1, 0);
   if (res <= 0) {
-    PERFETTO_PLOG("Failed reading %s", path);
+    DEJAVIEW_PLOG("Failed reading %s", path);
     fd->reset();
     return 0;
   }
@@ -734,4 +734,4 @@ size_t SysStatsDataSource::ReadFile(base::ScopedFile* fd, const char* path) {
   return rsize + 1;  // Include null terminator in the count.
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

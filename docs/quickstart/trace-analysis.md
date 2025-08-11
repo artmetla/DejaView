@@ -17,10 +17,10 @@ curl -LO https://get.perfetto.dev/trace_processor
 chmod +x ./trace_processor
 
 # Start the interactive shell
-./trace_processor trace.perfetto-trace
+./trace_processor trace.dejaview-trace
 
 # Start a local trace processor instance to replace wasm module in the UI
-./trace_processor trace.perfetto-trace --httpd
+./trace_processor trace.dejaview-trace --httpd
 ```
 
 NOTE: In HTTP mode the trace will be loaded into the `trace_processor` and
@@ -102,19 +102,19 @@ Metrics allow to get a summarized view of the trace without having to type any
 SQL or having to load the trace in the UI.
 
 The metrics` schema files live in the
-[/protos/perfetto/metrics](/protos/perfetto/metrics/) directory.
+[/protos/dejaview/metrics](/protos/dejaview/metrics/) directory.
 The corresponding SQL queries live in
 [/src/trace_processor/metrics](/src/trace_processor/metrics/).
 
 #### Run a single metric
 
-Let's run the [`android_cpu`](/protos/perfetto/metrics/android/cpu_metric.proto)
+Let's run the [`android_cpu`](/protos/dejaview/metrics/android/cpu_metric.proto)
 metric. This metrics computes the total CPU time and the total cycles
 (CPU frequency * time spent running at that frequency) for each process in the
 trace, breaking it down by CPU (_core_) number.
 
 ```protobuf
-./trace_processor --run-metrics android_cpu trace.perfetto-trace
+./trace_processor --run-metrics android_cpu trace.dejaview-trace
 
 android_cpu {
   process_info {
@@ -184,7 +184,7 @@ flag. This will output a text proto with the combined result of running both
 metrics.
 
 ```protobuf
-$ ./trace_processor --run-metrics android_mem,android_cpu trace.perfetto-trace
+$ ./trace_processor --run-metrics android_mem,android_cpu trace.dejaview-trace
 
 android_mem {
   process_metrics {
@@ -246,10 +246,10 @@ formats. This is useful when the intended reader is an offline tool.
 Both single and multiple metrics are supported as with proto text output.
 
 ```
-./trace_processor --run-metrics android_mem --metrics-output=binary trace.perfetto-trace
+./trace_processor --run-metrics android_mem --metrics-output=binary trace.dejaview-trace
 <binary protobuf output>
 
-./trace_processor --run-metrics android_mem,android_cpu --metrics-output=json trace.perfetto-trace
+./trace_processor --run-metrics android_mem,android_cpu --metrics-output=json trace.dejaview-trace
 {
   "android_mem": {
     "process_metrics": [
@@ -322,7 +322,7 @@ downloaded or installed.
 
 ### Setup
 ```
-$ pip install perfetto
+$ pip install dejaview
 ```
 NOTE: The API is only compatible with Python3.
 
@@ -333,8 +333,8 @@ more details on all available functions.
 
 #### Query
 ```python
-from perfetto.trace_processor import TraceProcessor
-tp = TraceProcessor(trace='trace.perfetto-trace')
+from dejaview.trace_processor import TraceProcessor
+tp = TraceProcessor(trace='trace.dejaview-trace')
 
 qr_it = tp.query('SELECT name FROM slice')
 for row in qr_it:
@@ -351,8 +351,8 @@ query
 ```
 #### Query as Pandas DataFrame
 ```python
-from perfetto.trace_processor import TraceProcessor
-tp = TraceProcessor(trace='trace.perfetto-trace')
+from dejaview.trace_processor import TraceProcessor
+tp = TraceProcessor(trace='trace.dejaview-trace')
 
 qr_it = tp.query('SELECT ts, name FROM slice')
 qr_df = qr_it.as_pandas_dataframe()
@@ -371,8 +371,8 @@ ts                   name
 ```
 #### Metric
 ```python
-from perfetto.trace_processor import TraceProcessor
-tp = TraceProcessor(trace='trace.perfetto-trace')
+from dejaview.trace_processor import TraceProcessor
+tp = TraceProcessor(trace='trace.dejaview-trace')
 
 cpu_metrics = tp.metric(['android_cpu'])
 print(cpu_metrics)
@@ -417,10 +417,10 @@ metrics {
 ## Next steps
 
 There are several options for exploring more of the trace analysis features
-Perfetto provides:
+DejaView provides:
 
 * The [trace conversion quickstart](/docs/quickstart/traceconv.md) gives an
-  overview on how to convert Perfetto traces to legacy formats to integrate with
+  overview on how to convert DejaView traces to legacy formats to integrate with
   existing tooling.
 * The [Trace Processor documentation](/docs/analysis/trace-processor.md) gives
   more information about how to work with trace processor including details on

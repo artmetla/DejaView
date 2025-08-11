@@ -19,10 +19,10 @@ source_set("ps") {
   deps = [
     "..:data_source",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced",
-    "../../../../protos/perfetto/config/process_stats:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/ps:zero",
+    "../../../../include/dejaview/ext/traced",
+    "../../../../protos/dejaview/config/process_stats:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/ps:zero",
     "../../../base",
     "../common",
   ]
@@ -32,14 +32,14 @@ source_set("ps") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":ps",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/config/process_stats:cpp",
-    "../../../../protos/perfetto/trace/ps:cpp",
+    "../../../../protos/dejaview/config/process_stats:cpp",
+    "../../../../protos/dejaview/trace/ps:cpp",
     "../../../../src/base:test_support",
     "../../../../src/tracing/test:test_support",
     "../common:test_support",

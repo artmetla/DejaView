@@ -21,17 +21,17 @@
 #include <set>
 #include <string>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 #include "src/tracing/service/metatrace_writer.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Data sources built into the tracing service daemon (traced):
-// * perfetto metatrace
+// * dejaview metatrace
 // * lazy heapprofd daemon starter (android only)
 // * lazy traced_perf daemon starter (android only)
 // * java_hprof oom data source counter (android only)
@@ -78,7 +78,7 @@ class BuiltinProducer : public Producer {
   };
 
   struct AndroidSdkSyspropGuardState {
-    // "Initialized" refers to whether the Perfetto SDK and the Track Event
+    // "Initialized" refers to whether the DejaView SDK and the Track Event
     // data source have been initialized in Skia in the given scenario.
     // Note: once initialized, it cannot be de-initialized.
     bool surfaceflinger_initialized = false;
@@ -104,6 +104,6 @@ class BuiltinProducer : public Producer {
   base::WeakPtrFactory<BuiltinProducer> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_SERVICE_BUILTIN_PRODUCER_H_

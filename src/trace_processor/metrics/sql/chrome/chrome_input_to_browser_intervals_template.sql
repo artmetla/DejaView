@@ -20,7 +20,7 @@
 -- The final table includes the time between the arrival of gesture update
 -- input timestamp, and the time it started being processed by CrBrowserMain.
 
-INCLUDE PERFETTO MODULE chrome.tasks;
+INCLUDE DEJAVIEW MODULE chrome.tasks;
 
 SELECT RUN_METRIC(
   'chrome/chrome_input_to_browser_intervals_base.sql',
@@ -29,7 +29,7 @@ SELECT RUN_METRIC(
 );
 
 DROP TABLE IF EXISTS chrome_input_to_browser_intervals;
-CREATE PERFETTO TABLE chrome_input_to_browser_intervals
+CREATE DEJAVIEW TABLE chrome_input_to_browser_intervals
 AS
 SELECT
   (SELECT ts FROM {{slice_table_name}} WHERE id = window_start_id) AS window_start_ts,

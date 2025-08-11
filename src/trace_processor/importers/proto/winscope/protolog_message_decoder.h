@@ -22,13 +22,13 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/winscope_tables_py.h"
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 enum ProtoLogLevel : int32_t {
   DEBUG = 1,
@@ -91,6 +91,6 @@ class ProtoLogMessageDecoder : public Destructible {
   base::FlatHashMap<uint64_t, TrackedMessage> tracked_messages_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_PROTOLOG_MESSAGE_DECODER_H_

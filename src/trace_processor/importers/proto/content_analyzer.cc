@@ -16,14 +16,14 @@
 
 #include "src/trace_processor/importers/proto/content_analyzer.h"
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/proto/content_analyzer.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
 #include "src/trace_processor/importers/proto/trace.descriptor.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ProtoContentAnalyzer::ProtoContentAnalyzer(TraceProcessorContext* context)
@@ -33,12 +33,12 @@ ProtoContentAnalyzer::ProtoContentAnalyzer(TraceProcessorContext* context)
         base::Status status = pool.AddFromFileDescriptorSet(
             kTraceDescriptor.data(), kTraceDescriptor.size());
         if (!status.ok()) {
-          PERFETTO_ELOG("Could not add TracePacket proto descriptor %s",
+          DEJAVIEW_ELOG("Could not add TracePacket proto descriptor %s",
                         status.c_message());
         }
         return pool;
       }()),
-      computer_(&pool_, ".perfetto.protos.TracePacket") {}
+      computer_(&pool_, ".dejaview.protos.TracePacket") {}
 
 ProtoContentAnalyzer::~ProtoContentAnalyzer() = default;
 
@@ -61,7 +61,7 @@ void ProtoContentAnalyzer::ProcessPacket(
 
 void ProtoContentAnalyzer::NotifyEndOfFile() {
   // TODO(kraskevich): consider generating a flamegraph-compatable table once
-  // Perfetto UI supports custom flamegraphs (b/227644078).
+  // DejaView UI supports custom flamegraphs (b/227644078).
   for (auto annotated_map = aggregated_samples_.GetIterator(); annotated_map;
        ++annotated_map) {
     base::FlatHashMap<util::SizeProfileComputer::FieldPath,
@@ -136,4 +136,4 @@ void ProtoContentAnalyzer::NotifyEndOfFile() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

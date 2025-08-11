@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 
 cc_library(
     name = "zlib",
@@ -51,13 +51,13 @@ cc_library(
         "zlib.h",
     ],
     copts = select({
-      "@perfetto//bazel:os_windows": ["-DX86_WINDOWS"],
+      "@dejaview//bazel:os_windows": ["-DX86_WINDOWS"],
       "//conditions:default": [],
     }) + [
         "-Wno-unused-function",
         "-DZLIB_IMPLEMENTATION",
         "-DCHROMIUM_ZLIB_NO_CHROMECONF",
-    ] + PERFETTO_CONFIG.deps_copts.zlib,
+    ] + DEJAVIEW_CONFIG.deps_copts.zlib,
     includes = ["zlib"],
     visibility = ["//visibility:public"],
 )

@@ -18,9 +18,9 @@
 #include <cstdint>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/scoped_file.h"
 #include "src/base/test/utils.h"
 #include "src/protozero/filtering/string_filter.h"
 
@@ -34,9 +34,9 @@ std::vector<std::pair<size_t, size_t>> LoadTraceStrings(
   storage.clear();
 
   std::vector<std::pair<size_t, size_t>> strs;
-  std::string path = perfetto::base::GetTestDataPath(
+  std::string path = dejaview::base::GetTestDataPath(
       "test/data/example_android_trace_30s_atrace_strings.txt");
-  perfetto::base::ScopedFstream f(fopen(path.c_str(), "re"));
+  dejaview::base::ScopedFstream f(fopen(path.c_str(), "re"));
   if (!f) {
     state.SkipWithError("Strings does not exist");
     return {};

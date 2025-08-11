@@ -21,11 +21,11 @@ executable("traced") {
   deps = [
     # Both traced and traced_probes depend on "libprefetto" instead of directly
     # on lib. This is to reduce binary size on android builds. All the code is
-    # built into libperfetto and the executables are just tiny shells that call
+    # built into libdejaview and the executables are just tiny shells that call
     # into the xxx_main() defined in the library.
-    "../../../:libperfetto",
+    "../../../:libdejaview",
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/traced",
+    "../../../include/dejaview/ext/traced",
   ]
   sources = [ "main.cc" ]
   assert_no_deps = [ "../../../gn:protobuf_lite" ]
@@ -35,19 +35,19 @@ executable("traced") {
 # is shared both by the executable and tests.
 source_set("service") {
   public_deps = [
-    "../../../include/perfetto/ext/traced",
-    "../../../include/perfetto/tracing",
+    "../../../include/dejaview/ext/traced",
+    "../../../include/dejaview/tracing",
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../protos/perfetto/config/android:zero",
+    "../../../protos/dejaview/config/android:zero",
     "../../base",
     "../../base:version",
     "../../tracing/core",
     "../../tracing/ipc/service",
     "../../tracing/service:service",
   ]
-  if (enable_perfetto_zlib) {
+  if (enable_dejaview_zlib) {
     deps += [ "../../tracing/service:zlib_compressor" ]
   }
 
@@ -58,13 +58,13 @@ source_set("service") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":service",
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../protos/perfetto/config/android:cpp",
+    "../../../protos/dejaview/config/android:cpp",
     "../../base",
     "../../base:test_support",
     "../../tracing/core",

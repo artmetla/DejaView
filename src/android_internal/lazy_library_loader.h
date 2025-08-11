@@ -20,10 +20,10 @@
 #include <stddef.h>
 #include <stdint.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
-// Dynamically loads (once) the libperfetto_android_internal.so and looks up the
+// Dynamically loads (once) the libdejaview_android_internal.so and looks up the
 // given symbol name. It never unloads the library once loaded. Doing so is very
 // bug-prone (see b/137280403).
 // |name| can be either a symbol name (e.g. DoFoo) or a (partially or fully)
@@ -35,11 +35,11 @@ void* LazyLoadFunction(const char* name);
 // Convenience wrapper to avoid the reinterpret_cast boilerplate. Boils down to:
 // FunctionType name = reinterpret_cast<FunctionType>(LazyLoadFunction(...)).
 // Can be used both for member fields and local variables.
-#define PERFETTO_LAZY_LOAD(FUNCTION, VAR_NAME)                          \
+#define DEJAVIEW_LAZY_LOAD(FUNCTION, VAR_NAME)                          \
   decltype(&FUNCTION) VAR_NAME = reinterpret_cast<decltype(&FUNCTION)>( \
-      ::perfetto::android_internal::LazyLoadFunction(#FUNCTION))
+      ::dejaview::android_internal::LazyLoadFunction(#FUNCTION))
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_ANDROID_INTERNAL_LAZY_LIBRARY_LOADER_H_

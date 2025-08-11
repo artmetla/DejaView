@@ -16,19 +16,19 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/traced/traced.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/traced/traced.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/tracing/core/trace_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -50,7 +50,7 @@ void BenchmarkProducer(benchmark::State& state) {
   trace_config.add_buffers()->set_size_kb(512);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
 
   static constexpr uint32_t kRandomSeed = 42;
@@ -143,7 +143,7 @@ static void BenchmarkConsumer(benchmark::State& state) {
       is_saturated_producer ? 0 : std::max(1u, message_count / messages_per_s);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
   ds_config->mutable_for_testing()->set_seed(kRandomSeed);
   ds_config->mutable_for_testing()->set_message_count(message_count);
@@ -295,4 +295,4 @@ BENCHMARK(BM_EndToEnd_Consumer_ConstantRate)
     ->UseRealTime()
     ->Apply(ConstantRateConsumerArgs);
 
-}  // namespace perfetto
+}  // namespace dejaview

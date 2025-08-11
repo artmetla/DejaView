@@ -18,7 +18,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(SyscallTableTest, Arm64) {
@@ -106,4 +106,4 @@ TEST(SyscallTableTest, X86) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

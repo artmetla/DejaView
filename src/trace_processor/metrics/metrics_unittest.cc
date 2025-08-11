@@ -22,18 +22,18 @@
 #include <unordered_map>
 #include <vector>
 
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_processor/util/descriptors.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace_processor/metrics_impl.pbzero.h"
+#include "protos/dejaview/trace_processor/metrics_impl.pbzero.h"
 
-namespace perfetto::trace_processor::metrics {
+namespace dejaview::trace_processor::metrics {
 namespace {
 using base::gtest_matchers::IsError;
 
@@ -85,8 +85,8 @@ TEST_F(ProtoBuilderTest, AppendLong) {
   //   optional int64 int_value = 1;
   // }
   DescriptorPool pool;
-  ProtoDescriptor descriptor("file.proto", ".perfetto.protos",
-                             ".perfetto.protos.TestProto",
+  ProtoDescriptor descriptor("file.proto", ".dejaview.protos",
+                             ".dejaview.protos.TestProto",
                              ProtoDescriptor::Type::kMessage, std::nullopt);
   descriptor.AddField(FieldDescriptor("int_value", 1,
                                       FieldDescriptorProto::TYPE_INT64, "",
@@ -109,8 +109,8 @@ TEST_F(ProtoBuilderTest, AppendDouble) {
   //   optional double double_value = 1;
   // }
   DescriptorPool pool;
-  ProtoDescriptor descriptor("file.proto", ".perfetto.protos",
-                             ".perfetto.protos.TestProto",
+  ProtoDescriptor descriptor("file.proto", ".dejaview.protos",
+                             ".dejaview.protos.TestProto",
                              ProtoDescriptor::Type::kMessage, std::nullopt);
   descriptor.AddField(FieldDescriptor("double_value", 1,
                                       FieldDescriptorProto::TYPE_DOUBLE, "",
@@ -133,8 +133,8 @@ TEST_F(ProtoBuilderTest, AppendString) {
   //   optional string string_value = 1;
   // }
   DescriptorPool pool;
-  ProtoDescriptor descriptor("file.proto", ".perfetto.protos",
-                             ".perfetto.protos.TestProto",
+  ProtoDescriptor descriptor("file.proto", ".dejaview.protos",
+                             ".dejaview.protos.TestProto",
                              ProtoDescriptor::Type::kMessage, std::nullopt);
   descriptor.AddField(FieldDescriptor("string_value", 1,
                                       FieldDescriptorProto::TYPE_STRING, "",
@@ -161,21 +161,21 @@ TEST_F(ProtoBuilderTest, AppendNested) {
   //   optional NestedProto nested_value = 1;
   // }
   DescriptorPool pool;
-  ProtoDescriptor nested("file.proto", ".perfetto.protos",
-                         ".perfetto.protos.TestProto.NestedProto",
+  ProtoDescriptor nested("file.proto", ".dejaview.protos",
+                         ".dejaview.protos.TestProto.NestedProto",
                          ProtoDescriptor::Type::kMessage, std::nullopt);
   nested.AddField(FieldDescriptor("nested_int_value", 1,
                                   FieldDescriptorProto::TYPE_INT64, "",
                                   std::vector<uint8_t>(), false, false));
 
-  ProtoDescriptor descriptor("file.proto", ".perfetto.protos",
-                             ".perfetto.protos.TestProto",
+  ProtoDescriptor descriptor("file.proto", ".dejaview.protos",
+                             ".dejaview.protos.TestProto",
                              ProtoDescriptor::Type::kMessage, std::nullopt);
   auto field =
       FieldDescriptor("nested_value", 1, FieldDescriptorProto::TYPE_MESSAGE,
-                      ".perfetto.protos.TestProto.NestedProto",
+                      ".dejaview.protos.TestProto.NestedProto",
                       std::vector<uint8_t>(), false, false);
-  field.set_resolved_type_name(".perfetto.protos.TestProto.NestedProto");
+  field.set_resolved_type_name(".dejaview.protos.TestProto.NestedProto");
   descriptor.AddField(field);
 
   ProtoBuilder nest_builder(&pool, &nested);
@@ -211,8 +211,8 @@ TEST_F(ProtoBuilderTest, AppendRepeatedEmpty) {
   //   repeated int64 int_value = 1;
   // }
   DescriptorPool pool;
-  ProtoDescriptor descriptor("file.proto", ".perfetto.protos",
-                             ".perfetto.protos.TestProto",
+  ProtoDescriptor descriptor("file.proto", ".dejaview.protos",
+                             ".dejaview.protos.TestProto",
                              ProtoDescriptor::Type::kMessage, std::nullopt);
   descriptor.AddField(FieldDescriptor("rep_int_value", 1,
                                       FieldDescriptorProto::TYPE_INT64, "",
@@ -238,8 +238,8 @@ TEST_F(ProtoBuilderTest, AppendRepeatedPrimitive) {
   //   repeated int64 int_value = 1;
   // }
   DescriptorPool pool;
-  ProtoDescriptor descriptor("file.proto", ".perfetto.protos",
-                             ".perfetto.protos.TestProto",
+  ProtoDescriptor descriptor("file.proto", ".dejaview.protos",
+                             ".dejaview.protos.TestProto",
                              ProtoDescriptor::Type::kMessage, std::nullopt);
   descriptor.AddField(FieldDescriptor("rep_int_value", 1,
                                       FieldDescriptorProto::TYPE_INT64, "",
@@ -276,21 +276,21 @@ TEST_F(ProtoBuilderTest, AppendEnums) {
   //   optional TestEnum enum_value = 1;
   // }
   DescriptorPool pool;
-  ProtoDescriptor enum_descriptor("file.proto", ".perfetto.protos",
-                                  ".perfetto.protos.TestEnum",
+  ProtoDescriptor enum_descriptor("file.proto", ".dejaview.protos",
+                                  ".dejaview.protos.TestEnum",
                                   ProtoDescriptor::Type::kEnum, std::nullopt);
   enum_descriptor.AddEnumValue(1, "FIRST");
   enum_descriptor.AddEnumValue(2, "SECOND");
   enum_descriptor.AddEnumValue(3, "THIRD");
   pool.AddProtoDescriptorForTesting(enum_descriptor);
 
-  ProtoDescriptor descriptor("file.proto", ".perfetto.protos",
-                             ".perfetto.protos.TestMessage",
+  ProtoDescriptor descriptor("file.proto", ".dejaview.protos",
+                             ".dejaview.protos.TestMessage",
                              ProtoDescriptor::Type::kMessage, std::nullopt);
   FieldDescriptor enum_field("enum_value", 1, FieldDescriptorProto::TYPE_ENUM,
-                             ".perfetto.protos.TestEnum",
+                             ".dejaview.protos.TestEnum",
                              std::vector<uint8_t>(), false, false);
-  enum_field.set_resolved_type_name(".perfetto.protos.TestEnum");
+  enum_field.set_resolved_type_name(".dejaview.protos.TestEnum");
   descriptor.AddField(enum_field);
   pool.AddProtoDescriptorForTesting(descriptor);
 
@@ -321,4 +321,4 @@ TEST_F(ProtoBuilderTest, AppendEnums) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::metrics
+}  // namespace dejaview::trace_processor::metrics

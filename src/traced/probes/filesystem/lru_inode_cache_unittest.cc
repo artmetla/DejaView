@@ -19,10 +19,10 @@
 #include <string>
 #include <tuple>
 
-#include "protos/perfetto/trace/filesystem/inode_file_map.pbzero.h"
+#include "protos/dejaview/trace/filesystem/inode_file_map.pbzero.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -74,4 +74,4 @@ TEST(LRUInodeCacheTest, Overflow) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

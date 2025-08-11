@@ -1,12 +1,12 @@
 # Quickstart: Record traces on Android
 
-Perfetto allows you to collect system-wide performance traces from Android
+DejaView allows you to collect system-wide performance traces from Android
 devices from a variety of data sources (kernel scheduler via ftrace, userspace
 instrumentation via atrace and all other data sources listed in this site).
 
 ## Starting the tracing services
 
-Perfetto is based on [platform services](/docs/concepts/service-model.md)
+DejaView is based on [platform services](/docs/concepts/service-model.md)
 that are available since Android 9 (P) but are enabled by default only since
 Android 11 (R).
 On Android 9 (P) and 10 (Q) you need to do the following to ensure that the
@@ -18,7 +18,7 @@ adb shell setprop persist.traced.enable 1
 ```
 
 If you are running a version of Android older than P, you can still capture a
-trace with Perfetto using the `record_android_trace` script. See instructions
+trace with DejaView using the `record_android_trace` script. See instructions
 below in the
 [Recording a trace through the cmdline](#recording-a-trace-through-the-cmdline)
 section.
@@ -28,14 +28,14 @@ section.
 Command line tools (usage examples below in this page):
 
 * Using the [`tools/record_android_trace`](/tools/record_android_trace) helper script.
-* Using directly the `/system/bin/perfetto` command on device [[reference](/docs/reference/perfetto-cli.md)].
+* Using directly the `/system/bin/dejaview` command on device [[reference](/docs/reference/dejaview-cli.md)].
 
 UI tools:
 
-* Through the record page in the [Perfetto UI](https://ui.perfetto.dev).
+* Through the record page in the [DejaView UI](https://ui.perfetto.dev).
 * Using the on-device [System Tracing App](https://developer.android.com/topic/performance/tracing/on-device)
 
-### Recording a trace through the Perfetto UI
+### Recording a trace through the DejaView UI
 
 Navigate to [ui.perfetto.dev](https://ui.perfetto.dev/#!/record) and select
 **Record new trace** from the left menu.
@@ -43,7 +43,7 @@ From this page, select and turn on the data sources you want to include in the
 trace. More detail about the different data sources can be found in the
 _Data sources_ section of the docs.
 
-![Record page of the Perfetto UI](/docs/images/record-trace.png)
+![Record page of the DejaView UI](/docs/images/record-trace.png)
 
 If you are unsure, start by turning on **Scheduling details** under the **CPU** tab.
 
@@ -53,7 +53,7 @@ has successfully paired (you may need to allow USB debugging on the device), sel
 Allow time for the trace to be collected (10s by default) and then you should
 see the trace appear.
 
-![Perfetto UI with a trace loaded](/docs/images/trace-view.png)
+![DejaView UI with a trace loaded](/docs/images/trace-view.png)
 
 Your trace may look different depending on which data sources you enabled.
 
@@ -68,7 +68,7 @@ downloaded from https://developer.android.com/studio/releases/platform-tools .
 **Using the helper script**
 
 We suggest using the `tools/record_android_trace` script to record traces from
-the command line. It is the equivalent of running `adb shell perfetto` but it
+the command line. It is the equivalent of running `adb shell dejaview` but it
 helps with getting the paths right, auto-pulling the trace once done and opening
 it on the browser.
 Furthermore, on older versions of Android it takes care of sideloading the
@@ -84,7 +84,7 @@ curl -O https://raw.githubusercontent.com/google/perfetto/main/tools/record_andr
 chmod u+x record_android_trace
 
 # See ./record_android_trace --help for more
-./record_android_trace -o trace_file.perfetto-trace -t 30s -b 64mb \
+./record_android_trace -o trace_file.dejaview-trace -t 30s -b 64mb \
 sched freq idle am wm gfx view binder_driver hal dalvik camera input res memory
 ```
 
@@ -92,33 +92,33 @@ On Windows:
 
 ```bash
 curl -O https://raw.githubusercontent.com/google/perfetto/main/tools/record_android_trace
-python3 record_android_trace -o trace_file.perfetto-trace -t 30s -b 64mb \
+python3 record_android_trace -o trace_file.dejaview-trace -t 30s -b 64mb \
 sched freq idle am wm gfx view binder_driver hal dalvik camera input res memory
 ```
 
-**Using the on-device /system/bin/perfetto command**
+**Using the on-device /system/bin/dejaview command**
 
 Or, if you want to use directly the on-device binary do instead:
 
 ```bash
-adb shell perfetto -o /data/misc/perfetto-traces/trace_file.perfetto-trace -t 20s \
+adb shell dejaview -o /data/misc/dejaview-traces/trace_file.dejaview-trace -t 20s \
 sched freq idle am wm gfx view binder_driver hal dalvik camera input res memory
 ```
 
-Caveats when using directly the `adb shell perfetto` workflow:
+Caveats when using directly the `adb shell dejaview` workflow:
 
 * Ctrl+C, which normally causes a graceful termination of the trace, is not
-  propagated by ADB when using `adb shell perfetto` but only when using an
+  propagated by ADB when using `adb shell dejaview` but only when using an
   interactive PTY-based session via `adb shell`.
 * On non-rooted devices before Android 12, the config can only be passed as
-  `cat config | adb shell perfetto -c -` (-: stdin) because of over-restrictive
-  SELinux rules. Since Android 12 `/data/misc/perfetto-configs` can be used for
+  `cat config | adb shell dejaview -c -` (-: stdin) because of over-restrictive
+  SELinux rules. Since Android 12 `/data/misc/dejaview-configs` can be used for
   storing configs.
 * On devices before Android 10, adb cannot directly pull
-  `/data/misc/perfetto-traces`. Use
-  `adb shell cat /data/misc/perfetto-traces/trace > trace` to work around.
+  `/data/misc/dejaview-traces`. Use
+  `adb shell cat /data/misc/dejaview-traces/trace > trace` to work around.
 * When capturing longer traces, e.g. in the context of benchmarks or CI, use
-  `PID=$(perfetto --background)` and then `kill $PID` to stop.
+  `PID=$(dejaview --background)` and then `kill $PID` to stop.
 
 #### Full trace config
 
@@ -127,7 +127,7 @@ control of the trace config, pass the full trace config in input.
 
 See the [_Trace configuration_ page](/docs/concepts/config.md) and the examples
 in each data source doc page for detailed instructions about how to configure
-all the various knobs of Perfetto.
+all the various knobs of DejaView.
 
 If you are running on a Mac or Linux host, or are using a bash-based terminal
 on Windows, you can use the following:
@@ -180,34 +180,34 @@ data_sources: {
 }
 EOF
 
-./record_android_trace -c config.pbtx -o trace_file.perfetto-trace 
+./record_android_trace -c config.pbtx -o trace_file.dejaview-trace 
 ```
 
 Or alternatively, when using directly the on-device command:
 
 ```bash
-cat config.pbtx | adb shell perfetto -c - --txt -o /data/misc/perfetto-traces/trace.perfetto-trace
+cat config.pbtx | adb shell dejaview -c - --txt -o /data/misc/dejaview-traces/trace.dejaview-trace
 ```
 
-Alternatively, first push the trace config file and then invoke perfetto:
+Alternatively, first push the trace config file and then invoke dejaview:
 
 ```bash
 adb push config.pbtx /data/local/tmp/config.pbtx
-adb shell 'cat /data/local/tmp/config.pbtx | perfetto --txt -c - -o /data/misc/perfetto-traces/trace.perfetto-trace'
+adb shell 'cat /data/local/tmp/config.pbtx | dejaview --txt -c - -o /data/misc/dejaview-traces/trace.dejaview-trace'
 ```
 
 NOTE: because of strict SELinux rules, on non-rooted builds of Android, passing
 directly the file path as `-c /data/local/tmp/config` will fail, hence the
-`-c -` + stdin piping above. From Android 12 (S), `/data/misc/perfetto-configs/`
+`-c -` + stdin piping above. From Android 12 (S), `/data/misc/dejaview-configs/`
 can be used instead.
 
-Pull the file using `adb pull /data/misc/perfetto-traces/trace ~/trace.perfetto-trace`
-and open it in the [Perfetto UI](https://ui.perfetto.dev).
+Pull the file using `adb pull /data/misc/dejaview-traces/trace ~/trace.dejaview-trace`
+and open it in the [DejaView UI](https://ui.perfetto.dev).
 
 NOTE: On devices before Android 10, adb cannot directly pull
-      `/data/misc/perfetto-traces`. Use
-       `adb shell cat /data/misc/perfetto-traces/trace > trace.perfetto-trace`
+      `/data/misc/dejaview-traces`. Use
+       `adb shell cat /data/misc/dejaview-traces/trace > trace.dejaview-trace`
        to work around.
 
-The full reference for the `perfetto` cmdline interface can be found
-[here](/docs/reference/perfetto-cli.md).
+The full reference for the `dejaview` cmdline interface can be found
+[here](/docs/reference/dejaview-cli.md).

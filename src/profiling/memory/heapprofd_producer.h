@@ -24,15 +24,15 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/forward_decls.h"
 #include "src/profiling/common/interning_output.h"
 #include "src/profiling/common/proc_utils.h"
 #include "src/profiling/common/profiler_guardrails.h"
@@ -44,9 +44,9 @@
 #include "src/profiling/memory/unwinding.h"
 #include "src/profiling/memory/unwound_messages.h"
 
-#include "protos/perfetto/config/profiling/heapprofd_config.gen.h"
+#include "protos/dejaview/config/profiling/heapprofd_config.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 using HeapprofdConfig = protos::gen::HeapprofdConfig;
@@ -334,6 +334,6 @@ class HeapprofdProducer : public Producer, public UnwindingWorker::Delegate {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_HEAPPROFD_PRODUCER_H_

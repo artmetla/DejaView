@@ -18,7 +18,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(InternMapTest, SmallValue) {
@@ -83,4 +83,4 @@ TEST(InternMapTest, SameValueDifferentTypes) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

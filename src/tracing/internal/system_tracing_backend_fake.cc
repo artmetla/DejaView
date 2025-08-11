@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/system_tracing_backend.h"
+#include "dejaview/tracing/internal/system_tracing_backend.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 // static
 TracingProducerBackend* SystemProducerTracingBackend::GetInstance() {
-  PERFETTO_FATAL("System tracing not implemented");
+  DEJAVIEW_FATAL("System tracing not implemented");
   return nullptr;
 }
 
 // static
 TracingConsumerBackend* SystemConsumerTracingBackend::GetInstance() {
-  PERFETTO_FATAL("System tracing not implemented");
+  DEJAVIEW_FATAL("System tracing not implemented");
   return nullptr;
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

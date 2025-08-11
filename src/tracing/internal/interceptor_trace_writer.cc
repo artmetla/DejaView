@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/interceptor_trace_writer.h"
+#include "dejaview/tracing/internal/interceptor_trace_writer.h"
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 // static
@@ -82,4 +82,4 @@ uint64_t InterceptorTraceWriter::written() const {
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

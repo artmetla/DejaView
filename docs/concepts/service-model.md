@@ -1,6 +1,6 @@
 # Service-based model
 
-![Perfetto Stack](https://storage.googleapis.com/perfetto/markdown_img/producer-service-consumer.png)
+![DejaView Stack](https://storage.googleapis.com/perfetto/markdown_img/producer-service-consumer.png)
 
 ## Service
 
@@ -35,7 +35,7 @@ consumer(s). A producer knows nothing about:
 
 NOTE: In rare circumstances a process can host more than one producer and hence more
 than one shared memory buffer. This can be the case for a process bundling
-third-party libraries that in turn include the Perfetto client library.  
+third-party libraries that in turn include the DejaView client library.  
 Concrete example: at some point in the future Chrome might expose one Producer for tracing within the main project, one for V8 and one for Skia (for each child
 process).
 
@@ -63,15 +63,15 @@ data. A data source almost always defines its own schema (a protobuf) consisting
 of:
 * At most one `DataSourceConfig` sub-message:
 
-  ([example](/protos/perfetto/config/ftrace/ftrace_config.proto))
+  ([example](/protos/dejaview/config/ftrace/ftrace_config.proto))
 * One or more `TracePacket` sub-messages
-  ([example](/protos/perfetto/trace/ps/process_tree.proto))
+  ([example](/protos/dejaview/trace/ps/process_tree.proto))
 
 Different producers may expose the same data source. Concrete example:
 *** aside
-At some point in the near future we might offer, as part of Perfetto, a library
+At some point in the near future we might offer, as part of DejaView, a library
 for in-process heap profiling. In such case more than one producer, linking
-against the updated Perfetto library, will expose the heap profiler data source,
+against the updated DejaView library, will expose the heap profiler data source,
 for its own process.
 **
 
@@ -81,13 +81,13 @@ service using an IPC channel. IPC is used only in non-fast-path interactions,
 mostly handshakes such as enabling/disabling trace (consumer), (un)registering
 and starting/stopping data sources (producer). The IPC is typically NOT employed
 to transport the protobufs for the trace.
-Perfetto provides a POSIX-friendly IPC implementation, based on protobufs over a
+DejaView provides a POSIX-friendly IPC implementation, based on protobufs over a
 UNIX socket (see
 [Socket protocol](/docs/design-docs/api-and-abi#socket-protocol)).
 
-That IPC implementation is not mandated. Perfetto allows the embedder:
+That IPC implementation is not mandated. DejaView allows the embedder:
 
-* Wrap its own IPC subsystem (e.g., Perfetto in Chromium uses Mojo)
+* Wrap its own IPC subsystem (e.g., DejaView in Chromium uses Mojo)
 * Not use an IPC mechanism at all and just short circuit the
   Producer <> Service <> Consumer interaction via `PostTask(s)`.
 
@@ -116,5 +116,5 @@ Each chunk:
   and without repetitions.
 
 See the comments in
-[shared_memory_abi.h](/include/perfetto/ext/tracing/core/shared_memory_abi.h)
+[shared_memory_abi.h](/include/dejaview/ext/tracing/core/shared_memory_abi.h)
 for more details about the binary format of this buffer.

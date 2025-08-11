@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-CREATE PERFETTO VIEW perf_sample_in(ts INT, dur INT)
+CREATE DEJAVIEW VIEW perf_sample_in(ts INT, dur INT)
 AS
 SELECT ts, 0 AS dur FROM perf_sample;
 
@@ -22,7 +22,7 @@ CREATE VIRTUAL TABLE span
 USING
   SPAN_JOIN(perf_sample_in, slice PARTITIONED depth);
 
-CREATE PERFETTO TABLE slice_stack
+CREATE DEJAVIEW TABLE slice_stack
 AS
 WITH
   tmp AS (
@@ -39,7 +39,7 @@ WITH
   )
 SELECT ts, stack FROM tmp WHERE parent_stack_id = 0 ORDER BY TS ASC;
 
-CREATE PERFETTO TABLE perf_stack
+CREATE DEJAVIEW TABLE perf_stack
 AS
 WITH
   symbol AS (

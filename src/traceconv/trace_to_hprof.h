@@ -19,9 +19,9 @@
 
 #include <iostream>
 #include <vector>
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 int TraceToHprof(trace_processor::TraceProcessor* tp,
@@ -35,6 +35,6 @@ int TraceToHprof(std::istream* input,
                  std::vector<uint64_t> timestamps = {});
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_TRACE_TO_HPROF_H_

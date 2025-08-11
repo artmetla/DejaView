@@ -16,7 +16,7 @@ import {CPU_SLICE_TRACK_KIND} from '../../public/track_kinds';
 import {SchedSliceDetailsPanel} from './sched_details_tab';
 import {Engine} from '../../trace_processor/engine';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {NUM, STR_NULL} from '../../trace_processor/query_result';
 import {CpuSliceTrack} from './cpu_slice_track';
 import {TrackNode} from '../../public/workspace';
@@ -27,7 +27,7 @@ function uriForSchedTrack(cpu: number): string {
   return `/sched_cpu${cpu}`;
 }
 
-class CpuSlices implements PerfettoPlugin {
+class CpuSlices implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     ctx.selection.registerAreaSelectionAggreagtor(
       new CpuSliceSelectionAggregator(),
@@ -85,7 +85,7 @@ class CpuSlices implements PerfettoPlugin {
   ): Promise<Map<number, string>> {
     const cpuToClusterType = new Map<number, string>();
     await engine.query(`
-      include perfetto module android.cpu.cluster_type;
+      include dejaview module android.cpu.cluster_type;
     `);
     const result = await engine.query(`
       select cpu, cluster_type as clusterType
@@ -109,6 +109,6 @@ class CpuSlices implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.CpuSlices',
+  pluginId: 'dejaview.CpuSlices',
   plugin: CpuSlices,
 };

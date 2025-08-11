@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import os
-import perfetto.bigtrace.api
+import dejaview.bigtrace.api
 import subprocess
 import unittest
 
-from perfetto.common.exceptions import PerfettoException
+from dejaview.common.exceptions import DejaViewException
 
 # To run this test you must setup the a GCS bucket and a GKE cluster setup with
 # Bigtrace running.
@@ -28,7 +28,7 @@ from perfetto.common.exceptions import PerfettoException
 # on.
 TRACE_BUCKET_NAME = "trace_example_bucket"
 # This should be loaded in the top level of the bucket.
-TRACE_PATH = "android_startup_real.perfetto_trace"
+TRACE_PATH = "android_startup_real.dejaview_trace"
 # This should be replaced with the address of the Orchestrator service for the
 # Bigtrace service.
 ORCHESTRATOR_ADDRESS = "127.0.0.1:5052"
@@ -39,7 +39,7 @@ QUERY_RESULT_COUNT = 339338
 class BigtraceGcsTest(unittest.TestCase):
 
   def setUpClass(self):
-    self.client = perfetto.bigtrace.api.Bigtrace(
+    self.client = dejaview.bigtrace.api.Bigtrace(
         wait_for_ready_for_testing=True)
 
   def test_valid_trace(self):
@@ -48,11 +48,11 @@ class BigtraceGcsTest(unittest.TestCase):
     self.assertEqual(result['count'].iloc[0], QUERY_RESULT_COUNT)
 
   def test_invalid_trace(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       traces = [f"/gcs/{TRACE_BUCKET_NAME}/o/badpath"]
       result = self.client.query(traces, "SELECT count(1) as count FROM slice")
 
   def test_invalid_bucket(self):
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       traces = [f"/gcs//o/{TRACE_PATH}"]
       result = self.client.query(traces, "SELECT count(1) as count FROM slice")

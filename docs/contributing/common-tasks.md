@@ -7,8 +7,8 @@ The checklists below show how to achieve some common tasks in the codebase.
 1. Find the `format` file for your event. The location of the file depends where `tracefs` is mounted but can often be found at `/sys/kernel/debug/tracing/events/EVENT_GROUP/EVENT_NAME/format`.
 2. Copy the format file into the codebase at `src/traced/probes/ftrace/test/data/synthetic/events/EVENT_GROUP/EVENT_NAME/format`.
 3. Add the event to [src/tools/ftrace_proto_gen/event_list](/src/tools/ftrace_proto_gen/event_list).
-4. Run `tools/run_ftrace_proto_gen`. This will update `protos/perfetto/trace/ftrace/ftrace_event.proto` and `protos/perfetto/trace/ftrace/GROUP_NAME.proto`.
-5. Run `tools/gen_all out/YOUR_BUILD_DIRECTORY`. This will update `src/traced/probes/ftrace/event_info.cc` and `protos/perfetto/trace/perfetto_trace.proto`.
+4. Run `tools/run_ftrace_proto_gen`. This will update `protos/dejaview/trace/ftrace/ftrace_event.proto` and `protos/dejaview/trace/ftrace/GROUP_NAME.proto`.
+5. Run `tools/gen_all out/YOUR_BUILD_DIRECTORY`. This will update `src/traced/probes/ftrace/event_info.cc` and `protos/dejaview/trace/dejaview_trace.proto`.
 6. If special handling in `trace_processor` is desired update [src/trace_processor/importers/ftrace/ftrace_parser.cc](/src/trace_processor/importers/ftrace/ftrace_parser.cc) to parse the event.
 7. Upload and land your change as normal.
 
@@ -16,16 +16,16 @@ Here is an [example change](https://android-review.googlesource.com/c/platform/e
 
 ## Contribute to SQL standard library
 
-1. Add or edit an SQL file inside `perfetto/src/trace_processor/stdlib/`. This SQL file will be a new standard library module.
+1. Add or edit an SQL file inside `dejaview/src/trace_processor/stdlib/`. This SQL file will be a new standard library module.
 2. For a new file inside an existing package add the file to the corresponding `BUILD.gn`.
 3. For a new package (subdirectory of `/stdlib/`), the package name (directory name) has to be added to the list in `/stdlib/BUILD.gn`.
 
 Files inside the standard library have to be formatted in a very specific way, as its structure is used to generate documentation. There are presubmit checks, but they are not infallible.
 
-- Running the file cannot generate any data. There can be only `CREATE PERFETTO {FUNCTION|TABLE|VIEW|MACRO}` statements inside.
+- Running the file cannot generate any data. There can be only `CREATE DEJAVIEW {FUNCTION|TABLE|VIEW|MACRO}` statements inside.
 - The name of each standard library object needs to start with `{module_name}_` or be prefixed with an underscore(`_`) for internal objects.
-  The names must only contain lower and upper case letters and underscores. When a module is included (using the `INCLUDE PERFETTO MODULE`) the internal objects  should not be treated as an API. 
-- Every table or view should have [a schema](/docs/analysis/perfetto-sql-syntax.md#tableview-schema).
+  The names must only contain lower and upper case letters and underscores. When a module is included (using the `INCLUDE DEJAVIEW MODULE`) the internal objects  should not be treated as an API. 
+- Every table or view should have [a schema](/docs/analysis/dejaview-sql-syntax.md#tableview-schema).
 
 ### Documentation
 
@@ -34,14 +34,14 @@ Files inside the standard library have to be formatted in a very specific way, a
 Whitespaces in anything apart from descriptions are ignored, so comments can be formatted neatly.
 If the line with description exceeds 80 chars, description can be continued in following lines.
   - **Table/view**: each has to have schema, object description and a comment above each column's definition in the schema.
-    - Description is any text in the comment above `CREATE PERFETTO {TABLE,VIEW}` statement.
+    - Description is any text in the comment above `CREATE DEJAVIEW {TABLE,VIEW}` statement.
     - Column's comment is the text immediately above column definition in the schema.
   - **Scalar Functions**: each has to have a function description and description of return value in this order.
-    - Function description is any text in the comment above `CREATE PERFETTO FUNCTION` statement.
+    - Function description is any text in the comment above `CREATE DEJAVIEW FUNCTION` statement.
     - For each argument there has to be a comment line immediately above argument definition.
     - Return comment should immediately precede `RETURNS`.
   - **Table Functions**: each has to have a function description, list of arguments (names, types, description) and list of columns.
-    - Function description is any text in the comment above `CREATE PERFETTO FUNCTION` statement.
+    - Function description is any text in the comment above `CREATE DEJAVIEW FUNCTION` statement.
     - For each argument there has to be a comment line immediately above argument definition.
     - For each column there has to be a comment line immediately above column definition.
 
@@ -50,7 +50,7 @@ NOTE: Break lines outside of import description will be ignored.
 Example of properly formatted view in module `android`:
 ```sql
 -- Count Binder transactions per process.
-CREATE PERFETTO VIEW android_binder_metrics_by_process(
+CREATE DEJAVIEW VIEW android_binder_metrics_by_process(
   -- Name of the process that started the binder transaction.
   process_name STRING,
   -- PID of the process that started the binder transaction.
@@ -79,7 +79,7 @@ GROUP BY
 Example of table function in module `android`:
 ```sql
 -- Given a launch id and GLOB for a slice name, returns columns for matching slices.
-CREATE PERFETTO FUNCTION ANDROID_SLICES_FOR_LAUNCH_AND_SLICE_NAME(
+CREATE DEJAVIEW FUNCTION ANDROID_SLICES_FOR_LAUNCH_AND_SLICE_NAME(
   -- Id of launch.
   launch_id INT,
   -- Name of slice with launch.
@@ -111,8 +111,8 @@ WHERE launch_id = $launch_id AND slice_name GLOB $slice_name;
 
 ## {#new-metric} Add a new trace-based metric
 
-1. Create the proto file containing the metric in the [protos/perfetto/metrics](/protos/perfetto/metrics) folder. The appropriate` BUILD.gn` file should be updated as well.
-2. Import the proto in [protos/perfetto/metrics/metrics.proto](/protos/perfetto/metrics/metrics.proto) and add a field for the new message.
+1. Create the proto file containing the metric in the [protos/dejaview/metrics](/protos/dejaview/metrics) folder. The appropriate` BUILD.gn` file should be updated as well.
+2. Import the proto in [protos/dejaview/metrics/metrics.proto](/protos/dejaview/metrics/metrics.proto) and add a field for the new message.
 3. Run `tools/gen_all out/YOUR_BUILD_DIRECTORY`. This will update the generated headers containing the descriptors for the proto.
   * *Note: this step has to be performed any time any metric-related proto is modified.*
   * If you don't see anything inside the `out/` directory you might have to
@@ -194,6 +194,6 @@ a non-existant table. To avoid this we use a version number. If the
 version number `trace_processor` reports is older than the one the UI
 was built with we prompt the user to update.
 
-1. Go to `protos/perfetto/trace_processor/trace_processor.proto`
+1. Go to `protos/dejaview/trace_processor/trace_processor.proto`
 2. Increment `TRACE_PROCESSOR_CURRENT_API_VERSION`
 3. Add a comment explaining what has changed.

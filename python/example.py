@@ -15,7 +15,7 @@
 
 import argparse
 
-from perfetto.trace_processor import TraceProcessor, TraceProcessorConfig
+from dejaview.trace_processor import TraceProcessor, TraceProcessorConfig
 
 
 def main():

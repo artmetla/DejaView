@@ -17,10 +17,10 @@
 #include "src/trace_processor/importers/proto/memory_tracker_snapshot_module.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 MemoryTrackerSnapshotModule::MemoryTrackerSnapshotModule(
     TraceProcessorContext* context)
@@ -47,4 +47,4 @@ void MemoryTrackerSnapshotModule::NotifyEndOfFile() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

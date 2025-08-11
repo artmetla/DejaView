@@ -23,13 +23,13 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 FakeStorageChain::FakeStorageChain(uint32_t size,
                                    SearchStrategy strategy,
@@ -43,7 +43,7 @@ FakeStorageChain::FakeStorageChain(uint32_t size,
 SingleSearchResult FakeStorageChain::SingleSearch(FilterOp,
                                                   SqlValue,
                                                   uint32_t i) const {
-  PERFETTO_CHECK(i < size_);
+  DEJAVIEW_CHECK(i < size_);
   switch (strategy_) {
     case kAll:
       return SingleSearchResult::kMatch;
@@ -56,7 +56,7 @@ SingleSearchResult FakeStorageChain::SingleSearch(FilterOp,
       return range_.Contains(i) ? SingleSearchResult::kMatch
                                 : SingleSearchResult::kNoMatch;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 SearchValidationResult FakeStorageChain::ValidateSearchConstraints(
@@ -82,7 +82,7 @@ RangeOrBitVector FakeStorageChain::SearchValidated(FilterOp,
       return RangeOrBitVector(std::move(intersection));
     }
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void FakeStorageChain::IndexSearchValidated(FilterOp,
@@ -111,28 +111,28 @@ void FakeStorageChain::IndexSearchValidated(FilterOp,
           indices.tokens.end());
       return;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void FakeStorageChain::Distinct(Indices&) const {
   // Fake storage shouldn't implement Distinct as it's not a binary (this index
   // passes or not) operation on a column.
-  PERFETTO_FATAL("Not implemented");
+  DEJAVIEW_FATAL("Not implemented");
 }
 
 std::optional<Token> FakeStorageChain::MaxElement(Indices&) const {
-  PERFETTO_FATAL("Not implemented");
+  DEJAVIEW_FATAL("Not implemented");
 }
 std::optional<Token> FakeStorageChain::MinElement(Indices&) const {
-  PERFETTO_FATAL("Not implemented");
+  DEJAVIEW_FATAL("Not implemented");
 }
 
 void FakeStorageChain::StableSort(Token*, Token*, SortDirection) const {
-  PERFETTO_FATAL("Not implemented");
+  DEJAVIEW_FATAL("Not implemented");
 }
 
 SqlValue FakeStorageChain::Get_AvoidUsingBecauseSlow(uint32_t) const {
-  PERFETTO_FATAL("Not implemented");
+  DEJAVIEW_FATAL("Not implemented");
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

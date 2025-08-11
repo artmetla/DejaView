@@ -20,14 +20,14 @@
 
 #include "src/trace_processor/importers/proto/network_trace_module.h"
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/trace/android/network_trace.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/trace/android/network_trace.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
@@ -45,10 +45,10 @@
 #include "src/trace_processor/types/variadic.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
-using ::perfetto::protos::pbzero::TrafficDirection;
+using ::dejaview::protos::pbzero::TrafficDirection;
 
 class NetworkTraceModuleTest : public testing::Test {
  public:
@@ -206,4 +206,4 @@ TEST_F(NetworkTraceModuleTest, TokenizeAndParseAggregateBundle) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

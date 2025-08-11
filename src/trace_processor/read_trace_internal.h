@@ -21,21 +21,21 @@
 #include <functional>
 #include <vector>
 
-#include "perfetto/base/export.h"
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/base/export.h"
+#include "dejaview/trace_processor/status.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessor;
 
 // Reads trace without Flushing the data at the end.
-util::Status PERFETTO_EXPORT_COMPONENT ReadTraceUnfinalized(
+util::Status DEJAVIEW_EXPORT_COMPONENT ReadTraceUnfinalized(
     TraceProcessor* tp,
     const char* filename,
     const std::function<void(uint64_t parsed_size)>& progress_callback = {});
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_READ_TRACE_INTERNAL_H_

@@ -22,12 +22,12 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Constains deobfuscation for Java class names and its members per |PackageId|.
@@ -98,6 +98,6 @@ class DeobfuscationMappingTable {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_DEOBFUSCATION_MAPPING_TABLE_H_

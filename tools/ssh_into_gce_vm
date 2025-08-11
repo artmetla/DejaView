@@ -38,7 +38,7 @@ def list_instances(project_id):
 
 
 def main():
-  DEFAULT_PROJECT_ID = 'perfetto-ci'
+  DEFAULT_PROJECT_ID = 'dejaview-ci'
   # project_id = os.getenv('CLOUDSDK_CORE_PROJECT', DEFAULT_PROJECT_ID)
 
   parser = argparse.ArgumentParser()

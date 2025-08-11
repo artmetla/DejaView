@@ -21,18 +21,18 @@
 #include <memory>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 #include <zconf.h>
 #include <zlib.h>
 #else
 struct z_stream_s {};
 #endif
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)  // Real Implementation
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)  // Real Implementation
 
 GzipDecompressor::GzipDecompressor(InputMode mode)
     : z_stream_(new z_stream_s()) {
@@ -104,7 +104,7 @@ size_t GzipDecompressor::AvailIn() const {
 }
 void GzipDecompressor::Deleter::operator()(z_stream_s*) const {}
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 // static
 std::vector<uint8_t> GzipDecompressor::DecompressFully(const uint8_t* data,
@@ -118,4 +118,4 @@ std::vector<uint8_t> GzipDecompressor::DecompressFully(const uint8_t* data,
   return whole_data;
 }
 
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util

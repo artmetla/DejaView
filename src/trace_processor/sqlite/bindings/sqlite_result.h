@@ -21,7 +21,7 @@
 #include <cstdint>
 #include <memory>
 
-namespace perfetto::trace_processor::sqlite::result {
+namespace dejaview::trace_processor::sqlite::result {
 
 // This file contains wraps the sqlite3_result_* functions which tell SQLite
 // about the result of executing a function or calling a xColumn on a virtual
@@ -99,6 +99,6 @@ inline void UniquePointer(sqlite3_context* ctx,
   });
 }
 
-}  // namespace perfetto::trace_processor::sqlite::result
+}  // namespace dejaview::trace_processor::sqlite::result
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_RESULT_H_

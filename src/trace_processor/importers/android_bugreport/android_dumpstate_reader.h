@@ -21,7 +21,7 @@
 #include "src/trace_processor/importers/android_bugreport/chunked_line_reader.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -47,6 +47,6 @@ class AndroidDumpstateReader : public ChunkedLineReader {
   StringId current_service_id_ = StringId::Null();
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_ANDROID_DUMPSTATE_READER_H_

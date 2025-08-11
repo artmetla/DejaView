@@ -24,9 +24,9 @@
 #include <set>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 struct Uids {
@@ -40,7 +40,7 @@ template <typename Fn>
 void ForEachPid(Fn callback) {
   base::ScopedDir proc_dir(opendir("/proc"));
   if (!proc_dir) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to open /proc");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to open /proc");
     return;
   }
   struct dirent* entry;
@@ -80,6 +80,6 @@ void FindPidsForCmdlinePatterns(const std::vector<std::string>& cmdlines,
 }  // namespace glob_aware
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_COMMON_PROC_UTILS_H_

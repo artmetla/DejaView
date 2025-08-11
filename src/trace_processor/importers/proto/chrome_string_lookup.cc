@@ -16,16 +16,16 @@
 
 #include "src/trace_processor/importers/proto/chrome_string_lookup.h"
 
-#include "perfetto/ext/base/utils.h"
-#include "protos/perfetto/trace/track_event/chrome_legacy_ipc.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_thread_descriptor.pbzero.h"
+#include "dejaview/ext/base/utils.h"
+#include "protos/dejaview/trace/track_event/chrome_legacy_ipc.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_thread_descriptor.pbzero.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-using ::perfetto::protos::pbzero::ChromeProcessDescriptor;
-using ::perfetto::protos::pbzero::ChromeThreadDescriptor;
+using ::dejaview::protos::pbzero::ChromeProcessDescriptor;
+using ::dejaview::protos::pbzero::ChromeThreadDescriptor;
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -193,7 +193,7 @@ StringId ChromeStringLookup::GetProcessName(int32_t process_type) const {
   if (process_name_it != chrome_process_name_ids_.end())
     return process_name_it->second;
 
-  PERFETTO_DLOG("GetProcessName error: Unknown Chrome process type %u",
+  DEJAVIEW_DLOG("GetProcessName error: Unknown Chrome process type %u",
                 process_type);
   return kNullStringId;
 }
@@ -203,10 +203,10 @@ StringId ChromeStringLookup::GetThreadName(int32_t thread_type) const {
   if (thread_name_it != chrome_thread_name_ids_.end())
     return thread_name_it->second;
 
-  PERFETTO_DLOG("GetThreadName error: Unknown Chrome thread type %u",
+  DEJAVIEW_DLOG("GetThreadName error: Unknown Chrome thread type %u",
                 thread_type);
   return kNullStringId;
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

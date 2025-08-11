@@ -16,14 +16,14 @@
 
 #include "src/trace_processor/importers/ftrace/mali_gpu_event_tracker.h"
 
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/trace/ftrace/mali.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/trace/ftrace/mali.pbzero.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 MaliGpuEventTracker::MaliGpuEventTracker(TraceProcessorContext* context)
@@ -140,7 +140,7 @@ void MaliGpuEventTracker::ParseMaliGpuEvent(int64_t ts,
       break;
     }
     default:
-      PERFETTO_DFATAL("Unexpected field id");
+      DEJAVIEW_DFATAL("Unexpected field id");
       break;
   }
 }
@@ -167,7 +167,7 @@ void MaliGpuEventTracker::ParseMaliGpuIrqEvent(int64_t ts,
       break;
     }
     default:
-      PERFETTO_DFATAL("Unexpected field id");
+      DEJAVIEW_DFATAL("Unexpected field id");
       break;
   }
 }
@@ -178,7 +178,7 @@ void MaliGpuEventTracker::ParseMaliGpuMcuStateEvent(int64_t timestamp,
   TrackId track_id = context_->track_tracker->InternGpuTrack(track_info);
 
   if (field_id < kFirstMcuStateId || field_id > kLastMcuStateId) {
-    PERFETTO_FATAL("Mali MCU state ID out of range");
+    DEJAVIEW_FATAL("Mali MCU state ID out of range");
   }
 
   StringId state_name = mcu_state_names_[field_id - kFirstMcuStateId];
@@ -207,7 +207,7 @@ void MaliGpuEventTracker::ParseMaliKcpuCqsWaitStart(int64_t timestamp,
                                                     TrackId track_id) {
   // TODO(b/294866695): Remove
   if (base::GetSysPageSize()) {
-    PERFETTO_FATAL("This causes incorrectly nested slices at present.");
+    DEJAVIEW_FATAL("This causes incorrectly nested slices at present.");
   }
   context_->slice_tracker->Begin(timestamp, track_id, kNullStringId,
                                  mali_KCPU_CQS_WAIT_id_);
@@ -266,4 +266,4 @@ void MaliGpuEventTracker::ParseMaliCSFInterruptEnd(int64_t timestamp,
                                mali_CSF_INTERRUPT_id_, args_inserter);
 }
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

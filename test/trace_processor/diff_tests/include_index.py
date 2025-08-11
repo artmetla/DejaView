@@ -143,13 +143,13 @@ from diff_tests.stdlib.span_join.tests_smoke import SpanJoinSmoke
 from diff_tests.stdlib.tests import StdlibSmoke
 from diff_tests.stdlib.timestamps.tests import Timestamps
 from diff_tests.stdlib.wattson.tests import WattsonStdlib
-from diff_tests.syntax.filtering_tests import PerfettoFiltering
-from diff_tests.syntax.function_tests import PerfettoFunction
-from diff_tests.syntax.include_tests import PerfettoInclude
-from diff_tests.syntax.macro_tests import PerfettoMacro
-from diff_tests.syntax.table_function_tests import PerfettoTableFunction
-from diff_tests.syntax.table_tests import PerfettoTable
-from diff_tests.syntax.view_tests import PerfettoView
+from diff_tests.syntax.filtering_tests import DejaViewFiltering
+from diff_tests.syntax.function_tests import DejaViewFunction
+from diff_tests.syntax.include_tests import DejaViewInclude
+from diff_tests.syntax.macro_tests import DejaViewMacro
+from diff_tests.syntax.table_function_tests import DejaViewTableFunction
+from diff_tests.syntax.table_tests import DejaViewTable
+from diff_tests.syntax.view_tests import DejaViewView
 from diff_tests.tables.tests import Tables
 from diff_tests.tables.tests_counters import TablesCounters
 from diff_tests.tables.tests_sched import TablesSched
@@ -340,14 +340,14 @@ def fetch_all_diff_tests(index_path: str) -> List['testing.TestCase']:
   ] + chrome_stdlib_tests
 
   syntax_tests = [
-      *PerfettoFiltering(index_path, 'syntax', 'PerfettoFiltering').fetch(),
-      *PerfettoFunction(index_path, 'syntax', 'PerfettoFunction').fetch(),
-      *PerfettoInclude(index_path, 'syntax', 'PerfettoInclude').fetch(),
-      *PerfettoMacro(index_path, 'syntax', 'PerfettoMacro').fetch(),
-      *PerfettoTable(index_path, 'syntax', 'PerfettoTable').fetch(),
-      *PerfettoTableFunction(index_path, 'syntax',
-                             'PerfettoTableFunction').fetch(),
-      *PerfettoView(index_path, 'syntax', 'PerfettoView').fetch(),
+      *DejaViewFiltering(index_path, 'syntax', 'DejaViewFiltering').fetch(),
+      *DejaViewFunction(index_path, 'syntax', 'DejaViewFunction').fetch(),
+      *DejaViewInclude(index_path, 'syntax', 'DejaViewInclude').fetch(),
+      *DejaViewMacro(index_path, 'syntax', 'DejaViewMacro').fetch(),
+      *DejaViewTable(index_path, 'syntax', 'DejaViewTable').fetch(),
+      *DejaViewTableFunction(index_path, 'syntax',
+                             'DejaViewTableFunction').fetch(),
+      *DejaViewView(index_path, 'syntax', 'DejaViewView').fetch(),
   ]
 
   return parser_tests + metrics_tests + stdlib_tests + syntax_tests + [

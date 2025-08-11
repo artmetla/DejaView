@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("gn/perfetto.gni")
+import("gn/dejaview.gni")
 import("gn/test.gni")
 
 # +----------------------------------------------------------------------------+
@@ -28,35 +28,35 @@ import("gn/test.gni")
 # target that happens to be defined in the same BUILD.gn that contains targets
 # incompatible with the chromium build will cause build/roll failures.
 
-all_targets = [ "protos/perfetto/trace:perfetto_trace_protos" ]
+all_targets = [ "protos/dejaview/trace:dejaview_trace_protos" ]
 
-if (enable_perfetto_platform_services) {
+if (enable_dejaview_platform_services) {
   all_targets += [
-    "src/perfetto_cmd:perfetto",
-    "src/perfetto_cmd:trigger_perfetto",
+    "src/dejaview_cmd:dejaview",
+    "src/dejaview_cmd:trigger_dejaview",
     "src/traced/service:traced",
   ]
-  if (enable_perfetto_traced_probes) {
+  if (enable_dejaview_traced_probes) {
     all_targets += [ "src/traced/probes:traced_probes" ]
   }
-  if (enable_perfetto_traced_relay) {
+  if (enable_dejaview_traced_relay) {
     all_targets += [ "src/traced_relay:traced_relay" ]
   }
 }
 
-if (enable_perfetto_trace_processor && enable_perfetto_trace_processor_sqlite) {
-  if (enable_perfetto_grpc) {
+if (enable_dejaview_trace_processor && enable_dejaview_trace_processor_sqlite) {
+  if (enable_dejaview_grpc) {
     all_targets += [ "src/bigtrace/orchestrator:orchestrator_main" ]
     all_targets += [ "src/bigtrace/worker:worker_main" ]
   }
   all_targets += [ "src/trace_processor:trace_processor_shell" ]
 }
 
-if (enable_perfetto_trace_processor) {
+if (enable_dejaview_trace_processor) {
   all_targets += [ "src/trace_redaction:trace_redactor" ]
 }
 
-if (enable_perfetto_traceconv) {
+if (enable_dejaview_traceconv) {
   all_targets += [ "src/traceconv" ]
   if (is_cross_compiling) {
     # In many cross-compilation scenarios (typically Android) developers expect
@@ -70,13 +70,13 @@ if (enable_perfetto_traceconv) {
   }
 }
 
-if (enable_perfetto_heapprofd) {
+if (enable_dejaview_heapprofd) {
   all_targets += [ "src/profiling/memory:heapprofd" ]
 
   if (is_linux && !is_android) {
     all_targets += [ "src/profiling/memory:heapprofd_glibc_preload" ]
   }
-  if (perfetto_build_with_android) {
+  if (dejaview_build_with_android) {
     all_targets += [
       "src/profiling/memory:heapprofd_client",
       "src/profiling/memory:heapprofd_client_api",
@@ -84,15 +84,15 @@ if (enable_perfetto_heapprofd) {
   }
 }
 
-if (enable_perfetto_traced_perf) {
+if (enable_dejaview_traced_perf) {
   all_targets += [ "src/profiling/perf:traced_perf" ]
 }
 
-if (perfetto_build_with_android) {
-  all_targets += [ "src/android_internal:libperfetto_android_internal" ]
+if (dejaview_build_with_android) {
+  all_targets += [ "src/android_internal:libdejaview_android_internal" ]
 }
 
-if (enable_perfetto_tools) {
+if (enable_dejaview_tools) {
   all_targets += [ "src/tools" ]
 
   # Windows does not have an IPC implementation.
@@ -101,29 +101,29 @@ if (enable_perfetto_tools) {
   }
 }
 
-if (enable_perfetto_unittests) {
-  import("gn/perfetto_unittests.gni")
-  test("perfetto_unittests") {
+if (enable_dejaview_unittests) {
+  import("gn/dejaview_unittests.gni")
+  test("dejaview_unittests") {
     if (is_fuchsia) {
       additional_manifest_fragments =
           [ "//build/config/fuchsia/test/network.shard.test-cml" ]  # nogncheck
     }
-    deps = perfetto_unittests_targets
+    deps = dejaview_unittests_targets
   }
-  all_targets += [ ":perfetto_unittests" ]
+  all_targets += [ ":dejaview_unittests" ]
 }
 
-if (enable_perfetto_integration_tests) {
-  import("gn/perfetto_integrationtests.gni")
-  test("perfetto_integrationtests") {
+if (enable_dejaview_integration_tests) {
+  import("gn/dejaview_integrationtests.gni")
+  test("dejaview_integrationtests") {
     deps = [
       "gn:default_deps",
       "test:integrationtest_main",
     ]
-    deps += perfetto_integrationtests_targets
+    deps += dejaview_integrationtests_targets
   }
   all_targets += [
-    ":perfetto_integrationtests",
+    ":dejaview_integrationtests",
     "examples/sdk:sdk_example",
     "test:client_api_example",
     "test/stress_test",
@@ -136,7 +136,7 @@ if (enable_perfetto_integration_tests) {
   }
 }
 
-if (enable_perfetto_trace_processor_json) {
+if (enable_dejaview_trace_processor_json) {
   test("trace_processor_minimal_smoke_tests") {
     testonly = true
     deps = [
@@ -147,27 +147,27 @@ if (enable_perfetto_trace_processor_json) {
   all_targets += [ ":trace_processor_minimal_smoke_tests" ]
 }
 
-if (enable_perfetto_benchmarks) {
-  import("gn/perfetto_benchmarks.gni")
-  executable("perfetto_benchmarks") {
+if (enable_dejaview_benchmarks) {
+  import("gn/dejaview_benchmarks.gni")
+  executable("dejaview_benchmarks") {
     testonly = true
-    deps = perfetto_benchmarks_targets
+    deps = dejaview_benchmarks_targets
   }
-  all_targets += [ ":perfetto_benchmarks" ]
+  all_targets += [ ":dejaview_benchmarks" ]
 }
 
-if (enable_perfetto_fuzzers) {
-  import("gn/perfetto_fuzzers.gni")
+if (enable_dejaview_fuzzers) {
+  import("gn/dejaview_fuzzers.gni")
   group("fuzzers") {
     testonly = true
-    deps = perfetto_fuzzers_targets
+    deps = dejaview_fuzzers_targets
   }
   all_targets += [ ":fuzzers" ]
 }
 
 # Less interesting stuff that makes sense only in the standalone build, mainly
 # compile-time checks for the CI.
-if (perfetto_build_standalone) {
+if (dejaview_build_standalone) {
   all_targets += [
     "test/configs",
 
@@ -176,11 +176,11 @@ if (perfetto_build_standalone) {
 
     # For checking all generated xxx.gen.{cc,h} files without waiting for
     # embedders to try to use them and fail.
-    "protos/perfetto/config:cpp",
-    "protos/perfetto/common:cpp",
+    "protos/dejaview/config:cpp",
+    "protos/dejaview/common:cpp",
 
     # Used in the when updating the ftrace protos
-    "protos/perfetto/trace/ftrace:descriptor",
+    "protos/dejaview/trace/ftrace:descriptor",
 
     # Checks that the "fake" backend implementations build.
     "src/tracing:client_api_no_backends_compile_test",
@@ -190,16 +190,16 @@ if (perfetto_build_standalone) {
   }
 }
 
-if (enable_perfetto_merged_protos_check) {
+if (enable_dejaview_merged_protos_check) {
   # For syntax-checking the protos.
-  all_targets += [ "protos/perfetto/trace:merged_trace_lite" ]
+  all_targets += [ "protos/dejaview/trace:merged_trace_lite" ]
 }
 
 # The CTS code is built (but not ran) also in standalone builds. This is to
 # catch refactoring breakages earlier without having to wait for treehugger.
-if (is_android && (perfetto_build_standalone || perfetto_build_with_android)) {
-  all_targets += [ "test/cts:perfetto_cts_deps" ]
-  all_targets += [ "test/vts:perfetto_vts_deps" ]
+if (is_android && (dejaview_build_standalone || dejaview_build_with_android)) {
+  all_targets += [ "test/cts:dejaview_cts_deps" ]
+  all_targets += [ "test/vts:dejaview_vts_deps" ]
 }
 
 group("all") {
@@ -223,13 +223,13 @@ group("default") {
 # | Other definitions: root targets that don't belong to any other subdirectory|
 # +----------------------------------------------------------------------------+
 
-if (enable_perfetto_ui) {
+if (enable_dejaview_ui) {
   group("ui") {
     deps = [ "ui" ]
   }
 }
 
-if (enable_perfetto_site) {
+if (enable_dejaview_site) {
   group("site") {
     deps = [ "infra/perfetto.dev:site" ]
   }
@@ -244,24 +244,24 @@ if (enable_perfetto_site) {
 # it builds more conventional executables, where each binary has the full
 # implementation and no shared library dependency. This is to make dev cycles
 # on Android faster, avoiding all the LD_LIBRARY_PATH boilerplate.
-# libperfetto.so is also used for stuff that is exposed to the rest of the
+# libdejaview.so is also used for stuff that is exposed to the rest of the
 # Android tree.
-if (enable_perfetto_platform_services) {
+if (enable_dejaview_platform_services) {
   if (monolithic_binaries) {
-    libperfetto_target_type = "static_library"
+    libdejaview_target_type = "static_library"
   } else {
-    libperfetto_target_type = "shared_library"
+    libdejaview_target_type = "shared_library"
   }
 
-  target(libperfetto_target_type, "libperfetto") {
-    if (libperfetto_target_type == "static_library") {
+  target(libdejaview_target_type, "libdejaview") {
+    if (libdejaview_target_type == "static_library") {
       complete_static_lib = true
     }
     deps = [
       "gn:default_deps",
       "src/traced/service",
     ]
-    if (enable_perfetto_traced_probes) {
+    if (enable_dejaview_traced_probes) {
       deps += [ "src/traced/probes" ]
     }
   }
@@ -270,26 +270,26 @@ if (enable_perfetto_platform_services) {
 if (!build_with_chromium) {
   # Client library target exposed to the Android tree.
   # Still in experimental stage and not API stable yet.
-  # See "libperfetto_client_example" (in Android.bp.extras) for an example
-  # on how to use the Perfetto Client API from the android tree.
-  static_library("libperfetto_client_experimental") {
+  # See "libdejaview_client_example" (in Android.bp.extras) for an example
+  # on how to use the DejaView Client API from the android tree.
+  static_library("libdejaview_client_experimental") {
     complete_static_lib = true
     public_deps = [
       "gn:default_deps",
       "src/tracing:client_api",
       "src/tracing:platform_impl",
     ]
-    sources = [ "include/perfetto/tracing.h" ]
+    sources = [ "include/dejaview/tracing.h" ]
     assert_no_deps = [ "gn:protobuf_lite" ]
   }
 }
 
-# TODO(primiano): there seem to be two "libperfetto" and one
-# "libperfetto_client_experimental" targets defined within this BUILD.gn file.
+# TODO(primiano): there seem to be two "libdejaview" and one
+# "libdejaview_client_experimental" targets defined within this BUILD.gn file.
 # Rationalize them with eseckler@. For now seems this one is only used from
 # chromium and the other one only from the Android tree.
 if (build_with_chromium) {
-  component("libperfetto") {
+  component("libdejaview") {
     public_configs = [ "gn:public_config" ]
     deps = [
       "src/trace_processor/importers/memory_tracker:graph_processor",
@@ -300,24 +300,24 @@ if (build_with_chromium) {
     configs -= [ "//build/config/compiler:chromium_code" ]  # nogncheck
     configs += [ "//build/config/compiler:no_chromium_code" ]  # nogncheck
     public_deps = [
-      "include/perfetto/ext/trace_processor/importers/memory_tracker",
-      "include/perfetto/ext/tracing/core",
-      "include/perfetto/tracing",
-      "protos/perfetto/common:zero",
-      "protos/perfetto/trace:zero",
-      "protos/perfetto/trace/chrome:zero",
-      "protos/perfetto/trace/etw:zero",
-      "protos/perfetto/trace/interned_data:zero",
-      "protos/perfetto/trace/profiling:zero",
-      "protos/perfetto/trace/ps:zero",
-      "protos/perfetto/trace/track_event:zero",
+      "include/dejaview/ext/trace_processor/importers/memory_tracker",
+      "include/dejaview/ext/tracing/core",
+      "include/dejaview/tracing",
+      "protos/dejaview/common:zero",
+      "protos/dejaview/trace:zero",
+      "protos/dejaview/trace/chrome:zero",
+      "protos/dejaview/trace/etw:zero",
+      "protos/dejaview/trace/interned_data:zero",
+      "protos/dejaview/trace/profiling:zero",
+      "protos/dejaview/trace/ps:zero",
+      "protos/dejaview/trace/track_event:zero",
     ]
-    if (enable_perfetto_ipc) {
+    if (enable_dejaview_ipc) {
       deps += [
         "src/tracing/ipc/producer",
         "src/tracing/ipc/service",
       ]
-      public_deps += [ "include/perfetto/ext/tracing/ipc:ipc" ]
+      public_deps += [ "include/dejaview/ext/tracing/ipc:ipc" ]
     }
     if (!is_nacl) {
       deps += [
@@ -325,8 +325,8 @@ if (build_with_chromium) {
         "src/trace_processor:storage_minimal",
       ]
       public_deps += [
-        "include/perfetto/ext/trace_processor:export_json",
-        "include/perfetto/trace_processor:storage",
+        "include/dejaview/ext/trace_processor:export_json",
+        "include/dejaview/trace_processor:storage",
       ]
     }
   }
@@ -348,14 +348,14 @@ if (build_with_chromium) {
     deps = [ "src/trace_processor:lib" ]
     configs -= [ "//build/config/compiler:chromium_code" ]  # nogncheck
     configs += [ "//build/config/compiler:no_chromium_code" ]  # nogncheck
-    public_deps = [ "include/perfetto/trace_processor" ]
+    public_deps = [ "include/dejaview/trace_processor" ]
   }
-  component("perfetto_test_support") {
+  component("dejaview_test_support") {
     testonly = true
     public_configs = [ "gn:public_config" ]
     configs -= [ "//build/config/compiler:chromium_code" ]  # nogncheck
     configs += [ "//build/config/compiler:no_chromium_code" ]  # nogncheck
-    public_deps = [ "include/perfetto/test:test_support" ]
+    public_deps = [ "include/dejaview/test:test_support" ]
     deps = [ "src/tracing/test:test_support" ]
   }
 }

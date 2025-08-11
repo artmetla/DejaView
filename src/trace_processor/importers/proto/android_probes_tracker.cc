@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/importers/proto/android_probes_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 AndroidProbesTracker::AndroidProbesTracker(TraceStorage* storage)
@@ -25,4 +25,4 @@ AndroidProbesTracker::AndroidProbesTracker(TraceStorage* storage)
 AndroidProbesTracker::~AndroidProbesTracker() = default;
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

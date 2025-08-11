@@ -44,7 +44,7 @@ UI_SRC_DIR = os.path.join(ROOT_DIR, 'ui', 'src')
 PLAN_DOT = """
 digraph g {
     mithril [shape=rectangle, label="mithril"];
-    protos [shape=rectangle, label="//protos/perfetto"];
+    protos [shape=rectangle, label="//protos/dejaview"];
 
     _gen [shape=ellipse, label="/gen"];
     _base [shape=ellipse, label="/base"];

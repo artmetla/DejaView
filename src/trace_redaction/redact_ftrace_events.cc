@@ -18,16 +18,16 @@
 
 #include <string>
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_redaction/proto_util.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 FtraceEventFilter::~FtraceEventFilter() = default;
 
@@ -143,8 +143,8 @@ void RedactFtraceEvents::OnFtraceEvent(
     const protos::pbzero::FtraceEventBundle::Decoder& bundle,
     protozero::Field event,
     protos::pbzero::FtraceEventBundle* parent_message) const {
-  PERFETTO_DCHECK(filter_);
-  PERFETTO_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(filter_);
+  DEJAVIEW_DCHECK(modifier_);
 
   if (event.id() != protos::pbzero::FtraceEventBundle::kEventFieldNumber) {
     proto_util::AppendField(event, parent_message);
@@ -155,11 +155,11 @@ void RedactFtraceEvents::OnFtraceEvent(
 
   auto ts_field =
       decoder.FindField(protos::pbzero::FtraceEvent::kTimestampFieldNumber);
-  PERFETTO_DCHECK(ts_field.valid());
+  DEJAVIEW_DCHECK(ts_field.valid());
 
   auto pid_field =
       decoder.FindField(protos::pbzero::FtraceEvent::kPidFieldNumber);
-  PERFETTO_DCHECK(pid_field.valid());
+  DEJAVIEW_DCHECK(pid_field.valid());
 
   if (!filter_->Includes(context, event)) {
     return;
@@ -181,4 +181,4 @@ void RedactFtraceEvents::OnFtraceEvent(
   }
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

@@ -20,12 +20,12 @@
 -- 1 input per frame as flings are generated once per vsync.
 -- The numbers mentioned above are estimates in the ideal case scenario.
 
-INCLUDE PERFETTO MODULE chrome.scroll_jank.utils;
-INCLUDE PERFETTO MODULE common.slices;
+INCLUDE DEJAVIEW MODULE chrome.scroll_jank.utils;
+INCLUDE DEJAVIEW MODULE common.slices;
 
 -- Grab all GestureScrollUpdate slices.
 DROP VIEW IF EXISTS chrome_all_scroll_updates;
-CREATE PERFETTO VIEW chrome_all_scroll_updates AS
+CREATE DEJAVIEW VIEW chrome_all_scroll_updates AS
 SELECT
   S.id,
   chrome_get_most_recent_scroll_begin_id(ts) AS scroll_id,
@@ -40,7 +40,7 @@ AND args.string_value GLOB "*GESTURE_SCROLL_UPDATE";
 
 -- Count number of input GestureScrollUpdates per scroll.
 DROP VIEW IF EXISTS chrome_update_count_per_scroll;
-CREATE PERFETTO VIEW chrome_update_count_per_scroll AS
+CREATE DEJAVIEW VIEW chrome_update_count_per_scroll AS
 SELECT
   CAST(COUNT() AS FLOAT) AS count,
   scroll_id,
@@ -52,7 +52,7 @@ GROUP BY scroll_id;
 -- Count the number of input GestureScrollUpdates that were converted
 -- frames per scroll.
 DROP VIEW IF EXISTS chrome_presented_update_count_per_scroll;
-CREATE PERFETTO VIEW chrome_presented_update_count_per_scroll AS
+CREATE DEJAVIEW VIEW chrome_presented_update_count_per_scroll AS
 SELECT
   CAST(COUNT() AS FLOAT) AS presented_count,
   scroll_id,
@@ -65,7 +65,7 @@ GROUP BY scroll_id;
 
 -- Get the average number of inputs per frame per scroll.
 DROP VIEW IF EXISTS chrome_avg_scroll_inputs_per_frame;
-CREATE PERFETTO VIEW chrome_avg_scroll_inputs_per_frame AS
+CREATE DEJAVIEW VIEW chrome_avg_scroll_inputs_per_frame AS
 SELECT
   count / presented_count AS avg_inputs_per_frame_per_scroll,
   scroll_id,
@@ -76,7 +76,7 @@ JOIN chrome_update_count_per_scroll USING(scroll_id);
 -- Get the last scroll update event that wasn't coalesced before the
 -- current scroll update.
 DROP VIEW IF EXISTS chrome_frame_main_input_id;
-CREATE PERFETTO VIEW chrome_frame_main_input_id AS
+CREATE DEJAVIEW VIEW chrome_frame_main_input_id AS
 SELECT
   id,
   scroll_id,
@@ -93,7 +93,7 @@ FROM chrome_all_scroll_updates scrolls;
 
 -- Count the number of inputs per presented frame.
 DROP VIEW IF EXISTS chrome_scroll_inputs_per_frame;
-CREATE PERFETTO VIEW chrome_scroll_inputs_per_frame AS
+CREATE DEJAVIEW VIEW chrome_scroll_inputs_per_frame AS
 SELECT
   COUNT() AS count_for_frame,
   presented_scroll_id,

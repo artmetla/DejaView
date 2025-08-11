@@ -15,16 +15,16 @@
  */
 
 #include "src/trace_processor/importers/proto/system_probes_module.h"
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/system_probes_parser.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 SystemProbesModule::SystemProbesModule(TraceProcessorContext* context)
     : parser_(context) {
@@ -71,4 +71,4 @@ void SystemProbesModule::ParseTracePacketData(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

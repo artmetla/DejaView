@@ -26,11 +26,11 @@
 #include <type_traits>
 #include <vector>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 // Helper to read various types of data fields contained in a TraceBlobView.
 // All methods return a boolean indicating whether the read was successful. A
@@ -165,6 +165,6 @@ class Reader {
   const uint8_t* end_;
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_READER_H_

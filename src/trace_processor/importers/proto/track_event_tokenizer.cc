@@ -23,17 +23,17 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/legacy_v8_cpu_profile_tracker.h"
 #include "src/trace_processor/importers/common/metadata_tracker.h"
@@ -49,18 +49,18 @@
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/track_event/counter_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/range_of_interest.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/track_event/counter_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/range_of_interest.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 #include "src/trace_processor/types/variadic.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 using protos::pbzero::CounterDescriptor;
@@ -101,7 +101,7 @@ ModuleResult TrackEventTokenizer::TokenizeTrackDescriptorPacket(
                                                  track_descriptor_field.size);
 
   if (!track.has_uuid()) {
-    PERFETTO_ELOG("TrackDescriptor packet without uuid");
+    DEJAVIEW_ELOG("TrackDescriptor packet without uuid");
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
     return ModuleResult::Handled();
   }
@@ -121,7 +121,7 @@ ModuleResult TrackEventTokenizer::TokenizeTrackDescriptorPacket(
     protos::pbzero::ThreadDescriptor::Decoder thread(track.thread());
 
     if (!thread.has_pid() || !thread.has_tid()) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "No pid or tid in ThreadDescriptor for track with uuid %" PRIu64,
           track.uuid());
       context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
@@ -141,7 +141,7 @@ ModuleResult TrackEventTokenizer::TokenizeTrackDescriptorPacket(
     protos::pbzero::ProcessDescriptor::Decoder process(track.process());
 
     if (!process.has_pid()) {
-      PERFETTO_ELOG("No pid in ProcessDescriptor for track with uuid %" PRIu64,
+      DEJAVIEW_ELOG("No pid in ProcessDescriptor for track with uuid %" PRIu64,
                     track.uuid());
       context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
       return ModuleResult::Handled();
@@ -203,8 +203,8 @@ ModuleResult TrackEventTokenizer::TokenizeTrackDescriptorPacket(
 ModuleResult TrackEventTokenizer::TokenizeThreadDescriptorPacket(
     RefPtr<PacketSequenceStateGeneration> state,
     const protos::pbzero::TracePacket::Decoder& packet) {
-  if (PERFETTO_UNLIKELY(!packet.has_trusted_packet_sequence_id())) {
-    PERFETTO_ELOG("ThreadDescriptor packet without trusted_packet_sequence_id");
+  if (DEJAVIEW_UNLIKELY(!packet.has_trusted_packet_sequence_id())) {
+    DEJAVIEW_ELOG("ThreadDescriptor packet without trusted_packet_sequence_id");
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
     return ModuleResult::Handled();
   }
@@ -239,8 +239,8 @@ ModuleResult TrackEventTokenizer::TokenizeTrackEventPacket(
     const protos::pbzero::TracePacket::Decoder& packet,
     TraceBlobView* packet_blob,
     int64_t packet_timestamp) {
-  if (PERFETTO_UNLIKELY(!packet.has_trusted_packet_sequence_id())) {
-    PERFETTO_ELOG("TrackEvent packet without trusted_packet_sequence_id");
+  if (DEJAVIEW_UNLIKELY(!packet.has_trusted_packet_sequence_id())) {
+    DEJAVIEW_ELOG("TrackEvent packet without trusted_packet_sequence_id");
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
     return ModuleResult::Handled();
   }
@@ -285,15 +285,15 @@ ModuleResult TrackEventTokenizer::TokenizeTrackEventPacket(
   } else if (packet.has_timestamp()) {
     timestamp = packet_timestamp;
   } else {
-    PERFETTO_ELOG("TrackEvent without valid timestamp");
+    DEJAVIEW_ELOG("TrackEvent without valid timestamp");
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
     return ModuleResult::Handled();
   }
 
   // Handle legacy sample events which might have timestamps embedded inside.
-  if (PERFETTO_UNLIKELY(event.has_legacy_event())) {
+  if (DEJAVIEW_UNLIKELY(event.has_legacy_event())) {
     protos::pbzero::TrackEvent::LegacyEvent::Decoder leg(event.legacy_event());
-    if (PERFETTO_UNLIKELY(leg.phase() == 'P')) {
+    if (DEJAVIEW_UNLIKELY(leg.phase() == 'P')) {
       RETURN_IF_ERROR(TokenizeLegacySampleEvent(
           event, leg, *data.trace_packet_data.sequence_state));
     }
@@ -336,14 +336,14 @@ ModuleResult TrackEventTokenizer::TokenizeTrackEventPacket(
     } else if (defaults && defaults->has_track_uuid()) {
       track_uuid = defaults->track_uuid();
     } else {
-      PERFETTO_DLOG(
+      DEJAVIEW_DLOG(
           "Ignoring TrackEvent with counter_value but without track_uuid");
       context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
       return ModuleResult::Handled();
     }
 
     if (!event.has_counter_value() && !event.has_double_counter_value()) {
-      PERFETTO_DLOG(
+      DEJAVIEW_DLOG(
           "Ignoring TrackEvent with TYPE_COUNTER but without counter_value or "
           "double_counter_value for "
           "track_uuid %" PRIu64,
@@ -364,7 +364,7 @@ ModuleResult TrackEventTokenizer::TokenizeTrackEventPacket(
     }
 
     if (!value) {
-      PERFETTO_DLOG("Ignoring TrackEvent with invalid track_uuid %" PRIu64,
+      DEJAVIEW_DLOG("Ignoring TrackEvent with invalid track_uuid %" PRIu64,
                     track_uuid);
       context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
       return ModuleResult::Handled();
@@ -380,7 +380,7 @@ ModuleResult TrackEventTokenizer::TokenizeTrackEventPacket(
       event.extra_counter_values(), event.extra_counter_track_uuids(),
       defaults ? defaults->extra_counter_track_uuids() : kEmptyIterator);
   if (!result.ok()) {
-    PERFETTO_DLOG("%s", result.c_message());
+    DEJAVIEW_DLOG("%s", result.c_message());
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
     return ModuleResult::Handled();
   }
@@ -390,7 +390,7 @@ ModuleResult TrackEventTokenizer::TokenizeTrackEventPacket(
       event.extra_double_counter_track_uuids(),
       defaults ? defaults->extra_double_counter_track_uuids() : kEmptyIterator);
   if (!result.ok()) {
-    PERFETTO_DLOG("%s", result.c_message());
+    DEJAVIEW_DLOG("%s", result.c_message());
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
     return ModuleResult::Handled();
   }
@@ -454,7 +454,7 @@ base::Status TrackEventTokenizer::TokenizeLegacySampleEvent(
     PacketSequenceStateGeneration& state) {
   // We are just trying to parse out the V8 profiling events into the cpu
   // sampling tables: if we don't have JSON enabled, just don't do this.
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   for (auto it = event.debug_annotations(); it; ++it) {
     protos::pbzero::DebugAnnotation::Decoder da(*it);
     auto* interned_name = state.LookupInternedMessage<
@@ -520,4 +520,4 @@ base::Status TrackEventTokenizer::TokenizeLegacySampleEvent(
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

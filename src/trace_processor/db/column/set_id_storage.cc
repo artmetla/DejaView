@@ -26,18 +26,18 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/column/utils.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 
 using SetId = SetIdStorage::SetId;
@@ -82,7 +82,7 @@ SearchValidationResult SetIdStorage::ChainImpl::ValidateSearchConstraints(
     FilterOp op,
     SqlValue val) const {
   // NULL checks.
-  if (PERFETTO_UNLIKELY(val.is_null())) {
+  if (DEJAVIEW_UNLIKELY(val.is_null())) {
     if (op == FilterOp::kIsNotNull) {
       return SearchValidationResult::kAllData;
     }
@@ -101,13 +101,13 @@ SearchValidationResult SetIdStorage::ChainImpl::ValidateSearchConstraints(
       break;
     case FilterOp::kIsNull:
     case FilterOp::kIsNotNull:
-      PERFETTO_FATAL("Invalid constraints.");
+      DEJAVIEW_FATAL("Invalid constraints.");
     case FilterOp::kGlob:
     case FilterOp::kRegex:
       return SearchValidationResult::kNoData;
   }
 
-  if (PERFETTO_UNLIKELY(values_->empty())) {
+  if (DEJAVIEW_UNLIKELY(values_->empty())) {
     return SearchValidationResult::kNoData;
   }
 
@@ -134,13 +134,13 @@ SearchValidationResult SetIdStorage::ChainImpl::ValidateSearchConstraints(
 
   // As values are sorted, we can cover special cases for when |num_val| is
   // bigger than the last value and smaller than the first one.
-  if (PERFETTO_UNLIKELY(num_val > values_->back())) {
+  if (DEJAVIEW_UNLIKELY(num_val > values_->back())) {
     if (op == FilterOp::kLe || op == FilterOp::kLt || op == FilterOp::kNe) {
       return SearchValidationResult::kAllData;
     }
     return SearchValidationResult::kNoData;
   }
-  if (PERFETTO_UNLIKELY(num_val < values_->front())) {
+  if (DEJAVIEW_UNLIKELY(num_val < values_->front())) {
     if (op == FilterOp::kGe || op == FilterOp::kGt || op == FilterOp::kNe) {
       return SearchValidationResult::kAllData;
     }
@@ -154,9 +154,9 @@ RangeOrBitVector SetIdStorage::ChainImpl::SearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Range search_range) const {
-  PERFETTO_DCHECK(search_range.end <= size());
+  DEJAVIEW_DCHECK(search_range.end <= size());
 
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "SetIdStorage::ChainImpl::Search",
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "SetIdStorage::ChainImpl::Search",
                     [&search_range, op](metatrace::Record* r) {
                       r->AddArg("Start", std::to_string(search_range.start));
                       r->AddArg("End", std::to_string(search_range.end));
@@ -194,7 +194,7 @@ RangeOrBitVector SetIdStorage::ChainImpl::SearchValidated(
 void SetIdStorage::ChainImpl::IndexSearchValidated(FilterOp op,
                                                    SqlValue sql_val,
                                                    Indices& indices) const {
-  PERFETTO_TP_TRACE(
+  DEJAVIEW_TP_TRACE(
       metatrace::Category::DB, "SetIdStorage::ChainImpl::IndexSearch",
       [&indices, op](metatrace::Record* r) {
         r->AddArg("Count", std::to_string(indices.tokens.size()));
@@ -242,7 +242,7 @@ void SetIdStorage::ChainImpl::IndexSearchValidated(FilterOp op,
     case FilterOp::kIsNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Illegal argument");
+      DEJAVIEW_FATAL("Illegal argument");
   }
 }
 
@@ -270,7 +270,7 @@ Range SetIdStorage::ChainImpl::BinarySearchIntrinsic(FilterOp op,
     case FilterOp::kIsNotNull:
       return range;
     case FilterOp::kNe:
-      PERFETTO_FATAL("Shouldn't be called");
+      DEJAVIEW_FATAL("Shouldn't be called");
     case FilterOp::kIsNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
@@ -282,7 +282,7 @@ Range SetIdStorage::ChainImpl::BinarySearchIntrinsic(FilterOp op,
 void SetIdStorage::ChainImpl::StableSort(Token* start,
                                          Token* end,
                                          SortDirection direction) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SetIdStorage::ChainImpl::StableSort");
   switch (direction) {
     case SortDirection::kAscending:
@@ -299,7 +299,7 @@ void SetIdStorage::ChainImpl::StableSort(Token* start,
 }
 
 void SetIdStorage::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SetIdStorage::ChainImpl::Distinct");
   std::unordered_set<uint32_t> s;
   indices.tokens.erase(
@@ -312,7 +312,7 @@ void SetIdStorage::ChainImpl::Distinct(Indices& indices) const {
 
 std::optional<Token> SetIdStorage::ChainImpl::MaxElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SetIdStorage::ChainImpl::MaxElement");
 
   auto tok =
@@ -329,7 +329,7 @@ std::optional<Token> SetIdStorage::ChainImpl::MaxElement(
 
 std::optional<Token> SetIdStorage::ChainImpl::MinElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SetIdStorage::ChainImpl::MinElement");
   auto tok =
       std::min_element(indices.tokens.begin(), indices.tokens.end(),
@@ -348,4 +348,4 @@ SqlValue SetIdStorage::ChainImpl::Get_AvoidUsingBecauseSlow(
   return SqlValue::Long((*values_)[index]);
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

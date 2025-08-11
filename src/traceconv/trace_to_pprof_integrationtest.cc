@@ -18,14 +18,14 @@
 
 #include <fstream>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/base/test/utils.h"
 #include "src/traceconv/pprof_reader.h"
 #include "src/traceconv/trace_to_profile.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using testing::Contains;
@@ -35,7 +35,7 @@ pprof::PprofProfileReader convert_trace_to_pprof(
   const std::string trace_file = base::GetTestDataPath(input_file_name);
   std::ifstream file_istream;
   file_istream.open(trace_file, std::ios_base::in | std::ios_base::binary);
-  PERFETTO_CHECK(file_istream.is_open());
+  DEJAVIEW_CHECK(file_istream.is_open());
 
   std::stringstream ss;
   std::ostream os(ss.rdbuf());
@@ -44,18 +44,18 @@ pprof::PprofProfileReader convert_trace_to_pprof(
                                         /*annotate_frames=*/false);
 
   auto conv_stdout = base::SplitString(ss.str(), " ");
-  PERFETTO_CHECK(!conv_stdout.empty());
+  DEJAVIEW_CHECK(!conv_stdout.empty());
   std::string out_dirname = base::TrimWhitespace(conv_stdout.back());
   std::vector<std::string> filenames;
   base::ListFilesRecursive(out_dirname, filenames);
   // assumption: all test inputs contain exactly one profile
-  PERFETTO_CHECK(filenames.size() == 1);
+  DEJAVIEW_CHECK(filenames.size() == 1);
   std::string profile_path = out_dirname + "/" + filenames[0];
 
   // read in the profile contents and then clean up the temp files
   pprof::PprofProfileReader pprof_reader(profile_path);
   unlink(profile_path.c_str());
-  PERFETTO_CHECK(base::Rmdir(out_dirname));
+  DEJAVIEW_CHECK(base::Rmdir(out_dirname));
   return pprof_reader;
 }
 
@@ -75,7 +75,7 @@ class TraceToPprofTest : public ::testing::Test {
   pprof::PprofProfileReader* pprof = nullptr;
 
   void SetUp() override {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     GTEST_SKIP() << "do not run traceconv tests on Android target";
 #endif
   }
@@ -119,7 +119,7 @@ TEST_F(TraceToPprofTest, TreeLocationFunctionNames) {
 TEST_F(TraceToPprofTest, HugeSizes) {
   const auto pprof =
       convert_trace_to_pprof("test/data/heap_graph/heap_graph_huge_size.pb");
-  EXPECT_EQ(pprof.get_samples_value_sum("dev.perfetto.BigStuff",
+  EXPECT_EQ(pprof.get_samples_value_sum("dev.dejaview.BigStuff",
                                         "Total allocation size"),
             3000000000);
 }
@@ -127,7 +127,7 @@ TEST_F(TraceToPprofTest, HugeSizes) {
 class TraceToPprofRealTraceTest : public ::testing::Test {
  public:
   void SetUp() override {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     GTEST_SKIP() << "do not run traceconv tests on Android target";
 #endif
 #if defined(LEAK_SANITIZER)
@@ -171,4 +171,4 @@ TEST_F(TraceToPprofRealTraceTest, AllocationCountForClass) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

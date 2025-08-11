@@ -25,7 +25,7 @@
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Responsible for executing filtering/sorting operations on a single Table.
 // TODO(b/283763282): Introduce sorting.
@@ -86,6 +86,6 @@ class QueryExecutor {
   uint32_t row_count_ = 0;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_QUERY_EXECUTOR_H_

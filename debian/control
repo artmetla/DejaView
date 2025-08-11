@@ -1,4 +1,4 @@
-Source: perfetto
+Source: dejaview
 Section: kernel
 Priority: optional
 Maintainer: Sami Kyostila <skyostil@google.com>
@@ -18,9 +18,9 @@ Vcs-Git: https://android.googlesource.com/platform/external/perfetto/
 Vcs-Browser: https://android.googlesource.com/platform/external/perfetto/
 Rules-Requires-Root: no
 
-Package: perfetto
+Package: dejaview
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser, zlib1g
 Description: Performance instrumentation and logging framework
- Perfetto is a performance instrumentation and logging framework for POSIX
+ DejaView is a performance instrumentation and logging framework for POSIX
  systems.

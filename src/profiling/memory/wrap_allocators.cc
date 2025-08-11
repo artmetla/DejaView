@@ -18,11 +18,11 @@
 
 #include <cinttypes>
 
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/heap_profile.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/heap_profile.h"
 #include "src/profiling/memory/wrap_allocators.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -135,4 +135,4 @@ void* wrap_reallocarray(uint32_t heap_id,
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -17,13 +17,13 @@
 #include "src/tracing/test/tracing_module.h"
 
 // This file checks that the deprecated track event namespacing mechanism
-// (PERFETTO_TRACK_EVENT_NAMESPACE) keeps working.
+// (DEJAVIEW_TRACK_EVENT_NAMESPACE) keeps working.
 
-#define PERFETTO_TRACK_EVENT_NAMESPACE deprecated_ns
-#include "perfetto/tracing.h"
+#define DEJAVIEW_TRACK_EVENT_NAMESPACE deprecated_ns
+#include "dejaview/tracing.h"
 
-PERFETTO_DEFINE_CATEGORIES(PERFETTO_CATEGORY(cat1));
-PERFETTO_TRACK_EVENT_STATIC_STORAGE();
+DEJAVIEW_DEFINE_CATEGORIES(DEJAVIEW_CATEGORY(cat1));
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE();
 
 void TestDeprecatedNamespacing() {
   deprecated_ns::TrackEvent::Register();

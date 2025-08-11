@@ -20,7 +20,7 @@
 #include <map>
 #include <string>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // SystemProperties allows to set properties in a reference counted fashion.
@@ -84,6 +84,6 @@ class SystemProperties {
 void swap(SystemProperties::Handle& a, SystemProperties::Handle& b);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_SYSTEM_PROPERTY_H_

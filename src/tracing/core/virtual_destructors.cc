@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
-#include "perfetto/ext/tracing/core/shared_memory_arbiter.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/tracing/core/shared_memory_arbiter.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 
-#include "protos/perfetto/common/tracing_service_state.gen.h"
+#include "protos/dejaview/common/tracing_service_state.gen.h"
 
 // This translation unit contains the definitions for the destructor of pure
 // virtual interfaces for the current build target. The alternative would be
 // introducing a one-liner .cc file for each pure virtual interface, which is
 // overkill. This is for compliance with -Wweak-vtables.
 
-namespace perfetto {
+namespace dejaview {
 
 Consumer::~Consumer() = default;
 Producer::~Producer() = default;
@@ -42,4 +42,4 @@ SharedMemoryArbiter::~SharedMemoryArbiter() = default;
 // TODO(primiano): make pure virtual after various 3way patches.
 void Consumer::OnSessionCloned(const OnSessionClonedArgs&) {}
 
-}  // namespace perfetto
+}  // namespace dejaview

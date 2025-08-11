@@ -17,17 +17,17 @@
 #include "src/trace_processor/util/protozero_to_text.h"
 #include <optional>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
 #include "src/trace_processor/util/descriptors.h"
 
 // This is the highest level that this protozero to text supports.
 #include "src/trace_processor/importers/proto/track_event.descriptor.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace protozero_to_text {
 
@@ -110,7 +110,7 @@ void IncreaseIndents(std::string* out) {
 }
 
 void DecreaseIndents(std::string* out) {
-  PERFETTO_DCHECK(out->size() >= 2);
+  DEJAVIEW_DCHECK(out->size() >= 2);
   out->erase(out->size() - 2);
 }
 
@@ -145,9 +145,9 @@ std::string FormattedFieldDescriptorName(
     // Libprotobuf formatter always formats extension field names as fully
     // qualified names.
     // TODO(b/197625974): Assuming for now all our extensions will belong to the
-    // perfetto.protos package. Update this if we ever want to support extendees
+    // dejaview.protos package. Update this if we ever want to support extendees
     // in different package.
-    return "[perfetto.protos." + field_descriptor.name() + "]";
+    return "[dejaview.protos." + field_descriptor.name() + "]";
   } else {
     return field_descriptor.name();
   }
@@ -461,7 +461,7 @@ std::string DebugTrackEventProtozeroToText(const std::string& type,
   DescriptorPool pool;
   auto status = pool.AddFromFileDescriptorSet(kTrackEventDescriptor.data(),
                                               kTrackEventDescriptor.size());
-  PERFETTO_DCHECK(status.ok());
+  DEJAVIEW_DCHECK(status.ok());
   return ProtozeroToText(pool, type, protobytes, kIncludeNewLines);
 }
 
@@ -471,7 +471,7 @@ std::string ShortDebugTrackEventProtozeroToText(
   DescriptorPool pool;
   auto status = pool.AddFromFileDescriptorSet(kTrackEventDescriptor.data(),
                                               kTrackEventDescriptor.size());
-  PERFETTO_DCHECK(status.ok());
+  DEJAVIEW_DCHECK(status.ok());
   return ProtozeroToText(pool, type, protobytes, kSkipNewLines);
 }
 
@@ -479,7 +479,7 @@ std::string ProtozeroEnumToText(const std::string& type, int32_t enum_value) {
   DescriptorPool pool;
   auto status = pool.AddFromFileDescriptorSet(kTrackEventDescriptor.data(),
                                               kTrackEventDescriptor.size());
-  PERFETTO_DCHECK(status.ok());
+  DEJAVIEW_DCHECK(status.ok());
   auto opt_enum_descriptor_idx = pool.FindDescriptorIdx(type);
   if (!opt_enum_descriptor_idx) {
     // Fall back to the integer representation of the field.
@@ -505,4 +505,4 @@ std::string ProtozeroToText(const DescriptorPool& pool,
 
 }  // namespace protozero_to_text
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

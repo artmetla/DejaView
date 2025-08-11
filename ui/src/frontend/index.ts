@@ -222,7 +222,7 @@ function main() {
   const cssLoadPromise = defer<void>();
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = globals.root + 'perfetto.css';
+  css.href = globals.root + 'dejaview.css';
   css.onload = () => cssLoadPromise.resolve();
   css.onerror = (err) => cssLoadPromise.reject(err);
   const favicon = document.head.querySelector('#favicon');
@@ -287,8 +287,8 @@ function main() {
     document.body.classList.add('testing');
   }
 
-  (window as {} as IdleDetectorWindow).waitForPerfettoIdle = (ms?: number) => {
-    return new IdleDetector().waitForPerfettoIdle(ms);
+  (window as {} as IdleDetectorWindow).waitForDejaViewIdle = (ms?: number) => {
+    return new IdleDetector().waitForDejaViewIdle(ms);
   };
 }
 

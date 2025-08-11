@@ -28,7 +28,7 @@
 
 #include "src/profiling/common/unwind_support.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // Data present in all types of samples.
@@ -92,6 +92,6 @@ struct CompletedSample {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_COMMON_TYPES_H_

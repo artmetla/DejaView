@@ -6,7 +6,7 @@
   <meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0" name="viewport" />
   <link rel="shortcut icon" id="favicon" type="image/png" href="data:image/png;base64,iVBORw0KGgo=">
 </head>
-<body data-perfetto_version='{"filled_by_build_js":"."}'>
+<body data-dejaview_version='{"filled_by_build_js":"."}'>
   <!--
     Don't add any content here. The whole <body> is replaced by
     bigtrace/index.ts when bootstrapping. This is only used for very early
@@ -102,9 +102,9 @@ Technical Information:
       window.onerror = errHandler;
       window.onunhandledrejection = errHandler;
 
-      const versionStr = document.body.dataset['perfetto_version'] || '{}';
+      const versionStr = document.body.dataset['dejaview_version'] || '{}';
       const versionMap = JSON.parse(versionStr);
-      const channel = localStorage.getItem('perfettoUiChannel') || 'stable';
+      const channel = localStorage.getItem('dejaviewUiChannel') || 'stable';
 
       // The '.' below is a fallback for the case of opening a pinned version
       // (e.g., ui.perfetto.dev/v1.2.3./). In that case, the index.html has no

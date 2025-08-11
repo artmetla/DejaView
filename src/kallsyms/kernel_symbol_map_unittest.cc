@@ -20,14 +20,14 @@
 #include <random>
 #include <unordered_map>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/temp_file.h"
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using TokenId = KernelSymbolMap::TokenTable::TokenId;
@@ -165,4 +165,4 @@ TEST(KernelSymbolMapTest, GoldenTest) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

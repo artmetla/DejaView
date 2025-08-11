@@ -1,4 +1,4 @@
-# Perfetto
+# DejaView
 
 ![logo](logo.png ':size=300')
 
@@ -8,6 +8,6 @@
 * Trace processing and analysis
 * Web-based trace viewer UI
 
-[Docs](#perfetto-performance-instrumentation-and-tracing)
+[Docs](#dejaview-performance-instrumentation-and-tracing)
 [Sources](https://android.googlesource.com/platform/external/perfetto/)
 [Trace viewer UI](https://ui.perfetto.dev)

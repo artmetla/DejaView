@@ -21,16 +21,16 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 #include "src/trace_processor/importers/perf/reader.h"
 #include "src/trace_processor/importers/perf/record.h"
 
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 namespace {
 
 bool ParseSampleReadGroup(Reader& reader,
@@ -39,19 +39,19 @@ bool ParseSampleReadGroup(Reader& reader,
                           std::vector<Sample::ReadGroup>& out) {
   out.resize(num_records);
   for (auto& read : out) {
-    if (PERFETTO_UNLIKELY(!reader.Read(read.value))) {
+    if (DEJAVIEW_UNLIKELY(!reader.Read(read.value))) {
       return false;
     }
 
     if (read_format & PERF_FORMAT_ID) {
-      if (PERFETTO_UNLIKELY(!reader.ReadOptional(read.event_id))) {
+      if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(read.event_id))) {
         return false;
       }
     }
 
     if (read_format & PERF_FORMAT_LOST) {
       uint64_t lost;
-      if (PERFETTO_UNLIKELY(!reader.Read(lost))) {
+      if (DEJAVIEW_UNLIKELY(!reader.Read(lost))) {
         return false;
       }
     }
@@ -65,20 +65,20 @@ bool ParseSampleRead(Reader& reader,
                      std::vector<Sample::ReadGroup>& out) {
   uint64_t value_or_nr;
 
-  if (PERFETTO_UNLIKELY(!reader.Read(value_or_nr))) {
+  if (DEJAVIEW_UNLIKELY(!reader.Read(value_or_nr))) {
     return false;
   }
 
   if (read_format & PERF_FORMAT_TOTAL_TIME_ENABLED) {
     uint64_t total_time_enabled;
-    if (PERFETTO_UNLIKELY(!reader.Read(total_time_enabled))) {
+    if (DEJAVIEW_UNLIKELY(!reader.Read(total_time_enabled))) {
       return false;
     }
   }
 
   if (read_format & PERF_FORMAT_TOTAL_TIME_RUNNING) {
     uint64_t total_time_running;
-    if (PERFETTO_UNLIKELY(!reader.Read(total_time_running))) {
+    if (DEJAVIEW_UNLIKELY(!reader.Read(total_time_running))) {
       return false;
     }
   }
@@ -90,14 +90,14 @@ bool ParseSampleRead(Reader& reader,
   std::optional<uint64_t> event_id;
   if (read_format & PERF_FORMAT_ID) {
     event_id.emplace(0);
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(event_id))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(event_id))) {
       return false;
     }
   }
 
   if (read_format & PERF_FORMAT_LOST) {
     uint64_t lost;
-    if (PERFETTO_UNLIKELY(!reader.Read(lost))) {
+    if (DEJAVIEW_UNLIKELY(!reader.Read(lost))) {
       return false;
     }
   }
@@ -123,7 +123,7 @@ protos::pbzero::Profiling::CpuMode PerfCallchainContextToCpuMode(uint64_t ip) {
     default:
       return protos::pbzero::Profiling::MODE_UNKNOWN;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 bool IsPerfContextMark(uint64_t ip) {
@@ -134,7 +134,7 @@ bool ParseSampleCallchain(Reader& reader,
                           protos::pbzero::Profiling::CpuMode cpu_mode,
                           std::vector<Sample::Frame>& out) {
   uint64_t nr;
-  if (PERFETTO_UNLIKELY(!reader.Read(nr))) {
+  if (DEJAVIEW_UNLIKELY(!reader.Read(nr))) {
     return false;
   }
 
@@ -142,10 +142,10 @@ bool ParseSampleCallchain(Reader& reader,
   frames.reserve(nr);
   for (; nr != 0; --nr) {
     uint64_t ip;
-    if (PERFETTO_UNLIKELY(!reader.Read(ip))) {
+    if (DEJAVIEW_UNLIKELY(!reader.Read(ip))) {
       return false;
     }
-    if (PERFETTO_UNLIKELY(IsPerfContextMark(ip))) {
+    if (DEJAVIEW_UNLIKELY(IsPerfContextMark(ip))) {
       cpu_mode = PerfCallchainContextToCpuMode(ip);
       continue;
     }
@@ -158,7 +158,7 @@ bool ParseSampleCallchain(Reader& reader,
 }  // namespace
 
 base::Status Sample::Parse(int64_t in_trace_ts, const Record& record) {
-  PERFETTO_CHECK(record.attr);
+  DEJAVIEW_CHECK(record.attr);
   const uint64_t sample_type = record.attr->sample_type();
 
   trace_ts = in_trace_ts;
@@ -170,37 +170,37 @@ base::Status Sample::Parse(int64_t in_trace_ts, const Record& record) {
 
   std::optional<uint64_t> identifier;
   if (sample_type & PERF_SAMPLE_IDENTIFIER) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(identifier))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(identifier))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_IDENTIFIER");
     }
   }
 
   if (sample_type & PERF_SAMPLE_IP) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(ip))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(ip))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_IP");
     }
   }
 
   if (sample_type & PERF_SAMPLE_TID) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(pid_tid))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(pid_tid))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_TID");
     }
   }
 
   if (sample_type & PERF_SAMPLE_TIME) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(time))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(time))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_TIME");
     }
   }
 
   if (sample_type & PERF_SAMPLE_ADDR) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(addr))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(addr))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_ADDR");
     }
   }
 
   if (sample_type & PERF_SAMPLE_ID) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(id))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(id))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_ID");
     }
   }
@@ -208,13 +208,13 @@ base::Status Sample::Parse(int64_t in_trace_ts, const Record& record) {
   if (identifier.has_value()) {
     if (!id.has_value()) {
       id = identifier;
-    } else if (PERFETTO_UNLIKELY(*identifier != *id)) {
+    } else if (DEJAVIEW_UNLIKELY(*identifier != *id)) {
       return base::ErrStatus("ID and IDENTIFIER mismatch");
     }
   }
 
   if (sample_type & PERF_SAMPLE_STREAM_ID) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(stream_id))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(stream_id))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_STREAM_ID");
     }
   }
@@ -224,20 +224,20 @@ base::Status Sample::Parse(int64_t in_trace_ts, const Record& record) {
       int32_t cpu;
       int32_t unused;
     } tmp;
-    if (PERFETTO_UNLIKELY(!reader.Read(tmp))) {
+    if (DEJAVIEW_UNLIKELY(!reader.Read(tmp))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_CPU");
     }
     cpu = tmp.cpu;
   }
 
   if (sample_type & PERF_SAMPLE_PERIOD) {
-    if (PERFETTO_UNLIKELY(!reader.ReadOptional(period))) {
+    if (DEJAVIEW_UNLIKELY(!reader.ReadOptional(period))) {
       return base ::ErrStatus("Not enough data to read PERF_SAMPLE_PERIOD");
     }
   }
 
   if (sample_type & PERF_SAMPLE_READ) {
-    if (PERFETTO_UNLIKELY(
+    if (DEJAVIEW_UNLIKELY(
             !ParseSampleRead(reader, attr->read_format(), read_groups))) {
       return base::ErrStatus("Failed to read PERF_SAMPLE_READ field");
     }
@@ -247,7 +247,7 @@ base::Status Sample::Parse(int64_t in_trace_ts, const Record& record) {
   }
 
   if (sample_type & PERF_SAMPLE_CALLCHAIN) {
-    if (PERFETTO_UNLIKELY(!ParseSampleCallchain(reader, cpu_mode, callchain))) {
+    if (DEJAVIEW_UNLIKELY(!ParseSampleCallchain(reader, cpu_mode, callchain))) {
       return base::ErrStatus("Failed to read PERF_SAMPLE_CALLCHAIN field");
     }
   }
@@ -255,4 +255,4 @@ base::Status Sample::Parse(int64_t in_trace_ts, const Record& record) {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

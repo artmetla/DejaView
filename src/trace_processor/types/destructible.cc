@@ -15,10 +15,10 @@
  */
 #include "src/trace_processor/types/destructible.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 Destructible::~Destructible() = default;
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

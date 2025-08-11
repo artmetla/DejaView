@@ -23,15 +23,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/circular_queue.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/circular_queue.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/util/bump_allocator.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Helper class which stores tokenized objects while the corresponding events
@@ -56,15 +56,15 @@ class TraceTokenBuffer {
   // Appends an object of type |T| to the token buffer. Returns an id for
   // looking up the object later using |Extract|.
   template <typename T>
-  PERFETTO_WARN_UNUSED_RESULT Id Append(T object) {
+  DEJAVIEW_WARN_UNUSED_RESULT Id Append(T object) {
     static_assert(sizeof(T) % 8 == 0, "Size must be a multiple of 8");
     static_assert(alignof(T) == 8, "Alignment must be 8");
     BumpAllocator::AllocId id = AllocAndResizeInternedVectors(sizeof(T));
     new (allocator_.GetPointer(id)) T(std::move(object));
     return Id{id};
   }
-  PERFETTO_WARN_UNUSED_RESULT Id Append(TrackEventData);
-  PERFETTO_WARN_UNUSED_RESULT Id Append(TracePacketData data) {
+  DEJAVIEW_WARN_UNUSED_RESULT Id Append(TrackEventData);
+  DEJAVIEW_WARN_UNUSED_RESULT Id Append(TracePacketData data) {
     // While in theory we could add a special case for TracePacketData, the
     // judgement call we make is that the code complexity does not justify the
     // micro-performance gain you might hope to see by avoiding the few if
@@ -76,7 +76,7 @@ class TraceTokenBuffer {
   // previously returned by |Append|. This type *must* match the type added
   // using Append. Mismatching types will caused undefined behaviour.
   template <typename T>
-  PERFETTO_WARN_UNUSED_RESULT T* Get(Id id) {
+  DEJAVIEW_WARN_UNUSED_RESULT T* Get(Id id) {
     return static_cast<T*>(allocator_.GetPointer(id.alloc_id));
   }
 
@@ -84,7 +84,7 @@ class TraceTokenBuffer {
   // returned by |Append|. This type *must* match the type added using Append.
   // Mismatching types will caused undefined behaviour.
   template <typename T>
-  PERFETTO_WARN_UNUSED_RESULT T Extract(Id id) {
+  DEJAVIEW_WARN_UNUSED_RESULT T Extract(Id id) {
     T* typed_ptr = static_cast<T*>(allocator_.GetPointer(id.alloc_id));
     T object(std::move(*typed_ptr));
     typed_ptr->~T();
@@ -132,16 +132,16 @@ class TraceTokenBuffer {
 // GCC7 does not like us declaring these inside the class so define these
 // out-of-line.
 template <>
-PERFETTO_WARN_UNUSED_RESULT TrackEventData
+DEJAVIEW_WARN_UNUSED_RESULT TrackEventData
     TraceTokenBuffer::Extract<TrackEventData>(Id);
 template <>
-PERFETTO_WARN_UNUSED_RESULT inline TracePacketData
+DEJAVIEW_WARN_UNUSED_RESULT inline TracePacketData
 TraceTokenBuffer::Extract<TracePacketData>(Id id) {
   // See the comment in Append(TracePacketData) for why we do this.
   return Extract<TrackEventData>(id).trace_packet_data;
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_SORTER_TRACE_TOKEN_BUFFER_H_

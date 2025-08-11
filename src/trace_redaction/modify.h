@@ -16,13 +16,13 @@
 
 #include <cstdint>
 
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
 #ifndef SRC_TRACE_REDACTION_MODIFY_H_
 #define SRC_TRACE_REDACTION_MODIFY_H_
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class PidCommModifier {
  public:
@@ -68,6 +68,6 @@ class DoNothing : public PidCommModifier, public FtraceEventModifier {
               protos::pbzero::FtraceEventBundle* message) const override;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_MODIFY_H_

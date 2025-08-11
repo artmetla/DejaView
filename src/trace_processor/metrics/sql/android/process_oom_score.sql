@@ -16,7 +16,7 @@
 
 -- Create a track for process OOM scores.
 DROP VIEW IF EXISTS oom_score_span;
-CREATE PERFETTO VIEW oom_score_span AS
+CREATE DEJAVIEW VIEW oom_score_span AS
 SELECT
   ts,
   LEAD(ts, 1, trace_end() + 1)

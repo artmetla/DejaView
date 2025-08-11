@@ -25,10 +25,10 @@ PYTHON_DIR = os.path.join(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))), "python")
 sys.path.append(os.path.join(PYTHON_DIR))
 
-from perfetto.experimental.slice_breakdown import compute_breakdown
-from perfetto.experimental.slice_breakdown import compute_breakdown_for_startup
-from perfetto.trace_processor import TraceProcessor
-from perfetto.trace_processor import TraceProcessorConfig
+from dejaview.experimental.slice_breakdown import compute_breakdown
+from dejaview.experimental.slice_breakdown import compute_breakdown_for_startup
+from dejaview.trace_processor import TraceProcessor
+from dejaview.trace_processor import TraceProcessorConfig
 
 
 def compute_breakdown_wrapper(args):

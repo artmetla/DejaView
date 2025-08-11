@@ -23,10 +23,10 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-// Limited support for abseil in perfetto so we can not use the recommended
+// Limited support for abseil in dejaview so we can not use the recommended
 // AbslStringify()
 inline void PrintTo(const AddressRange& r, std::ostream* os) {
   if (r.empty()) {
@@ -476,4 +476,4 @@ TEST(AddressSet, RemoveEmptyRangeDoesNothing) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,10 +21,10 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // The BreakpadParser class is used to parse a breakpad file and store data on
@@ -80,6 +80,6 @@ class BreakpadParser {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_BREAKPAD_PARSER_H_

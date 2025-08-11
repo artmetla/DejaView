@@ -29,15 +29,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 #include "protos/third_party/simpleperf/record_file.pbzero.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
@@ -65,7 +65,7 @@
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 namespace {
 
 void AddIds(uint8_t id_offset,
@@ -184,7 +184,7 @@ PerfDataTokenizer::ParseHeader() {
   if (!tbv) {
     return ParsingResult::kMoreDataNeeded;
   }
-  PERFETTO_CHECK(Reader(std::move(*tbv)).Read(header_));
+  DEJAVIEW_CHECK(Reader(std::move(*tbv)).Read(header_));
 
   // TODO: Check for endianess (big endian will have letters reversed);
   if (memcmp(header_.magic, PerfFile::kPerfMagic,
@@ -205,7 +205,7 @@ PerfDataTokenizer::ParseHeader() {
   context_->clock_tracker->SetTraceTimeClock(
       protos::pbzero::ClockSnapshot::Clock::MONOTONIC);
 
-  PERFETTO_CHECK(buffer_.PopFrontUntil(sizeof(PerfFile::Header)));
+  DEJAVIEW_CHECK(buffer_.PopFrontUntil(sizeof(PerfFile::Header)));
   parsing_state_ = ParsingState::kParseAttrs;
   return ParsingResult::kSuccess;
 }
@@ -237,7 +237,7 @@ PerfDataTokenizer::ParseAttrs() {
     }
 
     std::vector<uint64_t> ids(entry.ids.size / sizeof(uint64_t));
-    PERFETTO_CHECK(Reader(std::move(*tbv)).ReadVector(ids));
+    DEJAVIEW_CHECK(Reader(std::move(*tbv)).ReadVector(ids));
     builder.AddAttrAndIds(entry.attr, std::move(ids));
   }
 
@@ -270,7 +270,7 @@ PerfDataTokenizer::ParseRecords() {
     }
 
     if (record.header.type == PERF_RECORD_AUXTRACE) {
-      PERFETTO_CHECK(!current_auxtrace_.has_value());
+      DEJAVIEW_CHECK(!current_auxtrace_.has_value());
       current_auxtrace_.emplace();
       RETURN_IF_ERROR(current_auxtrace_->Parse(record));
       parsing_state_ = ParsingState::kParseAuxtraceData;
@@ -290,7 +290,7 @@ base::Status PerfDataTokenizer::ProcessRecord(Record record) {
   const uint32_t type = record.header.type;
   switch (type) {
     case PERF_RECORD_AUXTRACE:
-      PERFETTO_FATAL("Unreachable");
+      DEJAVIEW_FATAL("Unreachable");
 
     case PERF_RECORD_AUXTRACE_INFO:
       return ProcessAuxtraceInfoRecord(std::move(record));
@@ -318,7 +318,7 @@ base::StatusOr<PerfDataTokenizer::ParsingResult> PerfDataTokenizer::ParseRecord(
   if (!tbv) {
     return ParsingResult::kMoreDataNeeded;
   }
-  PERFETTO_CHECK(Reader(std::move(*tbv)).Read(record.header));
+  DEJAVIEW_CHECK(Reader(std::move(*tbv)).Read(record.header));
 
   if (record.header.size < sizeof(record.header)) {
     return base::ErrStatus("Invalid record size: %" PRIu16, record.header.size);
@@ -357,7 +357,7 @@ base::StatusOr<int64_t> PerfDataTokenizer::ExtractTraceTimestamp(
                                                  static_cast<int64_t>(*time))
           : std::min(latest_timestamp_, context_->sorter->max_timestamp());
 
-  if (PERFETTO_LIKELY(trace_ts.ok())) {
+  if (DEJAVIEW_LIKELY(trace_ts.ok())) {
     latest_timestamp_ = std::max(latest_timestamp_, *trace_ts);
   }
 
@@ -375,7 +375,7 @@ void PerfDataTokenizer::MaybePushRecord(Record record) {
 
 base::StatusOr<PerfDataTokenizer::ParsingResult>
 PerfDataTokenizer::ParseFeatureSections() {
-  PERFETTO_CHECK(buffer_.start_offset() == header_.data.end());
+  DEJAVIEW_CHECK(buffer_.start_offset() == header_.data.end());
   auto tbv = buffer_.SliceOff(feature_headers_section_.offset,
                               feature_headers_section_.size);
   if (!tbv) {
@@ -387,7 +387,7 @@ PerfDataTokenizer::ParseFeatureSections() {
     feature_sections_.emplace_back(std::piecewise_construct,
                                    std::forward_as_tuple(feature_id),
                                    std::forward_as_tuple());
-    PERFETTO_CHECK(reader.Read(feature_sections_.back().second));
+    DEJAVIEW_CHECK(reader.Read(feature_sections_.back().second));
   }
 
   std::sort(feature_sections_.begin(), feature_sections_.end(),
@@ -515,7 +515,7 @@ base::Status PerfDataTokenizer::ProcessTimeConvRecord(Record record) {
 
 base::StatusOr<PerfDataTokenizer::ParsingResult>
 PerfDataTokenizer::ParseAuxtraceData() {
-  PERFETTO_CHECK(current_auxtrace_.has_value());
+  DEJAVIEW_CHECK(current_auxtrace_.has_value());
   const uint64_t size = current_auxtrace_->size;
   if (buffer_.avail() < size) {
     return ParsingResult::kMoreDataNeeded;
@@ -526,7 +526,7 @@ PerfDataTokenizer::ParseAuxtraceData() {
   std::optional<TraceBlobView> data =
       buffer_.SliceOff(buffer_.start_offset(), size);
   buffer_.PopFrontBytes(size);
-  PERFETTO_CHECK(data.has_value());
+  DEJAVIEW_CHECK(data.has_value());
   base::Status status = aux_manager_.OnAuxtraceRecord(
       std::move(*current_auxtrace_), std::move(*data));
   current_auxtrace_.reset();
@@ -550,4 +550,4 @@ base::Status PerfDataTokenizer::NotifyEndOfFile() {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

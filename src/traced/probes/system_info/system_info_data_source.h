@@ -19,11 +19,11 @@
 
 #include <memory>
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/traced/probes/common/cpu_freq_info.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class SystemInfoDataSource : public ProbesDataSource {
  public:
@@ -45,6 +45,6 @@ class SystemInfoDataSource : public ProbesDataSource {
   std::unique_ptr<CpuFreqInfo> cpu_freq_info_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_SYSTEM_INFO_SYSTEM_INFO_DATA_SOURCE_H_

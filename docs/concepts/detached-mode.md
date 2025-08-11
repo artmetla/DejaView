@@ -1,7 +1,7 @@
-# Running perfetto in detached mode
+# Running dejaview in detached mode
 
 This document describes the `--detach` and `--attach` advanced operating modes
-of the `perfetto` cmdline client.
+of the `dejaview` cmdline client.
 
 WARNING: The use of `--detach` and `--attach` is highly discouraged because of 
 the risk of leaking tracing sessions and accidentally leaving tracing on for 
@@ -14,8 +14,8 @@ use `--background`.
 ## Use case
 
 By default the tracing service `traced` keeps the lifetime of a tracing session
-attached to the lifetime of the `perfetto` cmdline client that started it.
-This means that a `killall perfetto` or `kill $PID_OF_PERFETTO` is sufficient
+attached to the lifetime of the `dejaview` cmdline client that started it.
+This means that a `killall dejaview` or `kill $PID_OF_DEJAVIEW` is sufficient
 to guarantee that the tracing session is stopped.  
 
 There are rare occasions when this is undesirable; for example, this mode of
@@ -26,7 +26,7 @@ possibly for very long periods of time. Because Traceur is not a persistent serv
 still low-memory-killed), it cannot just use `--background`; this is
 because the Android framework kills any other process in the same process group
 when tearing down an app/service, and this would including killing forked
-`perfetto` client obtained via `--background`.
+`dejaview` client obtained via `--background`.
 
 ## Operation
 
@@ -55,7 +55,7 @@ For security reasons the service allows a client to re-attach to a tracing
 session only if the Unix UID of the re-attaching client matches the UID of the
 client that originally started the session and detached.
 
-Overall `--attach=key` makes the `perfetto` cmdline client behave as if it was
+Overall `--attach=key` makes the `dejaview` cmdline client behave as if it was
 never detached. This means that:
 
 - sending a `SIGKILL` (or Ctrl-C) to the client will gracefully stop the tracing
@@ -103,13 +103,13 @@ data_sources {
     }
   }
 }
-' | perfetto -c - --txt --detach=session1 -o /data/misc/perfetto-traces/trace
+' | dejaview -c - --txt --detach=session1 -o /data/misc/dejaview-traces/trace
 
 sleep 60
 
-perfetto --attach=session1 --stop
+dejaview --attach=session1 --stop
 # At this point the trace file is fully flushed into
-# /data/misc/perfetto-traces/trace.
+# /data/misc/dejaview-traces/trace.
 ```
 
 ### Start in detached ring-buffer mode. Later stop and save the ring buffer
@@ -137,14 +137,14 @@ data_sources {
     }
   }
 }
-' | perfetto -c - --txt --detach=session2 -o /data/misc/perfetto-traces/trace
+' | dejaview -c - --txt --detach=session2 -o /data/misc/dejaview-traces/trace
 
 # Wait for user input, or some critical event to happen.
 
-perfetto --attach=session2 --stop
+dejaview --attach=session2 --stop
 
 # At this point the trace file is saved into
-# /data/misc/perfetto-traces/trace.
+# /data/misc/dejaview-traces/trace.
 ```
 
 ### Start tracing with a time limit. Later re-attach and wait for the end
@@ -166,9 +166,9 @@ data_sources {
     }
   }
 }
-' | perfetto -c - --txt --detach=session3 -o /data/misc/perfetto-traces/trace
+' | dejaview -c - --txt --detach=session3 -o /data/misc/dejaview-traces/trace
 
 sleep 3
-perfetto --attach=session3
+dejaview --attach=session3
 # The cmdline client will stay up for 7 more seconds and then terminate.
 ```

@@ -2,7 +2,7 @@
 
 """A tool to delete permalinks and traces behind them.
 
-To be used by the Perfetto team, who has write access to the GCS bucket.
+To be used by the DejaView team, who has write access to the GCS bucket.
 """
 
 import json
@@ -13,7 +13,7 @@ import sys
 
 from typing import List
 
-GCS_BUCKET = 'perfetto-ui-data'
+GCS_BUCKET = 'dejaview-ui-data'
 GCS_HTTP = 'https://storage.googleapis.com/%s/' % GCS_BUCKET
 
 

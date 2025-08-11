@@ -16,10 +16,10 @@
 
 SELECT RUN_METRIC('android/process_metadata.sql');
 
-INCLUDE PERFETTO MODULE android.memory.heap_graph.heap_graph_class_aggregation;
+INCLUDE DEJAVIEW MODULE android.memory.heap_graph.heap_graph_class_aggregation;
 
 DROP VIEW IF EXISTS java_heap_class_stats_output;
-CREATE PERFETTO VIEW java_heap_class_stats_output AS
+CREATE DEJAVIEW VIEW java_heap_class_stats_output AS
 WITH
 -- Group by to build the repeated field by upid, ts
 heap_class_stats_count_protos AS (

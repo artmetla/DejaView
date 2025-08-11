@@ -22,16 +22,16 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/sys_types.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/ipc/deferred.h"
-#include "perfetto/ext/ipc/host.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/sys_types.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/ipc/deferred.h"
+#include "dejaview/ext/ipc/host.h"
 #include "src/ipc/buffered_frame_deserializer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 constexpr uint32_t kDefaultIpcTxTimeoutMs = 10000;
@@ -114,11 +114,11 @@ class HostImpl : public Host, public base::UnixSocket::EventListener {
   ServiceID last_service_id_ = 0;
   ClientID last_client_id_ = 0;
   uint32_t socket_tx_timeout_ms_ = kDefaultIpcTxTimeoutMs;
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
   base::WeakPtrFactory<HostImpl> weak_ptr_factory_;  // Keep last.
 };
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_IPC_HOST_IMPL_H_

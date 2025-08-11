@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/export_json.h"
+#include "dejaview/ext/trace_processor/export_json.h"
 
 #include <algorithm>
 #include <cmath>
@@ -33,13 +33,13 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/export_json.h"
 #include "src/trace_processor/storage/metadata.h"
@@ -52,14 +52,14 @@
 #include "src/trace_processor/types/variadic.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 #include <json/config.h>
 #include <json/reader.h>
 #include <json/value.h>
 #include <json/writer.h>
 #endif
 
-namespace perfetto::trace_processor::json {
+namespace dejaview::trace_processor::json {
 
 namespace {
 
@@ -80,8 +80,8 @@ class FileWriter : public OutputWriter {
   FILE* file_;
 };
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
-using IndexMap = perfetto::trace_processor::TraceStorage::Stats::IndexMap;
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
+using IndexMap = dejaview::trace_processor::TraceStorage::Stats::IndexMap;
 
 const char kLegacyEventArgsKey[] = "legacy_event";
 const char kLegacyEventPassthroughUtidKey[] = "passthrough_utid";
@@ -419,7 +419,7 @@ class JsonExporter {
             WriteCommonEvent(event);
           }
         } else {
-          PERFETTO_DLOG(
+          DEJAVIEW_DLOG(
               "can't parse legacy user json trace export, skipping. data: %s",
               user_trace_data_.c_str());
         }
@@ -560,7 +560,7 @@ class JsonExporter {
           reader->parse(v.data(), v.data() + v.length(), &result, nullptr);
           return result;
       }
-      PERFETTO_FATAL("Not reached");  // For gcc.
+      DEJAVIEW_FATAL("Not reached");  // For gcc.
     }
 
     void AppendArg(ArgSetId set_id,
@@ -568,8 +568,8 @@ class JsonExporter {
                    const Json::Value& value) {
       Json::Value* target = &args_sets_[set_id];
       for (base::StringSplitter parts(key, '.'); parts.Next();) {
-        if (PERFETTO_UNLIKELY(!target->isNull() && !target->isObject())) {
-          PERFETTO_DLOG("Malformed arguments. Can't append %s to %s.",
+        if (DEJAVIEW_UNLIKELY(!target->isNull() && !target->isObject())) {
+          DEJAVIEW_DLOG("Malformed arguments. Can't append %s to %s.",
                         key.c_str(),
                         args_sets_[set_id].toStyledString().c_str());
           return;
@@ -587,15 +587,15 @@ class JsonExporter {
             std::string s =
                 key_part.substr(bracketpos + 1, key_part.find(']', bracketpos) -
                                                     bracketpos - 1);
-            if (PERFETTO_UNLIKELY(!target->isNull() && !target->isArray())) {
-              PERFETTO_DLOG("Malformed arguments. Can't append %s to %s.",
+            if (DEJAVIEW_UNLIKELY(!target->isNull() && !target->isArray())) {
+              DEJAVIEW_DLOG("Malformed arguments. Can't append %s to %s.",
                             key.c_str(),
                             args_sets_[set_id].toStyledString().c_str());
               return;
             }
             std::optional<uint32_t> index = base::StringToUInt32(s);
-            if (PERFETTO_UNLIKELY(!index)) {
-              PERFETTO_ELOG("Expected to be able to extract index from %s",
+            if (DEJAVIEW_UNLIKELY(!index)) {
+              DEJAVIEW_ELOG("Expected to be able to extract index from %s",
                             key_part.c_str());
               return;
             }
@@ -674,7 +674,7 @@ class JsonExporter {
       std::optional<UniquePid> upid = it.upid();
       if (upid) {
         auto exported_pid_it = upids_to_exported_pids_.find(*upid);
-        PERFETTO_DCHECK(exported_pid_it != upids_to_exported_pids_.end());
+        DEJAVIEW_DCHECK(exported_pid_it != upids_to_exported_pids_.end());
         exported_pid = exported_pid_it->second;
       }
 
@@ -900,8 +900,8 @@ class JsonExporter {
         auto pt_rr = process_track.FindById(track_id);
         if (legacy_chrome_track) {
           // Legacy async tracks are always process-associated and have args.
-          PERFETTO_DCHECK(pt_rr);
-          PERFETTO_DCHECK(track_args);
+          DEJAVIEW_DCHECK(pt_rr);
+          DEJAVIEW_DCHECK(track_args);
           UniquePid upid = pt_rr->upid();
           uint32_t exported_pid = UpidToPid(upid);
           event["pid"] = Json::Int(exported_pid);
@@ -911,9 +911,9 @@ class JsonExporter {
 
           // Preserve original event IDs for legacy tracks. This is so that e.g.
           // memory dump IDs show up correctly in the JSON trace.
-          PERFETTO_DCHECK(track_args->isMember("trace_id"));
-          PERFETTO_DCHECK(track_args->isMember("trace_id_is_process_scoped"));
-          PERFETTO_DCHECK(track_args->isMember("source_scope"));
+          DEJAVIEW_DCHECK(track_args->isMember("trace_id"));
+          DEJAVIEW_DCHECK(track_args->isMember("trace_id_is_process_scoped"));
+          DEJAVIEW_DCHECK(track_args->isMember("source_scope"));
           uint64_t trace_id =
               static_cast<uint64_t>((*track_args)["trace_id"].asInt64());
           std::string source_scope = (*track_args)["source_scope"].asString();
@@ -1002,11 +1002,11 @@ class JsonExporter {
         }
       } else {
         // Global or process-scoped instant event.
-        PERFETTO_DCHECK(legacy_chrome_track || !is_child_track);
+        DEJAVIEW_DCHECK(legacy_chrome_track || !is_child_track);
         if (duration_ns != 0) {
           // We don't support exporting slices on the default global or process
           // track to JSON (JSON only supports instant events on these tracks).
-          PERFETTO_DLOG(
+          DEJAVIEW_DLOG(
               "skipping non-instant slice on global or process track");
         } else {
           if (legacy_phase.empty()) {
@@ -1092,7 +1092,7 @@ class JsonExporter {
         args.removeMember("cat");
       } else {
         auto rr = slice_table.FindById(slice_out);
-        PERFETTO_DCHECK(rr.has_value());
+        DEJAVIEW_DCHECK(rr.has_value());
         cat = GetNonNullString(storage_, rr->category());
         name = GetNonNullString(storage_, rr->name());
       }
@@ -1126,13 +1126,13 @@ class JsonExporter {
     event["args"] = args_builder_.GetArgs(it.arg_set_id());
     const Json::Value& legacy_args = event["args"][kLegacyEventArgsKey];
 
-    PERFETTO_DCHECK(legacy_args.isMember(kLegacyEventCategoryKey));
+    DEJAVIEW_DCHECK(legacy_args.isMember(kLegacyEventCategoryKey));
     event["cat"] = legacy_args[kLegacyEventCategoryKey];
 
-    PERFETTO_DCHECK(legacy_args.isMember(kLegacyEventNameKey));
+    DEJAVIEW_DCHECK(legacy_args.isMember(kLegacyEventNameKey));
     event["name"] = legacy_args[kLegacyEventNameKey];
 
-    PERFETTO_DCHECK(legacy_args.isMember(kLegacyEventPhaseKey));
+    DEJAVIEW_DCHECK(legacy_args.isMember(kLegacyEventPhaseKey));
     event["ph"] = legacy_args[kLegacyEventPhaseKey];
 
     // Object snapshot events are supposed to have a mandatory "snapshot" arg,
@@ -1205,12 +1205,12 @@ class JsonExporter {
       } else if (raw_legacy_system_trace_event_id &&
                  it.name() == *raw_legacy_system_trace_event_id) {
         Json::Value args = args_builder_.GetArgs(it.arg_set_id());
-        PERFETTO_DCHECK(args.isMember("data"));
+        DEJAVIEW_DCHECK(args.isMember("data"));
         writer_.AddSystemTraceData(args["data"].asString());
       } else if (raw_legacy_user_trace_event_id &&
                  it.name() == *raw_legacy_user_trace_event_id) {
         Json::Value args = args_builder_.GetArgs(it.arg_set_id());
-        PERFETTO_DCHECK(args.isMember("data"));
+        DEJAVIEW_DCHECK(args.isMember("data"));
         writer_.AddUserTraceData(args["data"].asString());
       } else if (raw_chrome_metadata_event_id &&
                  it.name() == *raw_chrome_metadata_event_id) {
@@ -1317,10 +1317,10 @@ class JsonExporter {
         // order; if this assumption stops holding true, we'll have to sort the
         // samples first.
         if (ts < end_ts_ || begin_ts_ > ts) {
-          PERFETTO_ELOG(
+          DEJAVIEW_ELOG(
               "Got an timestamp out of sequence while merging stack samples "
               "during JSON export!\n");
-          PERFETTO_DCHECK(false);
+          DEJAVIEW_DCHECK(false);
         }
 
         end_ts_ = ts;
@@ -1510,7 +1510,7 @@ class JsonExporter {
           break;
 
         default:
-          PERFETTO_DLOG("Ignoring metadata key %zu", static_cast<size_t>(key));
+          DEJAVIEW_DLOG("Ignoring metadata key %zu", static_cast<size_t>(key));
           break;
       }
     }
@@ -1524,7 +1524,7 @@ class JsonExporter {
       if (stats::kTypes[idx] == stats::kSingle) {
         writer_.SetStats(stats::kNames[idx], stats[idx].value);
       } else {
-        PERFETTO_DCHECK(stats::kTypes[idx] == stats::kIndexed);
+        DEJAVIEW_DCHECK(stats::kTypes[idx] == stats::kIndexed);
         writer_.SetStats(stats::kNames[idx], stats[idx].indexed_values);
       }
     }
@@ -1721,13 +1721,13 @@ class JsonExporter {
 
   uint32_t UpidToPid(UniquePid upid) {
     auto pid_it = upids_to_exported_pids_.find(upid);
-    PERFETTO_DCHECK(pid_it != upids_to_exported_pids_.end());
+    DEJAVIEW_DCHECK(pid_it != upids_to_exported_pids_.end());
     return pid_it->second;
   }
 
   std::pair<uint32_t, uint32_t> UtidToPidAndTid(UniqueTid utid) {
     auto pid_and_tid_it = utids_to_exported_pids_and_tids_.find(utid);
-    PERFETTO_DCHECK(pid_and_tid_it != utids_to_exported_pids_and_tids_.end());
+    DEJAVIEW_DCHECK(pid_and_tid_it != utids_to_exported_pids_and_tids_.end());
     return pid_and_tid_it->second;
   }
 
@@ -1792,7 +1792,7 @@ class JsonExporter {
     const auto& counter_table = storage_->counter_table();
     auto begin = counter_table.ts().begin();
     auto end = counter_table.ts().end();
-    PERFETTO_DCHECK(counter_table.ts().IsSorted() &&
+    DEJAVIEW_DCHECK(counter_table.ts().IsSorted() &&
                     counter_table.ts().IsColumnType<int64_t>());
     // The timestamp column is sorted, so we can binary search for a matching
     // timestamp. Note that we don't use RowMap operations like FilterInto()
@@ -1830,7 +1830,7 @@ class JsonExporter {
       exported_pids_and_tids_to_utids_;
 };
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 
 }  // namespace
 
@@ -1842,18 +1842,18 @@ base::Status ExportJson(const TraceStorage* storage,
                         ArgumentFilterPredicate argument_filter,
                         MetadataFilterPredicate metadata_filter,
                         LabelFilterPredicate label_filter) {
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   JsonExporter exporter(storage, output, std::move(argument_filter),
                         std::move(metadata_filter), std::move(label_filter));
   return exporter.Export();
 #else
-  perfetto::base::ignore_result(storage);
-  perfetto::base::ignore_result(output);
-  perfetto::base::ignore_result(argument_filter);
-  perfetto::base::ignore_result(metadata_filter);
-  perfetto::base::ignore_result(label_filter);
+  dejaview::base::ignore_result(storage);
+  dejaview::base::ignore_result(output);
+  dejaview::base::ignore_result(argument_filter);
+  dejaview::base::ignore_result(metadata_filter);
+  dejaview::base::ignore_result(label_filter);
   return base::ErrStatus("JSON support is not compiled in this build");
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 }
 
 base::Status ExportJson(TraceProcessorStorage* tp,
@@ -1873,4 +1873,4 @@ base::Status ExportJson(const TraceStorage* storage, FILE* output) {
   return ExportJson(storage, &writer, nullptr, nullptr, nullptr);
 }
 
-}  // namespace perfetto::trace_processor::json
+}  // namespace dejaview::trace_processor::json

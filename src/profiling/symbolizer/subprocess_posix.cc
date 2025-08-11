@@ -16,16 +16,16 @@
 
 #include "src/profiling/symbolizer/subprocess.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 #include <signal.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 Subprocess::Subprocess(const std::string& file, std::vector<std::string> args)
@@ -39,14 +39,14 @@ Subprocess::Subprocess(const std::string& file, std::vector<std::string> args)
 
   if ((pid_ = fork()) == 0) {
     // Child
-    PERFETTO_CHECK(dup2(*input_pipe_.rd, STDIN_FILENO) != -1);
-    PERFETTO_CHECK(dup2(*output_pipe_.wr, STDOUT_FILENO) != -1);
+    DEJAVIEW_CHECK(dup2(*input_pipe_.rd, STDIN_FILENO) != -1);
+    DEJAVIEW_CHECK(dup2(*output_pipe_.wr, STDOUT_FILENO) != -1);
     input_pipe_.wr.reset();
     output_pipe_.rd.reset();
     if (execvp(file.c_str(), c_str_args.data()) == -1)
-      PERFETTO_FATAL("Failed to exec %s", file.c_str());
+      DEJAVIEW_FATAL("Failed to exec %s", file.c_str());
   }
-  PERFETTO_CHECK(pid_ != -1);
+  DEJAVIEW_CHECK(pid_ != -1);
   input_pipe_.rd.reset();
   output_pipe_.wr.reset();
 }
@@ -55,7 +55,7 @@ Subprocess::~Subprocess() {
   if (pid_ != -1) {
     kill(pid_, SIGKILL);
     int wstatus;
-    PERFETTO_EINTR(waitpid(pid_, &wstatus, 0));
+    DEJAVIEW_EINTR(waitpid(pid_, &wstatus, 0));
   }
 }
 
@@ -63,17 +63,17 @@ int64_t Subprocess::Write(const char* buffer, size_t size) {
   if (!input_pipe_.wr) {
     return -1;
   }
-  return PERFETTO_EINTR(write(input_pipe_.wr.get(), buffer, size));
+  return DEJAVIEW_EINTR(write(input_pipe_.wr.get(), buffer, size));
 }
 
 int64_t Subprocess::Read(char* buffer, size_t size) {
   if (!output_pipe_.rd) {
     return -1;
   }
-  return PERFETTO_EINTR(read(output_pipe_.rd.get(), buffer, size));
+  return DEJAVIEW_EINTR(read(output_pipe_.rd.get(), buffer, size));
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)

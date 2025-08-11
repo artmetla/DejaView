@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/flat_set.h"
+#include "dejaview/base/flat_set.h"
 
 #include <random>
 #include <set>
@@ -24,7 +24,7 @@
 using testing::ElementsAre;
 using testing::ElementsAreArray;
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -115,4 +115,4 @@ TEST(FlatSetTest, GoldenTest) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

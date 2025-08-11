@@ -27,14 +27,14 @@ fi
 # optimization to remove bubbles in the pipeline.
 tools/run_android_emulator --pid /tmp/emulator.pid -v &
 
-tools/gn gen ${OUT_PATH} --args="${PERFETTO_TEST_GN_ARGS}" --check
-tools/ninja -C ${OUT_PATH} ${PERFETTO_TEST_NINJA_ARGS}
+tools/gn gen ${OUT_PATH} --args="${DEJAVIEW_TEST_GN_ARGS}" --check
+tools/ninja -C ${OUT_PATH} ${DEJAVIEW_TEST_NINJA_ARGS}
 
 # run_android_test takes long time to push the test_data files. Do that only
 # once and avoid re-pushing for each type of test.
-tools/run_android_test -n ${OUT_PATH} perfetto_unittests
-tools/run_android_test -n -x ${OUT_PATH} perfetto_integrationtests
+tools/run_android_test -n ${OUT_PATH} dejaview_unittests
+tools/run_android_test -n -x ${OUT_PATH} dejaview_integrationtests
 tools/run_android_test -n -x --env BENCHMARK_FUNCTIONAL_TEST_ONLY=true \
-  ${OUT_PATH} perfetto_benchmarks
+  ${OUT_PATH} dejaview_benchmarks
 
 test -f /tmp/emulator.pid && kill -9 $(cat /tmp/emulator.pid); true

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../../gn/perfetto_cc_proto_descriptor.gni")
+import("../../../../gn/dejaview_cc_proto_descriptor.gni")
 
 source_set("minimal") {
   sources = [
@@ -73,23 +73,23 @@ source_set("minimal") {
   public_deps = [ ":proto_importer_module" ]
   deps = [
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/trace_processor:trace_processor",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/config:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/android:zero",
-    "../../../../protos/perfetto/trace/chrome:zero",
-    "../../../../protos/perfetto/trace/etw:zero",
-    "../../../../protos/perfetto/trace/ftrace:zero",
-    "../../../../protos/perfetto/trace/interned_data:zero",
-    "../../../../protos/perfetto/trace/perfetto:zero",
-    "../../../../protos/perfetto/trace/power:zero",
-    "../../../../protos/perfetto/trace/profiling:zero",
-    "../../../../protos/perfetto/trace/ps:zero",
-    "../../../../protos/perfetto/trace/sys_stats:zero",
-    "../../../../protos/perfetto/trace/system_info:zero",
-    "../../../../protos/perfetto/trace/track_event:zero",
-    "../../../../protos/perfetto/trace/translation:zero",
+    "../../../../include/dejaview/trace_processor:trace_processor",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/config:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/android:zero",
+    "../../../../protos/dejaview/trace/chrome:zero",
+    "../../../../protos/dejaview/trace/etw:zero",
+    "../../../../protos/dejaview/trace/ftrace:zero",
+    "../../../../protos/dejaview/trace/interned_data:zero",
+    "../../../../protos/dejaview/trace/dejaview:zero",
+    "../../../../protos/dejaview/trace/power:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
+    "../../../../protos/dejaview/trace/ps:zero",
+    "../../../../protos/dejaview/trace/sys_stats:zero",
+    "../../../../protos/dejaview/trace/system_info:zero",
+    "../../../../protos/dejaview/trace/track_event:zero",
+    "../../../../protos/dejaview/trace/translation:zero",
     "../../../base",
     "../../../protozero",
     "../../containers",
@@ -170,21 +170,21 @@ source_set("full") {
     ":minimal",
     ":packet_sequence_state_generation_hdr",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced:sys_stats_counters",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/config:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/android:zero",
-    "../../../../protos/perfetto/trace/chrome:zero",
-    "../../../../protos/perfetto/trace/gpu:zero",
-    "../../../../protos/perfetto/trace/interned_data:zero",
-    "../../../../protos/perfetto/trace/power:zero",
-    "../../../../protos/perfetto/trace/profiling:zero",
-    "../../../../protos/perfetto/trace/ps:zero",
-    "../../../../protos/perfetto/trace/statsd:zero",
-    "../../../../protos/perfetto/trace/sys_stats:zero",
-    "../../../../protos/perfetto/trace/system_info:zero",
-    "../../../../protos/perfetto/trace/translation:zero",
+    "../../../../include/dejaview/ext/traced:sys_stats_counters",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/config:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/android:zero",
+    "../../../../protos/dejaview/trace/chrome:zero",
+    "../../../../protos/dejaview/trace/gpu:zero",
+    "../../../../protos/dejaview/trace/interned_data:zero",
+    "../../../../protos/dejaview/trace/power:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
+    "../../../../protos/dejaview/trace/ps:zero",
+    "../../../../protos/dejaview/trace/statsd:zero",
+    "../../../../protos/dejaview/trace/sys_stats:zero",
+    "../../../../protos/dejaview/trace/system_info:zero",
+    "../../../../protos/dejaview/trace/translation:zero",
     "../../../base",
     "../../../protozero",
     "../../sorter",
@@ -213,7 +213,7 @@ source_set("proto_importer_module") {
   deps = [
     ":packet_sequence_state_generation_hdr",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/trace_processor:trace_processor",
+    "../../../../include/dejaview/trace_processor:trace_processor",
     "../../../base",
     "../../types",
     "../common:trace_parser_hdr",
@@ -227,43 +227,43 @@ source_set("packet_sequence_state_generation_hdr") {
   ]
   deps = [
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/base",
-    "../../../../protos/perfetto/trace:non_minimal_zero",
-    "../../../../protos/perfetto/trace/track_event:zero",
+    "../../../../include/dejaview/ext/base",
+    "../../../../protos/dejaview/trace:non_minimal_zero",
+    "../../../../protos/dejaview/trace/track_event:zero",
     "../../types:types",
     "../../util:interned_message_view",
   ]
 }
 
-perfetto_cc_proto_descriptor("gen_cc_statsd_atoms_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_statsd_atoms_descriptor") {
   descriptor_name = "atoms.descriptor"
   descriptor_path = "atoms.descriptor"
 }
 
-perfetto_cc_proto_descriptor("gen_cc_trace_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_trace_descriptor") {
   descriptor_name = "trace.descriptor"
-  descriptor_target = "../../../../protos/perfetto/trace:descriptor"
+  descriptor_target = "../../../../protos/dejaview/trace:descriptor"
 }
 
-perfetto_cc_proto_descriptor("gen_cc_track_event_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_track_event_descriptor") {
   descriptor_name = "track_event.descriptor"
-  descriptor_target = "../../../../protos/perfetto/trace/track_event:descriptor"
+  descriptor_target = "../../../../protos/dejaview/trace/track_event:descriptor"
 }
 
-perfetto_cc_proto_descriptor("gen_cc_chrome_track_event_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_chrome_track_event_descriptor") {
   descriptor_name = "chrome_track_event.descriptor"
   descriptor_target = "../../../../protos/third_party/chromium:descriptor"
 }
 
-perfetto_cc_proto_descriptor("gen_cc_android_track_event_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_android_track_event_descriptor") {
   descriptor_name = "android_track_event.descriptor"
   descriptor_target =
-      "../../../../protos/perfetto/trace/android:android_track_event_descriptor"
+      "../../../../protos/dejaview/trace/android:android_track_event_descriptor"
 }
 
-perfetto_cc_proto_descriptor("gen_cc_config_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_config_descriptor") {
   descriptor_name = "config.descriptor"
-  descriptor_target = "../../../../protos/perfetto/config:descriptor"
+  descriptor_target = "../../../../protos/dejaview/config:descriptor"
 }
 
 source_set("unittests") {
@@ -286,20 +286,20 @@ source_set("unittests") {
     ":packet_sequence_state_generation_hdr",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/common:cpp",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/config:zero",
-    "../../../../protos/perfetto/trace:non_minimal_cpp",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/android:zero",
-    "../../../../protos/perfetto/trace/chrome:zero",
-    "../../../../protos/perfetto/trace/ftrace:zero",
-    "../../../../protos/perfetto/trace/interned_data:zero",
-    "../../../../protos/perfetto/trace/profiling:cpp",
-    "../../../../protos/perfetto/trace/profiling:zero",
-    "../../../../protos/perfetto/trace/ps:zero",
-    "../../../../protos/perfetto/trace/sys_stats:zero",
-    "../../../../protos/perfetto/trace/track_event:zero",
+    "../../../../protos/dejaview/common:cpp",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/config:zero",
+    "../../../../protos/dejaview/trace:non_minimal_cpp",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/android:zero",
+    "../../../../protos/dejaview/trace/chrome:zero",
+    "../../../../protos/dejaview/trace/ftrace:zero",
+    "../../../../protos/dejaview/trace/interned_data:zero",
+    "../../../../protos/dejaview/trace/profiling:cpp",
+    "../../../../protos/dejaview/trace/profiling:zero",
+    "../../../../protos/dejaview/trace/ps:zero",
+    "../../../../protos/dejaview/trace/sys_stats:zero",
+    "../../../../protos/dejaview/trace/track_event:zero",
     "../../../protozero",
     "../../containers",
     "../../db/column",

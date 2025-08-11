@@ -25,9 +25,9 @@
 #include <unordered_set>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/storage_layer.h"
@@ -35,9 +35,9 @@
 #include "src/trace_processor/db/column/utils.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 
 template <typename Comparator>
@@ -59,7 +59,7 @@ SearchValidationResult IdStorage::ChainImpl::ValidateSearchConstraints(
     FilterOp op,
     SqlValue val) const {
   // NULL checks.
-  if (PERFETTO_UNLIKELY(val.is_null())) {
+  if (DEJAVIEW_UNLIKELY(val.is_null())) {
     if (op == FilterOp::kIsNotNull) {
       return SearchValidationResult::kAllData;
     }
@@ -78,7 +78,7 @@ SearchValidationResult IdStorage::ChainImpl::ValidateSearchConstraints(
       break;
     case FilterOp::kIsNull:
     case FilterOp::kIsNotNull:
-      PERFETTO_FATAL("Invalid constraint");
+      DEJAVIEW_FATAL("Invalid constraint");
     case FilterOp::kGlob:
     case FilterOp::kRegex:
       return SearchValidationResult::kNoData;
@@ -105,13 +105,13 @@ SearchValidationResult IdStorage::ChainImpl::ValidateSearchConstraints(
                        ? static_cast<double>(val.AsLong())
                        : val.AsDouble();
 
-  if (PERFETTO_UNLIKELY(num_val > std::numeric_limits<uint32_t>::max())) {
+  if (DEJAVIEW_UNLIKELY(num_val > std::numeric_limits<uint32_t>::max())) {
     if (op == FilterOp::kLe || op == FilterOp::kLt || op == FilterOp::kNe) {
       return SearchValidationResult::kAllData;
     }
     return SearchValidationResult::kNoData;
   }
-  if (PERFETTO_UNLIKELY(num_val < std::numeric_limits<uint32_t>::min())) {
+  if (DEJAVIEW_UNLIKELY(num_val < std::numeric_limits<uint32_t>::min())) {
     if (op == FilterOp::kGe || op == FilterOp::kGt || op == FilterOp::kNe) {
       return SearchValidationResult::kAllData;
     }
@@ -158,14 +158,14 @@ SingleSearchResult IdStorage::ChainImpl::SingleSearch(FilterOp op,
     case FilterOp::kRegex:
       return SingleSearchResult::kNoMatch;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 RangeOrBitVector IdStorage::ChainImpl::SearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Range search_range) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "IdStorage::ChainImpl::Search",
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "IdStorage::ChainImpl::Search",
                     [&search_range, op](metatrace::Record* r) {
                       r->AddArg("Start", std::to_string(search_range.start));
                       r->AddArg("End", std::to_string(search_range.end));
@@ -199,7 +199,7 @@ RangeOrBitVector IdStorage::ChainImpl::SearchValidated(
 void IdStorage::ChainImpl::IndexSearchValidated(FilterOp op,
                                                 SqlValue sql_val,
                                                 Indices& indices) const {
-  PERFETTO_TP_TRACE(
+  DEJAVIEW_TP_TRACE(
       metatrace::Category::DB, "IdStorage::ChainImpl::IndexSearch",
       [&indices, op](metatrace::Record* r) {
         r->AddArg("Count", std::to_string(indices.tokens.size()));
@@ -238,9 +238,9 @@ void IdStorage::ChainImpl::IndexSearchValidated(FilterOp op,
     case FilterOp::kIsNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Invalid filter operation");
+      DEJAVIEW_FATAL("Invalid filter operation");
   }
-  PERFETTO_FATAL("FilterOp not matched");
+  DEJAVIEW_FATAL("FilterOp not matched");
 }
 
 Range IdStorage::ChainImpl::BinarySearchIntrinsic(FilterOp op,
@@ -262,15 +262,15 @@ Range IdStorage::ChainImpl::BinarySearchIntrinsic(FilterOp op,
     case FilterOp::kIsNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Invalid filter operation");
+      DEJAVIEW_FATAL("Invalid filter operation");
   }
-  PERFETTO_FATAL("FilterOp not matched");
+  DEJAVIEW_FATAL("FilterOp not matched");
 }
 
 void IdStorage::ChainImpl::StableSort(Token* start,
                                       Token* end,
                                       SortDirection direction) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "IdStorage::ChainImpl::StableSort");
   switch (direction) {
     case SortDirection::kAscending:
@@ -284,11 +284,11 @@ void IdStorage::ChainImpl::StableSort(Token* start,
       });
       return;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void IdStorage::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "IdStorage::ChainImpl::Distinct");
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "IdStorage::ChainImpl::Distinct");
   std::unordered_set<uint32_t> s;
   indices.tokens.erase(
       std::remove_if(
@@ -298,7 +298,7 @@ void IdStorage::ChainImpl::Distinct(Indices& indices) const {
 }
 
 std::optional<Token> IdStorage::ChainImpl::MaxElement(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "IdStorage::ChainImpl::MaxElement");
   auto tok = std::max_element(
       indices.tokens.begin(), indices.tokens.end(),
@@ -308,7 +308,7 @@ std::optional<Token> IdStorage::ChainImpl::MaxElement(Indices& indices) const {
 }
 
 std::optional<Token> IdStorage::ChainImpl::MinElement(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "IdStorage::ChainImpl::MinElement");
   auto tok = std::min_element(
       indices.tokens.begin(), indices.tokens.end(),
@@ -323,4 +323,4 @@ SqlValue IdStorage::ChainImpl::Get_AvoidUsingBecauseSlow(uint32_t index) const {
   return SqlValue::Long(index);
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

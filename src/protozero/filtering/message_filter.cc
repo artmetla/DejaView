@@ -16,8 +16,8 @@
 
 #include "src/protozero/filtering/message_filter.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/protozero/filtering/string_filter.h"
 
 namespace protozero {
@@ -131,7 +131,7 @@ MessageFilter::FilteredMessage MessageFilter::FilterMessageFragments(
   }
 
   // Construct the output object.
-  PERFETTO_CHECK(out_ >= out_buf_.get() && out_ <= out_end_);
+  DEJAVIEW_CHECK(out_ >= out_buf_.get() && out_ <= out_end_);
   auto used_size = static_cast<size_t>(out_ - out_buf_.get());
   FilteredMessage res{std::move(out_buf_), used_size};
   res.error = error_;
@@ -143,7 +143,7 @@ MessageFilter::FilteredMessage MessageFilter::FilterMessageFragments(
 }
 
 void MessageFilter::FilterOneByte(uint8_t octet) {
-  PERFETTO_DCHECK(!stack_.empty());
+  DEJAVIEW_DCHECK(!stack_.empty());
 
   auto* state = &stack_.back();
   StackState next_state{};
@@ -199,7 +199,7 @@ void MessageFilter::FilterOneByte(uint8_t octet) {
           // matter because in both cases we just want to skip the next N bytes.
           const auto submessage_len = static_cast<uint32_t>(token.value);
           auto in_bytes_left = state->in_bytes_limit - state->in_bytes - 1;
-          if (PERFETTO_UNLIKELY(submessage_len > in_bytes_left)) {
+          if (DEJAVIEW_UNLIKELY(submessage_len > in_bytes_left)) {
             // This is a malicious / malformed string/bytes/submessage that
             // claims to be larger than the outer message that contains it.
             return SetUnrecoverableErrorState();
@@ -244,7 +244,7 @@ void MessageFilter::FilterOneByte(uint8_t octet) {
           break;
       }  // switch(type)
 
-      if (PERFETTO_UNLIKELY(track_field_usage_)) {
+      if (DEJAVIEW_UNLIKELY(track_field_usage_)) {
         IncrementCurrentFieldUsage(token.field_id, filter.allowed);
       }
     }  // if (token.valid)
@@ -252,13 +252,13 @@ void MessageFilter::FilterOneByte(uint8_t octet) {
 
   ++state->in_bytes;
   while (state->in_bytes >= state->in_bytes_limit) {
-    PERFETTO_DCHECK(state->in_bytes == state->in_bytes_limit);
+    DEJAVIEW_DCHECK(state->in_bytes == state->in_bytes_limit);
     push_next_state = false;
 
     // We can't possibly write more than we read.
     const uint32_t msg_bytes_written = static_cast<uint32_t>(
         out_written() - state->out_bytes_written_at_start);
-    PERFETTO_DCHECK(msg_bytes_written <= state->in_bytes_limit);
+    DEJAVIEW_DCHECK(msg_bytes_written <= state->in_bytes_limit);
 
     // Backfill the length field of the
     proto_utils::WriteRedundantVarInt(msg_bytes_written, state->size_field,
@@ -266,10 +266,10 @@ void MessageFilter::FilterOneByte(uint8_t octet) {
 
     const uint32_t in_bytes_processes_for_last_msg = state->in_bytes;
     stack_.pop_back();
-    PERFETTO_CHECK(!stack_.empty());
+    DEJAVIEW_CHECK(!stack_.empty());
     state = &stack_.back();
     state->in_bytes += in_bytes_processes_for_last_msg;
-    if (PERFETTO_UNLIKELY(!tokenizer_.idle())) {
+    if (DEJAVIEW_UNLIKELY(!tokenizer_.idle())) {
       // If we hit this case, it means that we got to the end of a submessage
       // while decoding a field. We can't recover from this and we don't want to
       // propagate a broken sub-message.
@@ -278,7 +278,7 @@ void MessageFilter::FilterOneByte(uint8_t octet) {
   }
 
   if (push_next_state) {
-    PERFETTO_DCHECK(tokenizer_.idle());
+    DEJAVIEW_DCHECK(tokenizer_.idle());
     stack_.emplace_back(std::move(next_state));
     state = &stack_.back();
   }
@@ -299,7 +299,7 @@ void MessageFilter::IncrementCurrentFieldUsage(uint32_t field_id,
                                                bool allowed) {
   // Slowpath. Used mainly in offline tools and tests to workout used fields in
   // a proto.
-  PERFETTO_DCHECK(track_field_usage_);
+  DEJAVIEW_DCHECK(track_field_usage_);
 
   // Field path contains a concatenation of varints, one for each nesting level.
   // e.g. y in message Root { Sub x = 2; }; message Sub { SubSub y = 7; }
@@ -318,7 +318,7 @@ void MessageFilter::IncrementCurrentFieldUsage(uint32_t field_id,
   // Append all the ancestors IDs from the state stack.
   // The first entry of the stack has always ID 0 and we skip it (we don't know
   // the ID of the root message itself).
-  PERFETTO_DCHECK(stack_.size() >= 2 && stack_[1].field_id == 0);
+  DEJAVIEW_DCHECK(stack_.size() >= 2 && stack_[1].field_id == 0);
   for (size_t i = 2; i < stack_.size(); ++i)
     append_field_id(stack_[i].field_id);
   // Append the id of the field in the current message.

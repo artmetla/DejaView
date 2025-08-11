@@ -21,7 +21,7 @@
 
 #include "src/base/test/test_task_runner.h"
 
-namespace perfetto {
+namespace dejaview {
 
 bool IsDebuggableBuild();
 bool IsUserBuild();
@@ -48,6 +48,6 @@ void StopApp(const std::string& app_name,
 
 void StopApp(const std::string& app_name);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // TEST_ANDROID_TEST_UTILS_H_

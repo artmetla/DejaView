@@ -18,16 +18,16 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_GRAPHICS_EVENT_MODULE_H_
 
 #include <cstdint>
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/frame_timeline_event_parser.h"
 #include "src/trace_processor/importers/proto/gpu_event_parser.h"
 #include "src/trace_processor/importers/proto/graphics_frame_event_parser.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class GraphicsEventModule : public ProtoImporterModule {
@@ -48,6 +48,6 @@ class GraphicsEventModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_GRAPHICS_EVENT_MODULE_H_

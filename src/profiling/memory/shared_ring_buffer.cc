@@ -26,17 +26,17 @@
 #include <cinttypes>
 #include <type_traits>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "src/profiling/memory/scoped_spinlock.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <linux/memfd.h>
 #include <sys/syscall.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -44,7 +44,7 @@ namespace {
 constexpr auto kAlignment = 8;  // 64 bits to use aligned memcpy().
 constexpr auto kHeaderSize = kAlignment;
 constexpr auto kGuardSize = 1024 * 1024 * 64;  // 64 MB.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 constexpr auto kFDSeals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_SEAL;
 #endif
 
@@ -57,20 +57,20 @@ size_t meta_page_size() {
 SharedRingBuffer::SharedRingBuffer(CreateFlag, size_t size) {
   size_t size_with_meta = size + meta_page_size();
   base::ScopedFile fd;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   bool is_memfd = false;
   fd.reset(static_cast<int>(syscall(__NR_memfd_create, "heapprofd_ringbuf",
                                     MFD_CLOEXEC | MFD_ALLOW_SEALING)));
   is_memfd = !!fd;
 
   if (!fd) {
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
     // In-tree builds only allow mem_fd, so we can inspect the seals to verify
     // the fd is appropriately sealed.
-    PERFETTO_ELOG("memfd_create() failed");
+    DEJAVIEW_ELOG("memfd_create() failed");
     return;
 #else
-    PERFETTO_DPLOG("memfd_create() failed");
+    DEJAVIEW_DPLOG("memfd_create() failed");
 #endif
   }
 #endif
@@ -78,14 +78,14 @@ SharedRingBuffer::SharedRingBuffer(CreateFlag, size_t size) {
   if (!fd)
     fd = base::TempFile::CreateUnlinked().ReleaseFD();
 
-  PERFETTO_CHECK(fd);
+  DEJAVIEW_CHECK(fd);
   int res = ftruncate(fd.get(), static_cast<off_t>(size_with_meta));
-  PERFETTO_CHECK(res == 0);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+  DEJAVIEW_CHECK(res == 0);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   if (is_memfd) {
     res = fcntl(*fd, F_ADD_SEALS, kFDSeals);
     if (res != 0) {
-      PERFETTO_PLOG("Failed to seal FD.");
+      DEJAVIEW_PLOG("Failed to seal FD.");
       return;
     }
   }
@@ -123,14 +123,14 @@ SharedRingBuffer::~SharedRingBuffer() {
 }
 
 void SharedRingBuffer::Initialize(base::ScopedFile mem_fd) {
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   int seals = fcntl(*mem_fd, F_GET_SEALS);
   if (seals == -1) {
-    PERFETTO_PLOG("Failed to get seals of FD.");
+    DEJAVIEW_PLOG("Failed to get seals of FD.");
     return;
   }
   if ((seals & kFDSeals) != kFDSeals) {
-    PERFETTO_ELOG("FD not properly sealed. Expected %x, got %x", kFDSeals,
+    DEJAVIEW_ELOG("FD not properly sealed. Expected %x, got %x", kFDSeals,
                   seals);
     return;
   }
@@ -139,7 +139,7 @@ void SharedRingBuffer::Initialize(base::ScopedFile mem_fd) {
   struct stat stat_buf = {};
   int res = fstat(*mem_fd, &stat_buf);
   if (res != 0 || stat_buf.st_size == 0) {
-    PERFETTO_PLOG("Could not attach to fd.");
+    DEJAVIEW_PLOG("Could not attach to fd.");
     return;
   }
   auto size_with_meta = static_cast<size_t>(stat_buf.st_size);
@@ -149,7 +149,7 @@ void SharedRingBuffer::Initialize(base::ScopedFile mem_fd) {
   // metadata).
   if (size_with_meta < 2 * base::GetSysPageSize() ||
       size % base::GetSysPageSize() || (size & (size - 1))) {
-    PERFETTO_ELOG("SharedRingBuffer size is invalid (%zu)", size_with_meta);
+    DEJAVIEW_ELOG("SharedRingBuffer size is invalid (%zu)", size_with_meta);
     return;
   }
 
@@ -159,7 +159,7 @@ void SharedRingBuffer::Initialize(base::ScopedFile mem_fd) {
   uint8_t* region = reinterpret_cast<uint8_t*>(
       mmap(nullptr, outer_size, PROT_NONE, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0));
   if (region == MAP_FAILED) {
-    PERFETTO_PLOG("mmap(PROT_NONE) failed");
+    DEJAVIEW_PLOG("mmap(PROT_NONE) failed");
     return;
   }
 
@@ -174,7 +174,7 @@ void SharedRingBuffer::Initialize(base::ScopedFile mem_fd) {
                     /*offset=*/static_cast<ssize_t>(meta_page_size()));
 
   if (reg1 != region || reg2 != region + size_with_meta) {
-    PERFETTO_PLOG("mmap(MAP_SHARED) failed");
+    DEJAVIEW_PLOG("mmap(MAP_SHARED) failed");
     munmap(region, outer_size);
     return;
   }
@@ -187,7 +187,7 @@ void SharedRingBuffer::Initialize(base::ScopedFile mem_fd) {
 SharedRingBuffer::Buffer SharedRingBuffer::BeginWrite(
     const ScopedSpinlock& spinlock,
     size_t size) {
-  PERFETTO_DCHECK(spinlock.locked());
+  DEJAVIEW_DCHECK(spinlock.locked());
   Buffer result;
 
   std::optional<PointerPositions> opt_pos = GetPointerPositions();
@@ -202,7 +202,7 @@ SharedRingBuffer::Buffer SharedRingBuffer::BeginWrite(
       base::AlignUp<kAlignment>(size + kHeaderSize);
 
   // size_with_header < size is for catching overflow of size_with_header.
-  if (PERFETTO_UNLIKELY(size_with_header < size)) {
+  if (DEJAVIEW_UNLIKELY(size_with_header < size)) {
     errno = EINVAL;
     return result;
   }
@@ -237,7 +237,7 @@ void SharedRingBuffer::EndWrite(Buffer buf) {
   if (!buf)
     return;
   uint8_t* wr_ptr = buf.data - kHeaderSize;
-  PERFETTO_DCHECK(reinterpret_cast<uintptr_t>(wr_ptr) % kAlignment == 0);
+  DEJAVIEW_DCHECK(reinterpret_cast<uintptr_t>(wr_ptr) % kAlignment == 0);
 
   // This needs to release to make sure the reader sees the payload written
   // between the BeginWrite and EndWrite calls.
@@ -266,7 +266,7 @@ SharedRingBuffer::Buffer SharedRingBuffer::BeginRead() {
   }
 
   uint8_t* rd_ptr = at(pos.read_pos);
-  PERFETTO_DCHECK(reinterpret_cast<uintptr_t>(rd_ptr) % kAlignment == 0);
+  DEJAVIEW_DCHECK(reinterpret_cast<uintptr_t>(rd_ptr) % kAlignment == 0);
   const size_t size = reinterpret_cast<std::atomic<uint32_t>*>(rd_ptr)->load(
       std::memory_order_acquire);
   if (size == 0) {
@@ -277,7 +277,7 @@ SharedRingBuffer::Buffer SharedRingBuffer::BeginRead() {
   const size_t size_with_header = base::AlignUp<kAlignment>(size + kHeaderSize);
 
   if (size_with_header > avail_read) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Corrupted header detected, size=%zu"
         ", read_avail=%zu, rd=%" PRIu64 ", wr=%" PRIu64,
         size, avail_read, pos.read_pos, pos.write_pos);
@@ -287,7 +287,7 @@ SharedRingBuffer::Buffer SharedRingBuffer::BeginRead() {
   }
 
   rd_ptr += kHeaderSize;
-  PERFETTO_DCHECK(reinterpret_cast<uintptr_t>(rd_ptr) % kAlignment == 0);
+  DEJAVIEW_DCHECK(reinterpret_cast<uintptr_t>(rd_ptr) % kAlignment == 0);
   return Buffer(rd_ptr, size, write_avail(pos));
 }
 
@@ -303,7 +303,7 @@ size_t SharedRingBuffer::EndRead(Buffer buf) {
 bool SharedRingBuffer::IsCorrupt(const PointerPositions& pos) {
   if (pos.write_pos < pos.read_pos || pos.write_pos - pos.read_pos > size_ ||
       pos.write_pos % kAlignment || pos.read_pos % kAlignment) {
-    PERFETTO_ELOG("Ring buffer corrupted, rd=%" PRIu64 ", wr=%" PRIu64
+    DEJAVIEW_ELOG("Ring buffer corrupted, rd=%" PRIu64 ", wr=%" PRIu64
                   ", size=%zu",
                   pos.read_pos, pos.write_pos, size_);
     return true;
@@ -343,4 +343,4 @@ std::optional<SharedRingBuffer> SharedRingBuffer::Attach(
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

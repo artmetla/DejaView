@@ -19,7 +19,7 @@
 
 #include "src/tools/proto_merger/proto_file.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 
 // Serializes a ProtoFile struct into a .proto file which is
@@ -54,6 +54,6 @@ namespace proto_merger {
 std::string ProtoFileToDotProto(const ProtoFile&);
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TOOLS_PROTO_MERGER_PROTO_FILE_SERIALIZER_H_

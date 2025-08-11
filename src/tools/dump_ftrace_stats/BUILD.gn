@@ -16,7 +16,7 @@ executable("dump_ftrace_stats") {
   testonly = true
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/base",
+    "../../../include/dejaview/base",
     "../../base",
   ]
   sources = [ "main.cc" ]

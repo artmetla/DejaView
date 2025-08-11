@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/trace_processor_storage.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/trace_processor_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 void FuzzTraceProcessor(const uint8_t* data, size_t size);
@@ -36,11 +36,11 @@ void FuzzTraceProcessor(const uint8_t* data, size_t size) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  perfetto::trace_processor::FuzzTraceProcessor(data, size);
+  dejaview::trace_processor::FuzzTraceProcessor(data, size);
   return 0;
 }

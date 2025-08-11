@@ -16,9 +16,9 @@
 
 #include "src/traced/probes/ftrace/event_info_constants.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 using protozero::proto_utils::ProtoSchemaType;
 
 namespace {
@@ -111,11 +111,11 @@ bool SetTranslationStrategy(FtraceFieldType ftrace,
   } else if (ftrace == kFtraceSymAddr64 && proto == ProtoSchemaType::kUint64) {
     *out = kFtraceSymAddr64ToUint64;
   } else {
-    PERFETTO_DLOG("No translation strategy for '%s' -> '%s'", ToString(ftrace),
+    DEJAVIEW_DLOG("No translation strategy for '%s' -> '%s'", ToString(ftrace),
                   ProtoSchemaToString(proto));
     return false;
   }
   return true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

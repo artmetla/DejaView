@@ -29,7 +29,7 @@ source_set("full") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [ "syscall_tracker_unittest.cc" ]
   deps = [

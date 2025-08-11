@@ -25,14 +25,14 @@
 #include <unordered_map>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
+#include "dejaview/base/status.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
 
 namespace protozero {
 struct ConstBytes;
 }
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class FieldDescriptor {
@@ -85,20 +85,20 @@ class ProtoDescriptor {
                   std::optional<uint32_t> parent_id);
 
   void AddField(FieldDescriptor descriptor) {
-    PERFETTO_DCHECK(type_ == Type::kMessage);
+    DEJAVIEW_DCHECK(type_ == Type::kMessage);
     fields_.emplace(descriptor.number(), std::move(descriptor));
   }
 
   void AddEnumValue(int32_t integer_representation,
                     std::string string_representation) {
-    PERFETTO_DCHECK(type_ == Type::kEnum);
+    DEJAVIEW_DCHECK(type_ == Type::kEnum);
     enum_values_by_name_[string_representation] = integer_representation;
     enum_names_by_value_[integer_representation] =
         std::move(string_representation);
   }
 
   const FieldDescriptor* FindFieldByName(const std::string& name) const {
-    PERFETTO_DCHECK(type_ == Type::kMessage);
+    DEJAVIEW_DCHECK(type_ == Type::kMessage);
     auto it = std::find_if(
         fields_.begin(), fields_.end(),
         [name](const std::pair<const uint32_t, FieldDescriptor>& p) {
@@ -111,7 +111,7 @@ class ProtoDescriptor {
   }
 
   const FieldDescriptor* FindFieldByTag(const uint32_t tag_number) const {
-    PERFETTO_DCHECK(type_ == Type::kMessage);
+    DEJAVIEW_DCHECK(type_ == Type::kMessage);
     auto it = fields_.find(tag_number);
     if (it == fields_.end()) {
       return nullptr;
@@ -120,14 +120,14 @@ class ProtoDescriptor {
   }
 
   std::optional<std::string> FindEnumString(const int32_t value) const {
-    PERFETTO_DCHECK(type_ == Type::kEnum);
+    DEJAVIEW_DCHECK(type_ == Type::kEnum);
     auto it = enum_names_by_value_.find(value);
     return it == enum_names_by_value_.end() ? std::nullopt
                                             : std::make_optional(it->second);
   }
 
   std::optional<int32_t> FindEnumValue(const std::string& value) const {
-    PERFETTO_DCHECK(type_ == Type::kEnum);
+    DEJAVIEW_DCHECK(type_ == Type::kEnum);
     auto it = enum_values_by_name_.find(value);
     return it == enum_values_by_name_.end() ? std::nullopt
                                             : std::make_optional(it->second);
@@ -219,6 +219,6 @@ class DescriptorPool {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_DESCRIPTORS_H_

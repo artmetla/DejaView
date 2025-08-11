@@ -21,9 +21,9 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class CpuFreqInfo {
  public:
@@ -52,6 +52,6 @@ class CpuFreqInfo {
   std::string ReadFile(std::string path);
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_COMMON_CPU_FREQ_INFO_H_

@@ -16,12 +16,12 @@
 
 #include "src/trace_redaction/collect_system_info.h"
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status CollectSystemInfo::Begin(Context* context) const {
   // Other primitives are allows to push more data into the system info (e.g.
@@ -38,7 +38,7 @@ base::Status CollectSystemInfo::Collect(
     Context* context) const {
   auto* system_info = &context->system_info.value();
 
-  PERFETTO_DCHECK(system_info);  // See Begin()
+  DEJAVIEW_DCHECK(system_info);  // See Begin()
 
   if (packet.has_ftrace_events()) {
     return OnFtraceEvents(packet.ftrace_events(), context);
@@ -90,4 +90,4 @@ base::Status BuildSyntheticThreads::Build(Context* context) const {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

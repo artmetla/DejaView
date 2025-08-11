@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 import("../../../gn/test.gni")
 
 source_set("unwind_support") {
@@ -53,10 +53,10 @@ source_set("interning_output") {
     ":callstack_trie",
     ":interner",
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/tracing/core",
-    "../../../protos/perfetto/trace:zero",
-    "../../../protos/perfetto/trace/interned_data:zero",
-    "../../../protos/perfetto/trace/profiling:zero",
+    "../../../include/dejaview/ext/tracing/core",
+    "../../../protos/dejaview/trace:zero",
+    "../../../protos/dejaview/trace/interned_data:zero",
+    "../../../protos/dejaview/trace/profiling:zero",
   ]
   sources = [
     "interning_output.cc",
@@ -104,7 +104,7 @@ source_set("profiler_guardrails") {
   deps = [
     ":proc_utils",
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/tracing/core",
+    "../../../include/dejaview/ext/tracing/core",
     "../../base",
   ]
   sources = [
@@ -113,7 +113,7 @@ source_set("profiler_guardrails") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":interner",

@@ -19,9 +19,9 @@
 
 #include <sqlite3.h>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto::trace_processor::sqlite {
+namespace dejaview::trace_processor::sqlite {
 
 // Prototype for a virtual table (vtab) module which can be registered with
 // SQLite.
@@ -213,7 +213,7 @@ struct Module {
     } else {
       module.xCreate = nullptr;
       module.xDestroy = [](sqlite3_vtab*) -> int {
-        PERFETTO_FATAL("Should not be reachable");
+        DEJAVIEW_FATAL("Should not be reachable");
       };
       module.xConnect = &Impl::Connect;
       module.xDisconnect = &Impl::Disconnect;
@@ -228,6 +228,6 @@ struct Module {
   }
 };
 
-}  // namespace perfetto::trace_processor::sqlite
+}  // namespace dejaview::trace_processor::sqlite
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_MODULE_H_

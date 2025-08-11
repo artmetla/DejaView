@@ -1,6 +1,6 @@
 # Track events (Tracing SDK)
 
-Track events are part of the [Perfetto Tracing SDK](tracing-sdk.md).
+Track events are part of the [DejaView Tracing SDK](tracing-sdk.md).
 
 *Track events* are application specific, time bounded events recorded into a
 *trace* while the application is running. Track events are always associated
@@ -8,8 +8,8 @@ with a *track*, which is a timeline of monotonically increasing time. A track
 corresponds to an independent sequence of execution, such as a single thread
 in a process.
 
-![Track events shown in the Perfetto UI](
-  /docs/images/track-events.png "Track events in the Perfetto UI")
+![Track events shown in the DejaView UI](
+  /docs/images/track-events.png "Track events in the DejaView UI")
 
 See the [Getting started](/docs/instrumentation/tracing-sdk#getting-started)
 section of the Tracing SDK page for instructions on how to check out and
@@ -34,7 +34,7 @@ There are a few main types of track events:
     the network and then decoded on a thread pool, a flow event can be used to
     highlight its path through the system.
 
-The [Perfetto UI](https://ui.perfetto.dev) has built in support for track
+The [DejaView UI](https://ui.perfetto.dev) has built in support for track
 events, which provides a useful way to quickly visualize the internal
 processing of an app. For example, the [Chrome
 browser](https://www.chromium.org/developers/how-tos/trace-event-profiling-tool)
@@ -49,12 +49,12 @@ Add the list of categories into a header file (e.g.,
 `my_app_tracing_categories.h`) like this:
 
 ```C++
-#include <perfetto.h>
+#include <dejaview.h>
 
-PERFETTO_DEFINE_CATEGORIES(
-    perfetto::Category("rendering")
+DEJAVIEW_DEFINE_CATEGORIES(
+    dejaview::Category("rendering")
         .SetDescription("Events from the graphics subsystem"),
-    perfetto::Category("network")
+    dejaview::Category("network")
         .SetDescription("Network upload and download statistics"));
 ```
 
@@ -64,7 +64,7 @@ Then, declare static storage for the categories in a cc file (e.g.,
 ```C++
 #include "my_app_tracing_categories.h"
 
-PERFETTO_TRACK_EVENT_STATIC_STORAGE();
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE();
 ```
 
 Finally, initialize track events after the client library is brought up:
@@ -72,8 +72,8 @@ Finally, initialize track events after the client library is brought up:
 ```C++
 int main(int argc, char** argv) {
   ...
-  perfetto::Tracing::Initialize(args);
-  perfetto::TrackEvent::Register();  // Add this.
+  dejaview::Tracing::Initialize(args);
+  dejaview::TrackEvent::Register();  // Add this.
 }
 ```
 
@@ -128,16 +128,16 @@ TRACE_EVENT("rendering", "DrawPlayer", "player_number", player_number);
 
 See [below](#track-event-arguments) for the other types of supported track
 event arguments. For more complex arguments, you can define [your own
-protobuf messages](/protos/perfetto/trace/track_event/track_event.proto) and
+protobuf messages](/protos/dejaview/trace/track_event/track_event.proto) and
 emit them as a parameter for the event.
 
 NOTE: Currently custom protobuf messages need to be added directly to the
-      Perfetto repository under `protos/perfetto/trace`, and Perfetto itself
+      DejaView repository under `protos/dejaview/trace`, and DejaView itself
       must also be rebuilt. We are working
       [to lift this limitation](https://github.com/google/perfetto/issues/11).
 
 As an example of a custom track event argument type, save the following as
-`protos/perfetto/trace/track_event/player_info.proto`:
+`protos/dejaview/trace/track_event/player_info.proto`:
 
 ```protobuf
 message PlayerInfo {
@@ -147,7 +147,7 @@ message PlayerInfo {
 ```
 
 This new file should also be added to
-`protos/perfetto/trace/track_event/BUILD.gn`:
+`protos/dejaview/trace/track_event/BUILD.gn`:
 
 ```json
 sources = [
@@ -158,10 +158,10 @@ sources = [
 
 Also, a matching argument should be added to the track event message
 definition in
-`protos/perfetto/trace/track_event/track_event.proto`:
+`protos/dejaview/trace/track_event/track_event.proto`:
 
 ```protobuf
-import "protos/perfetto/trace/track_event/player_info.proto";
+import "protos/dejaview/trace/track_event/player_info.proto";
 
 ...
 
@@ -176,7 +176,7 @@ The corresponding trace point could look like this:
 
 ```C++
 Player my_player;
-TRACE_EVENT("category", "MyEvent", [&](perfetto::EventContext ctx) {
+TRACE_EVENT("category", "MyEvent", [&](dejaview::EventContext ctx) {
   auto player = ctx.event()->set_player_info();
   player->set_name(my_player.name());
   player->set_player_score(my_player.score());
@@ -209,7 +209,7 @@ tracing. *Debug* and *slow* categories are categories with special tags:
 Category tags can be defined like this:
 
 ```C++
-perfetto::Category("rendering.debug")
+dejaview::Category("rendering.debug")
     .SetDescription("Debug events from the graphics subsystem")
     .SetTags("debug", "my_custom_tag")
 ```
@@ -224,7 +224,7 @@ TRACE_EVENT("rendering,benchmark", ...);
 A corresponding category group entry must be added to the category registry:
 
 ```C++
-perfetto::Category::Group("rendering,benchmark")
+dejaview::Category::Group("rendering,benchmark")
 ```
 
 It's also possible to efficiently query whether a given category is enabled
@@ -236,7 +236,7 @@ if (TRACE_EVENT_CATEGORY_ENABLED("rendering")) {
 }
 ```
 
-The `TrackEventConfig` field in Perfetto's `TraceConfig` can be used to
+The `TrackEventConfig` field in DejaView's `TraceConfig` can be used to
 select which categories are enabled for tracing:
 
 ```protobuf
@@ -289,7 +289,7 @@ running in a WebView or in a NodeJS engine). These can be used by trace points
 as follows:
 
 ```C++
-perfetto::DynamicCategory dynamic_category{"nodejs.something"};
+dejaview::DynamicCategory dynamic_category{"nodejs.something"};
 TRACE_EVENT_BEGIN(dynamic_category, "SomeEvent", ...);
 ```
 
@@ -301,7 +301,7 @@ it into a production binary. These types of categories can be defined with a
 list of prefix strings:
 
 ```C++
-PERFETTO_DEFINE_TEST_CATEGORY_PREFIXES(
+DEJAVIEW_DEFINE_TEST_CATEGORY_PREFIXES(
    "test",      // Applies to test.*
    "dontship"   // Applies to dontship.*.
 );
@@ -326,35 +326,35 @@ TRACE_EVENT_BEGIN("rendering", name);  // Error. Event name is not static.
 There are two ways to use dynamic event name:
 
 1) If the event name is actually dynamic (e.g., std::string), write it using
-   `perfetto::DynamicString`:
+   `dejaview::DynamicString`:
 
 ```C++
-  TRACE_EVENT("category", perfetto::DynamicString{dynamic_name});
+  TRACE_EVENT("category", dejaview::DynamicString{dynamic_name});
 ```
 
 Note: Below is the old way of using dynamic event names. It's not recommended
       anymore.
 
 ```C++
-TRACE_EVENT("category", nullptr, [&](perfetto::EventContext ctx) {
+TRACE_EVENT("category", nullptr, [&](dejaview::EventContext ctx) {
   ctx.event()->set_name(dynamic_name);
 });
 ```
 
 2) If the name is static, but the pointer is computed at runtime, wrap it
-   with perfetto::StaticString:
+   with dejaview::StaticString:
 
 ```C++
-TRACE_EVENT("category", perfetto::StaticString{name});
-TRACE_EVENT("category", perfetto::StaticString{i % 2 == 0 ? "A" : "B"});
+TRACE_EVENT("category", dejaview::StaticString{name});
+TRACE_EVENT("category", dejaview::StaticString{i % 2 == 0 ? "A" : "B"});
 ```
 
-DANGER: Using perfetto::StaticString with strings whose contents change
+DANGER: Using dejaview::StaticString with strings whose contents change
         dynamically can cause silent trace data corruption.
 
 ## Performance
 
-Perfetto's trace points are designed to have minimal overhead when tracing is
+DejaView's trace points are designed to have minimal overhead when tracing is
 disabled while providing high throughput for data intensive tracing use
 cases. While exact timings will depend on your system, there is a
 [microbenchmark](/src/tracing/api_benchmark.cc) which gives some ballpark
@@ -387,7 +387,7 @@ Some examples of valid combinations:
 1. A lambda for writing custom TrackEvent fields:
 
    ```C++
-     TRACE_EVENT("category", "Name", [&](perfetto::EventContext ctx) {
+     TRACE_EVENT("category", "Name", [&](dejaview::EventContext ctx) {
        ctx.event()->set_custom_value(...);
      });
    ```
@@ -396,14 +396,14 @@ Some examples of valid combinations:
 
    ```C++
      TRACE_EVENT("category", "Name", time_in_nanoseconds,
-         [&](perfetto::EventContext ctx) {
+         [&](dejaview::EventContext ctx) {
        ctx.event()->set_custom_value(...);
      });
    ```
 
    |time_in_nanoseconds| should be an uint64_t by default. To support custom
    timestamp types,
-   |perfetto::TraceTimestampTraits<MyTimestamp>::ConvertTimestampToTraceTimeNs|
+   |dejaview::TraceTimestampTraits<MyTimestamp>::ConvertTimestampToTraceTimeNs|
    should be defined. See |ConvertTimestampToTraceTimeNs| for more details.
 
 3. Arbitrary number of debug annotations:
@@ -421,14 +421,14 @@ Some examples of valid combinations:
 
   ```C++
     TRACE_EVENT("category", "Name",
-                perfetto::protos::pbzero::TrackEvent::kFieldName, value);
+                dejaview::protos::pbzero::TrackEvent::kFieldName, value);
   ```
 
 5. Arbitrary combination of debug annotations and TrackEvent fields:
 
   ```C++
     TRACE_EVENT("category", "Name",
-                perfetto::protos::pbzero::TrackEvent::kFieldName, value1,
+                dejaview::protos::pbzero::TrackEvent::kFieldName, value1,
                 "arg", value2);
   ```
 
@@ -437,7 +437,7 @@ Some examples of valid combinations:
    ```C++
      TRACE_EVENT("category", "Name", "arg", value1,
                  pbzero::TrackEvent::kFieldName, value2,
-                 [&](perfetto::EventContext ctx) {
+                 [&](dejaview::EventContext ctx) {
                      ctx.event()->set_custom_value(...);
                  });
    ```
@@ -445,7 +445,7 @@ Some examples of valid combinations:
 7. An overridden track:
 
    ```C++
-     TRACE_EVENT("category", "Name", perfetto::Track(1234));
+     TRACE_EVENT("category", "Name", dejaview::Track(1234));
    ```
 
    See |Track| for other types of tracks which may be used.
@@ -453,8 +453,8 @@ Some examples of valid combinations:
 8. A track and a lambda:
 
    ```C++
-     TRACE_EVENT("category", "Name", perfetto::Track(1234),
-                 [&](perfetto::EventContext ctx) {
+     TRACE_EVENT("category", "Name", dejaview::Track(1234),
+                 [&](dejaview::EventContext ctx) {
                      ctx.event()->set_custom_value(...);
                  });
    ```
@@ -462,15 +462,15 @@ Some examples of valid combinations:
 9. A track and a timestamp:
 
    ```C++
-     TRACE_EVENT("category", "Name", perfetto::Track(1234),
+     TRACE_EVENT("category", "Name", dejaview::Track(1234),
                  time_in_nanoseconds);
    ```
 
 10. A track, a timestamp and a lambda:
 
    ```C++
-     TRACE_EVENT("category", "Name", perfetto::Track(1234),
-                 time_in_nanoseconds, [&](perfetto::EventContext ctx) {
+     TRACE_EVENT("category", "Name", dejaview::Track(1234),
+                 time_in_nanoseconds, [&](dejaview::EventContext ctx) {
                      ctx.event()->set_custom_value(...);
                  });
    ```
@@ -478,11 +478,11 @@ Some examples of valid combinations:
 11. A track and any combination of debug annotions and TrackEvent fields:
 
    ```C++
-     TRACE_EVENT("category", "Name", perfetto::Track(1234),
+     TRACE_EVENT("category", "Name", dejaview::Track(1234),
                  "arg", value);
-     TRACE_EVENT("category", "Name", perfetto::Track(1234),
+     TRACE_EVENT("category", "Name", dejaview::Track(1234),
                  "arg", value, "arg2", value2);
-     TRACE_EVENT("category", "Name", perfetto::Track(1234),
+     TRACE_EVENT("category", "Name", dejaview::Track(1234),
                  "arg", value, "arg2", value2,
                  pbzero::TrackEvent::kFieldName, value3);
    ```
@@ -491,16 +491,16 @@ Some examples of valid combinations:
 
 Every track event is associated with a track, which specifies the timeline
 the event belongs to. In most cases, a track corresponds to a visual
-horizontal track in the Perfetto UI like this:
+horizontal track in the DejaView UI like this:
 
-![Track timelines shown in the Perfetto UI](
-  /docs/images/track-timeline.png "Track timelines in the Perfetto UI")
+![Track timelines shown in the DejaView UI](
+  /docs/images/track-timeline.png "Track timelines in the DejaView UI")
 
 Events that describe parallel sequences (e.g., separate
 threads) should use separate tracks, while sequential events (e.g., nested
 function calls) generally belong on the same track.
 
-Perfetto supports three kinds of tracks:
+DejaView supports three kinds of tracks:
 
 - `Track` – a basic timeline.
 
@@ -525,14 +525,14 @@ begin and end on a different thread:
 ```C++
 void OnNewRequest(size_t request_id) {
   // Open a slice when the request came in.
-  TRACE_EVENT_BEGIN("category", "HandleRequest", perfetto::Track(request_id));
+  TRACE_EVENT_BEGIN("category", "HandleRequest", dejaview::Track(request_id));
 
   // Start a thread to handle the request.
   std::thread worker_thread([=] {
     // ... produce response ...
 
     // Close the slice for the request now that we finished handling it.
-    TRACE_EVENT_END("category", perfetto::Track(request_id));
+    TRACE_EVENT_END("category", dejaview::Track(request_id));
   });
 ```
 Tracks can also optionally be annotated with metadata:
@@ -540,23 +540,23 @@ Tracks can also optionally be annotated with metadata:
 ```C++
 auto desc = track.Serialize();
 desc.set_name("MyTrack");
-perfetto::TrackEvent::SetTrackDescriptor(track, desc);
+dejaview::TrackEvent::SetTrackDescriptor(track, desc);
 ```
 
 Threads and processes can also be named in a similar way, e.g.:
 
 ```C++
-auto desc = perfetto::ProcessTrack::Current().Serialize();
+auto desc = dejaview::ProcessTrack::Current().Serialize();
 desc.mutable_process()->set_process_name("MyProcess");
-perfetto::TrackEvent::SetTrackDescriptor(
-    perfetto::ProcessTrack::Current(), desc);
+dejaview::TrackEvent::SetTrackDescriptor(
+    dejaview::ProcessTrack::Current(), desc);
 ```
 
 The metadata remains valid between tracing sessions. To free up data for a
 track, call EraseTrackDescriptor:
 
 ```C++
-perfetto::TrackEvent::EraseTrackDescriptor(track);
+dejaview::TrackEvent::EraseTrackDescriptor(track);
 ```
 
 ### Flows
@@ -566,8 +566,8 @@ them as related.
 
 The link is displayed as an arrow in the UI, when one of the events is selected:
 
-![A flow between two slices in the Perfetto UI](
-  /docs/images/flows.png "A flow between two slices in the Perfetto UI")
+![A flow between two slices in the DejaView UI](
+  /docs/images/flows.png "A flow between two slices in the DejaView UI")
 
 ```C++
 // The same identifier is used in both the related slices.
@@ -575,13 +575,13 @@ uint64_t request_id = GetRequestId();
 
 {
   TRACE_EVENT("rendering", "HandleRequestPhase1",
-              perfetto::Flow::ProcessScoped(request_id));
+              dejaview::Flow::ProcessScoped(request_id));
   //...
 }
 
 std::thread t1([&] {
   TRACE_EVENT("rendering", "HandleRequestPhase2",
-              perfetto::TerminatingFlow::ProcessScoped(request_id));
+              dejaview::TerminatingFlow::ProcessScoped(request_id));
   //...
 });
 ```
@@ -594,24 +594,24 @@ Time-varying numeric data can be recorded with the `TRACE_COUNTER` macro:
 TRACE_COUNTER("category", "MyCounter", 1234.5);
 ```
 
-This data is displayed as a counter track in the Perfetto UI:
+This data is displayed as a counter track in the DejaView UI:
 
-![A counter track shown in the Perfetto UI](
-  /docs/images/counter-events.png "A counter track shown in the Perfetto UI")
+![A counter track shown in the DejaView UI](
+  /docs/images/counter-events.png "A counter track shown in the DejaView UI")
 
 Both integer and floating point counter values are supported. Counters can
 also be annotated with additional information such as units, for example, for
 tracking the rendering framerate in terms of frames per second or "fps":
 
 ```C++
-TRACE_COUNTER("category", perfetto::CounterTrack("Framerate", "fps"), 120);
+TRACE_COUNTER("category", dejaview::CounterTrack("Framerate", "fps"), 120);
 ```
 
 As another example, a memory counter that records bytes but accepts samples
 as kilobytes (to reduce trace binary size) can be defined like this:
 
 ```C++
-perfetto::CounterTrack memory_track = perfetto::CounterTrack("Memory")
+dejaview::CounterTrack memory_track = dejaview::CounterTrack("Memory")
     .set_unit("bytes")
     .set_multiplier(1024);
 TRACE_COUNTER("category", memory_track, 4 /* = 4096 bytes */);
@@ -619,7 +619,7 @@ TRACE_COUNTER("category", memory_track, 4 /* = 4096 bytes */);
 
 See
 [counter_descriptor.proto](
-/protos/perfetto/trace/track_event/counter_descriptor.proto) for the full set
+/protos/dejaview/trace/track_event/counter_descriptor.proto) for the full set
 of attributes for a counter track.
 
 To record a counter value at a specific point in time (instead of the current
@@ -627,7 +627,7 @@ time), you can pass in a custom timestamp:
 
 ```C++
 // First record the current time and counter value.
-uint64_t timestamp = perfetto::TrackEvent::GetTraceTimeNs();
+uint64_t timestamp = dejaview::TrackEvent::GetTraceTimeNs();
 int64_t value = 1234;
 
 // Later, emit a sample at that point in time.
@@ -637,23 +637,23 @@ TRACE_COUNTER("category", "MyCounter", timestamp, value);
 ### Interning
 
 Interning can be used to avoid repeating the same constant data (e.g., event
-names) throughout the trace. Perfetto automatically performs interning for
+names) throughout the trace. DejaView automatically performs interning for
 most strings passed to `TRACE_EVENT`, but it's also possible to also define
 your own types of interned data.
 
 First, define an interning index for your type. It should map to a specific
 field of
-[interned_data.proto](/protos/perfetto/trace/interned_data/interned_data.proto)
+[interned_data.proto](/protos/dejaview/trace/interned_data/interned_data.proto)
 and specify how the interned data is written into that message when seen for
 the first time.
 
 ```C++
 struct MyInternedData
-    : public perfetto::TrackEventInternedDataIndex<
+    : public dejaview::TrackEventInternedDataIndex<
         MyInternedData,
-        perfetto::protos::pbzero::InternedData::kMyInternedDataFieldNumber,
+        dejaview::protos::pbzero::InternedData::kMyInternedDataFieldNumber,
         const char*> {
-  static void Add(perfetto::protos::pbzero::InternedData* interned_data,
+  static void Add(dejaview::protos::pbzero::InternedData* interned_data,
                    size_t iid,
                    const char* value) {
     auto my_data = interned_data->add_my_interned_data();
@@ -669,7 +669,7 @@ trace buffer has wrapped around).
 
 ```C++
 TRACE_EVENT(
-   "category", "Event", [&](perfetto::EventContext ctx) {
+   "category", "Event", [&](dejaview::EventContext ctx) {
      auto my_message = ctx.event()->set_my_message();
      size_t iid = MyInternedData::Get(&ctx, "Repeated data to be interned");
      my_message->set_iid(iid);
@@ -685,39 +685,39 @@ The session observer interface allows applications to be notified when track
 event tracing starts and stops:
 
 ```C++
-class Observer : public perfetto::TrackEventSessionObserver {
+class Observer : public dejaview::TrackEventSessionObserver {
   public:
   ~Observer() override = default;
 
-  void OnSetup(const perfetto::DataSourceBase::SetupArgs&) override {
+  void OnSetup(const dejaview::DataSourceBase::SetupArgs&) override {
     // Called when tracing session is configured. Note tracing isn't active yet,
     // so track events emitted here won't be recorded.
   }
 
-  void OnStart(const perfetto::DataSourceBase::StartArgs&) override {
+  void OnStart(const dejaview::DataSourceBase::StartArgs&) override {
     // Called when a tracing session is started. It is possible to emit track
     // events from this callback.
   }
 
-  void OnStop(const perfetto::DataSourceBase::StopArgs&) override {
+  void OnStop(const dejaview::DataSourceBase::StopArgs&) override {
     // Called when a tracing session is stopped. It is still possible to emit
     // track events from this callback.
   }
 };
 ```
 
-Note that all methods of the interface are called on an internal Perfetto
+Note that all methods of the interface are called on an internal DejaView
 thread.
 
 For example, here's how to wait for any tracing session to start:
 
 ```C++
-class Observer : public perfetto::TrackEventSessionObserver {
+class Observer : public dejaview::TrackEventSessionObserver {
  public:
-  Observer() { perfetto::TrackEvent::AddSessionObserver(this); }
-  ~Observer() { perfetto::TrackEvent::RemoveSessionObserver(this); }
+  Observer() { dejaview::TrackEvent::AddSessionObserver(this); }
+  ~Observer() { dejaview::TrackEvent::RemoveSessionObserver(this); }
 
-  void OnStart(const perfetto::DataSourceBase::StartArgs&) override {
+  void OnStart(const dejaview::DataSourceBase::StartArgs&) override {
     std::unique_lock<std::mutex> lock(mutex);
     cv.notify_one();
   }
@@ -725,7 +725,7 @@ class Observer : public perfetto::TrackEventSessionObserver {
   void WaitForTracingStart() {
     printf("Waiting for tracing to start...\n");
     std::unique_lock<std::mutex> lock(mutex);
-    cv.wait(lock, [] { return perfetto::TrackEvent::IsEnabled(); });
+    cv.wait(lock, [] { return dejaview::TrackEvent::IsEnabled(); });
     printf("Tracing started\n");
   }
 

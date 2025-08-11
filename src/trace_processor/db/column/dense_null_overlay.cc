@@ -25,16 +25,16 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 using Indices = DataLayerChain::Indices;
 
@@ -96,7 +96,7 @@ SingleSearchResult DenseNullOverlay::ChainImpl::SingleSearch(
       return non_null_->IsSet(index) ? inner_->SingleSearch(op, sql_val, index)
                                      : SingleSearchResult::kNoMatch;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 SearchValidationResult DenseNullOverlay::ChainImpl::ValidateSearchConstraints(
@@ -114,7 +114,7 @@ SearchValidationResult DenseNullOverlay::ChainImpl::ValidateSearchConstraints(
 RangeOrBitVector DenseNullOverlay::ChainImpl::SearchValidated(FilterOp op,
                                                               SqlValue sql_val,
                                                               Range in) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "DenseNullOverlay::ChainImpl::Search");
 
   if (op == FilterOp::kIsNull) {
@@ -150,8 +150,8 @@ RangeOrBitVector DenseNullOverlay::ChainImpl::SearchValidated(FilterOp op,
     // |non_null_| which matches the range. Then, resize to |in.end| as this
     // is mandated by the API contract of |Storage::Search|.
     Range inner_range = std::move(inner_res).TakeIfRange();
-    PERFETTO_DCHECK(inner_range.empty() || inner_range.end <= in.end);
-    PERFETTO_DCHECK(inner_range.empty() || inner_range.start >= in.start);
+    DEJAVIEW_DCHECK(inner_range.empty() || inner_range.end <= in.end);
+    DEJAVIEW_DCHECK(inner_range.empty() || inner_range.start >= in.start);
     res = non_null_->IntersectRange(inner_range.start, inner_range.end);
     res.Resize(in.end, false);
   } else {
@@ -172,14 +172,14 @@ RangeOrBitVector DenseNullOverlay::ChainImpl::SearchValidated(FilterOp op,
     res.And(*non_null_);
   }
 
-  PERFETTO_DCHECK(res.size() == in.end);
+  DEJAVIEW_DCHECK(res.size() == in.end);
   return RangeOrBitVector(std::move(res));
 }
 
 void DenseNullOverlay::ChainImpl::IndexSearchValidated(FilterOp op,
                                                        SqlValue sql_val,
                                                        Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "DenseNullOverlay::ChainImpl::IndexSearch");
 
   if (op == FilterOp::kIsNull) {
@@ -245,7 +245,7 @@ void DenseNullOverlay::ChainImpl::StableSort(Token* start,
 }
 
 void DenseNullOverlay::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "DenseNullOverlay::ChainImpl::Distinct");
   std::optional<Token> null_tok =
       RemoveAllNullsAndReturnTheFirstOne(indices, *non_null_);
@@ -260,7 +260,7 @@ void DenseNullOverlay::ChainImpl::Distinct(Indices& indices) const {
 
 std::optional<Token> DenseNullOverlay::ChainImpl::MaxElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "DenseNullOverlay::ChainImpl::MaxElement");
   std::optional<Token> null_tok =
       RemoveAllNullsAndReturnTheFirstOne(indices, *non_null_);
@@ -272,7 +272,7 @@ std::optional<Token> DenseNullOverlay::ChainImpl::MaxElement(
 
 std::optional<Token> DenseNullOverlay::ChainImpl::MinElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "DenseNullOverlay::ChainImpl::MinElement");
   // Return the first NULL if found.
   auto first_null_it = std::find_if(
@@ -289,4 +289,4 @@ SqlValue DenseNullOverlay::ChainImpl::Get_AvoidUsingBecauseSlow(
                                  : SqlValue();
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

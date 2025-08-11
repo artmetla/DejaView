@@ -16,14 +16,14 @@
 
 #include "src/traced/probes/ftrace/ftrace_print_filter.h"
 
-#include "protos/perfetto/config/ftrace/ftrace_config.gen.h"
+#include "protos/dejaview/config/ftrace/ftrace_config.gen.h"
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
-using perfetto::protos::gen::FtraceConfig;
+using dejaview::protos::gen::FtraceConfig;
 
 TEST(FtracePrintFilterTest, EmptyConfigDefaultAllows) {
   FtraceConfig::PrintFilter conf;
@@ -223,4 +223,4 @@ TEST(FtracePrintFilterTest, AtraceRuleMatches) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

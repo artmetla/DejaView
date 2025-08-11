@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 
 cc_library(
     name = "linenoise",
@@ -25,6 +25,6 @@ cc_library(
     includes = [
         ".",
     ],
-    copts = PERFETTO_CONFIG.deps_copts.linenoise,
+    copts = DEJAVIEW_CONFIG.deps_copts.linenoise,
     visibility = ["//visibility:public"],
 )

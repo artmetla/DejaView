@@ -1,6 +1,6 @@
 # Recording traces on Android boot
 
-Since Android 13 (T), perfetto can be configured to automatically start
+Since Android 13 (T), dejaview can be configured to automatically start
 recording traces on boot. This can be useful to profile the boot process.
 
 ## Steps
@@ -47,30 +47,30 @@ recording traces on boot. This can be useful to profile the boot process.
     }
   }
 
-  # 10s trace, but can be stopped prematurely via `adb shell pkill -u perfetto`.
+  # 10s trace, but can be stopped prematurely via `adb shell pkill -u dejaview`.
   duration_ms: 10000
   ```
-* Put the file on the device at `/data/misc/perfetto-configs/boottrace.pbtxt`:
+* Put the file on the device at `/data/misc/dejaview-configs/boottrace.pbtxt`:
   ```
-  adb push <yourfile> /data/misc/perfetto-configs/boottrace.pbtxt
+  adb push <yourfile> /data/misc/dejaview-configs/boottrace.pbtxt
   ```
-* Enable the `perfetto_trace_on_boot` service:
+* Enable the `dejaview_trace_on_boot` service:
   ```
-  adb shell setprop persist.debug.perfetto.boottrace 1
+  adb shell setprop persist.debug.dejaview.boottrace 1
   ```
   The property is reset on boot. In order to trace the next boot, the command
   must be reissued.
 * Reboot the device.
 * The output trace will be written at
-  `/data/misc/perfetto-traces/boottrace.perfetto-trace`. The file will be
+  `/data/misc/dejaview-traces/boottrace.dejaview-trace`. The file will be
   removed before a new trace is started.
   ```
-  adb pull /data/misc/perfetto-traces/boottrace.perfetto-trace
+  adb pull /data/misc/dejaview-traces/boottrace.dejaview-trace
   ```
   **N.B.:** The file will appear after the recording has stopped (be sure to set
   `duration_ms` to a reasonable value in the config) or after the first
   `flush_period_ms`.
-* `boottrace.perfetto-trace` can now be opened in
+* `boottrace.dejaview-trace` can now be opened in
   [ui.perfetto.dev](https://ui.perfetto.dev/)
 
 ## Implementation details

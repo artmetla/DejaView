@@ -19,10 +19,10 @@
 
 #include <string>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto ::trace_processor::sql_modules {
+namespace dejaview ::trace_processor::sql_modules {
 
 using NameToPackage =
     base::FlatHashMap<std::string,
@@ -61,5 +61,5 @@ inline std::string GetPackageName(const std::string& str) {
   return str.substr(0, found);
 }
 
-}  // namespace perfetto::trace_processor::sql_modules
+}  // namespace dejaview::trace_processor::sql_modules
 #endif  // SRC_TRACE_PROCESSOR_UTIL_SQL_MODULES_H_

@@ -17,17 +17,17 @@
 #include "src/trace_processor/importers/perf/sample_id.h"
 #include <cstdint>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 #include "src/trace_processor/importers/perf/perf_event_attr.h"
 #include "src/trace_processor/importers/perf/reader.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 base::Status SampleId::ParseFromRecord(const Record& record) {
-  PERFETTO_CHECK(record.header.type != PERF_RECORD_SAMPLE);
+  DEJAVIEW_CHECK(record.header.type != PERF_RECORD_SAMPLE);
   if (!record.attr || !record.attr->sample_id_all()) {
     sample_type_ = 0;
     return base::OkStatus();
@@ -43,7 +43,7 @@ base::Status SampleId::ParseFromRecord(const Record& record) {
         size, record.payload.size());
   }
 
-  PERFETTO_CHECK(reader.Skip(record.payload.size() - size));
+  DEJAVIEW_CHECK(reader.Skip(record.payload.size() - size));
   if (!ReadFrom(*record.attr, reader)) {
     return base::ErrStatus("Failed to parse SampleId");
   }
@@ -86,4 +86,4 @@ bool SampleId::ReadFrom(const PerfEventAttr& attr, Reader& reader) {
   return true;
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

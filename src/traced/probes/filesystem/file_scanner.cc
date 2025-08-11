@@ -21,10 +21,10 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-#include "protos/perfetto/trace/filesystem/inode_file_map.pbzero.h"
+#include "protos/dejaview/trace/filesystem/inode_file_map.pbzero.h"
 #include "src/traced/probes/filesystem/inode_file_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 std::string JoinPaths(const std::string& one, const std::string& other) {
@@ -62,7 +62,7 @@ void FileScanner::Scan() {
   delegate_->OnInodeScanDone();
 }
 void FileScanner::Scan(base::TaskRunner* task_runner) {
-  PERFETTO_DCHECK(scan_interval_ms_ && scan_steps_);
+  DEJAVIEW_DCHECK(scan_interval_ms_ && scan_steps_);
   Steps(scan_steps_);
   if (Done())
     return delegate_->OnInodeScanDone();
@@ -81,7 +81,7 @@ void FileScanner::NextDirectory() {
   queue_.pop_back();
   current_dir_handle_.reset(opendir(directory.c_str()));
   if (!current_dir_handle_) {
-    PERFETTO_DPLOG("opendir %s", directory.c_str());
+    DEJAVIEW_DPLOG("opendir %s", directory.c_str());
     current_directory_.clear();
     return;
   }
@@ -89,7 +89,7 @@ void FileScanner::NextDirectory() {
 
   struct stat buf;
   if (fstat(dirfd(current_dir_handle_.get()), &buf) != 0) {
-    PERFETTO_DPLOG("fstat %s", current_directory_.c_str());
+    DEJAVIEW_DPLOG("fstat %s", current_directory_.c_str());
     current_dir_handle_.reset();
     current_directory_.clear();
     return;
@@ -154,4 +154,4 @@ bool FileScanner::Done() {
 
 FileScanner::Delegate::~Delegate() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

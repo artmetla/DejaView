@@ -19,27 +19,27 @@
 
 #include <cstdint>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Tracks per-cpu scheduling events, storing them as slices in the |sched|
 // table.
 class SchedEventTracker : public Destructible {
  public:
-  PERFETTO_ALWAYS_INLINE
+  DEJAVIEW_ALWAYS_INLINE
   explicit SchedEventTracker(TraceProcessorContext* context)
       : context_(context) {}
   SchedEventTracker(const SchedEventTracker&) = delete;
   ~SchedEventTracker() override;
 
-  PERFETTO_ALWAYS_INLINE
+  DEJAVIEW_ALWAYS_INLINE
   uint32_t AddStartSlice(uint32_t cpu,
                          int64_t ts,
                          UniqueTid next_utid,
@@ -56,14 +56,14 @@ class SchedEventTracker : public Destructible {
     return sched->FindById(sched_id)->ToRowNumber().row_number();
   }
 
-  PERFETTO_ALWAYS_INLINE
+  DEJAVIEW_ALWAYS_INLINE
   bool UpdateEventTrackerTimestamp(int64_t ts,
                                    const char* event_name,
                                    size_t stats) {
     // Post sorter stage, all events should be globally timestamp ordered.
     int64_t max_ts = context_->event_tracker->max_timestamp();
     if (ts < max_ts) {
-      PERFETTO_ELOG("%s event out of order by %.4f ms, skipping", event_name,
+      DEJAVIEW_ELOG("%s event out of order by %.4f ms, skipping", event_name,
                     static_cast<double>(max_ts - ts) / 1e6);
       context_->storage->IncrementStats(stats);
       return false;
@@ -72,7 +72,7 @@ class SchedEventTracker : public Destructible {
     return true;
   }
 
-  PERFETTO_ALWAYS_INLINE
+  DEJAVIEW_ALWAYS_INLINE
   void ClosePendingSlice(uint32_t pending_slice_idx,
                          int64_t ts,
                          StringId prev_state) {
@@ -86,6 +86,6 @@ class SchedEventTracker : public Destructible {
   TraceProcessorContext* const context_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_SCHED_EVENT_TRACKER_H_

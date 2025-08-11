@@ -27,7 +27,7 @@ SELECT RUN_METRIC('chrome/{{prefix}}_flow_event.sql');
 -- the metric name as well as compute the time between.
 DROP VIEW IF EXISTS {{prefix}}_flow_event_queuing_delay;
 
-CREATE PERFETTO VIEW {{prefix}}_flow_event_queuing_delay AS
+CREATE DEJAVIEW VIEW {{prefix}}_flow_event_queuing_delay AS
 SELECT
   trace_id,
   id,

@@ -14,7 +14,7 @@ class ChromeInteractions(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_fcp_lcp_navigations.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.page_loads;
+        INCLUDE DEJAVIEW MODULE chrome.page_loads;
 
         SELECT
           navigation_id,

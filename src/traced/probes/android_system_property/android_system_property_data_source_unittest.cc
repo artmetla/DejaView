@@ -15,22 +15,22 @@
  */
 
 #include "src/traced/probes/android_system_property/android_system_property_data_source.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/config/android/android_system_property_config.gen.h"
-#include "protos/perfetto/trace/android/android_system_property.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/config/android/android_system_property_config.gen.h"
+#include "protos/dejaview/trace/android/android_system_property.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-using ::perfetto::protos::gen::AndroidSystemPropertyConfig;
+using ::dejaview::protos::gen::AndroidSystemPropertyConfig;
 
 using ::testing::AnyOf;
 using ::testing::ElementsAre;
 using ::testing::Return;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 class TestAndroidSystemPropertyDataSource
@@ -126,4 +126,4 @@ TEST_F(AndroidSystemPropertyDataSourceTest, Failure) {
 
 // TODO(simonmacm) test poll_ms
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

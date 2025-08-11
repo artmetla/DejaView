@@ -26,7 +26,7 @@ class ChromeArgs(TestSuite):
         trace=Path('unsymbolized_args.textproto'),
         query=Metric('chrome_unsymbolized_args'),
         out=TextProto(r"""
-        [perfetto.protos.chrome_unsymbolized_args]: {
+        [dejaview.protos.chrome_unsymbolized_args]: {
           args {
              module: "/liblib.so"
              build_id: "6275696c642d6964"
@@ -94,7 +94,7 @@ class ChromeArgs(TestSuite):
             categories: "cat1"
             type: 3
             name: "name1"
-            [perfetto.protos.ChromeTrackEvent.android_view_dump] {
+            [dejaview.protos.ChromeTrackEvent.android_view_dump] {
               activity {
                 name: "A"
                 view {
@@ -120,7 +120,7 @@ class ChromeArgs(TestSuite):
         query=Metric('chrome_args_class_names'),
         out=TextProto(r"""
 
-        [perfetto.protos.chrome_args_class_names] {
+        [dejaview.protos.chrome_args_class_names] {
           class_names_per_version {
             class_name: "abc"
             class_name: "def"

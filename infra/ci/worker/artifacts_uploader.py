@@ -108,7 +108,7 @@ def main():
       '--job-id',
       type=str,
       required=True,
-      help='The Perfetto CI job ID to tie this upload to')
+      help='The DejaView CI job ID to tie this upload to')
   args = parser.parse_args()
   job_id = args.job_id
   dirpath = os.path.join(os.getenv('ARTIFACTS_DIR', default=os.curdir), job_id)

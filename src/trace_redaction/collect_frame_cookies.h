@@ -17,12 +17,12 @@
 #ifndef SRC_TRACE_REDACTION_COLLECT_FRAME_COOKIES_H_
 #define SRC_TRACE_REDACTION_COLLECT_FRAME_COOKIES_H_
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Populates Context::global_frame_cookies using FrameTimelineEvent messages.
 class CollectFrameCookies : public CollectPrimitive {
@@ -55,6 +55,6 @@ class FilterFrameEvents : public TransformPrimitive {
   bool KeepField(const Context& context, const protozero::Field& field) const;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_COLLECT_FRAME_COOKIES_H_

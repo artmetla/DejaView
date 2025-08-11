@@ -131,7 +131,7 @@ test('toPbtxt', () => {
     ],
     producers: [
       {
-        producerName: 'perfetto.traced_probes',
+        producerName: 'dejaview.traced_probes',
       },
     ],
   };
@@ -153,7 +153,7 @@ data_sources: {
 }
 duration_ms: 1000
 producers: {
-    producer_name: "perfetto.traced_probes"
+    producer_name: "dejaview.traced_probes"
 }
 max_file_size_bytes: 43
 `);

@@ -14,10 +14,10 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.app_process_starts;
+INCLUDE DEJAVIEW MODULE android.app_process_starts;
 
 DROP VIEW IF EXISTS android_app_process_starts_output;
-CREATE PERFETTO VIEW android_app_process_starts_output AS
+CREATE DEJAVIEW VIEW android_app_process_starts_output AS
 SELECT AndroidAppProcessStartsMetric(
   'all_apps', (
     SELECT RepeatedField(

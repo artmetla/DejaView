@@ -25,7 +25,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_doframe_depth.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.timeline;
+        INCLUDE DEJAVIEW MODULE android.frames.timeline;
         SELECT frame_id, name, depth
         FROM android_frames_choreographer_do_frame doframe
         JOIN slice USING(id);
@@ -40,7 +40,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.timeline;
+        INCLUDE DEJAVIEW MODULE android.frames.timeline;
 
         SELECT * FROM android_frames_choreographer_do_frame;
         """,
@@ -67,7 +67,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.timeline;
+        INCLUDE DEJAVIEW MODULE android.frames.timeline;
 
         SELECT * FROM android_frames_draw_frame;
         """,
@@ -96,7 +96,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.timeline;
+        INCLUDE DEJAVIEW MODULE android.frames.timeline;
 
         SELECT * FROM android_frames;
         """,
@@ -125,7 +125,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.timeline;
+        INCLUDE DEJAVIEW MODULE android.frames.timeline;
 
         SELECT frame_id FROM android_first_frame_after(100000000);
         """,
@@ -138,7 +138,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.per_frame_metrics;
+        INCLUDE DEJAVIEW MODULE android.frames.per_frame_metrics;
 
         SELECT * FROM android_frames_overrun;
         """,
@@ -167,7 +167,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.per_frame_metrics;
+        INCLUDE DEJAVIEW MODULE android.frames.per_frame_metrics;
 
         SELECT * FROM android_app_vsync_delay_per_frame;
         """,
@@ -194,7 +194,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.per_frame_metrics;
+        INCLUDE DEJAVIEW MODULE android.frames.per_frame_metrics;
 
         SELECT * FROM android_cpu_time_per_frame;
         """,
@@ -221,7 +221,7 @@ class Frames(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/android_jank_cuj.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.frames.per_frame_metrics;
+        INCLUDE DEJAVIEW MODULE android.frames.per_frame_metrics;
 
         SELECT * FROM android_frame_stats;
         """,

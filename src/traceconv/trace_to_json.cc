@@ -18,14 +18,14 @@
 
 #include <stdio.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/traceconv/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 namespace {
@@ -52,14 +52,14 @@ bool ExportUserspaceEvents(trace_processor::TraceProcessor* tp,
 
   if (!it.Next()) {
     auto status = it.Status();
-    PERFETTO_CHECK(!status.ok());
-    PERFETTO_ELOG("Could not convert userspace events: %s", status.c_message());
+    DEJAVIEW_CHECK(!status.ok());
+    DEJAVIEW_ELOG("Could not convert userspace events: %s", status.c_message());
     return false;
   }
 
   base::ScopedFstream source(fopen(file.path().c_str(), "r"));
   if (!source) {
-    PERFETTO_ELOG("Could not convert userspace events: Couldn't read file %s",
+    DEJAVIEW_ELOG("Could not convert userspace events: Couldn't read file %s",
                   file.path().c_str());
     return false;
   }
@@ -115,4 +115,4 @@ int TraceToJson(std::istream* input,
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,10 +19,10 @@
 #include <stdint.h>
 #include <optional>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -199,4 +199,4 @@ TEST(TargetFilterTest, AdditionalCmdlines) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

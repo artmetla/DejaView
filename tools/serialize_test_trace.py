@@ -37,7 +37,7 @@ def main():
   args = parser.parse_args()
 
   if args.out and not args.descriptor:
-    trace_protos_path = os.path.join(args.out, 'gen', 'protos', 'perfetto',
+    trace_protos_path = os.path.join(args.out, 'gen', 'protos', 'dejaview',
                                      'trace')
     chrome_extension_descriptor_path = os.path.join(
         args.out, 'gen', 'protos', 'third_party', 'chromium',

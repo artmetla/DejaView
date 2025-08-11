@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/threading/future.h"
+#include "dejaview/ext/base/threading/future.h"
 
 #include <memory>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/platform_handle.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/platform_handle.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -101,4 +101,4 @@ TEST_F(FutureUnittest, PendingContinueWithImmediate) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

@@ -32,7 +32,7 @@ export class FrameSelectionAggregator implements AreaSelectionAggregator {
     if (selectedSqlTrackIds.length === 0) return false;
 
     await engine.query(`
-      create or replace perfetto table ${this.id} as
+      create or replace dejaview table ${this.id} as
       select
         jank_type,
         count(1) as occurrences,

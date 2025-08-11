@@ -22,7 +22,7 @@
 #include <atomic>
 #include <exception>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // An allocator that uses the given |malloc| & |free| function pointers to
@@ -83,6 +83,6 @@ bool operator!=(const UnhookedAllocator<T>& first,
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_UNHOOKED_ALLOCATOR_H_

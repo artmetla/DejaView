@@ -20,13 +20,13 @@
 
 #include <zlib.h>
 
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 #include "src/tracing/service/tracing_service_impl.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using ::testing::Each;
@@ -45,7 +45,7 @@ TracePacket CreateTracePacket(F fill_function) {
   std::vector<uint8_t> buf = msg.SerializeAsArray();
   Slice slice = Slice::Allocate(buf.size());
   memcpy(slice.own_data(), buf.data(), buf.size());
-  perfetto::TracePacket packet;
+  dejaview::TracePacket packet;
   packet.AddSlice(std::move(slice));
   return packet;
 }
@@ -175,4 +175,4 @@ TEST(ZlibCompressFnTest, MaxSliceSize) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

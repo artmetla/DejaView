@@ -17,7 +17,7 @@
 #ifndef SRC_TRACE_PROCESSOR_UTIL_STATUS_MACROS_H_
 #define SRC_TRACE_PROCESSOR_UTIL_STATUS_MACROS_H_
 
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/trace_processor/status.h"
 
 // Evaluates |expr|, which should return a util::Status. If the status is an
 // error status, returns the status from the current function.
@@ -28,16 +28,16 @@
       return status_macro_internal_status;              \
   } while (0)
 
-#define PERFETTO_INTERNAL_CONCAT_IMPL(x, y) x##y
-#define PERFETTO_INTERNAL_MACRO_CONCAT(x, y) PERFETTO_INTERNAL_CONCAT_IMPL(x, y)
+#define DEJAVIEW_INTERNAL_CONCAT_IMPL(x, y) x##y
+#define DEJAVIEW_INTERNAL_MACRO_CONCAT(x, y) DEJAVIEW_INTERNAL_CONCAT_IMPL(x, y)
 
 // Evalues |rhs| which should return a base::StatusOr<T> and assigns this
 // to |lhs|. If the status is an error status, returns the status from the
 // current function.
 #define ASSIGN_OR_RETURN(lhs, rhs)                                   \
-  PERFETTO_INTERNAL_MACRO_CONCAT(auto status_or, __LINE__) = rhs;    \
+  DEJAVIEW_INTERNAL_MACRO_CONCAT(auto status_or, __LINE__) = rhs;    \
   RETURN_IF_ERROR(                                                   \
-      PERFETTO_INTERNAL_MACRO_CONCAT(status_or, __LINE__).status()); \
-  lhs = std::move(PERFETTO_INTERNAL_MACRO_CONCAT(status_or, __LINE__).value())
+      DEJAVIEW_INTERNAL_MACRO_CONCAT(status_or, __LINE__).status()); \
+  lhs = std::move(DEJAVIEW_INTERNAL_MACRO_CONCAT(status_or, __LINE__).value())
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_STATUS_MACROS_H_

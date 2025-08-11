@@ -22,14 +22,14 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/util/trace_type.h"
 #include "src/trace_processor/util/zip_reader.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class ForwardingTraceParser;
 class TraceProcessorContext;
@@ -71,6 +71,6 @@ class ZipTraceReader : public ChunkedTraceReader {
   util::ZipReader zip_reader_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ZIP_ZIP_TRACE_READER_H_

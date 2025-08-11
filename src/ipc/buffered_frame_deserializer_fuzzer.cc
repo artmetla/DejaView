@@ -17,13 +17,13 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/ipc/buffered_frame_deserializer.h"
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  perfetto::ipc::BufferedFrameDeserializer bfd;
+  dejaview::ipc::BufferedFrameDeserializer bfd;
   size_t write_offset = 0;
   while (write_offset < size) {
     size_t available_size = size - write_offset;

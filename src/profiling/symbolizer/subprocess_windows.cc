@@ -17,16 +17,16 @@
 
 #include "src/profiling/symbolizer/subprocess.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 #include <sstream>
 #include <string>
 
 #include <Windows.h>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 Subprocess::Subprocess(const std::string& file, std::vector<std::string> args) {
@@ -42,12 +42,12 @@ Subprocess::Subprocess(const std::string& file, std::vector<std::string> args) {
   // Create a pipe for the child process's STDOUT.
   if (!CreatePipe(&child_pipe_out_read_, &child_pipe_out_write_, &attr, 0) ||
       !SetHandleInformation(child_pipe_out_read_, HANDLE_FLAG_INHERIT, 0)) {
-    PERFETTO_ELOG("Failed to create stdout pipe");
+    DEJAVIEW_ELOG("Failed to create stdout pipe");
     return;
   }
   if (!CreatePipe(&child_pipe_in_read_, &child_pipe_in_write_, &attr, 0) ||
       !SetHandleInformation(child_pipe_in_write_, HANDLE_FLAG_INHERIT, 0)) {
-    PERFETTO_ELOG("Failed to create stdin pipe");
+    DEJAVIEW_ELOG("Failed to create stdin pipe");
     return;
   }
 
@@ -90,7 +90,7 @@ Subprocess::Subprocess(const std::string& file, std::vector<std::string> args) {
     CloseHandle(child_pipe_out_write_);
     CloseHandle(child_pipe_in_read_);
   } else {
-    PERFETTO_ELOG("Failed to launch: %s", cmd.str().c_str());
+    DEJAVIEW_ELOG("Failed to launch: %s", cmd.str().c_str());
     child_pipe_in_read_ = nullptr;
     child_pipe_in_write_ = nullptr;
     child_pipe_out_write_ = nullptr;
@@ -128,6 +128,6 @@ int64_t Subprocess::Read(char* buffer, size_t size) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)

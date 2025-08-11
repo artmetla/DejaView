@@ -25,18 +25,18 @@
 #include <map>
 #include <tuple>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/thread_annotations.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/slice.h"
-#include "perfetto/ext/tracing/core/trace_stats.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/thread_annotations.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/slice.h"
+#include "dejaview/ext/tracing/core/trace_stats.h"
 #include "src/tracing/service/histogram.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class TracePacket;
 
@@ -316,7 +316,7 @@ class TraceBuffer {
   // This special requirement is covered by static_assert(s) in the .cc file.
   struct ChunkRecord {
     explicit ChunkRecord(size_t sz) : flags{0}, is_padding{0} {
-      PERFETTO_DCHECK(sz >= sizeof(ChunkRecord) &&
+      DEJAVIEW_DCHECK(sz >= sizeof(ChunkRecord) &&
                       sz % sizeof(ChunkRecord) == 0 && sz <= kMaxSize);
       size = static_cast<decltype(size)>(sz);
     }
@@ -502,22 +502,22 @@ class TraceBuffer {
     bool is_valid() const { return cur != seq_end; }
 
     ProducerID producer_id() const {
-      PERFETTO_DCHECK(is_valid());
+      DEJAVIEW_DCHECK(is_valid());
       return cur->first.producer_id;
     }
 
     WriterID writer_id() const {
-      PERFETTO_DCHECK(is_valid());
+      DEJAVIEW_DCHECK(is_valid());
       return cur->first.writer_id;
     }
 
     ChunkID chunk_id() const {
-      PERFETTO_DCHECK(is_valid());
+      DEJAVIEW_DCHECK(is_valid());
       return cur->first.chunk_id;
     }
 
     ChunkMeta& operator*() {
-      PERFETTO_DCHECK(is_valid());
+      DEJAVIEW_DCHECK(is_valid());
       return cur->second;
     }
 
@@ -607,8 +607,8 @@ class TraceBuffer {
                                          TracePacket*);
 
   void DcheckIsAlignedAndWithinBounds(const uint8_t* ptr) const {
-    PERFETTO_DCHECK(ptr >= begin() && ptr <= end() - sizeof(ChunkRecord));
-    PERFETTO_DCHECK(
+    DEJAVIEW_DCHECK(ptr >= begin() && ptr <= end() - sizeof(ChunkRecord));
+    DEJAVIEW_DCHECK(
         (reinterpret_cast<uintptr_t>(ptr) & (alignof(ChunkRecord) - 1)) == 0);
   }
 
@@ -620,7 +620,7 @@ class TraceBuffer {
   }
 
   void EnsureCommitted(size_t size) {
-    PERFETTO_DCHECK(size <= size_);
+    DEJAVIEW_DCHECK(size <= size_);
     data_.EnsureCommitted(size);
     used_size_ = std::max(used_size_, size);
   }
@@ -638,19 +638,19 @@ class TraceBuffer {
     // ChunkRecord header and rounding, to ensure that all ChunkRecord(s) are
     // multiple of sizeof(ChunkRecord). The invariant is:
     // record.size >= |size| + sizeof(ChunkRecord) (== if no rounding).
-    PERFETTO_DCHECK(size <= ChunkRecord::kMaxSize);
-    PERFETTO_DCHECK(record.size >= sizeof(record));
-    PERFETTO_DCHECK(record.size % sizeof(record) == 0);
-    PERFETTO_DCHECK(record.size >= size + sizeof(record));
+    DEJAVIEW_DCHECK(size <= ChunkRecord::kMaxSize);
+    DEJAVIEW_DCHECK(record.size >= sizeof(record));
+    DEJAVIEW_DCHECK(record.size % sizeof(record) == 0);
+    DEJAVIEW_DCHECK(record.size >= size + sizeof(record));
     DcheckIsAlignedAndWithinBounds(wptr);
 
     // We may be writing to this area for the first time.
     EnsureCommitted(static_cast<size_t>(wptr + record.size - begin()));
 
     // Deliberately not a *D*CHECK.
-    PERFETTO_CHECK(wptr + sizeof(record) + size <= end());
+    DEJAVIEW_CHECK(wptr + sizeof(record) + size <= end());
     memcpy(wptr, &record, sizeof(record));
-    if (PERFETTO_LIKELY(src)) {
+    if (DEJAVIEW_LIKELY(src)) {
       // If the producer modifies the data in the shared memory buffer while we
       // are copying it to the central buffer, TSAN will (rightfully) flag that
       // as a race. However the entire purpose of copying the data into the
@@ -659,11 +659,11 @@ class TraceBuffer {
       // alternative would be to try computing which part of the buffer is safe
       // to read (assuming a well-behaving client), but the risk of introducing
       // a bug that way outweighs the benefit.
-      PERFETTO_ANNOTATE_BENIGN_RACE_SIZED(
+      DEJAVIEW_ANNOTATE_BENIGN_RACE_SIZED(
           src, size, "Benign race when copying chunk from shared memory.")
       memcpy(wptr + sizeof(record), src, size);
     } else {
-      PERFETTO_DCHECK(size == record.size - sizeof(record));
+      DEJAVIEW_DCHECK(size == record.size - sizeof(record));
     }
     const size_t rounding_size = record.size - sizeof(record) - size;
     memset(wptr + sizeof(record) + size, 0, rounding_size);
@@ -672,7 +672,7 @@ class TraceBuffer {
   uint32_t GetOffset(const void* _addr) {
     const uintptr_t addr = reinterpret_cast<uintptr_t>(_addr);
     const uintptr_t buf_start = reinterpret_cast<uintptr_t>(begin());
-    PERFETTO_DCHECK(addr >= buf_start && addr < buf_start + size_);
+    DEJAVIEW_DCHECK(addr >= buf_start && addr < buf_start + size_);
     return static_cast<uint32_t>(addr - buf_start);
   }
 
@@ -730,7 +730,7 @@ class TraceBuffer {
   // creation (which in turn is used to optimize `clear_before_clone`).
   bool has_data_ = false;
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   bool changed_since_last_read_ = false;
 #endif
 
@@ -740,6 +740,6 @@ class TraceBuffer {
   bool suppress_client_dchecks_for_testing_ = false;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_SERVICE_TRACE_BUFFER_H_

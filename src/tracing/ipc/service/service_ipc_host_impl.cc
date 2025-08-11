@@ -16,21 +16,21 @@
 
 #include "src/tracing/ipc/service/service_ipc_host_impl.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/ipc/host.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/ipc/host.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 #include "src/tracing/ipc/service/consumer_ipc_service.h"
 #include "src/tracing/ipc/service/producer_ipc_service.h"
 #include "src/tracing/ipc/service/relay_ipc_service.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include "src/tracing/ipc/shared_memory_windows.h"
 #else
 #include "src/tracing/ipc/posix_shared_memory.h"
 #endif
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr uint32_t kProducerSocketTxTimeoutMs = 10;
@@ -56,7 +56,7 @@ ServiceIPCHostImpl::~ServiceIPCHostImpl() {}
 bool ServiceIPCHostImpl::Start(
     const std::vector<std::string>& producer_socket_names,
     const char* consumer_socket_name) {
-  PERFETTO_CHECK(!svc_);  // Check if already started.
+  DEJAVIEW_CHECK(!svc_);  // Check if already started.
 
   // Initialize the IPC transport.
   for (const auto& producer_socket_name : producer_socket_names)
@@ -69,7 +69,7 @@ bool ServiceIPCHostImpl::Start(
 
 bool ServiceIPCHostImpl::Start(base::ScopedSocketHandle producer_socket_fd,
                                base::ScopedSocketHandle consumer_socket_fd) {
-  PERFETTO_CHECK(!svc_);  // Check if already started.
+  DEJAVIEW_CHECK(!svc_);  // Check if already started.
 
   // Initialize the IPC transport.
   producer_ipc_ports_.emplace_back(
@@ -81,9 +81,9 @@ bool ServiceIPCHostImpl::Start(base::ScopedSocketHandle producer_socket_fd,
 
 bool ServiceIPCHostImpl::Start(std::unique_ptr<ipc::Host> producer_host,
                                std::unique_ptr<ipc::Host> consumer_host) {
-  PERFETTO_CHECK(!svc_);  // Check if already started.
-  PERFETTO_DCHECK(producer_host);
-  PERFETTO_DCHECK(consumer_host);
+  DEJAVIEW_CHECK(!svc_);  // Check if already started.
+  DEJAVIEW_DCHECK(producer_host);
+  DEJAVIEW_DCHECK(consumer_host);
 
   // Initialize the IPC transport.
   producer_ipc_ports_.emplace_back(std::move(producer_host));
@@ -94,7 +94,7 @@ bool ServiceIPCHostImpl::Start(std::unique_ptr<ipc::Host> producer_host,
 
 bool ServiceIPCHostImpl::DoStart() {
   // Create and initialize the platform-independent tracing business logic.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   std::unique_ptr<SharedMemory::Factory> shm_factory(
       new SharedMemoryWindows::Factory());
 #else
@@ -129,7 +129,7 @@ bool ServiceIPCHostImpl::DoStart() {
   for (auto& producer_ipc_port : producer_ipc_ports_) {
     bool producer_service_exposed = producer_ipc_port->ExposeService(
         std::unique_ptr<ipc::Service>(new ProducerIPCService(svc_.get())));
-    PERFETTO_CHECK(producer_service_exposed);
+    DEJAVIEW_CHECK(producer_service_exposed);
 
     if (!init_opts_.enable_relay_endpoint)
       continue;
@@ -137,12 +137,12 @@ bool ServiceIPCHostImpl::DoStart() {
     // if requested.
     bool relay_service_exposed = producer_ipc_port->ExposeService(
         std::unique_ptr<ipc::Service>(new RelayIPCService(svc_.get())));
-    PERFETTO_CHECK(relay_service_exposed);
+    DEJAVIEW_CHECK(relay_service_exposed);
   }
 
   bool consumer_service_exposed = consumer_ipc_port_->ExposeService(
       std::unique_ptr<ipc::Service>(new ConsumerIPCService(svc_.get())));
-  PERFETTO_CHECK(consumer_service_exposed);
+  DEJAVIEW_CHECK(consumer_service_exposed);
 
   return true;
 }
@@ -163,4 +163,4 @@ void ServiceIPCHostImpl::Shutdown() {
 ServiceIPCHost::ServiceIPCHost() = default;
 ServiceIPCHost::~ServiceIPCHost() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

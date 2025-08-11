@@ -34,7 +34,7 @@ packet {
     first_packet_on_sequence: true
     timestamp: 39998329771
     winscope_extensions {
-        [perfetto.protos.WinscopeExtensionsImpl.inputmethod_manager_service] {
+        [dejaview.protos.WinscopeExtensionsImpl.inputmethod_manager_service] {
             where: "InputMethodManagerService#startInputOrWindowGainedFocus"
             input_method_manager_service {
                 cur_method_id: "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME"
@@ -65,7 +65,7 @@ packet {
 packet {
     timestamp: 40003054136
     winscope_extensions {
-        [perfetto.protos.WinscopeExtensionsImpl.inputmethod_manager_service] {
+        [dejaview.protos.WinscopeExtensionsImpl.inputmethod_manager_service] {
             where: "InputMethodManagerService#showSoftInput"
             input_method_manager_service {
                 cur_method_id: "com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME"

@@ -16,12 +16,12 @@ import {addSqlTableTab} from '../../frontend/sql_table_tab_interface';
 import {sqlTableRegistry} from '../../frontend/widgets/sql/table/sql_table_registry';
 import {TrackNode} from '../../public/workspace';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {ActiveCPUCountTrack, CPUType} from './active_cpu_count';
 import {RunnableThreadCountTrack} from './runnable_thread_count';
 import {getSchedTable} from './table';
 
-class SchedPlugin implements PerfettoPlugin {
+class SchedPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace) {
     const runnableThreadCountUri = `/runnable_thread_count`;
     ctx.tracks.registerTrack({
@@ -33,7 +33,7 @@ class SchedPlugin implements PerfettoPlugin {
       }),
     });
     ctx.commands.registerCommand({
-      id: 'dev.perfetto.Sched.AddRunnableThreadCountTrackCommand',
+      id: 'dev.dejaview.Sched.AddRunnableThreadCountTrackCommand',
       name: 'Add track: runnable thread count',
       callback: () =>
         addPinnedTrack(ctx, runnableThreadCountUri, 'Runnable thread count'),
@@ -47,7 +47,7 @@ class SchedPlugin implements PerfettoPlugin {
       track: new ActiveCPUCountTrack({trackUri: uri}, ctx),
     });
     ctx.commands.registerCommand({
-      id: 'dev.perfetto.Sched.AddActiveCPUCountTrackCommand',
+      id: 'dev.dejaview.Sched.AddActiveCPUCountTrackCommand',
       name: 'Add track: active CPU count',
       callback: () => addPinnedTrack(ctx, uri, title),
     });
@@ -62,7 +62,7 @@ class SchedPlugin implements PerfettoPlugin {
       });
 
       ctx.commands.registerCommand({
-        id: `dev.perfetto.Sched.AddActiveCPUCountTrackCommand.${cpuType}`,
+        id: `dev.dejaview.Sched.AddActiveCPUCountTrackCommand.${cpuType}`,
         name: `Add track: active ${cpuType} CPU count`,
         callback: () => addPinnedTrack(ctx, uri, title),
       });
@@ -70,7 +70,7 @@ class SchedPlugin implements PerfettoPlugin {
 
     sqlTableRegistry['sched'] = getSchedTable();
     ctx.commands.registerCommand({
-      id: 'perfetto.ShowTable.sched',
+      id: 'dejaview.ShowTable.sched',
       name: 'Open table: sched',
       callback: () => {
         addSqlTableTab(ctx, {
@@ -98,6 +98,6 @@ function addPinnedTrack(ctx: Trace, uri: string, title: string) {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.Sched',
+  pluginId: 'dejaview.Sched',
   plugin: SchedPlugin,
 };

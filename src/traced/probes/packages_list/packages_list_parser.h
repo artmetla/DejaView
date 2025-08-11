@@ -20,7 +20,7 @@
 #include <cinttypes>
 #include <string>
 
-namespace perfetto {
+namespace dejaview {
 
 struct Package {
   std::string name;
@@ -33,6 +33,6 @@ struct Package {
 };
 
 bool ReadPackagesListLine(char* line, Package* package);
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_PACKAGES_LIST_PACKAGES_LIST_PARSER_H_

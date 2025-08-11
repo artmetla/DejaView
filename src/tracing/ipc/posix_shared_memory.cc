@@ -16,11 +16,11 @@
 
 #include "src/tracing/ipc/posix_shared_memory.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_WASM)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WASM)
 
 #include <fcntl.h>
 #include <stdint.h>
@@ -33,12 +33,12 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "src/tracing/ipc/memfd.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 int kFileSeals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_SEAL;
@@ -47,28 +47,28 @@ int kFileSeals = F_SEAL_SHRINK | F_SEAL_GROW | F_SEAL_SEAL;
 // static
 std::unique_ptr<PosixSharedMemory> PosixSharedMemory::Create(size_t size) {
   base::ScopedFile fd =
-      CreateMemfd("perfetto_shmem", MFD_CLOEXEC | MFD_ALLOW_SEALING);
+      CreateMemfd("dejaview_shmem", MFD_CLOEXEC | MFD_ALLOW_SEALING);
   bool is_memfd = !!fd;
 
   // In-tree builds only allow mem_fd, so we can inspect the seals to verify the
-  // fd is appropriately sealed. We'll crash in the PERFETTO_CHECK(fd) below if
+  // fd is appropriately sealed. We'll crash in the DEJAVIEW_CHECK(fd) below if
   // memfd_create failed.
-#if !PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   if (!fd) {
     // TODO: if this fails on Android we should fall back on ashmem.
-    PERFETTO_DPLOG("memfd_create() failed");
+    DEJAVIEW_DPLOG("memfd_create() failed");
     fd = base::TempFile::CreateUnlinked().ReleaseFD();
   }
 #endif
 
-  PERFETTO_CHECK(fd);
+  DEJAVIEW_CHECK(fd);
   int res = ftruncate(fd.get(), static_cast<off_t>(size));
-  PERFETTO_CHECK(res == 0);
+  DEJAVIEW_CHECK(res == 0);
 
   if (is_memfd) {
     // When memfd is supported, file seals should be, too.
     res = fcntl(*fd, F_ADD_SEALS, kFileSeals);
-    PERFETTO_DCHECK(res == 0);
+    DEJAVIEW_DCHECK(res == 0);
   }
 
   return MapFD(std::move(fd), size);
@@ -80,9 +80,9 @@ std::unique_ptr<PosixSharedMemory> PosixSharedMemory::AttachToFd(
     bool require_seals_if_supported) {
   bool requires_seals = require_seals_if_supported;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   // In-tree kernels all support memfd.
-  PERFETTO_CHECK(HasMemfdSupport());
+  DEJAVIEW_CHECK(HasMemfdSupport());
 #else
   // In out-of-tree builds, we only require seals if the kernel supports memfd.
   if (requires_seals)
@@ -93,25 +93,25 @@ std::unique_ptr<PosixSharedMemory> PosixSharedMemory::AttachToFd(
     // If the system supports memfd, we require a sealed memfd.
     int res = fcntl(*fd, F_GET_SEALS);
     if (res == -1 || (res & kFileSeals) != kFileSeals) {
-      PERFETTO_PLOG("Couldn't verify file seals on shmem FD");
+      DEJAVIEW_PLOG("Couldn't verify file seals on shmem FD");
       return nullptr;
     }
   }
 
   struct stat stat_buf = {};
   int res = fstat(fd.get(), &stat_buf);
-  PERFETTO_CHECK(res == 0 && stat_buf.st_size > 0);
+  DEJAVIEW_CHECK(res == 0 && stat_buf.st_size > 0);
   return MapFD(std::move(fd), static_cast<size_t>(stat_buf.st_size));
 }
 
 // static
 std::unique_ptr<PosixSharedMemory> PosixSharedMemory::MapFD(base::ScopedFile fd,
                                                             size_t size) {
-  PERFETTO_DCHECK(fd);
-  PERFETTO_DCHECK(size > 0);
+  DEJAVIEW_DCHECK(fd);
+  DEJAVIEW_DCHECK(size > 0);
   void* start =
       mmap(nullptr, size, PROT_READ | PROT_WRITE, MAP_SHARED, fd.get(), 0);
-  PERFETTO_CHECK(start != MAP_FAILED);
+  DEJAVIEW_CHECK(start != MAP_FAILED);
   return std::unique_ptr<PosixSharedMemory>(
       new PosixSharedMemory(start, size, std::move(fd)));
 }
@@ -132,6 +132,6 @@ std::unique_ptr<SharedMemory> PosixSharedMemory::Factory::CreateSharedMemory(
   return PosixSharedMemory::Create(size);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // OS_LINUX || OS_ANDROID || OS_APPLE

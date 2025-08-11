@@ -24,14 +24,14 @@
 #include <unordered_set>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Tracks and stores tracks based on track types, ids and scopes.
 class TrackEventTracker {
@@ -204,11 +204,11 @@ class TrackEventTracker {
     Scope scope() const { return scope_; }
     bool is_counter() const { return is_counter_; }
     UniqueTid utid() const {
-      PERFETTO_DCHECK(scope() == Scope::kThread);
+      DEJAVIEW_DCHECK(scope() == Scope::kThread);
       return utid_;
     }
     UniquePid upid() const {
-      PERFETTO_DCHECK(scope() == Scope::kProcess);
+      DEJAVIEW_DCHECK(scope() == Scope::kProcess);
       return upid_;
     }
     UniqueTid is_root_in_scope() const { return is_root_in_scope_; }
@@ -273,6 +273,6 @@ class TrackEventTracker {
   TraceProcessorContext* const context_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_TRACK_EVENT_TRACKER_H_

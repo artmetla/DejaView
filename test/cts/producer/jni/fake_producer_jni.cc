@@ -16,10 +16,10 @@
 
 #include <jni.h>
 
-#include "perfetto/ext/traced/traced.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/ext/traced/traced.h"
+#include "dejaview/tracing/default_socket.h"
 
-#include "perfetto/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/unix_task_runner.h"
 
 #include "test/fake_producer.h"
 
@@ -28,13 +28,13 @@ namespace {
 static std::mutex g_mutex;
 
 // These variables are guarded by the above mutex.
-static perfetto::base::UnixTaskRunner* g_activity_tr = nullptr;
-static perfetto::base::UnixTaskRunner* g_service_tr = nullptr;
-static perfetto::base::UnixTaskRunner* g_isolated_service_tr = nullptr;
+static dejaview::base::UnixTaskRunner* g_activity_tr = nullptr;
+static dejaview::base::UnixTaskRunner* g_service_tr = nullptr;
+static dejaview::base::UnixTaskRunner* g_isolated_service_tr = nullptr;
 
 }  // namespace
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 void ListenAndRespond(const std::string& name, base::UnixTaskRunner** tr) {
@@ -70,10 +70,10 @@ void ListenAndRespond(const std::string& name, base::UnixTaskRunner** tr) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_producer_ProducerActivity_quitTaskRunner(JNIEnv*,
+Java_android_dejaview_producer_ProducerActivity_quitTaskRunner(JNIEnv*,
                                                                jclass) {
   std::lock_guard<std::mutex> guard(g_mutex);
   if (g_activity_tr) {
@@ -82,7 +82,7 @@ Java_android_perfetto_producer_ProducerActivity_quitTaskRunner(JNIEnv*,
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_producer_ProducerIsolatedService_quitTaskRunner(JNIEnv*,
+Java_android_dejaview_producer_ProducerIsolatedService_quitTaskRunner(JNIEnv*,
                                                                       jclass) {
   std::lock_guard<std::mutex> guard(g_mutex);
   if (g_isolated_service_tr) {
@@ -91,7 +91,7 @@ Java_android_perfetto_producer_ProducerIsolatedService_quitTaskRunner(JNIEnv*,
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_producer_ProducerService_quitTaskRunner(JNIEnv*, jclass) {
+Java_android_dejaview_producer_ProducerService_quitTaskRunner(JNIEnv*, jclass) {
   std::lock_guard<std::mutex> guard(g_mutex);
   if (g_service_tr) {
     g_service_tr->Quit();
@@ -99,20 +99,20 @@ Java_android_perfetto_producer_ProducerService_quitTaskRunner(JNIEnv*, jclass) {
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_producer_ProducerActivity_setupProducer(JNIEnv*, jclass) {
-  perfetto::ListenAndRespond("android.perfetto.cts.ProducerActivity",
+Java_android_dejaview_producer_ProducerActivity_setupProducer(JNIEnv*, jclass) {
+  dejaview::ListenAndRespond("android.dejaview.cts.ProducerActivity",
                              &g_activity_tr);
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_producer_ProducerIsolatedService_setupProducer(JNIEnv*,
+Java_android_dejaview_producer_ProducerIsolatedService_setupProducer(JNIEnv*,
                                                                      jclass) {
-  perfetto::ListenAndRespond("android.perfetto.cts.ProducerIsolatedService",
+  dejaview::ListenAndRespond("android.dejaview.cts.ProducerIsolatedService",
                              &g_isolated_service_tr);
 }
 
 extern "C" JNIEXPORT void JNICALL
-Java_android_perfetto_producer_ProducerService_setupProducer(JNIEnv*, jclass) {
-  perfetto::ListenAndRespond("android.perfetto.cts.ProducerService",
+Java_android_dejaview_producer_ProducerService_setupProducer(JNIEnv*, jclass) {
+  dejaview::ListenAndRespond("android.dejaview.cts.ProducerService",
                              &g_service_tr);
 }

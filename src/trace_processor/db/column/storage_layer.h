@@ -23,7 +23,7 @@
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column/data_layer.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 class StorageLayer : public DataLayer {
  public:
@@ -42,6 +42,6 @@ class StorageLayer : public DataLayer {
   explicit StorageLayer(Impl impl);
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_STORAGE_LAYER_H_

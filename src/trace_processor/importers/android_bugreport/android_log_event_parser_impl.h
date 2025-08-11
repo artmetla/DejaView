@@ -22,7 +22,7 @@
 #include "src/trace_processor/importers/android_bugreport/android_log_event.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 
 class TraceProcessorContext;
 
@@ -38,6 +38,6 @@ class AndroidLogEventParserImpl : public AndroidLogEventParser {
   TraceProcessorContext* const context_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_ANDROID_LOG_EVENT_PARSER_IMPL_H_

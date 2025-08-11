@@ -29,7 +29,7 @@
 #include <google/protobuf/io/printer.h>
 #include <google/protobuf/io/zero_copy_stream.h>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
 namespace protozero {
 namespace {
@@ -42,13 +42,13 @@ using google::protobuf::FileDescriptor;
 using google::protobuf::compiler::GeneratorContext;
 using google::protobuf::io::Printer;
 using google::protobuf::io::ZeroCopyOutputStream;
-using perfetto::base::ReplaceAll;
-using perfetto::base::SplitString;
-using perfetto::base::StripChars;
-using perfetto::base::StripPrefix;
-using perfetto::base::StripSuffix;
-using perfetto::base::ToUpper;
-using perfetto::base::Uppercase;
+using dejaview::base::ReplaceAll;
+using dejaview::base::SplitString;
+using dejaview::base::StripChars;
+using dejaview::base::StripPrefix;
+using dejaview::base::StripSuffix;
+using dejaview::base::ToUpper;
+using dejaview::base::Uppercase;
 
 // Keep this value in sync with ProtoDecoder::kMaxDecoderFieldId. If they go out
 // of sync pbzero.h files will stop compiling, hitting the at() static_assert.
@@ -472,7 +472,7 @@ class GeneratorJob {
   }
 
   std::string GetNamespaceNameForInnerEnum(const EnumDescriptor* enumeration) {
-    return "perfetto_pbzero_enum_" +
+    return "dejaview_pbzero_enum_" +
            GetCppClassName(enumeration->containing_type());
   }
 
@@ -493,14 +493,14 @@ class GeneratorJob {
         "greeting", greeting, "guard", guard);
 
     if (sdk_mode_) {
-      stub_h_->Print("#include \"perfetto.h\"\n");
+      stub_h_->Print("#include \"dejaview.h\"\n");
     } else {
       stub_h_->Print(
-          "#include \"perfetto/protozero/field_writer.h\"\n"
-          "#include \"perfetto/protozero/message.h\"\n"
-          "#include \"perfetto/protozero/packed_repeated_fields.h\"\n"
-          "#include \"perfetto/protozero/proto_decoder.h\"\n"
-          "#include \"perfetto/protozero/proto_utils.h\"\n");
+          "#include \"dejaview/protozero/field_writer.h\"\n"
+          "#include \"dejaview/protozero/message.h\"\n"
+          "#include \"dejaview/protozero/packed_repeated_fields.h\"\n"
+          "#include \"dejaview/protozero/proto_decoder.h\"\n"
+          "#include \"dejaview/protozero/proto_utils.h\"\n");
     }
 
     // Print includes for public imports. In sdk mode, all imports are assumed
@@ -643,7 +643,7 @@ class GeneratorJob {
     std::string fullClassName =
         full_namespace_prefix_ + GetCppClassName(enumeration);
     const char* function_header_stub = R"(
-PERFETTO_PROTOZERO_CONSTEXPR14_OR_INLINE
+DEJAVIEW_PROTOZERO_CONSTEXPR14_OR_INLINE
 const char* $class_name$_Name($full_class$ value) {
 )";
     stub_h_->Print(function_header_stub, "full_class", fullClassName,
@@ -1112,7 +1112,7 @@ static constexpr $field_metadata_type$ $field_metadata_var${};
   std::vector<const EnumDescriptor*> enums_;
   std::map<std::string, std::vector<const FieldDescriptor*>> extensions_;
 
-  // Generate headers that can be used with the Perfetto SDK.
+  // Generate headers that can be used with the DejaView SDK.
   bool sdk_mode_ = false;
 
   // The custom *Comp comparators are to ensure determinism of the generator.

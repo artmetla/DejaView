@@ -16,7 +16,7 @@
 SELECT RUN_METRIC("android/android_cpu_agg.sql");
 
 DROP VIEW IF EXISTS p_state_cpu_idle_counter;
-CREATE PERFETTO VIEW p_state_cpu_idle_counter AS
+CREATE DEJAVIEW VIEW p_state_cpu_idle_counter AS
 SELECT
   ts,
   ts - LAG(ts) OVER (
@@ -38,7 +38,7 @@ CREATE VIRTUAL TABLE p_state_sched_freq_idle USING span_join(
   p_state_cpu_idle_counter PARTITIONED cpu
 );
 
-CREATE OR REPLACE PERFETTO FUNCTION p_state_over_interval(
+CREATE OR REPLACE DEJAVIEW FUNCTION p_state_over_interval(
   start_ns LONG, end_ns LONG)
 RETURNS TABLE(cpu INT, freq_khz INT, idle_value INT, dur_ns INT)
 AS

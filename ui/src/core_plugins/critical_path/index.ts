@@ -19,7 +19,7 @@ import {
 import {addDebugSliceTrack} from '../../public/debug_tracks';
 import {Trace} from '../../public/trace';
 import {THREAD_STATE_TRACK_KIND} from '../../public/track_kinds';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {asUtid, Utid} from '../../trace_processor/sql_utils/core_types';
 import {addQueryResultsTab} from '../../public/lib/query_table/query_result_tab';
 import {showModal} from '../../widgets/modal';
@@ -126,7 +126,7 @@ async function getThreadInfoForUtidOrSelection(
   return getThreadInfo(trace.engine, utid);
 }
 
-class CriticalPath implements PerfettoPlugin {
+class CriticalPath implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     // The 3 commands below are used in two contextes:
     // 1. By clicking a slice and using the command palette. In this case the
@@ -143,7 +143,7 @@ class CriticalPath implements PerfettoPlugin {
           return showModalErrorThreadStateRequired();
         }
         ctx.engine
-          .query(`INCLUDE PERFETTO MODULE sched.thread_executing_span;`)
+          .query(`INCLUDE DEJAVIEW MODULE sched.thread_executing_span;`)
           .then(() =>
             addDebugSliceTrack(
               ctx,
@@ -186,7 +186,7 @@ class CriticalPath implements PerfettoPlugin {
         }
         ctx.engine
           .query(
-            `INCLUDE PERFETTO MODULE sched.thread_executing_span_with_slice;`,
+            `INCLUDE DEJAVIEW MODULE sched.thread_executing_span_with_slice;`,
           )
           .then(() =>
             addDebugSliceTrack(
@@ -212,7 +212,7 @@ class CriticalPath implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CriticalPathLite_AreaSelection',
+      id: 'dejaview.CriticalPathLite_AreaSelection',
       name: 'Critical path lite (over area selection)',
       callback: async () => {
         const trackUtid = getFirstUtidOfSelectionOrVisibleWindow(ctx);
@@ -221,7 +221,7 @@ class CriticalPath implements PerfettoPlugin {
           return showModalErrorAreaSelectionRequired();
         }
         await ctx.engine.query(
-          `INCLUDE PERFETTO MODULE sched.thread_executing_span;`,
+          `INCLUDE DEJAVIEW MODULE sched.thread_executing_span;`,
         );
         await addDebugSliceTrack(
           ctx,
@@ -254,7 +254,7 @@ class CriticalPath implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CriticalPath_AreaSelection',
+      id: 'dejaview.CriticalPath_AreaSelection',
       name: 'Critical path  (over area selection)',
       callback: async () => {
         const trackUtid = getFirstUtidOfSelectionOrVisibleWindow(ctx);
@@ -263,7 +263,7 @@ class CriticalPath implements PerfettoPlugin {
           return showModalErrorAreaSelectionRequired();
         }
         await ctx.engine.query(
-          `INCLUDE PERFETTO MODULE sched.thread_executing_span_with_slice;`,
+          `INCLUDE DEJAVIEW MODULE sched.thread_executing_span_with_slice;`,
         );
         await addDebugSliceTrack(
           ctx,
@@ -288,7 +288,7 @@ class CriticalPath implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CriticalPathPprof_AreaSelection',
+      id: 'dejaview.CriticalPathPprof_AreaSelection',
       name: 'Critical path pprof (over area selection)',
       callback: async () => {
         const trackUtid = getFirstUtidOfSelectionOrVisibleWindow(ctx);
@@ -298,7 +298,7 @@ class CriticalPath implements PerfettoPlugin {
         }
         addQueryResultsTab(ctx, {
           query: `
-              INCLUDE PERFETTO MODULE sched.thread_executing_span_with_slice;
+              INCLUDE DEJAVIEW MODULE sched.thread_executing_span_with_slice;
               SELECT *
                 FROM
                   _thread_executing_span_critical_path_graph(
@@ -314,6 +314,6 @@ class CriticalPath implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.CriticalPath',
+  pluginId: 'dejaview.CriticalPath',
   plugin: CriticalPath,
 };

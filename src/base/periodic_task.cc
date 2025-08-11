@@ -14,22 +14,22 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/periodic_task.h"
+#include "dejaview/ext/base/periodic_task.h"
 
 #include <limits>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    (PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && __ANDROID_API__ >= 19)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    (DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && __ANDROID_API__ >= 19)
 #include <sys/timerfd.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -44,8 +44,8 @@ uint32_t GetNextDelayMs(const TimeMillis& now_ms,
 }
 
 ScopedPlatformHandle CreateTimerFd(const PeriodicTask::Args& args) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    (PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && __ANDROID_API__ >= 19)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    (DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && __ANDROID_API__ >= 19)
   ScopedPlatformHandle tfd(
       timerfd_create(CLOCK_BOOTTIME, TFD_CLOEXEC | TFD_NONBLOCK));
   uint32_t phase_ms = GetNextDelayMs(GetBootTimeMs(), args);
@@ -83,11 +83,11 @@ PeriodicTask::~PeriodicTask() {
 }
 
 void PeriodicTask::Start(Args args) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   Reset();
   if (args.period_ms == 0 || !args.task) {
-    PERFETTO_DCHECK(args.period_ms > 0);
-    PERFETTO_DCHECK(args.task);
+    DEJAVIEW_DCHECK(args.period_ms > 0);
+    DEJAVIEW_DCHECK(args.task);
     return;
   }
   args_ = std::move(args);
@@ -99,7 +99,7 @@ void PeriodicTask::Start(Args args) {
           *timer_fd_,
           std::bind(PeriodicTask::RunTaskAndPostNext, weak_this, generation_));
     } else {
-      PERFETTO_DPLOG("timerfd not supported, falling back on PostDelayedTask");
+      DEJAVIEW_DPLOG("timerfd not supported, falling back on PostDelayedTask");
     }
   }  // if (use_suspend_aware_timer).
 
@@ -111,9 +111,9 @@ void PeriodicTask::Start(Args args) {
 }
 
 void PeriodicTask::PostNextTask() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
-  PERFETTO_DCHECK(args_.period_ms > 0);
-  PERFETTO_DCHECK(!timer_fd_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK(args_.period_ms > 0);
+  DEJAVIEW_DCHECK(!timer_fd_);
   uint32_t delay_ms = GetNextDelayMs(GetWallTimeMs(), args_);
   auto weak_this = weak_ptr_factory_.GetWeakPtr();
   task_runner_->PostDelayedTask(
@@ -129,10 +129,10 @@ void PeriodicTask::RunTaskAndPostNext(WeakPtr<PeriodicTask> thiz,
                                       uint32_t generation) {
   if (!thiz || !thiz->args_.task || generation != thiz->generation_)
     return;  // Destroyed or Reset() in the meanwhile.
-  PERFETTO_DCHECK_THREAD(thiz->thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thiz->thread_checker_);
   if (thiz->timer_fd_) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-    PERFETTO_FATAL("timerfd for periodic tasks unsupported on Windows");
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+    DEJAVIEW_FATAL("timerfd for periodic tasks unsupported on Windows");
 #else
     // If we are using a timerfd there is no need to repeatedly call
     // PostDelayedTask(). The kernel will wakeup the timer fd periodically. We
@@ -143,7 +143,7 @@ void PeriodicTask::RunTaskAndPostNext(WeakPtr<PeriodicTask> thiz,
     if (rsize != sizeof(uint64_t)) {
       if (errno == EAGAIN)
         return;  // A spurious wakeup. Rare, but can happen, just ignore.
-      PERFETTO_PLOG("read(timerfd) failed, falling back on PostDelayedTask");
+      DEJAVIEW_PLOG("read(timerfd) failed, falling back on PostDelayedTask");
       thiz->ResetTimerFd();
     }
 #endif
@@ -167,10 +167,10 @@ void PeriodicTask::RunTaskAndPostNext(WeakPtr<PeriodicTask> thiz,
 }
 
 void PeriodicTask::Reset() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   ++generation_;
   args_ = Args();
-  PERFETTO_DCHECK(!args_.task);
+  DEJAVIEW_DCHECK(!args_.task);
   ResetTimerFd();
 }
 
@@ -182,4 +182,4 @@ void PeriodicTask::ResetTimerFd() {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

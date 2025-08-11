@@ -16,19 +16,19 @@
 
 #include "src/tracing/service/packet_stream_validator.h"
 
-#include "perfetto/ext/tracing/core/slice.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/ext/tracing/core/slice.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 namespace {
 
 static void BM_PacketStreamValidator(benchmark::State& state) {
-  using namespace perfetto;
+  using namespace dejaview;
 
   // Create a packet that resembles a ftrace sched bundle. A ftrace page is
   // 4KB and typically contains ~64 sched events of 64 bytes each.
@@ -65,7 +65,7 @@ static void BM_PacketStreamValidator(benchmark::State& state) {
   while (state.KeepRunning()) {
     res &= PacketStreamValidator::Validate(slices);
   }
-  PERFETTO_CHECK(res);
+  DEJAVIEW_CHECK(res);
 }
 
 }  // namespace

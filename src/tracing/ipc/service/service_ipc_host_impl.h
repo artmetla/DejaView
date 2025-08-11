@@ -19,9 +19,9 @@
 
 #include <memory>
 
-#include "perfetto/ext/tracing/ipc/service_ipc_host.h"
+#include "dejaview/ext/tracing/ipc/service_ipc_host.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace ipc {
 class Host;
@@ -66,6 +66,6 @@ class ServiceIPCHostImpl : public ServiceIPCHost {
   std::unique_ptr<ipc::Host> consumer_ipc_port_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_SERVICE_SERVICE_IPC_HOST_IMPL_H_

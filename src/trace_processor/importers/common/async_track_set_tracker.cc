@@ -20,7 +20,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 AsyncTrackSetTracker::AsyncTrackSetTracker(TraceProcessorContext* context)
@@ -87,7 +87,7 @@ AsyncTrackSetTracker::InternAndroidLegacyUnnestableTrackSet(UniquePid upid,
 }
 
 TrackId AsyncTrackSetTracker::Begin(TrackSetId id, int64_t cookie) {
-  PERFETTO_DCHECK(id < track_sets_.size());
+  DEJAVIEW_DCHECK(id < track_sets_.size());
 
   TrackSet& set = track_sets_[id];
   TrackState& state = GetOrCreateTrackForCookie(set, cookie);
@@ -96,7 +96,7 @@ TrackId AsyncTrackSetTracker::Begin(TrackSetId id, int64_t cookie) {
       state.nest_count++;
       break;
     case NestingBehaviour::kLegacySaturatingUnnestable:
-      PERFETTO_DCHECK(state.nest_count <= 1);
+      DEJAVIEW_DCHECK(state.nest_count <= 1);
       state.nest_count = 1;
       break;
   }
@@ -104,7 +104,7 @@ TrackId AsyncTrackSetTracker::Begin(TrackSetId id, int64_t cookie) {
 }
 
 TrackId AsyncTrackSetTracker::End(TrackSetId id, int64_t cookie) {
-  PERFETTO_DCHECK(id < track_sets_.size());
+  DEJAVIEW_DCHECK(id < track_sets_.size());
 
   TrackSet& set = track_sets_[id];
   TrackState& state = GetOrCreateTrackForCookie(set, cookie);
@@ -122,10 +122,10 @@ TrackId AsyncTrackSetTracker::End(TrackSetId id, int64_t cookie) {
 }
 
 TrackId AsyncTrackSetTracker::Scoped(TrackSetId id, int64_t ts, int64_t dur) {
-  PERFETTO_DCHECK(id < track_sets_.size());
+  DEJAVIEW_DCHECK(id < track_sets_.size());
 
   TrackSet& set = track_sets_[id];
-  PERFETTO_DCHECK(set.nesting_behaviour !=
+  DEJAVIEW_DCHECK(set.nesting_behaviour !=
                   NestingBehaviour::kLegacySaturatingUnnestable);
 
   auto it = std::find_if(
@@ -196,8 +196,8 @@ TrackId AsyncTrackSetTracker::CreateTrackForSet(const TrackSet& set) {
       return context_->track_tracker->LegacyCreateProcessAsyncTrack(
           set.process_tuple.name, set.process_tuple.upid, source);
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

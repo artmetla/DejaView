@@ -20,9 +20,9 @@
 
 #include "src/traced/probes/ftrace/event_info.h"
 
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/protozero/proto_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using protozero::proto_utils::ProtoSchemaType;
 
@@ -10561,4 +10561,4 @@ std::vector<Event> GetStaticEventInfo() {
   };
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -20,7 +20,7 @@
 #include "src/traced/probes/ftrace/ftrace_stats.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(CpuStatsParserTest, DumpCpu) {
@@ -48,4 +48,4 @@ read events: 8
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

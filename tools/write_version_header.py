@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 """
-Writes the perfetto_version{.gen.h, .ts} files.
+Writes the dejaview_version{.gen.h, .ts} files.
 
 This tool is run as part of a genrule from GN, SoonG and Bazel builds. It
 generates a source header (or in the case of --ts_out a TypeScript file) that
@@ -52,7 +52,7 @@ def get_latest_release(changelog_path):
       m = re.match(r'^(v\d+[.]\d+)\s.*$', line)
       if m is not None:
         return m.group(1)
-  raise Exception('Failed to fetch Perfetto version from %s' % changelog_path)
+  raise Exception('Failed to fetch DejaView version from %s' % changelog_path)
 
 
 def get_git_sha1(commitish):
@@ -119,8 +119,8 @@ def main():
     lines.append('#ifndef %s' % guard)
     lines.append('#define %s' % guard)
     lines.append('')
-    lines.append('#define PERFETTO_VERSION_STRING() "%s"' % version)
-    lines.append('#define PERFETTO_VERSION_SCM_REVISION() "%s"' % head_sha1)
+    lines.append('#define DEJAVIEW_VERSION_STRING() "%s"' % version)
+    lines.append('#define DEJAVIEW_VERSION_SCM_REVISION() "%s"' % head_sha1)
     lines.append('')
     lines.append('#endif  // %s' % guard)
     lines.append('')

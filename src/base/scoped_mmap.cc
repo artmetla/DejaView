@@ -14,31 +14,31 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/scoped_mmap.h"
+#include "dejaview/ext/base/scoped_mmap.h"
 
 #include <utility>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <sys/mman.h>
 #include <unistd.h>
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #endif
 
-namespace perfetto::base {
+namespace dejaview::base {
 namespace {
 
 ScopedPlatformHandle OpenFileForMmap(const char* fname) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   return OpenFile(fname, O_RDONLY);
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // This does not use base::OpenFile to avoid getting an exclusive lock.
   return ScopedPlatformHandle(CreateFileA(fname, GENERIC_READ, FILE_SHARE_READ,
                                           nullptr, OPEN_EXISTING,
@@ -64,7 +64,7 @@ ScopedMmap& ScopedMmap::operator=(ScopedMmap&& other) noexcept {
   std::swap(ptr_, other.ptr_);
   std::swap(length_, other.length_);
   std::swap(file_, other.file_);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   std::swap(map_, other.map_);
 #endif
   return *this;
@@ -81,16 +81,16 @@ ScopedMmap ScopedMmap::FromHandle(base::ScopedPlatformHandle file,
   if (!file) {
     return ret;
   }
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   void* ptr = mmap(nullptr, length, PROT_READ, MAP_PRIVATE, *file, 0);
   if (ptr != MAP_FAILED) {
     ret.ptr_ = ptr;
     ret.length_ = length;
     ret.file_ = std::move(file);
   }
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   ScopedPlatformHandle map(
       CreateFileMapping(*file, nullptr, PAGE_READONLY, 0, 0, nullptr));
   if (!map) {
@@ -111,13 +111,13 @@ ScopedMmap ScopedMmap::FromHandle(base::ScopedPlatformHandle file,
 
 bool ScopedMmap::reset() noexcept {
   bool ret = true;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   if (ptr_ != nullptr) {
     ret = munmap(ptr_, length_) == 0;
   }
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   if (ptr_ != nullptr) {
     ret = UnmapViewOfFile(ptr_);
   }
@@ -129,9 +129,9 @@ bool ScopedMmap::reset() noexcept {
   return ret;
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 // static
 ScopedMmap ScopedMmap::InheritMmappedRange(void* data, size_t size) {
   ScopedMmap ret;
@@ -161,4 +161,4 @@ ScopedMmap ReadMmapWholeFile(const char* fname) {
   return ScopedMmap::FromHandle(std::move(file), size);
 }
 
-}  // namespace perfetto::base
+}  // namespace dejaview::base

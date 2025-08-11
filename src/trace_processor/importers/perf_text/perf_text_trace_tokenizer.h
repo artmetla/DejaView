@@ -18,14 +18,14 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PERF_TEXT_PERF_TEXT_TRACE_TOKENIZER_H_
 
 #include <string>
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/common/virtual_memory_mapping.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-namespace perfetto::trace_processor::perf_text_importer {
+namespace dejaview::trace_processor::perf_text_importer {
 
 class PerfTextTraceTokenizer : public ChunkedTraceReader {
  public:
@@ -41,6 +41,6 @@ class PerfTextTraceTokenizer : public ChunkedTraceReader {
   base::FlatHashMap<std::string, DummyMemoryMapping*> mappings_;
 };
 
-}  // namespace perfetto::trace_processor::perf_text_importer
+}  // namespace dejaview::trace_processor::perf_text_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_TEXT_PERF_TEXT_TRACE_TOKENIZER_H_

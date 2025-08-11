@@ -25,26 +25,26 @@
 #include <thread>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/ctrl_c_handler.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/subprocess.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/tracing.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/ctrl_c_handler.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/subprocess.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/tracing.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "dejaview/tracing/core/trace_config.h"
 #include "src/base/test/utils.h"
 
-#include "protos/perfetto/config/stress_test_config.gen.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/stress_test_config.gen.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #else
 #include <signal.h>
@@ -55,14 +55,14 @@
 // listed in /test/stress_test/configs/BUILD.gn.
 #include "test/stress_test/configs/stress_test_config_blobs.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 // TODO(primiano): We need a base::File to get around the awkwardness of
 // files on Windows being a mix of int and HANDLE (and open() vs CreateFile())
 // in our codebase.
 base::ScopedPlatformHandle OpenLogFile(const std::string& path) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   return base::ScopedPlatformHandle(::CreateFileA(
       path.c_str(), GENERIC_READ | GENERIC_WRITE,
       FILE_SHARE_DELETE | FILE_SHARE_READ, nullptr, CREATE_ALWAYS, 0, nullptr));
@@ -114,7 +114,7 @@ class TestHarness {
  private:
   void ReadbackTrace(const std::string&, ParsedTraceStats*);
   void ParseTracePacket(const uint8_t*, size_t, ParsedTraceStats* ctx);
-  void AddFailure(const char* fmt, ...) PERFETTO_PRINTF_FORMAT(2, 3);
+  void AddFailure(const char* fmt, ...) DEJAVIEW_PRINTF_FORMAT(2, 3);
 
   std::vector<std::string> env_;
   std::list<TestResult> test_results_;
@@ -123,14 +123,14 @@ class TestHarness {
 };
 
 TestHarness::TestHarness() {
-  results_dir_ = base::GetSysTempDir() + "/perfetto-stress-test";
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+  results_dir_ = base::GetSysTempDir() + "/dejaview-stress-test";
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   base::ignore_result(system(("rmdir \"" + results_dir_ + "\" /s /q").c_str()));
 #else
   base::ignore_result(system(("rm -r -- \"" + results_dir_ + "\"").c_str()));
 #endif
-  PERFETTO_CHECK(base::Mkdir(results_dir_));
-  PERFETTO_LOG("Saving test results in %s", results_dir_.c_str());
+  DEJAVIEW_CHECK(base::Mkdir(results_dir_));
+  DEJAVIEW_LOG("Saving test results in %s", results_dir_.c_str());
 }
 
 void TestHarness::AddFailure(const char* fmt, ...) {
@@ -142,7 +142,7 @@ void TestHarness::AddFailure(const char* fmt, ...) {
   int res = vsnprintf(log_msg, sizeof(log_msg), fmt, args);
   va_end(args);
 
-  PERFETTO_ELOG("FAIL: %s", log_msg);
+  DEJAVIEW_ELOG("FAIL: %s", log_msg);
 
   if (res > 0 && static_cast<size_t>(res) < sizeof(log_msg) - 2) {
     log_msg[res++] = '\n';
@@ -162,15 +162,15 @@ void TestHarness::RunConfig(const char* cfg_name,
   g_sig->pids_to_kill.clear();
 
   auto result_dir = results_dir_ + "/" + cfg_name;
-  PERFETTO_CHECK(base::Mkdir(result_dir));
+  DEJAVIEW_CHECK(base::Mkdir(result_dir));
   error_log_ = base::OpenFile(result_dir + "/errors.log",
                               O_RDWR | O_CREAT | O_TRUNC, 0644);
 
-  PERFETTO_ILOG("Starting \"%s\" - %s", cfg_name, result_dir.c_str());
+  DEJAVIEW_ILOG("Starting \"%s\" - %s", cfg_name, result_dir.c_str());
 
-  env_.emplace_back("PERFETTO_PRODUCER_SOCK_NAME=" + result_dir +
+  env_.emplace_back("DEJAVIEW_PRODUCER_SOCK_NAME=" + result_dir +
                     "/producer.sock");
-  env_.emplace_back("PERFETTO_CONSUMER_SOCK_NAME=" + result_dir +
+  env_.emplace_back("DEJAVIEW_CONSUMER_SOCK_NAME=" + result_dir +
                     "/consumer.sock");
   std::string bin_dir = base::GetCurExecutableDir();
 
@@ -185,7 +185,7 @@ void TestHarness::RunConfig(const char* cfg_name,
   traced.Start();
   g_sig->pids_to_kill.emplace_back(traced.pid());
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  PERFETTO_CHECK(traced.Poll() == base::Subprocess::kRunning);
+  DEJAVIEW_CHECK(traced.Poll() == base::Subprocess::kRunning);
 
   // Start the producer processes.
   std::list<base::Subprocess> producers;
@@ -205,15 +205,15 @@ void TestHarness::RunConfig(const char* cfg_name,
   }
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
   for (auto& producer : producers)
-    PERFETTO_CHECK(producer.Poll() == base::Subprocess::kRunning);
+    DEJAVIEW_CHECK(producer.Poll() == base::Subprocess::kRunning);
 
   auto trace_file_path = result_dir + "/trace";
   base::Subprocess consumer(
-      {bin_dir + "/perfetto", "-c", "-", "-o", trace_file_path.c_str()});
+      {bin_dir + "/dejaview", "-c", "-", "-o", trace_file_path.c_str()});
   consumer.args.env = env_;
   consumer.args.input = cfg.trace_config().SerializeAsString();
   if (!verbose) {
-    consumer.args.out_fd = OpenLogFile(result_dir + "/perfetto.log");
+    consumer.args.out_fd = OpenLogFile(result_dir + "/dejaview.log");
     consumer.args.stderr_mode = consumer.args.stdout_mode =
         base::Subprocess::OutputMode::kFd;
   }
@@ -223,7 +223,7 @@ void TestHarness::RunConfig(const char* cfg_name,
   g_sig->pids_to_kill.emplace_back(consumer.pid());
 
   std::this_thread::sleep_for(std::chrono::milliseconds(100));
-  PERFETTO_CHECK(consumer.Poll() == base::Subprocess::kRunning);
+  DEJAVIEW_CHECK(consumer.Poll() == base::Subprocess::kRunning);
 
   if (!consumer.Wait(
           static_cast<int>(cfg.trace_config().duration_ms() + 30000))) {
@@ -269,7 +269,7 @@ void TestHarness::RunConfig(const char* cfg_name,
   }
 
   error_log_.reset();
-  PERFETTO_ILOG("Completed \"%s\"", cfg_name);
+  DEJAVIEW_ILOG("Completed \"%s\"", cfg_name);
 }
 
 void TestHarness::ReadbackTrace(const std::string& trace_file_path,
@@ -286,7 +286,7 @@ void TestHarness::ReadbackTrace(const std::string& trace_file_path,
 
   test_result.trace_size_kb = static_cast<uint32_t>(file_size / 1000);
   std::string trace_data;
-  PERFETTO_CHECK(base::ReadFileDescriptor(*fd, &trace_data));
+  DEJAVIEW_CHECK(base::ReadFileDescriptor(*fd, &trace_data));
   const auto* const start = reinterpret_cast<const uint8_t*>(trace_data.data());
   const uint8_t* const end = start + file_size;
 
@@ -427,7 +427,7 @@ void CtrlCHandler() {
   g_sig->aborted.store(true);
   for (auto it = g_sig->pids_to_kill.rbegin(); it != g_sig->pids_to_kill.rend();
        it++) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     base::ScopedPlatformHandle proc_handle(
         ::OpenProcess(PROCESS_TERMINATE, false, static_cast<DWORD>(*it)));
     ::TerminateProcess(*proc_handle, STATUS_CONTROL_C_EXIT);
@@ -463,7 +463,7 @@ void StressTestMain(int argc, char** argv) {
     if (has_filter && !std::regex_search(cfg_blob.name, ignored, filter)) {
       continue;
     }
-    PERFETTO_CHECK(cfg.ParseFromArray(cfg_blob.data, cfg_blob.size));
+    DEJAVIEW_CHECK(cfg.ParseFromArray(cfg_blob.data, cfg_blob.size));
     th.RunConfig(cfg_blob.name, cfg, verbose);
   }
 
@@ -519,8 +519,8 @@ void StressTestMain(int argc, char** argv) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  perfetto::StressTestMain(argc, argv);
+  dejaview::StressTestMain(argc, argv);
 }

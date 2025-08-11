@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base//threading/thread_pool.h"
+#include "dejaview/ext/base//threading/thread_pool.h"
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
 
-#include "perfetto/ext/base/waitable_event.h"
+#include "dejaview/ext/base/waitable_event.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -105,4 +105,4 @@ TEST(ThreadPoolTest, StressTest) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

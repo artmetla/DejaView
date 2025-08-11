@@ -17,20 +17,20 @@
 #include <stddef.h>
 #include <stdint.h>
 
-#include "perfetto/ext/tracing/core/slice.h"
+#include "dejaview/ext/tracing/core/slice.h"
 #include "src/tracing/service/packet_stream_validator.h"
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  perfetto::Slices slices;
+  dejaview::Slices slices;
   for (const uint8_t* p = data; p < data + size;) {
     size_t slice_size = *(p++);
     size_t size_left = size - static_cast<size_t>(p - data);
     slice_size = std::min(slice_size, size_left);
-    slices.emplace_back(perfetto::Slice(p, slice_size));
+    slices.emplace_back(dejaview::Slice(p, slice_size));
     p += slice_size;
   }
-  perfetto::PacketStreamValidator::Validate(slices);
+  dejaview::PacketStreamValidator::Validate(slices);
   return 0;
 }

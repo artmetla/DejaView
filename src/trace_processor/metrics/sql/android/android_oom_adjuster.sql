@@ -13,10 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INCLUDE PERFETTO MODULE android.oom_adjuster;
+INCLUDE DEJAVIEW MODULE android.oom_adjuster;
 
 DROP VIEW IF EXISTS android_oom_adj_intervals_with_detailed_bucket_name;
-CREATE PERFETTO VIEW android_oom_adj_intervals_with_detailed_bucket_name (
+CREATE DEJAVIEW VIEW android_oom_adj_intervals_with_detailed_bucket_name (
   -- Timestamp the oom_adj score of the process changed
   ts INT,
   -- Duration until the next oom_adj score change of the process.
@@ -61,7 +61,7 @@ SELECT
 FROM _oom_adjuster_intervals;
 
 DROP TABLE IF EXISTS _oom_adj_events_with_src_bucket;
-CREATE PERFETTO TABLE _oom_adj_events_with_src_bucket
+CREATE DEJAVIEW TABLE _oom_adj_events_with_src_bucket
 AS
 SELECT
   LAG(bucket) OVER (PARTITION BY upid ORDER BY ts) AS src_bucket,
@@ -72,7 +72,7 @@ SELECT
 FROM android_oom_adj_intervals_with_detailed_bucket_name;
 
 DROP VIEW IF EXISTS oom_adj_events_by_process_name;
-CREATE PERFETTO VIEW oom_adj_events_by_process_name AS
+CREATE DEJAVIEW VIEW oom_adj_events_by_process_name AS
 SELECT
   src_bucket,
   bucket,
@@ -82,7 +82,7 @@ FROM _oom_adj_events_with_src_bucket
 GROUP BY process_name, bucket, src_bucket;
 
 DROP VIEW IF EXISTS oom_adj_events_global_by_bucket;
-CREATE PERFETTO VIEW oom_adj_events_global_by_bucket AS
+CREATE DEJAVIEW VIEW oom_adj_events_global_by_bucket AS
 SELECT
   src_bucket,
   bucket,
@@ -92,7 +92,7 @@ FROM _oom_adj_events_with_src_bucket
 GROUP BY bucket, src_bucket;
 
 DROP VIEW IF EXISTS oom_adj_events_by_oom_adj_reason;
-CREATE PERFETTO VIEW oom_adj_events_by_oom_adj_reason AS
+CREATE DEJAVIEW VIEW oom_adj_events_by_oom_adj_reason AS
 SELECT
   src_bucket,
   bucket,
@@ -102,7 +102,7 @@ FROM _oom_adj_events_with_src_bucket
 GROUP BY bucket, src_bucket, oom_adj_reason;
 
 DROP VIEW IF EXISTS android_oom_adjuster_output;
-CREATE PERFETTO VIEW android_oom_adjuster_output AS
+CREATE DEJAVIEW VIEW android_oom_adjuster_output AS
 SELECT AndroidOomAdjusterMetric(
   'oom_adjuster_transition_counts_by_process', (
     SELECT RepeatedField(

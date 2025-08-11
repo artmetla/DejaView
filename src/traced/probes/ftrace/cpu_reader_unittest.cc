@@ -20,11 +20,11 @@
 #include <sys/stat.h>
 #include <sys/syscall.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/protozero/scattered_stream_writer.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
 #include "src/traced/probes/ftrace/event_info.h"
 #include "src/traced/probes/ftrace/ftrace_config_muxer.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
@@ -33,20 +33,20 @@
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ftrace/dpu.gen.h"
-#include "protos/perfetto/trace/ftrace/f2fs.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.gen.h"
-#include "protos/perfetto/trace/ftrace/raw_syscalls.gen.h"
-#include "protos/perfetto/trace/ftrace/sched.gen.h"
-#include "protos/perfetto/trace/ftrace/task.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/ftrace/dpu.gen.h"
+#include "protos/dejaview/trace/ftrace/f2fs.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.gen.h"
+#include "protos/dejaview/trace/ftrace/raw_syscalls.gen.h"
+#include "protos/dejaview/trace/ftrace/sched.gen.h"
+#include "protos/dejaview/trace/ftrace/task.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 #include "src/traced/probes/ftrace/test/test_messages.gen.h"
 #include "src/traced/probes/ftrace/test/test_messages.pbzero.h"
 
@@ -68,7 +68,7 @@ using testing::Return;
 using testing::SizeIs;
 using testing::StartsWith;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using FtraceParseStatus = protos::pbzero::FtraceParseStatus;
@@ -177,12 +177,12 @@ class BinaryWriter {
   void Write(T t) {
     memcpy(ptr_, &t, sizeof(T));
     ptr_ += sizeof(T);
-    PERFETTO_CHECK(ptr_ < ptr_ + size_);
+    DEJAVIEW_CHECK(ptr_ < ptr_ + size_);
   }
 
   void WriteFixedString(size_t n, const char* s) {
     size_t length = strlen(s);
-    PERFETTO_CHECK(length < n);
+    DEJAVIEW_CHECK(length < n);
     char c;
     while ((c = *s++)) {
       Write<char>(c);
@@ -399,7 +399,7 @@ static ExamplePage g_single_print{
 class CpuReaderParsePagePayloadTest : public testing::Test {
  protected:
   CpuReader::Bundler* CreateBundler(const FtraceDataSourceConfig& ds_config) {
-    PERFETTO_CHECK(!bundler_.has_value());
+    DEJAVIEW_CHECK(!bundler_.has_value());
     writer_.emplace();
     compact_sched_buf_ = std::make_unique<CompactSchedBuffer>();
     bundler_.emplace(&writer_.value(), &metadata_, /*symbolizer=*/nullptr,
@@ -412,8 +412,8 @@ class CpuReaderParsePagePayloadTest : public testing::Test {
   }
 
   protos::gen::FtraceEventBundle GetBundle() {
-    PERFETTO_CHECK(bundler_.has_value());
-    PERFETTO_CHECK(writer_.has_value());
+    DEJAVIEW_CHECK(bundler_.has_value());
+    DEJAVIEW_CHECK(writer_.has_value());
     bundler_.reset();
     protos::gen::FtraceEventBundle bundle =
         writer_->GetOnlyTracePacket().ftrace_events();
@@ -422,8 +422,8 @@ class CpuReaderParsePagePayloadTest : public testing::Test {
   }
 
   std::vector<protos::gen::TracePacket> AllTracePackets() {
-    PERFETTO_CHECK(bundler_.has_value());
-    PERFETTO_CHECK(writer_.has_value());
+    DEJAVIEW_CHECK(bundler_.has_value());
+    DEJAVIEW_CHECK(writer_.has_value());
     bundler_.reset();
     std::vector<protos::gen::TracePacket> packets =
         writer_->GetAllTracePackets();
@@ -1425,7 +1425,7 @@ TEST_F(CpuReaderTableTest, ParseAllFields) {
             static_cast<uint32_t>(kUserspaceBlockDeviceId));
   EXPECT_EQ(event->all_fields().field_inode_32(), 98u);
 // TODO(primiano): for some reason this fails on mac.
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   EXPECT_EQ(event->all_fields().field_dev_64(), k64BitUserspaceBlockDeviceId);
 #endif
   EXPECT_EQ(event->all_fields().field_inode_64(), 99u);
@@ -1483,7 +1483,7 @@ TEST(CpuReaderTest, SysEnterEvent) {
 
 // MacOS fails on this ...but MacOS will never use cpu_reader so it's
 // not a big problem.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #define MAYBE_SysExitEvent DISABLED_SysExitEvent
 #else
 #define MAYBE_SysExitEvent SysExitEvent
@@ -3480,7 +3480,7 @@ TEST_F(CpuReaderParsePagePayloadTest, F2fsTruncatePartialNodesOld) {
   FtraceDataSourceConfig ds_config = EmptyConfig();
   auto id = table->EventToFtraceId(
       GroupAndName("f2fs", "f2fs_truncate_partial_nodes"));
-  PERFETTO_LOG("Enabling: %zu", id);
+  DEJAVIEW_LOG("Enabling: %zu", id);
   ds_config.event_filter.AddEnabledEvent(id);
 
   const uint8_t* parse_pos = page.get();
@@ -3640,4 +3640,4 @@ TEST(CpuReaderTest, LastReadEventTimestampWithSplitBundles) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

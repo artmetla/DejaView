@@ -14,10 +14,10 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.memory.dmabuf;
+INCLUDE DEJAVIEW MODULE android.memory.dmabuf;
 
 DROP VIEW IF EXISTS dma_heap_timeline;
-CREATE PERFETTO VIEW dma_heap_timeline AS
+CREATE DEJAVIEW VIEW dma_heap_timeline AS
 SELECT
   ts,
   LEAD(ts, 1, trace_end())
@@ -29,7 +29,7 @@ FROM counter JOIN counter_track
 WHERE (name = 'mem.dma_heap');
 
 DROP VIEW IF EXISTS dma_heap_stats;
-CREATE PERFETTO VIEW dma_heap_stats AS
+CREATE DEJAVIEW VIEW dma_heap_stats AS
 SELECT
   SUM(value * dur) / SUM(dur) AS avg_size,
   MIN(value) AS min_size,
@@ -37,7 +37,7 @@ SELECT
 FROM dma_heap_timeline;
 
 DROP VIEW IF EXISTS android_dma_heap_output;
-CREATE PERFETTO VIEW android_dma_heap_output AS
+CREATE DEJAVIEW VIEW android_dma_heap_output AS
 WITH _process_stats AS (
   SELECT process_name, SUM(buf_size) delta
   FROM android_dmabuf_allocs

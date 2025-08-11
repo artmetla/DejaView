@@ -16,21 +16,21 @@
 
 #include "src/profiling/symbolizer/filesystem.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-#if PERFETTO_BUILDFLAG(PERFETTO_LOCAL_SYMBOLIZER)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_LOCAL_SYMBOLIZER)
 #include <fts.h>
 #include <sys/stat.h>
 #endif
 
 #include <string>
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
-#if PERFETTO_BUILDFLAG(PERFETTO_LOCAL_SYMBOLIZER)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_LOCAL_SYMBOLIZER)
 bool WalkDirectories(std::vector<std::string> dirs, FileCallback fn) {
   std::vector<char*> dir_cstrs;
   dir_cstrs.reserve(dirs.size());
@@ -40,7 +40,7 @@ bool WalkDirectories(std::vector<std::string> dirs, FileCallback fn) {
   base::ScopedResource<FTS*, fts_close, nullptr> fts(
       fts_open(&dir_cstrs[0], FTS_LOGICAL | FTS_NOCHDIR, nullptr));
   if (!fts) {
-    PERFETTO_PLOG("fts_open");
+    DEJAVIEW_PLOG("fts_open");
     return false;
   }
   FTSENT* ent;
@@ -58,6 +58,6 @@ bool WalkDirectories(std::vector<std::string>, FileCallback) {
 #endif
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)

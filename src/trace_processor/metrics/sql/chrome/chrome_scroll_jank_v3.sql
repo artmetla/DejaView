@@ -13,7 +13,7 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
 DROP VIEW IF EXISTS chrome_scroll_jank_v3_intermediate;
 
@@ -28,7 +28,7 @@ DROP VIEW IF EXISTS chrome_scroll_jank_v3_intermediate;
 --                                   janky frames, percent of janky frames,
 --                                   maximum presentation delay, and the causes
 --                                   of jank (cause, sub-cause, delay).
-CREATE PERFETTO VIEW chrome_scroll_jank_v3_intermediate AS
+CREATE DEJAVIEW VIEW chrome_scroll_jank_v3_intermediate AS
 SELECT
   -- MAX does not matter for these aggregations, since the values are the
   -- same across rows.
@@ -57,7 +57,7 @@ INNER JOIN chrome_causes_per_scroll AS causes
 
 DROP VIEW IF EXISTS chrome_scroll_jank_v3_output;
 
--- For producing a "native" Perfetto UI metric.
+-- For producing a "native" DejaView UI metric.
 --
 -- @column scroll_jank_summary     A proto amalgamation summarizing all of the
 --                                 scroll jank in a trace, including the number
@@ -65,7 +65,7 @@ DROP VIEW IF EXISTS chrome_scroll_jank_v3_output;
 --                                 frames, vsync interval, and a summary of this
 --                                 data (including individual causes) for each
 --                                 scroll.
-CREATE PERFETTO VIEW chrome_scroll_jank_v3_output AS
+CREATE DEJAVIEW VIEW chrome_scroll_jank_v3_output AS
 SELECT
   ChromeScrollJankV3(
     'trace_num_frames',

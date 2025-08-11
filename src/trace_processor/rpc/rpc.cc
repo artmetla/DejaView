@@ -25,25 +25,25 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/version.h"
-#include "perfetto/ext/protozero/proto_ring_buffer.h"
-#include "perfetto/ext/trace_processor/rpc/query_result_serializer.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/metatrace_config.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/version.h"
+#include "dejaview/ext/protozero/proto_ring_buffer.h"
+#include "dejaview/ext/trace_processor/rpc/query_result_serializer.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/metatrace_config.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/tp_metatrace.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
-#include "protos/perfetto/trace_processor/trace_processor.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/trace_processor.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 // Writes a "Loading trace ..." update every N bytes.
@@ -181,7 +181,7 @@ void Rpc::ParseRpcRequest(const uint8_t* data, size_t len) {
              "RPC request out of order. Expected %" PRId64 ", got %" PRId64
              " (ERR:rpc_seq)",
              rx_seq_id_ + 1, req.seq());
-    PERFETTO_ELOG("%s", err_str);
+    DEJAVIEW_ELOG("%s", err_str);
     protozero::HeapBuffered<TraceProcessorRpcStream> err_msg;
     err_msg->add_msg()->set_fatal_error(err_str);
     auto err = err_msg.SerializeAsArray();
@@ -227,7 +227,7 @@ void Rpc::ParseRpcRequest(const uint8_t* data, size_t len) {
         protos::pbzero::QueryArgs::Decoder query(args.data, args.size);
         std::string sql = query.sql_query().ToStdString();
 
-        PERFETTO_TP_TRACE(metatrace::Category::API_TIMELINE, "RPC_QUERY",
+        DEJAVIEW_TP_TRACE(metatrace::Category::API_TIMELINE, "RPC_QUERY",
                           [&](metatrace::Record* r) {
                             r->AddArg("SQL", sql);
                             if (query.has_tag()) {
@@ -338,7 +338,7 @@ void Rpc::ParseRpcRequest(const uint8_t* data, size_t len) {
       // This can legitimately happen if the client is newer. We reply with a
       // generic "unkown request" response, so the client can do feature
       // detection
-      PERFETTO_DLOG("[RPC] Uknown request type (%d), size=%zu", req_type, len);
+      DEJAVIEW_DLOG("[RPC] Uknown request type (%d), size=%zu", req_type, len);
       Response resp(tx_seq_id_++, req_type);
       resp->set_invalid_request(
           static_cast<RpcProto::TraceProcessorMethod>(req_type));
@@ -349,7 +349,7 @@ void Rpc::ParseRpcRequest(const uint8_t* data, size_t len) {
 }
 
 base::Status Rpc::Parse(const uint8_t* data, size_t len) {
-  PERFETTO_TP_TRACE(
+  DEJAVIEW_TP_TRACE(
       metatrace::Category::API_TIMELINE, "RPC_PARSE",
       [&](metatrace::Record* r) { r->AddArg("length", std::to_string(len)); });
   if (eof_) {
@@ -372,7 +372,7 @@ base::Status Rpc::Parse(const uint8_t* data, size_t len) {
 }
 
 base::Status Rpc::NotifyEndOfFile() {
-  PERFETTO_TP_TRACE(metatrace::Category::API_TIMELINE,
+  DEJAVIEW_TP_TRACE(metatrace::Category::API_TIMELINE,
                     "RPC_NOTIFY_END_OF_FILE");
 
   eof_ = true;
@@ -441,7 +441,7 @@ void Rpc::Query(const uint8_t* args,
                 const QueryResultBatchCallback& result_callback) {
   protos::pbzero::QueryArgs::Decoder query(args, len);
   std::string sql = query.sql_query().ToStdString();
-  PERFETTO_TP_TRACE(metatrace::Category::API_TIMELINE, "RPC_QUERY",
+  DEJAVIEW_TP_TRACE(metatrace::Category::API_TIMELINE, "RPC_QUERY",
                     [&](metatrace::Record* r) {
                       r->AddArg("SQL", sql);
                       if (query.has_tag()) {
@@ -480,7 +480,7 @@ void Rpc::ComputeMetricInternal(const uint8_t* data,
     metric_names.emplace_back(it->as_std_string());
   }
 
-  PERFETTO_TP_TRACE(metatrace::Category::API_TIMELINE, "RPC_COMPUTE_METRIC",
+  DEJAVIEW_TP_TRACE(metatrace::Category::API_TIMELINE, "RPC_COMPUTE_METRIC",
                     [&](metatrace::Record* r) {
                       for (const auto& metric : metric_names) {
                         r->AddArg("Metric", metric);
@@ -488,7 +488,7 @@ void Rpc::ComputeMetricInternal(const uint8_t* data,
                       }
                     });
 
-  PERFETTO_DLOG("[RPC] ComputeMetrics(%zu, %s), format=%d", metric_names.size(),
+  DEJAVIEW_DLOG("[RPC] ComputeMetrics(%zu, %s), format=%d", metric_names.size(),
                 metric_names.empty() ? "" : metric_names.front().c_str(),
                 args.format());
   switch (args.format()) {
@@ -567,4 +567,4 @@ std::vector<uint8_t> Rpc::GetStatus() {
   return status.SerializeAsArray();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

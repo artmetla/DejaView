@@ -24,13 +24,13 @@
 #include <type_traits>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column::utils {
+namespace dejaview::trace_processor::column::utils {
 namespace internal {
 
 template <typename T, typename Comparator>
@@ -134,7 +134,7 @@ SingleSearchResult SingleSearchNumeric(FilterOp op,
     case FilterOp::kIsNull:
       return SingleSearchResult::kNoMatch;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 // Used for comparing the integer column ({u|}int{32|64}) with a double value.
@@ -163,6 +163,6 @@ std::vector<uint32_t> ToIndexVectorForTests(RangeOrBitVector&);
 
 std::vector<uint32_t> ExtractPayloadForTesting(const DataLayerChain::Indices&);
 
-}  // namespace perfetto::trace_processor::column::utils
+}  // namespace dejaview::trace_processor::column::utils
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_UTILS_H_

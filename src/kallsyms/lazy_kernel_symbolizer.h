@@ -19,9 +19,9 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/thread_checker.h"
+#include "dejaview/ext/base/thread_checker.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class KernelSymbolMap;
 
@@ -58,9 +58,9 @@ class LazyKernelSymbolizer {
 
  private:
   std::unique_ptr<KernelSymbolMap> symbol_map_;
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_KALLSYMS_LAZY_KERNEL_SYMBOLIZER_H_

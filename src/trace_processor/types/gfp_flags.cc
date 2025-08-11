@@ -18,7 +18,7 @@
 
 #include <array>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -254,4 +254,4 @@ void WriteGfpFlag(uint64_t value,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

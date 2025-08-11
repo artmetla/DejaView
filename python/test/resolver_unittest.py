@@ -14,16 +14,16 @@
 
 import unittest
 
-from perfetto.trace_uri_resolver.util import parse_trace_uri
-from perfetto.trace_uri_resolver.util import to_list
-from perfetto.trace_uri_resolver.util import _cs_list
-from perfetto.trace_uri_resolver.util import and_list
-from perfetto.trace_uri_resolver.util import or_list
-from perfetto.trace_uri_resolver.resolver import _args_dict_from_uri
-from perfetto.trace_uri_resolver.resolver import Constraint
-from perfetto.trace_uri_resolver.resolver import ConstraintClass
-from perfetto.trace_uri_resolver.resolver import TraceUriResolver
-from perfetto.trace_uri_resolver.registry import ResolverRegistry
+from dejaview.trace_uri_resolver.util import parse_trace_uri
+from dejaview.trace_uri_resolver.util import to_list
+from dejaview.trace_uri_resolver.util import _cs_list
+from dejaview.trace_uri_resolver.util import and_list
+from dejaview.trace_uri_resolver.util import or_list
+from dejaview.trace_uri_resolver.resolver import _args_dict_from_uri
+from dejaview.trace_uri_resolver.resolver import Constraint
+from dejaview.trace_uri_resolver.resolver import ConstraintClass
+from dejaview.trace_uri_resolver.resolver import TraceUriResolver
+from dejaview.trace_uri_resolver.registry import ResolverRegistry
 
 
 class SimpleResolver(TraceUriResolver):

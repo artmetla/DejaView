@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/string_writer.h"
+#include "dejaview/ext/base/string_writer.h"
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -151,4 +151,4 @@ TEST(StringWriterTest, WriteAllTypes) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

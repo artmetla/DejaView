@@ -21,7 +21,7 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/importers/common/virtual_memory_mapping.h"
 #include "src/trace_processor/importers/perf/reader.h"
@@ -29,7 +29,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/perf_tables_py.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 class TraceProcessorContext;
 namespace perf_importer {
 
@@ -104,6 +104,6 @@ class SpeRecordParserImpl : public SpeRecordParser {
 };
 
 }  // namespace perf_importer
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_SPE_RECORD_PARSER_H_

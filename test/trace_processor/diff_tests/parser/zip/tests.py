@@ -76,7 +76,7 @@ class Zip(TestSuite):
         '''))
 
   # Make sure the logcat timestamps are correctly converted to trace ts. All
-  # logcat events in the trace were emitted while a perfetto trace collection
+  # logcat events in the trace were emitted while a dejaview trace collection
   # was active. Thus their timestamps should be between the min and max ts of
   # all track events.
   # The device where the trace was collected had a timezone setting of UTC+1

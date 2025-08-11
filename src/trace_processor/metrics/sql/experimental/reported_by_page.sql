@@ -19,7 +19,7 @@
 -- corresponding events.
 
 DROP VIEW IF EXISTS page_reported_events;
-CREATE PERFETTO VIEW page_reported_events AS
+CREATE DEJAVIEW VIEW page_reported_events AS
 SELECT ts, name, EXTRACT_ARG(arg_set_id, "debug.data.navigationId") AS nav_id
 FROM slice
 WHERE category = 'blink.user_timing'
@@ -31,7 +31,7 @@ ORDER BY nav_id, ts ASC;
 -- reported event.
 
 DROP VIEW IF EXISTS page_reported_durations;
-CREATE PERFETTO VIEW page_reported_durations AS
+CREATE DEJAVIEW VIEW page_reported_durations AS
 SELECT p.name, (p.ts - (
     SELECT MAX(ts) FROM page_reported_events
     WHERE
@@ -52,7 +52,7 @@ FROM page_reported_events p;
 -- Combine results into the output table.
 
 DROP VIEW IF EXISTS reported_by_page_output;
-CREATE PERFETTO VIEW reported_by_page_output AS
+CREATE DEJAVIEW VIEW reported_by_page_output AS
 SELECT ReportedByPage(
   'time_to_viewable', (
     SELECT RepeatedField(dur_ms) FROM page_reported_durations

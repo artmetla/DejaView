@@ -13,10 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INCLUDE PERFETTO MODULE android.broadcasts;
+INCLUDE DEJAVIEW MODULE android.broadcasts;
 
 DROP VIEW IF EXISTS android_broadcasts_output;
-CREATE PERFETTO VIEW android_broadcasts_output AS
+CREATE DEJAVIEW VIEW android_broadcasts_output AS
 SELECT AndroidBroadcastsMetric(
   'process_count_by_intent', (
     SELECT RepeatedField(

@@ -21,7 +21,7 @@
 
 #include "src/trace_processor/importers/proto/args_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Specialized args parser to de-intern ViewCapture strings
@@ -45,6 +45,6 @@ class ViewCaptureArgsParser : public ArgsParser {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_VIEWCAPTURE_ARGS_PARSER_H_

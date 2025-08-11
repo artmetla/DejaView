@@ -22,12 +22,12 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/containers/bit_vector.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Base class for allowing type erasure when defining plug-in implementations
 // of backing storage for columns.
@@ -69,7 +69,7 @@ class ColumnStorage final : public ColumnStorageBase {
     vector_.insert(vector_.end(), count, val);
   }
   void Set(uint32_t idx, T val) { vector_[idx] = val; }
-  PERFETTO_NO_INLINE void ShrinkToFit() { vector_.shrink_to_fit(); }
+  DEJAVIEW_NO_INLINE void ShrinkToFit() { vector_.shrink_to_fit(); }
   const std::vector<T>& vector() const { return vector_; }
 
   const void* data() const final { return vector_.data(); }
@@ -86,7 +86,7 @@ class ColumnStorage final : public ColumnStorageBase {
   // Create non-null storage from nullable storage without nulls.
   static ColumnStorage<T> CreateFromAssertNonNull(
       ColumnStorage<std::optional<T>> null_storage) {
-    PERFETTO_CHECK(null_storage.size() == null_storage.non_null_size());
+    DEJAVIEW_CHECK(null_storage.size() == null_storage.non_null_size());
     ColumnStorage<T> x;
     x.vector_ = std::move(null_storage).non_null_vector();
     return x;
@@ -150,7 +150,7 @@ class ColumnStorage<std::optional<T>> final : public ColumnStorageBase {
       // that path.
       uint32_t row = valid_.CountSetBits(idx);
       bool was_set = valid_.Set(idx);
-      if (PERFETTO_UNLIKELY(was_set)) {
+      if (DEJAVIEW_UNLIKELY(was_set)) {
         data_[row] = val;
       } else {
         data_.insert(data_.begin() + static_cast<ptrdiff_t>(row), val);
@@ -158,7 +158,7 @@ class ColumnStorage<std::optional<T>> final : public ColumnStorageBase {
     }
   }
   bool IsDense() const { return mode_ == Mode::kDense; }
-  PERFETTO_NO_INLINE void ShrinkToFit() {
+  DEJAVIEW_NO_INLINE void ShrinkToFit() {
     data_.shrink_to_fit();
     valid_.ShrinkToFit();
   }
@@ -210,6 +210,6 @@ class ColumnStorage<std::optional<T>> final : public ColumnStorageBase {
   BitVector valid_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_STORAGE_H_

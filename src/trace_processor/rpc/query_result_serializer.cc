@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/rpc/query_result_serializer.h"
+#include "dejaview/ext/trace_processor/rpc/query_result_serializer.h"
 
 #include <vector>
 
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/iterator_impl.h"
 
-#include "protos/perfetto/trace_processor/trace_processor.pbzero.h"
+#include "protos/dejaview/trace_processor/trace_processor.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -39,7 +39,7 @@ static constexpr uint32_t kPaddingFieldId = 7;
 
 uint8_t MakeLenDelimTag(uint32_t field_num) {
   uint32_t tag = pu::MakeTagLengthDelimited(field_num);
-  PERFETTO_DCHECK(tag <= 127);  // Must fit in one byte.
+  DEJAVIEW_DCHECK(tag <= 127);  // Must fit in one byte.
   return static_cast<uint8_t>(tag);
 }
 
@@ -60,7 +60,7 @@ bool QueryResultSerializer::Serialize(std::vector<uint8_t>* buf) {
 }
 
 bool QueryResultSerializer::Serialize(protos::pbzero::QueryResult* res) {
-  PERFETTO_CHECK(!eof_reached_);
+  DEJAVIEW_CHECK(!eof_reached_);
 
   if (!did_write_metadata_) {
     SerializeMetadata(res);
@@ -125,7 +125,7 @@ void QueryResultSerializer::SerializeBatch(protos::pbzero::QueryResult* res) {
       if (!iter_->Next())
         break;  // EOF or error.
 
-      PERFETTO_DCHECK(num_cols_ > 0);
+      DEJAVIEW_DCHECK(num_cols_ > 0);
       // We need to guarantee that a batch contains whole rows. Before moving to
       // the next row, make sure that: (i) there is space for all the columns;
       // (ii) the batch didn't grow too much.
@@ -185,7 +185,7 @@ void QueryResultSerializer::SerializeBatch(protos::pbzero::QueryResult* res) {
       }
     }
 
-    PERFETTO_DCHECK(cell_type != BatchProto::CELL_INVALID);
+    DEJAVIEW_DCHECK(cell_type != BatchProto::CELL_INVALID);
     cell_types[cell_idx] = cell_type;
   }  // for (cell)
 
@@ -231,7 +231,7 @@ void QueryResultSerializer::SerializeBatch(protos::pbzero::QueryResult* res) {
       batch->AppendRawProtoBytes(pad_buf, static_cast<size_t>(pad - pad_buf));
     }
     batch->AppendRawProtoBytes(preamble, preamble_size);
-    PERFETTO_CHECK(writer.written() % 8 == 0);
+    DEJAVIEW_CHECK(writer.written() % 8 == 0);
     batch->AppendRawProtoBytes(doubles.data(), doubles_size);
   }  // if (doubles_size > 0)
 
@@ -264,7 +264,7 @@ void QueryResultSerializer::MaybeSerializeError(
 
 void QueryResultSerializer::SerializeMetadata(
     protos::pbzero::QueryResult* res) {
-  PERFETTO_DCHECK(!did_write_metadata_);
+  DEJAVIEW_DCHECK(!did_write_metadata_);
   for (uint32_t c = 0; c < num_cols_; c++)
     res->add_column_names(iter_->GetColumnName(c));
   res->set_statement_count(iter_->StatementCount());
@@ -273,4 +273,4 @@ void QueryResultSerializer::SerializeMetadata(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

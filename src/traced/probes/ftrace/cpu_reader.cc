@@ -23,10 +23,10 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/kallsyms/kernel_symbol_map.h"
 #include "src/kallsyms/lazy_kernel_symbolizer.h"
 #include "src/traced/probes/ftrace/ftrace_config_muxer.h"
@@ -35,15 +35,15 @@
 #include "src/traced/probes/ftrace/ftrace_print_filter.h"
 #include "src/traced/probes/ftrace/proto_translation_table.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"  // FtraceParseStatus
-#include "protos/perfetto/trace/ftrace/generic.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"  // FtraceParseStatus
+#include "protos/dejaview/trace/ftrace/generic.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using FtraceParseStatus = protos::pbzero::FtraceParseStatus;
@@ -83,12 +83,12 @@ bool ReadDataLoc(const uint8_t* start,
                  const uint8_t* end,
                  const Field& field,
                  protozero::Message* message) {
-  PERFETTO_DCHECK(field.ftrace_size == 4);
+  DEJAVIEW_DCHECK(field.ftrace_size == 4);
   // See kernel header include/trace/trace_events.h
   uint32_t data = 0;
   const uint8_t* ptr = field_start;
   if (!CpuReader::ReadAndAdvance(&ptr, end, &data)) {
-    PERFETTO_DFATAL("couldn't read __data_loc value");
+    DEJAVIEW_DFATAL("couldn't read __data_loc value");
     return false;
   }
 
@@ -96,10 +96,10 @@ bool ReadDataLoc(const uint8_t* start,
   const uint16_t len = (data >> 16) & 0xffff;
   const uint8_t* const string_start = start + offset;
 
-  if (PERFETTO_UNLIKELY(len == 0))
+  if (DEJAVIEW_UNLIKELY(len == 0))
     return true;
-  if (PERFETTO_UNLIKELY(string_start < start || string_start + len > end)) {
-    PERFETTO_DFATAL("__data_loc points at invalid location");
+  if (DEJAVIEW_UNLIKELY(string_start < start || string_start + len > end)) {
+    DEJAVIEW_DFATAL("__data_loc points at invalid location");
     return false;
   }
   ReadIntoString(string_start, len, field.proto_field_id, message);
@@ -125,7 +125,7 @@ int64_t ReadSignedFtraceValue(const uint8_t* ptr, FtraceFieldType ftrace_type) {
     memcpy(&value, reinterpret_cast<const void*>(ptr), sizeof(value));
     return value;
   }
-  PERFETTO_FATAL("unexpected ftrace type");
+  DEJAVIEW_FATAL("unexpected ftrace type");
 }
 
 bool SetBlocking(int fd, bool is_blocking) {
@@ -137,7 +137,7 @@ bool SetBlocking(int fd, bool is_blocking) {
 void SetParseError(const std::set<FtraceDataSource*>& started_data_sources,
                    size_t cpu,
                    FtraceParseStatus status) {
-  PERFETTO_DPLOG("[cpu%zu]: unexpected ftrace read error: %s", cpu,
+  DEJAVIEW_DPLOG("[cpu%zu]: unexpected ftrace read error: %s", cpu,
                  protos::pbzero::FtraceParseStatus_Name(status));
   for (FtraceDataSource* data_source : started_data_sources) {
     data_source->mutable_parse_errors()->insert(status);
@@ -148,7 +148,7 @@ void WriteAndSetParseError(CpuReader::Bundler* bundler,
                            base::FlatSet<FtraceParseStatus>* stat,
                            uint64_t timestamp,
                            FtraceParseStatus status) {
-  PERFETTO_DLOG("Error parsing ftrace page: %s",
+  DEJAVIEW_DLOG("Error parsing ftrace page: %s",
                 protos::pbzero::FtraceParseStatus_Name(status));
   stat->insert(status);
   auto* proto = bundler->GetOrCreateBundle()->add_error();
@@ -173,8 +173,8 @@ CpuReader::CpuReader(size_t cpu,
       trace_fd_(std::move(trace_fd)),
       ftrace_clock_(ftrace_clock),
       ftrace_clock_snapshot_(ftrace_clock_snapshot) {
-  PERFETTO_CHECK(trace_fd_);
-  PERFETTO_CHECK(SetBlocking(*trace_fd_, false));
+  DEJAVIEW_CHECK(trace_fd_);
+  DEJAVIEW_CHECK(SetBlocking(*trace_fd_, false));
 }
 
 CpuReader::~CpuReader() = default;
@@ -183,7 +183,7 @@ size_t CpuReader::ReadCycle(
     ParsingBuffers* parsing_bufs,
     size_t max_pages,
     const std::set<FtraceDataSource*>& started_data_sources) {
-  PERFETTO_DCHECK(max_pages > 0 && parsing_bufs->ftrace_data_buf_pages() > 0);
+  DEJAVIEW_DCHECK(max_pages > 0 && parsing_bufs->ftrace_data_buf_pages() > 0);
   metatrace::ScopedEvent evt(metatrace::TAG_FTRACE,
                              metatrace::FTRACE_CPU_READ_CYCLE);
 
@@ -196,7 +196,7 @@ size_t CpuReader::ReadCycle(
         parsing_bufs->ftrace_data_buf(), batch_pages, is_first_batch,
         parsing_bufs->compact_sched_buf(), started_data_sources);
 
-    PERFETTO_DCHECK(pages_read <= batch_pages);
+    DEJAVIEW_DCHECK(pages_read <= batch_pages);
     total_pages_read += pages_read;
 
     // Check whether we've caught up to the writer, or possibly giving up on
@@ -207,7 +207,7 @@ size_t CpuReader::ReadCycle(
     if (total_pages_read >= max_pages)
       break;
   }
-  PERFETTO_METATRACE_COUNTER(TAG_FTRACE, FTRACE_PAGES_DRAINED,
+  DEJAVIEW_METATRACE_COUNTER(TAG_FTRACE, FTRACE_PAGES_DRAINED,
                              total_pages_read);
   return total_pages_read;
 }
@@ -229,7 +229,7 @@ size_t CpuReader::ReadAndProcessBatch(
                                metatrace::FTRACE_CPU_READ_BATCH);
     for (; pages_read < max_pages;) {
       uint8_t* curr_page = parsing_buf + (pages_read * sys_page_size);
-      ssize_t res = PERFETTO_EINTR(read(*trace_fd_, curr_page, sys_page_size));
+      ssize_t res = DEJAVIEW_EINTR(read(*trace_fd_, curr_page, sys_page_size));
       if (res < 0) {
         // Expected errors:
         // EAGAIN: no data (since we're in non-blocking mode).
@@ -251,7 +251,7 @@ size_t CpuReader::ReadAndProcessBatch(
       // pointer: see usage of |info->read| within |tracing_buffers_read|.
       if (res == 0) {
         // Very rare, but possible. Stop for now, should recover.
-        PERFETTO_DLOG("[cpu%zu]: 0-sized read from ftrace pipe.", cpu_);
+        DEJAVIEW_DLOG("[cpu%zu]: 0-sized read from ftrace pipe.", cpu_);
         break;
       }
       if (res != static_cast<ssize_t>(sys_page_size)) {
@@ -276,7 +276,7 @@ size_t CpuReader::ReadAndProcessBatch(
       const uint8_t* scratch_ptr = curr_page;
       std::optional<PageHeader> hdr =
           ParsePageHeader(&scratch_ptr, table_->page_header_size_len());
-      PERFETTO_DCHECK(hdr && hdr->size > 0 && hdr->size <= sys_page_size);
+      DEJAVIEW_DCHECK(hdr && hdr->size > 0 && hdr->size <= sys_page_size);
       if (!hdr.has_value()) {
         // The header error will be logged by ProcessPagesForDataSource.
         break;
@@ -353,7 +353,7 @@ void CpuReader::Bundler::FinalizeAndRunSymbolizer() {
     // size() (which is also == the highest value in |kernel_addrs|) at the
     // beginning and only write newer indexes bigger than that.
     uint32_t max_index_at_start = metadata_->last_kernel_addr_index_written;
-    PERFETTO_DCHECK(max_index_at_start <= metadata_->kernel_addrs.size());
+    DEJAVIEW_DCHECK(max_index_at_start <= metadata_->kernel_addrs.size());
     protos::pbzero::InternedData* interned_data = nullptr;
     auto* ksyms_map = symbolizer_->GetOrCreateKernelSymbolMap();
     bool wrote_at_least_one_symbol = false;
@@ -524,12 +524,12 @@ std::optional<CpuReader::PageHeader> CpuReader::ParsePageHeader(
 
   page_header.size = size_and_flags & kDataSizeMask;
   page_header.lost_events = bool(size_and_flags & kMissedEventsFlag);
-  PERFETTO_DCHECK(page_header.size <= base::GetSysPageSize());
+  DEJAVIEW_DCHECK(page_header.size <= base::GetSysPageSize());
 
   // Reject rest of the number, if applicable. On 32-bit, size_bytes - 4 will
   // evaluate to 0 and this will be a no-op. On 64-bit, this will advance by 4
   // bytes.
-  PERFETTO_DCHECK(page_header_size_len >= 4);
+  DEJAVIEW_DCHECK(page_header_size_len >= 4);
   *ptr += page_header_size_len - 4;
 
   return std::make_optional(page_header);
@@ -708,19 +708,19 @@ bool CpuReader::ParseEvent(uint16_t ftrace_event_id,
                            const FtraceDataSourceConfig* ds_config,
                            protozero::Message* message,
                            FtraceMetadata* metadata) {
-  PERFETTO_DCHECK(start < end);
+  DEJAVIEW_DCHECK(start < end);
 
   // The event must be enabled and known to reach here.
   const Event& info = *table->GetEventById(ftrace_event_id);
 
   if (info.size > static_cast<size_t>(end - start)) {
-    PERFETTO_DLOG("Expected event length is beyond end of buffer.");
+    DEJAVIEW_DLOG("Expected event length is beyond end of buffer.");
     return false;
   }
 
   bool success = true;
   const Field* common_pid_field = table->common_pid();
-  if (PERFETTO_LIKELY(common_pid_field))
+  if (DEJAVIEW_LIKELY(common_pid_field))
     success &=
         ParseField(*common_pid_field, start, end, table, message, metadata);
 
@@ -728,7 +728,7 @@ bool CpuReader::ParseEvent(uint16_t ftrace_event_id,
       message->BeginNestedMessage<protozero::Message>(info.proto_field_id);
 
   // Parse generic (not known at compile time) event.
-  if (PERFETTO_UNLIKELY(info.proto_field_id ==
+  if (DEJAVIEW_UNLIKELY(info.proto_field_id ==
                         protos::pbzero::FtraceEvent::kGenericFieldNumber)) {
     nested->AppendString(GenericFtraceEvent::kEventNameFieldNumber, info.name);
     for (const Field& field : info.fields) {
@@ -738,11 +738,11 @@ bool CpuReader::ParseEvent(uint16_t ftrace_event_id,
                                   field.ftrace_name);
       success &= ParseField(field, start, end, table, generic_field, metadata);
     }
-  } else if (PERFETTO_UNLIKELY(
+  } else if (DEJAVIEW_UNLIKELY(
                  info.proto_field_id ==
                  protos::pbzero::FtraceEvent::kSysEnterFieldNumber)) {
     success &= ParseSysEnter(info, start, end, nested, metadata);
-  } else if (PERFETTO_UNLIKELY(
+  } else if (DEJAVIEW_UNLIKELY(
                  info.proto_field_id ==
                  protos::pbzero::FtraceEvent::kSysExitFieldNumber)) {
     success &= ParseSysExit(info, start, end, ds_config, nested, metadata);
@@ -752,12 +752,12 @@ bool CpuReader::ParseEvent(uint16_t ftrace_event_id,
     }
   }
 
-  if (PERFETTO_UNLIKELY(info.proto_field_id ==
+  if (DEJAVIEW_UNLIKELY(info.proto_field_id ==
                         protos::pbzero::FtraceEvent::kTaskRenameFieldNumber)) {
     // For task renames, we want to store that the pid was renamed. We use the
     // common pid to reduce code complexity as in all the cases we care about,
     // the common pid is the same as the renamed pid (the pid inside the event).
-    PERFETTO_DCHECK(metadata->last_seen_common_pid);
+    DEJAVIEW_DCHECK(metadata->last_seen_common_pid);
     metadata->AddRenamePid(metadata->last_seen_common_pid);
   }
 
@@ -778,7 +778,7 @@ bool CpuReader::ParseField(const Field& field,
                            const ProtoTranslationTable* table,
                            protozero::Message* message,
                            FtraceMetadata* metadata) {
-  PERFETTO_DCHECK(start + field.ftrace_offset + field.ftrace_size <= end);
+  DEJAVIEW_DCHECK(start + field.ftrace_offset + field.ftrace_size <= end);
   const uint8_t* field_start = start + field.ftrace_offset;
   uint32_t field_id = field.proto_field_id;
 
@@ -883,7 +883,7 @@ bool CpuReader::ParseSysEnter(const Event& info,
                               protozero::Message* message,
                               FtraceMetadata* /* metadata */) {
   if (info.fields.size() != 2) {
-    PERFETTO_DLOG("Unexpected number of fields for sys_enter");
+    DEJAVIEW_DLOG("Unexpected number of fields for sys_enter");
     return false;
   }
   const auto& id_field = info.fields[0];
@@ -932,7 +932,7 @@ bool CpuReader::ParseSysExit(const Event& info,
                              protozero::Message* message,
                              FtraceMetadata* metadata) {
   if (info.fields.size() != 2) {
-    PERFETTO_DLOG("Unexpected number of fields for sys_exit");
+    DEJAVIEW_DLOG("Unexpected number of fields for sys_exit");
     return false;
   }
   const auto& id_field = info.fields[0];
@@ -1029,4 +1029,4 @@ void CpuReader::ParseSchedWakingCompact(const uint8_t* start,
   compact_buf->sched_waking().common_flags().Append(common_flags);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -20,7 +20,7 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 enum TraceType {
   kAndroidBugreportTraceType,
@@ -47,6 +47,6 @@ constexpr size_t kGuessTraceMaxLookahead = 64;
 TraceType GuessTraceType(const uint8_t* data, size_t size);
 const char* TraceTypeToString(TraceType type);
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_TRACE_TYPE_H_

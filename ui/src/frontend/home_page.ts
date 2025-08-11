@@ -75,7 +75,7 @@ export class HomePage implements m.ClassComponent<PageAttrs> {
         m(
           '.home-page-title',
           m(`img.logo[src=${globals.root}assets/logo-3d.png]`),
-          'Perfetto',
+          'DejaView',
         ),
         m(Hints),
         m(

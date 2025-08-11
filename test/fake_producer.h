@@ -21,15 +21,15 @@
 #include <random>
 #include <string>
 
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/trace_config.h"
 #include "src/base/test/test_task_runner.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos {
 namespace gen {
@@ -107,6 +107,6 @@ class FakeProducer : public Producer {
   std::unique_ptr<TraceWriter> trace_writer_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // TEST_FAKE_PRODUCER_H_

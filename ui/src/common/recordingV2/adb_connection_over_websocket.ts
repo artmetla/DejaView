@@ -77,7 +77,7 @@ export class AdbConnectionOverWebsocket extends AdbConnectionImpl {
 
   // There will be no contention for the websocket connection, because it will
   // communicate with the 'adb server' running on the computer which opened
-  // Perfetto.
+  // DejaView.
   canConnectWithoutContention(): Promise<boolean> {
     return Promise.resolve(true);
   }

@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/importers/proto/android_camera_event_module.h"
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/machine_tracker.h"
 #include "src/trace_processor/importers/common/parser_types.h"
@@ -26,13 +26,13 @@
 #include "src/trace_processor/sorter/trace_sorter.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/trace/android/camera_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/android/camera_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 AndroidCameraEventModule::AndroidCameraEventModule(
     TraceProcessorContext* context)
@@ -95,4 +95,4 @@ void AndroidCameraEventModule::InsertCameraFrameSlice(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

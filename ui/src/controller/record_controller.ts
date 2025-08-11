@@ -239,8 +239,8 @@ export class RecordController extends Controller<'main'> implements Consumer {
     const commandline = `
       echo '${configProtoBase64}' |
       base64 --decode |
-      adb shell "perfetto -c - -o /data/misc/perfetto-traces/trace" &&
-      adb pull /data/misc/perfetto-traces/trace /tmp/trace
+      adb shell "dejaview -c - -o /data/misc/dejaview-traces/trace" &&
+      adb pull /data/misc/dejaview-traces/trace /tmp/trace
     `;
     const traceConfig = convertToRecordingV2Input(
       this.config,

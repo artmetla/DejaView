@@ -19,9 +19,9 @@
 
 #include <sqlite3.h>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Prototype for an aggregate context which can be fetched from an aggregate
 // function in SQLite.
@@ -89,6 +89,6 @@ struct SqliteAggregateFunction {
   }
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_AGGREGATE_FUNCTION_H_

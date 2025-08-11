@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 // Exports trace as as Firefox Profile. More details here:
@@ -28,6 +28,6 @@ namespace trace_to_text {
 bool TraceToFirefoxProfile(std::istream* input, std::ostream* output);
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_TRACE_TO_FIREFOX_H_

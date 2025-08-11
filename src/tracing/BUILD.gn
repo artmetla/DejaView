@@ -13,11 +13,11 @@
 # limitations under the License.
 
 import("../../gn/fuzzer.gni")
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 import("../../gn/test.gni")
 
 # Full version of the client API. Supports both the in-process backend and the
-# system backend (on posix systems and if enabled by the enable_perfetto_ipc).
+# system backend (on posix systems and if enabled by the enable_dejaview_ipc).
 # The backends are designed to be dead-code-eliminated via linker's gc-section
 # when not use. See comments in Tracing::Initialize() in tracing.h.
 group("client_api") {
@@ -25,10 +25,10 @@ group("client_api") {
     ":client_api_without_backends",
     ":in_process_backend",
     "../../gn:default_deps",
-    "../../include/perfetto/tracing",
-    "../../include/perfetto/tracing/core",
+    "../../include/dejaview/tracing",
+    "../../include/dejaview/tracing/core",
   ]
-  if (enable_perfetto_ipc) {
+  if (enable_dejaview_ipc) {
     public_deps += [ ":system_backend" ]
   } else {
     public_deps += [ ":system_backend_fake" ]
@@ -39,7 +39,7 @@ group("client_api") {
 # check that no references to the backends are leaked from the implementation
 # internals. In turn, this allows to dead-code-eliminate unused backends when
 # using linker's gc-sections (or similar mechanism).
-if (perfetto_build_standalone) {
+if (dejaview_build_standalone) {
   shared_library("client_api_no_backends_compile_test") {
     deps = [
       ":client_api_without_backends",
@@ -53,7 +53,7 @@ if (perfetto_build_standalone) {
 source_set("platform_impl") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/tracing",
+    "../../include/dejaview/tracing",
     "../base",
   ]
   sources = [
@@ -67,7 +67,7 @@ source_set("platform_impl") {
 source_set("platform_fake") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/tracing",
+    "../../include/dejaview/tracing",
   ]
   sources = [ "platform_fake.cc" ]
 }
@@ -79,7 +79,7 @@ source_set("platform_fake") {
 source_set("common") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/tracing",
+    "../../include/dejaview/tracing",
   ]
   sources = [ "trace_writer_base.cc" ]
 }
@@ -88,17 +88,17 @@ source_set("common") {
 # than the unsupported one.
 source_set("client_api_without_backends") {
   deps = [
-    "../../include/perfetto/tracing/core",
-    "../../protos/perfetto/common:zero",
-    "../../protos/perfetto/config:cpp",
-    "../../protos/perfetto/config/interceptors:cpp",
-    "../../protos/perfetto/config/track_event:cpp",
+    "../../include/dejaview/tracing/core",
+    "../../protos/dejaview/common:zero",
+    "../../protos/dejaview/config:cpp",
+    "../../protos/dejaview/config/interceptors:cpp",
+    "../../protos/dejaview/config/track_event:cpp",
     "../base",
     "core",
   ]
   public_deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/tracing",
+    "../../include/dejaview/tracing",
   ]
   sources = [
     "console_interceptor.cc",
@@ -126,7 +126,7 @@ source_set("client_api_without_backends") {
     "virtual_destructors.cc",
   ]
   assert_no_deps = [ "service" ]
-  if (enable_perfetto_ipc) {
+  if (enable_dejaview_ipc) {
     assert_no_deps += [
       "../ipc:common",
       "ipc/common",
@@ -140,22 +140,22 @@ source_set("integrationtests") {
   deps = [
     "../../gn:default_deps",
     "../../gn:gtest_and_gmock",
-    "../../include/perfetto/ext/tracing/ipc",
-    "../../include/perfetto/tracing",
-    "../../protos/perfetto/trace:cpp",
+    "../../include/dejaview/ext/tracing/ipc",
+    "../../include/dejaview/tracing",
+    "../../protos/dejaview/trace:cpp",
     "../base",
     "../base:test_support",
   ]
   sources = [ "internal/tracing_muxer_impl_integrationtest.cc" ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     "../../gn:default_deps",
     "../../gn:gtest_and_gmock",
-    "../../protos/perfetto/trace:lite",
-    "../../protos/perfetto/trace/track_event:lite",
+    "../../protos/dejaview/trace:lite",
+    "../../protos/dejaview/trace/track_event:lite",
     "../base",
     "../base:test_support",
     "test:test_support",
@@ -164,12 +164,12 @@ perfetto_unittest_source_set("unittests") {
   sources = []
 
   # TODO(primiano): remove the build_with_chromium conditional once the root
-  # //BUILD.gn:libperfetto (in chromium) stops adding tracing:platform_fake.
+  # //BUILD.gn:libdejaview (in chromium) stops adding tracing:platform_fake.
   # The problem is the following: in chrome builds we end up with duplicate
   # symbol definitions in the test because both platforms (impl and fake) are
   # present: impl added here and fake coming from chromium's base (full path:
-  # perfetto_unittests -> //(chromium)base:test_support -> //(chromium)base
-  # -> libperfetto -> platform_fake.
+  # dejaview_unittests -> //(chromium)base:test_support -> //(chromium)base
+  # -> libdejaview -> platform_fake.
   if (!build_with_chromium) {
     deps += [
       ":client_api_without_backends",
@@ -186,26 +186,26 @@ perfetto_unittest_source_set("unittests") {
 
 # System backend: connects to an external "traced" instance via a UNIX socket.
 # Requires the IPC layer and is supported only on posix systems.
-if (enable_perfetto_ipc) {
+if (enable_dejaview_ipc) {
   source_set("system_backend") {
-    public_deps = [ "../../include/perfetto/tracing" ]
+    public_deps = [ "../../include/dejaview/tracing" ]
     deps = [
       ":client_api_without_backends",
       "../../gn:default_deps",
-      "../../include/perfetto/tracing/core",
+      "../../include/dejaview/tracing/core",
       "../base",
       "ipc:common",
       "ipc/producer",
       "ipc/service",
     ]
-    if (enable_perfetto_system_consumer) {
+    if (enable_dejaview_system_consumer) {
       deps += [ "ipc/consumer" ]
     }
     sources = [ "internal/system_tracing_backend.cc" ]
   }
 } else {
   source_set("system_backend_fake") {
-    public_deps = [ "../../include/perfetto/tracing" ]
+    public_deps = [ "../../include/dejaview/tracing" ]
     deps = [
       "../../gn:default_deps",
       "../base",
@@ -218,11 +218,11 @@ if (enable_perfetto_ipc) {
 # thread. It depends only on having a valid "platform" target. It has a larger
 # binary size cost because links in all the service code.
 source_set("in_process_backend") {
-  public_deps = [ "../../include/perfetto/tracing" ]
+  public_deps = [ "../../include/dejaview/tracing" ]
   deps = [
     ":client_api_without_backends",
     "../../gn:default_deps",
-    "../../include/perfetto/tracing/core",
+    "../../include/dejaview/tracing/core",
     "../base",
     "core",
     "service",
@@ -230,12 +230,12 @@ source_set("in_process_backend") {
   sources = [ "internal/in_process_tracing_backend.cc" ]
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [
       ":platform_impl",
-      "../..:libperfetto_client_experimental",
+      "../..:libdejaview_client_experimental",
       "../../gn:benchmark",
       "../../gn:default_deps",
     ]

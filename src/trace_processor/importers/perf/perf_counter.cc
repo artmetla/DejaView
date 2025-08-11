@@ -18,10 +18,10 @@
 
 #include <cstdint>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/tables/counter_tables_py.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 void PerfCounter::AddDelta(int64_t ts, double delta) {
   last_count_ += delta;
@@ -29,9 +29,9 @@ void PerfCounter::AddDelta(int64_t ts, double delta) {
 }
 
 void PerfCounter::AddCount(int64_t ts, double count) {
-  PERFETTO_CHECK(count >= last_count_);
+  DEJAVIEW_CHECK(count >= last_count_);
   last_count_ = count;
   counter_table_.Insert({ts, track_id_, last_count_});
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

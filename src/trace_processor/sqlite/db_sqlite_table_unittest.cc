@@ -21,11 +21,11 @@
 #include <array>
 #include <cstdint>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/db/table.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 Table::Schema CreateSchema() {
@@ -205,4 +205,4 @@ TEST(DbSqliteModule, OrderByOnSortedCheaper) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

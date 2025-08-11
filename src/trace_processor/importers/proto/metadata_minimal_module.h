@@ -23,9 +23,9 @@
 
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class MetadataMinimalModule : public ProtoImporterModule {
@@ -50,6 +50,6 @@ class MetadataMinimalModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_METADATA_MINIMAL_MODULE_H_

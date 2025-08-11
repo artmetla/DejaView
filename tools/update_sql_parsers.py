@@ -25,7 +25,7 @@ GRAMMAR_FOOTER = '''
 '''
 
 KEYWORDHASH_HEADER = '''
-#include "src/trace_processor/perfetto_sql/grammar/perfettosql_keywordhash_helper.h"
+#include "src/trace_processor/dejaview_sql/grammar/dejaviewsql_keywordhash_helper.h"
 '''
 
 KEYWORD_END = '''
@@ -34,7 +34,7 @@ KEYWORD_END = '''
 
 KEYWORD_END_REPLACE = '''
   { "WITHOUT",          "TK_WITHOUT",      ALWAYS,           1      },
-  { "PERFETTO",         "TK_PERFETTO",     ALWAYS,           1      },
+  { "DEJAVIEW",         "TK_DEJAVIEW",     ALWAYS,           1      },
   { "MACRO",            "TK_MACRO",        ALWAYS,           1      },
   { "INCLUDE",          "TK_INCLUDE",      ALWAYS,           1      },
   { "MODULE",           "TK_MODULE",       ALWAYS,           1      },
@@ -53,7 +53,7 @@ def copy_tokenizer(args: argparse.Namespace):
     res = res[0:idx]
     res = res.replace(
         '#include "sqliteInt.h"',
-        '#include "src/trace_processor/perfetto_sql/tokenizer/tokenize_internal_helper.h"',
+        '#include "src/trace_processor/dejaview_sql/tokenizer/tokenize_internal_helper.h"',
     )
     res = res.replace('#include "keywordhash.h"\n', '')
     fp.seek(0)
@@ -76,7 +76,7 @@ def main():
   parser.add_argument(
       '--preprocessor-grammar',
       default=os.path.normpath(
-          'src/trace_processor/perfetto_sql/preprocessor/preprocessor_grammar.y'
+          'src/trace_processor/dejaview_sql/preprocessor/preprocessor_grammar.y'
       ),
   )
   parser.add_argument(
@@ -84,14 +84,14 @@ def main():
       default=os.path.normpath('buildtools/sqlite_src/src/parse.y'),
   )
   parser.add_argument(
-      '--perfettosql-grammar-include',
+      '--dejaviewsql-grammar-include',
       default=os.path.normpath(
-          'src/trace_processor/perfetto_sql/grammar/perfettosql_include.y'),
+          'src/trace_processor/dejaview_sql/grammar/dejaviewsql_include.y'),
   )
   parser.add_argument(
       '--grammar-out',
       default=os.path.join(
-          os.path.normpath('src/trace_processor/perfetto_sql/grammar/')),
+          os.path.normpath('src/trace_processor/dejaview_sql/grammar/')),
   )
   parser.add_argument(
       '--sqlite-tokenize',
@@ -101,7 +101,7 @@ def main():
       '--sqlite-tokenize-out',
       default=os.path.join(
           os.path.normpath(
-              'src/trace_processor/perfetto_sql/tokenizer/tokenize_internal.c')
+              'src/trace_processor/dejaview_sql/tokenizer/tokenize_internal.c')
       ),
   )
   args = parser.parse_args()
@@ -122,7 +122,7 @@ def main():
         '-s',
     ])
 
-    # PerfettoSQL keywords
+    # DejaViewSQL keywords
     keywordhash_tmp = os.path.join(tmp, 'mkkeywordhash.c')
     shutil.copy(args.mkkeywordhash, keywordhash_tmp)
 
@@ -141,7 +141,7 @@ def main():
     keywordhash_res = subprocess.check_output(
         [os.path.join(tmp, 'mkkeywordhash')]).decode()
 
-    with open(os.path.join(args.grammar_out, "perfettosql_keywordhash.h"),
+    with open(os.path.join(args.grammar_out, "dejaviewsql_keywordhash.h"),
               "w") as g:
       idx = keywordhash_res.find('#define SQLITE_N_KEYWORD')
       assert idx != -1
@@ -149,21 +149,21 @@ def main():
       g.write(KEYWORDHASH_HEADER)
       g.write(keywordhash_res)
 
-    # PerfettoSQL grammar
+    # DejaViewSQL grammar
     sqlite_grammar = subprocess.check_output([
         os.path.join(tmp, 'lemon'),
         args.sqlite_grammar,
         '-g',
     ]).decode()
-    with open(os.path.join(args.grammar_out, "perfettosql_grammar.y"),
+    with open(os.path.join(args.grammar_out, "dejaviewsql_grammar.y"),
               "w") as g:
-      with open(args.perfettosql_grammar_include, 'r') as i:
+      with open(args.dejaviewsql_grammar_include, 'r') as i:
         g.write(i.read())
       g.write(sqlite_grammar)
       g.write(GRAMMAR_FOOTER)
     subprocess.check_call([
         os.path.join(tmp, 'lemon'),
-        os.path.join(args.grammar_out, "perfettosql_grammar.y"),
+        os.path.join(args.grammar_out, "dejaviewsql_grammar.y"),
         '-q',
         '-l',
         '-s',

@@ -28,13 +28,13 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 #include "src/traced/probes/ftrace/compact_sched.h"
 #include "src/traced/probes/ftrace/event_info.h"
 #include "src/traced/probes/ftrace/format_parser/format_parser.h"
 #include "src/traced/probes/ftrace/printk_formats_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class FtraceProcfs;
 
@@ -225,6 +225,6 @@ class EventFilter {
   std::vector<bool> enabled_ids_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_PROTO_TRANSLATION_TABLE_H_

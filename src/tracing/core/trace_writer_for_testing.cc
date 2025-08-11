@@ -16,13 +16,13 @@
 
 #include "src/tracing/core/trace_writer_for_testing.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/message.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/message.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 TraceWriterForTesting::TraceWriterForTesting()
     : delegate_(4096, 4096), stream_(&delegate_) {
@@ -35,7 +35,7 @@ TraceWriterForTesting::~TraceWriterForTesting() {}
 
 void TraceWriterForTesting::Flush(std::function<void()> callback) {
   // Flush() cannot be called in the middle of a TracePacket.
-  PERFETTO_CHECK(cur_packet_->is_finalized());
+  DEJAVIEW_CHECK(cur_packet_->is_finalized());
 
   if (callback)
     callback();
@@ -43,24 +43,24 @@ void TraceWriterForTesting::Flush(std::function<void()> callback) {
 
 std::vector<protos::gen::TracePacket>
 TraceWriterForTesting::GetAllTracePackets() {
-  PERFETTO_CHECK(cur_packet_->is_finalized());
+  DEJAVIEW_CHECK(cur_packet_->is_finalized());
 
   std::vector<uint8_t> buffer = delegate_.StitchSlices();
   protozero::ProtoDecoder trace(buffer.data(), buffer.size());
   std::vector<protos::gen::TracePacket> ret;
   for (auto fld = trace.ReadField(); fld.valid(); fld = trace.ReadField()) {
-    PERFETTO_CHECK(fld.id() == protos::pbzero::Trace::kPacketFieldNumber);
+    DEJAVIEW_CHECK(fld.id() == protos::pbzero::Trace::kPacketFieldNumber);
     protos::gen::TracePacket packet;
     packet.ParseFromArray(fld.data(), fld.size());
     ret.emplace_back(std::move(packet));
   }
-  PERFETTO_CHECK(trace.bytes_left() == 0);
+  DEJAVIEW_CHECK(trace.bytes_left() == 0);
   return ret;
 }
 
 protos::gen::TracePacket TraceWriterForTesting::GetOnlyTracePacket() {
   auto packets = GetAllTracePackets();
-  PERFETTO_CHECK(packets.size() == 1);
+  DEJAVIEW_CHECK(packets.size() == 1);
   return packets[0];
 }
 
@@ -68,7 +68,7 @@ TraceWriterForTesting::TracePacketHandle
 TraceWriterForTesting::NewTracePacket() {
   // If we hit this, the caller is calling NewTracePacket() without having
   // finalized the previous packet.
-  PERFETTO_DCHECK(cur_packet_->is_finalized());
+  DEJAVIEW_DCHECK(cur_packet_->is_finalized());
   cur_packet_->Reset(&stream_);
 
   // Instead of storing the contents of the TracePacket directly in the backing
@@ -112,4 +112,4 @@ uint64_t TraceWriterForTesting::written() const {
   return 0;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

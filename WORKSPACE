@@ -13,19 +13,19 @@
 # limitations under the License.
 
 # This file is used only in standalone builds. This file is ignored both in
-# embedder builds (i.e. when other projects pull perfetto under /third_party/
+# embedder builds (i.e. when other projects pull dejaview under /third_party/
 # or similar) and in google internal builds.
 
-workspace(name = "perfetto")
+workspace(name = "dejaview")
 
 new_local_repository(
-    name = "perfetto_cfg",
+    name = "dejaview_cfg",
     path = "bazel/standalone",
     build_file_content = "",
 )
 
-load("@perfetto//bazel:deps.bzl", "perfetto_deps")
-perfetto_deps()
+load("@dejaview//bazel:deps.bzl", "dejaview_deps")
+dejaview_deps()
 
 load("@com_google_protobuf//:protobuf_deps.bzl", "protobuf_deps")
 protobuf_deps()

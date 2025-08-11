@@ -18,7 +18,7 @@
 
 #include <limits>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -33,10 +33,10 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 FtraceSchedEventTracker::FtraceSchedEventTracker(TraceProcessorContext* context)
@@ -44,7 +44,7 @@ FtraceSchedEventTracker::FtraceSchedEventTracker(TraceProcessorContext* context)
   // pre-parse sched_switch
   auto* switch_descriptor = GetMessageDescriptorForId(
       protos::pbzero::FtraceEvent::kSchedSwitchFieldNumber);
-  PERFETTO_CHECK(switch_descriptor->max_field_id == kSchedSwitchMaxFieldId);
+  DEJAVIEW_CHECK(switch_descriptor->max_field_id == kSchedSwitchMaxFieldId);
 
   for (size_t i = 1; i <= kSchedSwitchMaxFieldId; i++) {
     sched_switch_field_ids_[i] =
@@ -55,7 +55,7 @@ FtraceSchedEventTracker::FtraceSchedEventTracker(TraceProcessorContext* context)
   // pre-parse sched_waking
   auto* waking_descriptor = GetMessageDescriptorForId(
       protos::pbzero::FtraceEvent::kSchedWakingFieldNumber);
-  PERFETTO_CHECK(waking_descriptor->max_field_id == kSchedWakingMaxFieldId);
+  DEJAVIEW_CHECK(waking_descriptor->max_field_id == kSchedWakingMaxFieldId);
 
   for (size_t i = 1; i <= kSchedWakingMaxFieldId; i++) {
     sched_waking_field_ids_[i] =
@@ -94,7 +94,7 @@ void FtraceSchedEventTracker::PushSchedSwitch(uint32_t cpu,
   }
   if (pending_slice_idx < std::numeric_limits<uint32_t>::max()) {
     prev_pid_match_prev_next_pid = prev_pid == pending_sched->last_pid;
-    if (PERFETTO_LIKELY(prev_pid_match_prev_next_pid)) {
+    if (DEJAVIEW_LIKELY(prev_pid_match_prev_next_pid)) {
       context_->sched_event_tracker->ClosePendingSlice(pending_slice_idx, ts,
                                                        prev_state_string_id);
     } else {
@@ -195,7 +195,7 @@ void FtraceSchedEventTracker::PushSchedSwitchCompact(uint32_t cpu,
   // * updated |pending_sched->last_*| fields
   // * still-defaulted |pending_slice_storage_idx|
   // This is similar to the first compact_sched_switch per cpu.
-  if (PERFETTO_UNLIKELY(parse_only_into_raw))
+  if (DEJAVIEW_UNLIKELY(parse_only_into_raw))
     return;
 
   // Update per-cpu Sched table.
@@ -235,7 +235,7 @@ void FtraceSchedEventTracker::PushSchedWakingCompact(uint32_t cpu,
   }
   auto curr_utid = pending_sched->last_utid;
 
-  if (PERFETTO_LIKELY(context_->config.ingest_ftrace_in_raw_table)) {
+  if (DEJAVIEW_LIKELY(context_->config.ingest_ftrace_in_raw_table)) {
     tables::FtraceEventTable::Row row;
     row.ts = ts;
     row.name = sched_waking_id_;
@@ -258,7 +258,7 @@ void FtraceSchedEventTracker::PushSchedWakingCompact(uint32_t cpu,
     add_raw_arg(SW::kTargetCpuFieldNumber, Variadic::Integer(target_cpu));
   }
 
-  if (PERFETTO_UNLIKELY(parse_only_into_raw))
+  if (DEJAVIEW_UNLIKELY(parse_only_into_raw))
     return;
 
   // Add a waking entry to the ThreadState table.
@@ -277,7 +277,7 @@ void FtraceSchedEventTracker::AddRawSchedSwitchEvent(uint32_t cpu,
                                                      uint32_t next_pid,
                                                      StringId next_comm_id,
                                                      int32_t next_prio) {
-  if (PERFETTO_LIKELY(context_->config.ingest_ftrace_in_raw_table)) {
+  if (DEJAVIEW_LIKELY(context_->config.ingest_ftrace_in_raw_table)) {
     // Push the raw event - this is done as the raw ftrace event codepath does
     // not insert sched_switch.
     auto ucpu = context_->cpu_tracker->GetOrCreateCpu(cpu);
@@ -318,4 +318,4 @@ StringId FtraceSchedEventTracker::TaskStateToStringId(int64_t task_state_int) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

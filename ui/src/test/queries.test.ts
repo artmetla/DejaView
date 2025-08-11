@@ -13,17 +13,17 @@
 // limitations under the License.
 
 import {test, Page, expect} from '@playwright/test';
-import {PerfettoTestHelper} from './perfetto_ui_test_helper';
+import {DejaViewTestHelper} from './dejaview_ui_test_helper';
 
 test.describe.configure({mode: 'serial'});
 
-let pth: PerfettoTestHelper;
+let pth: DejaViewTestHelper;
 let page: Page;
 
 test.beforeAll(async ({browser}, _testInfo) => {
   page = await browser.newPage();
-  pth = new PerfettoTestHelper(page);
-  await pth.openTraceFile('api34_startup_cold.perfetto-trace');
+  pth = new DejaViewTestHelper(page);
+  await pth.openTraceFile('api34_startup_cold.dejaview-trace');
 });
 
 test('omnibox query', async () => {
@@ -32,11 +32,11 @@ test('omnibox query', async () => {
   await omnibox.fill('foo');
   await omnibox.selectText();
   await omnibox.press(':');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await omnibox.fill(
     'select id, ts, dur, name, track_id from slices limit 100',
   );
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await omnibox.press('Enter');
 
   await pth.waitForIdleAndScreenshot('query mode.png');
@@ -51,7 +51,7 @@ test('omnibox query', async () => {
   await omnibox.selectText();
   for (let i = 0; i < 2; i++) {
     await omnibox.press('Backspace');
-    await pth.waitForPerfettoIdle();
+    await pth.waitForDejaViewIdle();
   }
   await pth.waitForIdleAndScreenshot('omnibox cleared.png', {
     clip: {x: 0, y: 0, width: 1920, height: 100},
@@ -60,7 +60,7 @@ test('omnibox query', async () => {
 
 test('query page', async () => {
   await page.locator('.sidebar #query__sql_').click();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   const textbox = page.locator('.pf-editor div[role=textbox]');
   for (let i = 1; i <= 3; i++) {
     await textbox.focus();
@@ -73,19 +73,19 @@ test('query page', async () => {
 
   // Now test the query history.
   page.locator('.query-history .history-item').nth(0).click();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   expect(await textbox.textContent()).toEqual(
     'select id, ts, dur, name from slices limit 3',
   );
 
   page.locator('.query-history .history-item').nth(2).click();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   expect(await textbox.textContent()).toEqual(
     'select id, ts, dur, name from slices limit 1',
   );
 
   // Double click on the 2nd one and expect the query is re-ran.
   page.locator('.query-history .history-item').nth(1).dblclick();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   expect(await page.locator('.pf-query-table tbody tr').count()).toEqual(2);
 });

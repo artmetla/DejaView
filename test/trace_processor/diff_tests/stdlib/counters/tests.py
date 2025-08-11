@@ -25,7 +25,7 @@ class StdlibCounterIntervals(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-        INCLUDE PERFETTO MODULE counters.intervals;
+        INCLUDE DEJAVIEW MODULE counters.intervals;
 
           WITH data(id, ts, value, track_id) AS (
             VALUES

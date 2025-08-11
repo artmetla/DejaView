@@ -16,8 +16,8 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_utils.h"
 
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/flow_tracker.h"
@@ -26,12 +26,12 @@
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/importers/ftrace/v4l2_tracker.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/v4l2.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/v4l2.pbzero.h"
 
 #include "v4l2_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -550,4 +550,4 @@ StringId V4l2Tracker::InternTcFlags(uint32_t flags) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

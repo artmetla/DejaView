@@ -17,11 +17,11 @@
 #ifndef SRC_SHARED_LIB_RESET_FOR_TESTING_H_
 #define SRC_SHARED_LIB_RESET_FOR_TESTING_H_
 
-#include "perfetto/public/abi/data_source_abi.h"
+#include "dejaview/public/abi/data_source_abi.h"
 
 // This headers declares a few functions that are exposed only to tests
 
-namespace perfetto {
+namespace dejaview {
 namespace shlib {
 
 // Resets the shared library thread local state for data sources on the current
@@ -33,7 +33,7 @@ void ResetDataSourceTls();
 void ResetTrackEventTls();
 
 // Destroys a registered data source. This only works after ResetForTesting().
-void DsImplDestroy(PerfettoDsImpl*);
+void DsImplDestroy(DejaViewDsImpl*);
 
 // Uninitializes the shared library as best as it can. Only exposed for testing
 // scenarios where it can be guaranteed that no tracing sessions or other
@@ -41,6 +41,6 @@ void DsImplDestroy(PerfettoDsImpl*);
 void ResetForTesting();
 
 }  // namespace shlib
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_SHARED_LIB_RESET_FOR_TESTING_H_

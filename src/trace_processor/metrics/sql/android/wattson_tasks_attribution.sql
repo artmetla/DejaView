@@ -13,8 +13,8 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE wattson.curves.grouped;
-INCLUDE PERFETTO MODULE viz.summary.threads_w_processes;
+INCLUDE DEJAVIEW MODULE wattson.curves.grouped;
+INCLUDE DEJAVIEW MODULE viz.summary.threads_w_processes;
 
 -- Take only the Wattson estimations that are in the window of interest
 DROP TABLE IF EXISTS _windowed_wattson;
@@ -24,7 +24,7 @@ USING
 
 -- "Unpivot" the table so that table can by PARTITIONED BY cpu
 DROP TABLE IF EXISTS _unioned_windowed_wattson;
-CREATE PERFETTO TABLE _unioned_windowed_wattson AS
+CREATE DEJAVIEW TABLE _unioned_windowed_wattson AS
   SELECT ts, dur, 0 as cpu, cpu0_mw as estimated_mw
   FROM _windowed_wattson
   WHERE EXISTS (SELECT cpu FROM _dev_cpu_policy_map WHERE 0 = cpu)

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/ipc/client.h"
-#include "perfetto/ext/ipc/host.h"
-#include "perfetto/ext/ipc/service.h"
-#include "perfetto/ext/ipc/service_proxy.h"
+#include "dejaview/ext/ipc/client.h"
+#include "dejaview/ext/ipc/host.h"
+#include "dejaview/ext/ipc/service.h"
+#include "dejaview/ext/ipc/service_proxy.h"
 
 // This translation unit contains the definitions for the destructor of pure
 // virtual interfaces for the current build target. The alternative would be
 // introducing a one-liner .cc file for each pure virtual interface, which is
 // overkill. This is for compliance with -Wweak-vtables.
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 Client::~Client() = default;
@@ -33,4 +33,4 @@ Service::~Service() = default;
 ServiceProxy::EventListener::~EventListener() = default;
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,7 +14,7 @@
 
 import("../../../../gn/test.gni")
 
-assert(enable_perfetto_trace_processor_sqlite)
+assert(enable_dejaview_trace_processor_sqlite)
 
 source_set("bindings") {
   sources = [

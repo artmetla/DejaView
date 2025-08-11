@@ -25,7 +25,7 @@
 
 #include <string>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 bool StartIncidentReport(const char* dest_pkg,
@@ -54,4 +54,4 @@ bool StartIncidentReport(const char* dest_pkg,
 }
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview

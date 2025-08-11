@@ -25,10 +25,10 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column.h"
@@ -38,7 +38,7 @@
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/column_storage_overlay.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -218,7 +218,7 @@ class Table {
         std::vector<ColumnStorageOverlay>);
 
   void CopyLastInsertFrom(const std::vector<ColumnStorageOverlay>& overlays) {
-    PERFETTO_DCHECK(overlays.size() <= overlays_.size());
+    DEJAVIEW_DCHECK(overlays.size() <= overlays_.size());
 
     // Add the last inserted row in each of the parent row maps to the
     // corresponding row map in the child.
@@ -286,6 +286,6 @@ class Table {
   std::vector<ColumnIndex> indexes_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_TABLE_H_

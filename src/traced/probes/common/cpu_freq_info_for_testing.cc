@@ -18,7 +18,7 @@
 
 #include <memory>
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -60,4 +60,4 @@ std::unique_ptr<CpuFreqInfo> CpuFreqInfoForTesting::GetInstance() {
   return std::unique_ptr<CpuFreqInfo>(new CpuFreqInfo(tmpdir_.path()));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

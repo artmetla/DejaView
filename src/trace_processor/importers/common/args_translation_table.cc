@@ -16,11 +16,11 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -285,4 +285,4 @@ void ArgsTranslationTable::EmitMojoMethodLocation(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

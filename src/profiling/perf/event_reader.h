@@ -23,12 +23,12 @@
 #include <sys/types.h>
 #include <optional>
 
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 #include "src/profiling/perf/common_types.h"
 #include "src/profiling/perf/event_config.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 class PerfRingBuffer {
@@ -113,6 +113,6 @@ class EventReader {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_EVENT_READER_H_

@@ -18,7 +18,7 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -26,7 +26,7 @@
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 SystraceParser::SystraceParser(TraceProcessorContext* ctx)
@@ -337,4 +337,4 @@ void SystraceParser::PostProcessSpecialSliceBegin(int64_t ts,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

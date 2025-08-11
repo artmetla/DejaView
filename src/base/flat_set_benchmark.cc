@@ -18,7 +18,7 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/base/flat_set.h"
+#include "dejaview/base/flat_set.h"
 
 namespace {
 
@@ -58,7 +58,7 @@ static void BM_SetInsert(benchmark::State& state) {
   }
 }
 
-using perfetto::base::FlatSet;
+using dejaview::base::FlatSet;
 BENCHMARK_TEMPLATE(BM_SetInsert, FlatSet<int>)->Apply(BenchmarkArgs);
 BENCHMARK_TEMPLATE(BM_SetInsert, std::set<int>)->Apply(BenchmarkArgs);
 BENCHMARK_TEMPLATE(BM_SetInsert, std::unordered_set<int>)->Apply(BenchmarkArgs);

@@ -14,7 +14,7 @@
 
 import m from 'mithril';
 import {assertExists} from '../base/logging';
-import {VERSION} from '../gen/perfetto_version';
+import {VERSION} from '../gen/dejaview_version';
 import {StatusResult, TraceProcessorApiVersion} from '../protos';
 import {HttpRpcEngine} from '../trace_processor/http_rpc_engine';
 import {showModal} from '../widgets/modal';
@@ -356,7 +356,7 @@ async function isVersionAvailable(
     r = await fetch(url, {signal: controller.signal});
   } catch (e) {
     console.error(
-      `No UI version for ${versionCode} at ${url}. This is an error if ${versionCode} is a released Perfetto version`,
+      `No UI version for ${versionCode} at ${url}. This is an error if ${versionCode} is a released DejaView version`,
     );
     return undefined;
   } finally {

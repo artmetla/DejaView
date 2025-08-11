@@ -12,21 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
-assert(perfetto_build_standalone)
+assert(dejaview_build_standalone)
 
 executable("tracebox") {
   deps = [
     "../../gn:default_deps",
     "../base",
-    "../perfetto_cmd",
-    "../perfetto_cmd:trigger_perfetto_cmd",
+    "../dejaview_cmd",
+    "../dejaview_cmd:trigger_dejaview_cmd",
     "../traced/probes",
     "../traced/service",
     "../websocket_bridge:lib",
   ]
-  if (enable_perfetto_traced_perf) {
+  if (enable_dejaview_traced_perf) {
     deps += [ "../profiling/perf:traced_perf_main" ]
   }
   sources = [ "tracebox.cc" ]

@@ -18,8 +18,8 @@
 #include <string>
 #include <string_view>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_redaction/collect_timeline_events.h"
 #include "src/trace_redaction/find_package_uid.h"
@@ -29,13 +29,13 @@
 #include "src/trace_redaction/trace_redactor.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 namespace {
 
 constexpr std::string_view kPackageName =
@@ -176,4 +176,4 @@ TEST_F(RedactSchedWakingIntegrationTest, OnlyKeepsPackageEvents) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

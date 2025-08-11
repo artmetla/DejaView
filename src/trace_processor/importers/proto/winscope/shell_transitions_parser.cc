@@ -17,14 +17,14 @@
 #include "src/trace_processor/importers/proto/winscope/shell_transitions_parser.h"
 #include "src/trace_processor/importers/proto/winscope/shell_transitions_tracker.h"
 
-#include "protos/perfetto/trace/android/shell_transition.pbzero.h"
+#include "protos/dejaview/trace/android/shell_transition.pbzero.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/proto/args_parser.h"
 #include "src/trace_processor/importers/proto/winscope/winscope.descriptor.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ShellTransitionsParser::ShellTransitionsParser(TraceProcessorContext* context)
@@ -77,4 +77,4 @@ void ShellTransitionsParser::ParseHandlerMappings(protozero::ConstBytes blob) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

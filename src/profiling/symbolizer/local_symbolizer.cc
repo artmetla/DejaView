@@ -27,17 +27,17 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/scoped_mmap.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_mmap.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/profiling/symbolizer/elf.h"
 #include "src/profiling/symbolizer/filesystem.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // TODO(fmayer): Fix up name. This suggests it always returns a symbolizer or
@@ -48,42 +48,42 @@ std::unique_ptr<Symbolizer> LocalSymbolizerOrDie(
   std::unique_ptr<Symbolizer> symbolizer;
 
   if (!binary_path.empty()) {
-#if PERFETTO_BUILDFLAG(PERFETTO_LOCAL_SYMBOLIZER)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_LOCAL_SYMBOLIZER)
     std::unique_ptr<BinaryFinder> finder;
     if (!mode || strncmp(mode, "find", 4) == 0)
       finder.reset(new LocalBinaryFinder(std::move(binary_path)));
     else if (strncmp(mode, "index", 5) == 0)
       finder.reset(new LocalBinaryIndexer(std::move(binary_path)));
     else
-      PERFETTO_FATAL("Invalid symbolizer mode [find | index]: %s", mode);
+      DEJAVIEW_FATAL("Invalid symbolizer mode [find | index]: %s", mode);
     symbolizer.reset(new LocalSymbolizer(std::move(finder)));
 #else
     base::ignore_result(mode);
-    PERFETTO_FATAL("This build does not support local symbolization.");
+    DEJAVIEW_FATAL("This build does not support local symbolization.");
 #endif
   }
   return symbolizer;
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
-#if PERFETTO_BUILDFLAG(PERFETTO_LOCAL_SYMBOLIZER)
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_LOCAL_SYMBOLIZER)
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
 
 #include <signal.h>
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 constexpr const char* kDefaultSymbolizer = "llvm-symbolizer.exe";
 #else
 constexpr const char* kDefaultSymbolizer = "llvm-symbolizer";
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -99,10 +99,10 @@ std::string GetLine(std::function<int64_t(char*, size_t)> fn_read) {
       break;
     }
     // There should be no intermediate new lines in the read data.
-    PERFETTO_DCHECK(line.find('\n') == std::string::npos);
+    DEJAVIEW_DCHECK(line.find('\n') == std::string::npos);
   }
   if (rd == -1) {
-    PERFETTO_ELOG("Failed to read data from subprocess.");
+    DEJAVIEW_ELOG("Failed to read data from subprocess.");
   }
   return line;
 }
@@ -119,13 +119,13 @@ template <typename E>
 std::optional<uint64_t> GetElfLoadBias(void* mem, size_t size) {
   const typename E::Ehdr* ehdr = static_cast<typename E::Ehdr*>(mem);
   if (!InRange(mem, size, ehdr, sizeof(typename E::Ehdr))) {
-    PERFETTO_ELOG("Corrupted ELF.");
+    DEJAVIEW_ELOG("Corrupted ELF.");
     return std::nullopt;
   }
   for (size_t i = 0; i < ehdr->e_phnum; ++i) {
     typename E::Phdr* phdr = GetPhdr<E>(mem, ehdr, i);
     if (!InRange(mem, size, phdr, sizeof(typename E::Phdr))) {
-      PERFETTO_ELOG("Corrupted ELF.");
+      DEJAVIEW_ELOG("Corrupted ELF.");
       return std::nullopt;
     }
     if (phdr->p_type == PT_LOAD && phdr->p_flags & PF_X) {
@@ -139,13 +139,13 @@ template <typename E>
 std::optional<std::string> GetElfBuildId(void* mem, size_t size) {
   const typename E::Ehdr* ehdr = static_cast<typename E::Ehdr*>(mem);
   if (!InRange(mem, size, ehdr, sizeof(typename E::Ehdr))) {
-    PERFETTO_ELOG("Corrupted ELF.");
+    DEJAVIEW_ELOG("Corrupted ELF.");
     return std::nullopt;
   }
   for (size_t i = 0; i < ehdr->e_shnum; ++i) {
     typename E::Shdr* shdr = GetShdr<E>(mem, ehdr, i);
     if (!InRange(mem, size, shdr, sizeof(typename E::Shdr))) {
-      PERFETTO_ELOG("Corrupted ELF.");
+      DEJAVIEW_ELOG("Corrupted ELF.");
       return std::nullopt;
     }
 
@@ -158,13 +158,13 @@ std::optional<std::string> GetElfBuildId(void* mem, size_t size) {
           reinterpret_cast<typename E::Nhdr*>(static_cast<char*>(mem) + offset);
 
       if (!InRange(mem, size, nhdr, sizeof(typename E::Nhdr))) {
-        PERFETTO_ELOG("Corrupted ELF.");
+        DEJAVIEW_ELOG("Corrupted ELF.");
         return std::nullopt;
       }
       if (nhdr->n_type == NT_GNU_BUILD_ID && nhdr->n_namesz == 4) {
         char* name = reinterpret_cast<char*>(nhdr) + sizeof(*nhdr);
         if (!InRange(mem, size, name, 4)) {
-          PERFETTO_ELOG("Corrupted ELF.");
+          DEJAVIEW_ELOG("Corrupted ELF.");
           return std::nullopt;
         }
         if (memcmp(name, "GNU", 3) == 0) {
@@ -172,7 +172,7 @@ std::optional<std::string> GetElfBuildId(void* mem, size_t size) {
                               base::AlignUp<4>(nhdr->n_namesz);
 
           if (!InRange(mem, size, value, nhdr->n_descsz)) {
-            PERFETTO_ELOG("Corrupted ELF.");
+            DEJAVIEW_ELOG("Corrupted ELF.");
             return std::nullopt;
           }
           return std::string(value, nhdr->n_descsz);
@@ -187,7 +187,7 @@ std::optional<std::string> GetElfBuildId(void* mem, size_t size) {
 
 std::string SplitBuildID(const std::string& hex_build_id) {
   if (hex_build_id.size() < 3) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid build-id (< 3 char) %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid build-id (< 3 char) %s",
                             hex_build_id.c_str());
     return {};
   }
@@ -304,7 +304,7 @@ std::optional<BinaryInfo> GetBinaryInfo(const char* fname, size_t size) {
     return std::nullopt;
   base::ScopedMmap map = base::ReadMmapFilePart(fname, size);
   if (!map.IsValid()) {
-    PERFETTO_PLOG("Failed to mmap %s", fname);
+    DEJAVIEW_PLOG("Failed to mmap %s", fname);
     return std::nullopt;
   }
   char* mem = static_cast<char*>(map.data());
@@ -343,23 +343,23 @@ std::map<std::string, FoundBinary> BuildIdIndex(std::vector<std::string> dirs) {
     {
       base::ScopedFile fd(base::OpenFile(fname, O_RDONLY));
       if (!fd) {
-        PERFETTO_PLOG("Failed to open %s", fname);
+        DEJAVIEW_PLOG("Failed to open %s", fname);
         return;
       }
       ssize_t rd = base::Read(*fd, &magic, sizeof(magic));
       if (rd != sizeof(magic)) {
-        PERFETTO_PLOG("Failed to read %s", fname);
+        DEJAVIEW_PLOG("Failed to read %s", fname);
         return;
       }
       if (!IsElf(magic, static_cast<size_t>(rd)) &&
           !IsMachO64(magic, static_cast<size_t>(rd))) {
-        PERFETTO_DLOG("%s not an ELF or Mach-O 64.", fname);
+        DEJAVIEW_DLOG("%s not an ELF or Mach-O 64.", fname);
         return;
       }
     }
     std::optional<BinaryInfo> binary_info = GetBinaryInfo(fname, size);
     if (!binary_info) {
-      PERFETTO_DLOG("Failed to extract build id from %s.", fname);
+      DEJAVIEW_DLOG("Failed to extract build id from %s.", fname);
       return;
     }
     auto it = result.emplace(
@@ -373,16 +373,16 @@ std::map<std::string, FoundBinary> BuildIdIndex(std::vector<std::string> dirs) {
     if (has_existing) {
       if (it.first->second.type == BinaryType::kMachO &&
           binary_info->type == BinaryType::kMachODsym) {
-        PERFETTO_LOG("Overwriting index entry for %s to %s.",
+        DEJAVIEW_LOG("Overwriting index entry for %s to %s.",
                      base::ToHex(binary_info->build_id).c_str(), fname);
         it.first->second =
             FoundBinary{fname, binary_info->load_bias, binary_info->type};
       } else {
-        PERFETTO_DLOG("Ignoring %s, index entry for %s already exists.", fname,
+        DEJAVIEW_DLOG("Ignoring %s, index entry for %s already exists.", fname,
                       base::ToHex(binary_info->build_id).c_str());
       }
     } else {
-      PERFETTO_LOG("Indexed: %s (%s)", fname,
+      DEJAVIEW_LOG("Indexed: %s (%s)", fname,
                    base::ToHex(binary_info->build_id).c_str());
     }
   });
@@ -626,7 +626,7 @@ bool ParseLlvmSymbolizerJsonLine(const std::string& line,
                                })) {
             return false;
           }
-          PERFETTO_ELOG("Failed to symbolize: %s.", message.c_str());
+          DEJAVIEW_ELOG("Failed to symbolize: %s.", message.c_str());
           return true;
         }
         return SkipJsonValue(it, end);
@@ -644,7 +644,7 @@ std::optional<FoundBinary> LocalBinaryIndexer::FindBinary(
   auto it = buildid_to_file_.find(build_id);
   if (it != buildid_to_file_.end())
     return it->second;
-  PERFETTO_ELOG("Could not find Build ID: %s (file %s).",
+  DEJAVIEW_ELOG("Could not find Build ID: %s (file %s).",
                 base::ToHex(build_id).c_str(), abspath.c_str());
   return std::nullopt;
 }
@@ -675,7 +675,7 @@ std::optional<FoundBinary> LocalBinaryFinder::FindBinary(
     if (cache_entry)
       return cache_entry;
   }
-  PERFETTO_ELOG("Could not find %s (Build ID: %s).", abspath.c_str(),
+  DEJAVIEW_ELOG("Could not find %s (Build ID: %s).", abspath.c_str(),
                 base::ToHex(build_id).c_str());
   return cache_entry;
 }
@@ -689,7 +689,7 @@ std::optional<FoundBinary> LocalBinaryFinder::IsCorrectFile(
   // Openfile opens the file with an exclusive lock on windows.
   std::optional<uint64_t> file_size = base::GetFileSize(symbol_file);
   if (!file_size.has_value()) {
-    PERFETTO_PLOG("Failed to get file size %s", symbol_file.c_str());
+    DEJAVIEW_PLOG("Failed to get file size %s", symbol_file.c_str());
     return std::nullopt;
   }
 
@@ -796,7 +796,7 @@ LocalBinaryFinder::~LocalBinaryFinder() = default;
 
 LLVMSymbolizerProcess::LLVMSymbolizerProcess(const std::string& symbolizer_path)
     :
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
       subprocess_(symbolizer_path, {"--output-style=JSON"}) {
 }
 #else
@@ -811,7 +811,7 @@ std::vector<SymbolizedFrame> LLVMSymbolizerProcess::Symbolize(
   base::StackString<1024> buffer("\"%s\" 0x%" PRIx64 "\n", binary.c_str(),
                                  address);
   if (subprocess_.Write(buffer.c_str(), buffer.len()) < 0) {
-    PERFETTO_ELOG("Failed to write to llvm-symbolizer.");
+    DEJAVIEW_ELOG("Failed to write to llvm-symbolizer.");
     return result;
   }
   auto line = GetLine([&](char* read_buffer, size_t buffer_size) {
@@ -819,7 +819,7 @@ std::vector<SymbolizedFrame> LLVMSymbolizerProcess::Symbolize(
   });
   // llvm-symbolizer writes out records as one JSON per line.
   if (!ParseLlvmSymbolizerJsonLine(line, &result)) {
-    PERFETTO_ELOG("Failed to parse llvm-symbolizer JSON: %s", line.c_str());
+    DEJAVIEW_ELOG("Failed to parse llvm-symbolizer JSON: %s", line.c_str());
     return {};
   }
   return result;
@@ -840,7 +840,7 @@ std::vector<std::vector<SymbolizedFrame>> LocalSymbolizer::Symbolize(
     // frames that made no sense. We can fix this up after the fact if we
     // detect this situation.
     load_bias_correction = binary->load_bias - load_bias;
-    PERFETTO_LOG("Correcting load bias by %" PRIu64 " for %s",
+    DEJAVIEW_LOG("Correcting load bias by %" PRIu64 " for %s",
                  load_bias_correction, mapping_name.c_str());
   }
   std::vector<std::vector<SymbolizedFrame>> result;
@@ -861,6 +861,6 @@ LocalSymbolizer::LocalSymbolizer(std::unique_ptr<BinaryFinder> finder)
 LocalSymbolizer::~LocalSymbolizer() = default;
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_LOCAL_SYMBOLIZER)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_LOCAL_SYMBOLIZER)

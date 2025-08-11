@@ -39,7 +39,7 @@ from android_logs as l left join thread as t using(utid) left join process as p 
 ```
 ts | tid | pid | process | prio | tag | msg
 ---|-----|-----|---------|------|-----|----
-291474737298264 | 29128 | 29128 | traced_probes | 4 | perfetto | probes_producer.cc:231 Ftrace setup (target_buf=1)
+291474737298264 | 29128 | 29128 | traced_probes | 4 | dejaview | probes_producer.cc:231 Ftrace setup (target_buf=1)
 291474852699265 | 625 | 625 | surfaceflinger | 3 | SurfaceFlinger | Finished setting power mode 1 on display 0
 291474853274109 | 1818 | 1228 | system_server | 3 | SurfaceControl | Excessive delay in setPowerMode()
 291474882474841 | 1292 | 1228 | system_server | 4 | DisplayPowerController | Unblocked screen on after 242 ms
@@ -61,7 +61,7 @@ data_sources: {
         name: "android.log"
         android_log_config {
             min_prio: PRIO_VERBOSE
-            filter_tags: "perfetto"
+            filter_tags: "dejaview"
             filter_tags: "my_tag_2"
             log_ids: LID_DEFAULT
             log_ids: LID_RADIO

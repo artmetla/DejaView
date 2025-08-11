@@ -19,7 +19,7 @@
 
 #include <cstdint>
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 struct TimeConvRecord {
   uint64_t time_shift;
@@ -44,6 +44,6 @@ struct TimeConvRecord {
   }
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_TIME_CONV_RECORD_H_

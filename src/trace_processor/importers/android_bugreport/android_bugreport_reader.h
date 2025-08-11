@@ -21,13 +21,13 @@
 #include <cstdint>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/status.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_reader.h"
 #include "src/trace_processor/util/zip_reader.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 
 namespace util {
 class ZipReader;
@@ -62,6 +62,6 @@ class AndroidBugreportReader {
   std::string build_fpr_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_ANDROID_BUGREPORT_READER_H_

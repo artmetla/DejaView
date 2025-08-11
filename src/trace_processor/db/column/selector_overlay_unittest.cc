@@ -21,7 +21,7 @@
 #include <vector>
 
 #include "data_layer.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/fake_storage.h"
 #include "src/trace_processor/db/column/numeric_storage.h"
@@ -29,7 +29,7 @@
 #include "src/trace_processor/db/column/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 
 using testing::ElementsAre;
@@ -152,4 +152,4 @@ TEST(SelectorOverlay, StableSort) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

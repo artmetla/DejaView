@@ -26,5 +26,5 @@ data:
           <path>/data/</path>
         </local_directory>
       </user_directories>
-      <user_scripts_path>/var/lib/perfetto-clickhouse</user_scripts_path>
+      <user_scripts_path>/var/lib/dejaview-clickhouse</user_scripts_path>
     </clickhouse>

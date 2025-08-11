@@ -24,13 +24,13 @@
 #include <thread>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/platform_handle.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/watchdog.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/platform_handle.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/watchdog.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 // Use the default watchdog timeout for task runners.
 static constexpr int kWatchdogTimeoutMs = 30000;
@@ -45,17 +45,17 @@ FdPoller::FdPoller(Watcher* watcher) : watcher_(watcher) {
 
   // This is done last in the ctor because WatchForRead() asserts using
   // |thread_checker_|.
-  PERFETTO_DETACH_FROM_THREAD(thread_checker_);
+  DEJAVIEW_DETACH_FROM_THREAD(thread_checker_);
 }
 
 void FdPoller::Poll() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 
-  int num_fds = PERFETTO_EINTR(poll(
+  int num_fds = DEJAVIEW_EINTR(poll(
       &poll_fds_[0], static_cast<nfds_t>(poll_fds_.size()), kPollTimeoutMs));
   if (num_fds == -1 && base::IsAgain(errno))
     return;  // Poll again.
-  PERFETTO_DCHECK(num_fds <= static_cast<int>(poll_fds_.size()));
+  DEJAVIEW_DCHECK(num_fds <= static_cast<int>(poll_fds_.size()));
 
   // Make a copy of |poll_fds_| so it's safe to watch and unwatch while
   // notifying the watcher.
@@ -77,7 +77,7 @@ void FdPoller::Poll() {
     } else if (event.revents & POLLIN) {
       watcher_->OnFdReadable(event.fd);
     } else {
-      PERFETTO_DLOG("poll() returns events %d on fd %d", event.events,
+      DEJAVIEW_DLOG("poll() returns events %d on fd %d", event.events,
                     event.fd);
     }  // Other events like POLLHUP or POLLERR are ignored.
   }
@@ -89,7 +89,7 @@ void FdPoller::Notify() {
 }
 
 std::vector<pollfd>::iterator FdPoller::FindPollEvent(base::PlatformHandle fd) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 
   return std::find_if(poll_fds_.begin(), poll_fds_.end(),
                       [fd](const pollfd& item) { return fd == item.fd; });
@@ -106,18 +106,18 @@ void FdPoller::WatchFd(base::PlatformHandle fd, WatchEvents events) {
 
 void FdPoller::UnwatchFd(base::PlatformHandle fd, WatchEvents events) {
   auto it = FindPollEvent(fd);
-  PERFETTO_CHECK(it != poll_fds_.end());
+  DEJAVIEW_CHECK(it != poll_fds_.end());
   it->events &= ~events;
 }
 
 void FdPoller::RemoveWatch(base::PlatformHandle fd) {
   auto it = FindPollEvent(fd);
-  PERFETTO_CHECK(it != poll_fds_.end());
+  DEJAVIEW_CHECK(it != poll_fds_.end());
   poll_fds_.erase(it);
 }
 
 SocketRelayHandler::SocketRelayHandler() : fd_poller_(this) {
-  PERFETTO_DETACH_FROM_THREAD(io_thread_checker_);
+  DEJAVIEW_DETACH_FROM_THREAD(io_thread_checker_);
 
   io_thread_ = std::thread([this]() { this->Run(); });
 }
@@ -130,7 +130,7 @@ SocketRelayHandler::~SocketRelayHandler() {
 void SocketRelayHandler::AddSocketPair(
     std::unique_ptr<SocketPair> socket_pair) {
   RunOnIOThread([this, socket_pair = std::move(socket_pair)]() mutable {
-    PERFETTO_DCHECK_THREAD(io_thread_checker_);
+    DEJAVIEW_DCHECK_THREAD(io_thread_checker_);
 
     base::PlatformHandle fd1 = socket_pair->first.sock.fd();
     base::PlatformHandle fd2 = socket_pair->second.sock.fd();
@@ -146,7 +146,7 @@ void SocketRelayHandler::AddSocketPair(
 }
 
 void SocketRelayHandler::Run() {
-  PERFETTO_DCHECK_THREAD(io_thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(io_thread_checker_);
 
   while (!exited_) {
     fd_poller_.Poll();
@@ -168,7 +168,7 @@ void SocketRelayHandler::Run() {
 }
 
 void SocketRelayHandler::OnFdReadable(base::PlatformHandle fd) {
-  PERFETTO_DCHECK_THREAD(io_thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(io_thread_checker_);
 
   auto socket_pair = GetSocketPair(fd);
   if (!socket_pair)
@@ -200,14 +200,14 @@ void SocketRelayHandler::OnFdReadable(base::PlatformHandle fd) {
   }
   // We are not bufferable: need to turn off POLLIN to avoid spinning.
   fd_poller_.UnwatchForRead(fd);
-  PERFETTO_DCHECK(fd_sock.data_size() > 0);
+  DEJAVIEW_DCHECK(fd_sock.data_size() > 0);
   // Watching for POLLOUT will cause an OnFdWritable() event of
   // |peer_sock|.
   fd_poller_.WatchForWrite(peer_fd);
 }
 
 void SocketRelayHandler::OnFdWritable(base::PlatformHandle fd) {
-  PERFETTO_DCHECK_THREAD(io_thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(io_thread_checker_);
 
   auto socket_pair = GetSocketPair(fd);
   if (!socket_pair)
@@ -240,13 +240,13 @@ void SocketRelayHandler::OnFdWritable(base::PlatformHandle fd) {
 
 std::optional<std::tuple<SocketWithBuffer&, SocketWithBuffer&>>
 SocketRelayHandler::GetSocketPair(base::PlatformHandle fd) {
-  PERFETTO_DCHECK_THREAD(io_thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(io_thread_checker_);
 
   auto* socket_pair = socket_pairs_by_fd_.Find(fd);
   if (!socket_pair)
     return std::nullopt;
 
-  PERFETTO_DCHECK(fd == (*socket_pair)->first.sock.fd() ||
+  DEJAVIEW_DCHECK(fd == (*socket_pair)->first.sock.fd() ||
                   fd == (*socket_pair)->second.sock.fd());
 
   if (fd == (*socket_pair)->first.sock.fd())
@@ -257,7 +257,7 @@ SocketRelayHandler::GetSocketPair(base::PlatformHandle fd) {
 
 void SocketRelayHandler::RemoveSocketPair(SocketWithBuffer& sock1,
                                           SocketWithBuffer& sock2) {
-  PERFETTO_DCHECK_THREAD(io_thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(io_thread_checker_);
 
   auto fd1 = sock1.sock.fd();
   auto fd2 = sock2.sock.fd();
@@ -266,8 +266,8 @@ void SocketRelayHandler::RemoveSocketPair(SocketWithBuffer& sock1,
 
   auto* ptr1 = socket_pairs_by_fd_.Find(fd1);
   auto* ptr2 = socket_pairs_by_fd_.Find(fd2);
-  PERFETTO_DCHECK(ptr1 && ptr2);
-  PERFETTO_DCHECK(*ptr1 == *ptr2);
+  DEJAVIEW_DCHECK(ptr1 && ptr2);
+  DEJAVIEW_DCHECK(*ptr1 == *ptr2);
 
   auto* socket_pair_ptr = *ptr1;
 
@@ -283,4 +283,4 @@ void SocketRelayHandler::RemoveSocketPair(SocketWithBuffer& sock1,
       socket_pairs_.end());
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

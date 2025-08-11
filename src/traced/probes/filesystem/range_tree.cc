@@ -15,9 +15,9 @@
  */
 
 #include "src/traced/probes/filesystem/range_tree.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 
 const std::set<std::string> RangeTree::Get(Inode inode) {
   std::set<std::string> ret;
@@ -32,13 +32,13 @@ const std::set<std::string> RangeTree::Get(Inode inode) {
 void RangeTree::Insert(Inode inode, RangeTree::DataType value) {
   auto lower = map_.rbegin();
   if (!map_.empty()) {
-    PERFETTO_DCHECK(inode > lower->first);
+    DEJAVIEW_DCHECK(inode > lower->first);
   }
 
   if (map_.empty() || !lower->second.Add(value)) {
     auto success = map_[inode].Add(value);
-    PERFETTO_DCHECK(success);
+    DEJAVIEW_DCHECK(success);
   }
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

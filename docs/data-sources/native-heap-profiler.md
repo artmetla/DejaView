@@ -72,16 +72,16 @@ after the profiling session is started.
 For the full arguments list see the
 [heap_profile cmdline reference page](/docs/reference/heap_profile-cli).
 
-You can use the [Perfetto UI](https://ui.perfetto.dev) to visualize heap dumps.
+You can use the [DejaView UI](https://ui.perfetto.dev) to visualize heap dumps.
 Upload the `raw-trace` file in your output directory. You will see all heap
 dumps as diamonds on the timeline, click any of them to get a flamegraph.
 
 Alternatively [Speedscope](https://speedscope.app) can be used to visualize
 the gzipped protos, but will only show the "Unreleased malloc size" view.
 
-#### Using the Recording page of Perfetto UI
+#### Using the Recording page of DejaView UI
 
-You can also use the [Perfetto UI](https://ui.perfetto.dev/#!/record/memory)
+You can also use the [DejaView UI](https://ui.perfetto.dev/#!/record/memory)
 to record heapprofd profiles. Tick "Heap profiling" in the trace configuration,
 enter the processes you want to target, click "Add Device" to pair your phone,
 and record profiles straight from your browser. This is also possible on
@@ -203,7 +203,7 @@ the pprof compatible proto.
 If you see this message but do not expect any other sessions, run
 
 ```shell
-adb shell killall perfetto
+adb shell killall dejaview
 ```
 
 to stop any concurrent sessions that may be running.
@@ -325,18 +325,18 @@ If the profiled binary or libraries do not have symbol names, you can
 symbolize profiles offline. Even if they do, you might want to symbolize in
 order to get inlined function and line number information. All tools
 (traceconv, trace_processor_shell, the heap_profile script) support specifying
-the `PERFETTO_BINARY_PATH` as an environment variable.
+the `DEJAVIEW_BINARY_PATH` as an environment variable.
 
 ```
-PERFETTO_BINARY_PATH=somedir tools/heap_profile --name ${NAME}
+DEJAVIEW_BINARY_PATH=somedir tools/heap_profile --name ${NAME}
 ```
 
 You can persist symbols for a trace by running
-`PERFETTO_BINARY_PATH=somedir tools/traceconv symbolize raw-trace > symbols`.
+`DEJAVIEW_BINARY_PATH=somedir tools/traceconv symbolize raw-trace > symbols`.
 You can then concatenate the symbols to the trace (
 `cat raw-trace symbols > symbolized-trace`) and the symbols will part of
 `symbolized-trace`. The `tools/heap_profile` script will also generate this
-file in your output directory, if `PERFETTO_BINARY_PATH` is used.
+file in your output directory, if `DEJAVIEW_BINARY_PATH` is used.
 
 The symbol file is the first with matching Build ID in the following order:
 
@@ -354,13 +354,13 @@ The symbol file is the first with matching Build ID in the following order:
 For example, "/system/lib/base.apk!foo.so" with build id abcd1234,
 is looked for at:
 
-1. $PERFETTO_BINARY_PATH/system/lib/base.apk!foo.so
-2. $PERFETTO_BINARY_PATH/system/lib/foo.so
-3. $PERFETTO_BINARY_PATH/base.apk!foo.so
-4. $PERFETTO_BINARY_PATH/foo.so
-5. $PERFETTO_BINARY_PATH/.build-id/ab/cd1234.debug
+1. $DEJAVIEW_BINARY_PATH/system/lib/base.apk!foo.so
+2. $DEJAVIEW_BINARY_PATH/system/lib/foo.so
+3. $DEJAVIEW_BINARY_PATH/base.apk!foo.so
+4. $DEJAVIEW_BINARY_PATH/foo.so
+5. $DEJAVIEW_BINARY_PATH/.build-id/ab/cd1234.debug
 
-Alternatively, you can set the `PERFETTO_SYMBOLIZER_MODE` environment variable
+Alternatively, you can set the `DEJAVIEW_SYMBOLIZER_MODE` environment variable
 to `index`, and the symbolizer will recursively search the given directory for
 an ELF file with the given build id. This way, you will not have to worry
 about correct filenames.
@@ -369,28 +369,28 @@ about correct filenames.
 
 If your profile contains obfuscated Java methods (like `fsd.a`), you can
 provide a deobfuscation map to turn them back into human readable.
-To do so, use the `PERFETTO_PROGUARD_MAP` environment variable, using the
+To do so, use the `DEJAVIEW_PROGUARD_MAP` environment variable, using the
 format `packagename=map_filename[:packagename=map_filename...]`, e.g.
-`PERFETTO_PROGUARD_MAP=com.example.pkg1=foo.txt:com.example.pkg2=bar.txt`.
+`DEJAVIEW_PROGUARD_MAP=com.example.pkg1=foo.txt:com.example.pkg2=bar.txt`.
 All tools (traceconv, trace_processor_shell, the heap_profile script) support
-specifying the `PERFETTO_PROGUARD_MAP` as an environment variable.
+specifying the `DEJAVIEW_PROGUARD_MAP` as an environment variable.
 
 ```
-PERFETTO_PROGUARD_MAP=com.example.pkg1=proguard_map1.txt:com.example.pkg2=proguard_map2.txt ./tools/heap_profile -n com.example.app
+DEJAVIEW_PROGUARD_MAP=com.example.pkg1=proguard_map1.txt:com.example.pkg2=proguard_map2.txt ./tools/heap_profile -n com.example.app
 ```
 
 You can get a deobfuscation map for the trace you already collected using
 `tools/traceconv deobfuscate`. Then concatenate the resulting file to your
 trace to get a deobfuscated version of it (the input trace should be in the
-perfetto format, otherwise concatenation will not produce a reasonable output).
+dejaview format, otherwise concatenation will not produce a reasonable output).
 
 ```
-PERFETTO_PROGUARD_MAP=com.example.pkg=proguard_map.txt tools/traceconv deobfuscate ${TRACE} > deobfuscation_map
+DEJAVIEW_PROGUARD_MAP=com.example.pkg=proguard_map.txt tools/traceconv deobfuscate ${TRACE} > deobfuscation_map
 cat ${TRACE} deobfuscation_map > deobfuscated_trace
 ```
 
 `deobfuscated_trace` can be viewed in the
-[Perfetto UI](https://ui.perfetto.dev).
+[DejaView UI](https://ui.perfetto.dev).
 
 ## Troubleshooting
 
@@ -430,12 +430,12 @@ Could not find /data/app/invalid.app-wFgo3GRaod02wSvPZQ==/lib/arm64/somelib.so
 ```
 
 Check whether your library (in this example somelib.so) exists in
-`PERFETTO_BINARY_PATH`. Then compare the Build ID to the one in your
+`DEJAVIEW_BINARY_PATH`. Then compare the Build ID to the one in your
 symbol file, which you can get by running
 `readelf -n /path/in/binary/path/somelib.so`. If it does not match, the
 symbolized file has a different version than the one on device, and cannot
 be used for symbolization.
-If it does, try moving somelib.so to the root of `PERFETTO_BINARY_PATH` and
+If it does, try moving somelib.so to the root of `DEJAVIEW_BINARY_PATH` and
 try again.
 
 ### Only one frame shown
@@ -465,7 +465,7 @@ to not strip them.
 NOTE: Do not use this for production purposes.
 
 You can use a standalone library to profile memory allocations on Linux.
-First [build Perfetto](/docs/contributing/build-instructions.md). You only need
+First [build DejaView](/docs/contributing/build-instructions.md). You only need
 to do this once.
 
 ```
@@ -483,7 +483,7 @@ Start the profile (e.g. targeting trace_processor_shell)
 
 ```
 tools/heap_profile -n trace_processor_shell --print-config  | \
-out/linux_clang_release/perfetto \
+out/linux_clang_release/dejaview \
   -c - --txt \
   -o ~/heapprofd-trace
 ```
@@ -494,13 +494,13 @@ Finally, run your target (e.g. trace_processor_shell) with LD_PRELOAD
 LD_PRELOAD=out/linux_clang_release/libheapprofd_glibc_preload.so out/linux_clang_release/trace_processor_shell <trace>
 ```
 
-Then, Ctrl-C the Perfetto invocation and upload ~/heapprofd-trace to the
-[Perfetto UI](https://ui.perfetto.dev).
+Then, Ctrl-C the DejaView invocation and upload ~/heapprofd-trace to the
+[DejaView UI](https://ui.perfetto.dev).
 
 NOTE: by default, heapprofd lazily initalizes to avoid blocking your program's
 main thread. However, if your program makes memory allocations on startup,
 these can be missed. To avoid this from happening, set the enironment variable
-`PERFETTO_HEAPPROFD_BLOCKING_INIT=1`; on the first malloc, your program will
+`DEJAVIEW_HEAPPROFD_BLOCKING_INIT=1`; on the first malloc, your program will
 be blocked until heapprofd initializes fully but means every allocation will
 be correctly tracked.
 

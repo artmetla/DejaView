@@ -13,17 +13,17 @@
 # limitations under the License.
 
 import("../../gn/fuzzer.gni")
-import("../../gn/perfetto.gni")
-import("../../gn/perfetto_cc_proto_descriptor.gni")
-import("../../gn/perfetto_component.gni")
+import("../../gn/dejaview.gni")
+import("../../gn/dejaview_cc_proto_descriptor.gni")
+import("../../gn/dejaview_component.gni")
 import("../../gn/proto_library.gni")
 import("../../gn/test.gni")
 
-perfetto_component("protozero") {
+dejaview_component("protozero") {
   public_configs = [ "../../gn:default_config" ]
   public_deps = [
-    "../../include/perfetto/base",
-    "../../include/perfetto/protozero",
+    "../../include/dejaview/base",
+    "../../include/dejaview/protozero",
   ]
   deps = [
     "../../gn:default_deps",
@@ -45,7 +45,7 @@ perfetto_component("protozero") {
 }
 
 source_set("proto_ring_buffer") {
-  public_deps = [ "../../include/perfetto/ext/protozero" ]
+  public_deps = [ "../../include/dejaview/ext/protozero" ]
   deps = [
     ":protozero",
     "../../gn:default_deps",
@@ -54,7 +54,7 @@ source_set("proto_ring_buffer") {
   sources = [ "proto_ring_buffer.cc" ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":proto_ring_buffer",
@@ -92,7 +92,7 @@ perfetto_unittest_source_set("unittests") {
 
 # Generates both xxx.pbzero.h and xxx.pb.h (official proto).
 
-perfetto_proto_library("testing_messages_@TYPE@") {
+dejaview_proto_library("testing_messages_@TYPE@") {
   deps = [
     ":testing_messages_other_package_@TYPE@",
     ":testing_messages_subpackage_@TYPE@",
@@ -104,27 +104,27 @@ perfetto_proto_library("testing_messages_@TYPE@") {
     "test/example_proto/test_messages.proto",
     "test/example_proto/upper_import.proto",
   ]
-  proto_path = perfetto_root_path
+  proto_path = dejaview_root_path
 }
 
-perfetto_proto_library("testing_messages_other_package_@TYPE@") {
+dejaview_proto_library("testing_messages_other_package_@TYPE@") {
   sources = [ "test/example_proto/other_package/test_messages.proto" ]
-  proto_path = perfetto_root_path
+  proto_path = dejaview_root_path
 }
 
-perfetto_proto_library("testing_messages_subpackage_@TYPE@") {
+dejaview_proto_library("testing_messages_subpackage_@TYPE@") {
   sources = [ "test/example_proto/subpackage/test_messages.proto" ]
-  proto_path = perfetto_root_path
+  proto_path = dejaview_root_path
 }
 
-perfetto_proto_library("test_messages_descriptor") {
+dejaview_proto_library("test_messages_descriptor") {
   proto_generators = [ "descriptor" ]
   generate_descriptor = "test_messages.descriptor"
   sources = [ "test/example_proto/test_messages.proto" ]
   link_deps = [ ":testing_messages_source_set" ]
 }
 
-perfetto_fuzzer_test("protozero_decoder_fuzzer") {
+dejaview_fuzzer_test("protozero_decoder_fuzzer") {
   sources = [ "proto_decoder_fuzzer.cc" ]
   deps = [
     ":protozero",
@@ -133,7 +133,7 @@ perfetto_fuzzer_test("protozero_decoder_fuzzer") {
   ]
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [

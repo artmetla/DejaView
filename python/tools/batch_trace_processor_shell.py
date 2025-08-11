@@ -23,8 +23,8 @@ import numpy as np
 import pandas as pd
 import plotille
 
-from perfetto.batch_trace_processor.api import BatchTraceProcessor, BatchTraceProcessorConfig
-from perfetto.trace_processor import TraceProcessorException, TraceProcessorConfig
+from dejaview.batch_trace_processor.api import BatchTraceProcessor, BatchTraceProcessorConfig
+from dejaview.trace_processor import TraceProcessorException, TraceProcessorConfig
 from typing import List
 
 

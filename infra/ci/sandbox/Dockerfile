@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Creates an image that can check out / build / test the perfetto source. The
+# Creates an image that can check out / build / test the dejaview source. The
 # image is used by the Kokoro continuous integration jobs, but is also suitable
 # for local development.
 
@@ -34,8 +34,8 @@ RUN set -ex; \
     clang-8 --version; \
     clang++-8 --version; \
     pip3 install protobuf pandas grpcio; \
-    groupadd -g 1337 perfetto; \
-    useradd -d /ci/ramdisk -u 1337 -g perfetto perfetto; \
+    groupadd -g 1337 dejaview; \
+    useradd -d /ci/ramdisk -u 1337 -g dejaview dejaview; \
     apt-get -y autoremove; \
     rm -rf /var/lib/apt/lists/* /usr/share/man/* /usr/share/doc/*;
 

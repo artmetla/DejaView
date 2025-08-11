@@ -258,7 +258,7 @@ class AreaDetailsPanel implements m.ClassComponent<AreaDetailsPanelAttrs> {
               columnName: 'self_count',
             },
           ],
-          'include perfetto module callstacks.stack_profile',
+          'include dejaview module callstacks.stack_profile',
           [{name: 'mapping_name', displayName: 'Mapping'}],
           [
             {
@@ -319,7 +319,7 @@ class AreaDetailsPanel implements m.ClassComponent<AreaDetailsPanelAttrs> {
               columnName: 'self_count',
             },
           ],
-          'include perfetto module linux.perf.samples',
+          'include dejaview module linux.perf.samples',
         ),
       ],
     };
@@ -376,7 +376,7 @@ class AreaDetailsPanel implements m.ClassComponent<AreaDetailsPanelAttrs> {
               columnName: 'self_count',
             },
           ],
-          'include perfetto module viz.slices;',
+          'include dejaview module viz.slices;',
         ),
       ],
     };

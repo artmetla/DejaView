@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/protozero/scattered_stream_writer.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
 
 namespace protozero {
 

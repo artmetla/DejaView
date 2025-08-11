@@ -26,18 +26,18 @@
 #include <linux/perf_event.h>
 #include <unwindstack/Error.h>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 #include "src/kallsyms/kernel_symbol_map.h"
 #include "src/kallsyms/lazy_kernel_symbolizer.h"
 #include "src/profiling/common/unwind_support.h"
 #include "src/profiling/perf/common_types.h"
 #include "src/profiling/perf/unwind_queue.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 constexpr static uint32_t kUnwindQueueCapacity = 1024;
@@ -87,7 +87,7 @@ class Unwinder {
     virtual ~Delegate();
   };
 
-  ~Unwinder() { PERFETTO_DCHECK_THREAD(thread_checker_); }
+  ~Unwinder() { DEJAVIEW_DCHECK_THREAD(thread_checker_); }
 
   void PostStartDataSource(DataSourceInstanceID ds_id, bool kernel_frames);
   void PostAdoptProcDescriptors(DataSourceInstanceID ds_id,
@@ -114,7 +114,7 @@ class Unwinder {
         std::memory_order_relaxed);
 
     // overflow not a concern in practice
-    PERFETTO_DCHECK(allocated >= freed);
+    DEJAVIEW_DCHECK(allocated >= freed);
     return allocated - freed;
   }
 
@@ -248,7 +248,7 @@ class Unwinder {
   std::map<DataSourceInstanceID, DataSourceState> data_sources_;
   LazyKernelSymbolizer kernel_symbolizer_;
 
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
 };
 
 // Owning resource handle for an |Unwinder| with a dedicated task thread.
@@ -283,10 +283,10 @@ class UnwinderHandle {
 
   ~UnwinderHandle() {
     if (task_runner_) {
-      PERFETTO_CHECK(!task_runner_->QuitCalled());
+      DEJAVIEW_CHECK(!task_runner_->QuitCalled());
       task_runner_->Quit();
 
-      PERFETTO_DCHECK(thread_.joinable());
+      DEJAVIEW_DCHECK(thread_.joinable());
     }
     if (thread_.joinable())
       thread_.join();
@@ -311,6 +311,6 @@ class UnwinderHandle {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_UNWINDING_H_

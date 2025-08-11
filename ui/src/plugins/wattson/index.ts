@@ -17,7 +17,7 @@ import {
   CounterOptions,
 } from '../../frontend/base_counter_track';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {CPUSS_ESTIMATE_TRACK_KIND} from '../../public/track_kinds';
 import {TrackNode} from '../../public/workspace';
 import {WattsonEstimateSelectionAggregator} from './estimate_aggregator';
@@ -27,12 +27,12 @@ import {WattsonThreadSelectionAggregator} from './thread_aggregator';
 import {Engine} from '../../trace_processor/engine';
 import {NUM} from '../../trace_processor/query_result';
 
-class Wattson implements PerfettoPlugin {
+class Wattson implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
-    // Short circuit if Wattson is not supported for this Perfetto trace
+    // Short circuit if Wattson is not supported for this DejaView trace
     if (!(await hasWattsonSupport(ctx.engine))) return;
 
-    ctx.engine.query(`INCLUDE PERFETTO MODULE wattson.curves.ungrouped;`);
+    ctx.engine.query(`INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;`);
 
     const group = new TrackNode({title: 'Wattson', isSummary: true});
     ctx.workspace.addChildInOrder(group);
@@ -133,15 +133,15 @@ async function hasWattsonSupport(engine: Engine): Promise<boolean> {
   // Wattson to run, so check that these tables are populated
   const queryChecks: string[] = [
     `
-    INCLUDE PERFETTO MODULE wattson.device_infos;
+    INCLUDE DEJAVIEW MODULE wattson.device_infos;
     SELECT COUNT(*) as numRows FROM _wattson_device
     `,
     `
-    INCLUDE PERFETTO MODULE linux.cpu.frequency;
+    INCLUDE DEJAVIEW MODULE linux.cpu.frequency;
     SELECT COUNT(*) as numRows FROM cpu_frequency_counters
     `,
     `
-    INCLUDE PERFETTO MODULE linux.cpu.idle;
+    INCLUDE DEJAVIEW MODULE linux.cpu.idle;
     SELECT COUNT(*) as numRows FROM cpu_idle_counters
     `,
   ];

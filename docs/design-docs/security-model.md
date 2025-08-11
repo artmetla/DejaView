@@ -25,7 +25,7 @@ embedder and the IPC transport.
   - It doesn't open or create files (% tmpfs).
   - It writes only onto file descriptors passed over the IPC channel.
   - It doesn't open or create sockets (on Android the IPC sockets are passed by
-    init, see [perfetto.rc](/perfetto.rc))
+    init, see [dejaview.rc](/dejaview.rc))
   - On Android it runs as nobody:nobody and is allowed to do very little
     see [traced.te](https://android.googlesource.com/platform/system/sepolicy/+/main/private/traced.te).
   - In Chromium it should run as a utility process.

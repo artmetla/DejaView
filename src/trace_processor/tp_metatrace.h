@@ -21,12 +21,12 @@
 #include <functional>
 #include <vector>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/metatrace_events.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/trace_processor/metatrace_config.h"
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/metatrace_events.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/trace_processor/metatrace_config.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
 // Trace processor maintains its own base implementation to avoid the
 // threading and task runners which are required by base's metatracing.
@@ -34,7 +34,7 @@
 // from base's metatracing.
 // On the other hand, this implementation is not (currently) thread-safe
 // and is likely less performant than base's implementation.
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace metatrace {
 
@@ -66,15 +66,15 @@ struct Record {
 
   // Adds an arg to the record.
   void AddArg(base::StringView key, base::StringView value) {
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
     // |key| and |value| should not contain any '\0' characters as it
     // messes with the |args_buffer| which uses '\0' to deliniate different
     // arguments.
     for (char c : key) {
-      PERFETTO_DCHECK(c != '\0');
+      DEJAVIEW_DCHECK(c != '\0');
     }
     for (char c : value) {
-      PERFETTO_DCHECK(c != '\0');
+      DEJAVIEW_DCHECK(c != '\0');
     }
 #endif
     size_t new_buffer_size = args_buffer_size + key.size() + value.size() + 2;
@@ -115,8 +115,8 @@ class RingBuffer {
   ~RingBuffer() = default;
 
   std::pair<uint64_t, Record*> AppendRecord(const char* event_name) {
-    PERFETTO_DCHECK_THREAD(thread_checker_);
-    PERFETTO_DCHECK(!is_reading_);
+    DEJAVIEW_DCHECK_THREAD(thread_checker_);
+    DEJAVIEW_DCHECK(!is_reading_);
 
     uint64_t idx = write_idx_++;
     Record* record = At(idx);
@@ -156,7 +156,7 @@ class RingBuffer {
   uint64_t write_idx_ = 0;
   std::vector<Record> data_;
 
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
 };
 
 class ScopedEvent {
@@ -164,7 +164,7 @@ class ScopedEvent {
   ScopedEvent() = default;
 
   ~ScopedEvent() {
-    if (PERFETTO_LIKELY(!record_))
+    if (DEJAVIEW_LIKELY(!record_))
       return;
     if (RingBuffer::GetInstance()->HasOverwritten(record_idx_))
       return;
@@ -183,7 +183,7 @@ class ScopedEvent {
       Category category,
       const char* event_id,
       Fn args_fn = [](Record*) {}) {
-    if (PERFETTO_LIKELY((category & g_enabled_categories) == 0))
+    if (DEJAVIEW_LIKELY((category & g_enabled_categories) == 0))
       return ScopedEvent();
 
     ScopedEvent event;
@@ -210,15 +210,15 @@ void Enable(MetatraceConfig config = {});
 void DisableAndReadBuffer(std::function<void(Record*)>);
 
 // Boilerplate to derive a unique variable name for the event.
-#define PERFETTO_TP_METATRACE_UID2(a, b) a##b
-#define PERFETTO_TP_METATRACE_UID(x) PERFETTO_TP_METATRACE_UID2(metatrace_, x)
+#define DEJAVIEW_TP_METATRACE_UID2(a, b) a##b
+#define DEJAVIEW_TP_METATRACE_UID(x) DEJAVIEW_TP_METATRACE_UID2(metatrace_, x)
 
-#define PERFETTO_TP_TRACE(...)                  \
-  auto PERFETTO_TP_METATRACE_UID(__COUNTER__) = \
-      ::perfetto::trace_processor::metatrace::ScopedEvent::Create(__VA_ARGS__)
+#define DEJAVIEW_TP_TRACE(...)                  \
+  auto DEJAVIEW_TP_METATRACE_UID(__COUNTER__) = \
+      ::dejaview::trace_processor::metatrace::ScopedEvent::Create(__VA_ARGS__)
 
 }  // namespace metatrace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TP_METATRACE_H_

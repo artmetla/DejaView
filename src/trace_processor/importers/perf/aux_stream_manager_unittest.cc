@@ -18,9 +18,9 @@
 #include <cstdint>
 #include <memory>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/aux_record.h"
 #include "src/trace_processor/importers/perf/auxtrace_info_record.h"
 #include "src/trace_processor/storage/stats.h"
@@ -28,7 +28,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 namespace {
 
 std::unique_ptr<TraceProcessorContext> CreateTraceProcessorContext() {
@@ -282,4 +282,4 @@ TEST(AuxStreamManagerTest, MultipleStreams) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

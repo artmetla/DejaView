@@ -13,13 +13,13 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE android.slices;
+INCLUDE DEJAVIEW MODULE android.slices;
 
 SELECT RUN_METRIC('android/sysui_notif_shade_list_builder_slices.sql');
 
 -- Get statics of all ShadeListBuilder.buildList slices
 DROP TABLE IF EXISTS shade_list_builder_all;
-CREATE PERFETTO TABLE shade_list_builder_all AS
+CREATE DEJAVIEW TABLE shade_list_builder_all AS
 SELECT
   s.name name,
   COUNT(s.name) AS count,
@@ -31,7 +31,7 @@ GROUP BY s.name;
 
 -- Id of shade_list_builder slices that has a descendant of inflation
 DROP VIEW IF EXISTS slices_id_with_inflation_descendants;
-CREATE PERFETTO VIEW slices_id_with_inflation_descendants AS
+CREATE DEJAVIEW VIEW slices_id_with_inflation_descendants AS
 SELECT DISTINCT id
   FROM slices_and_descendants
   WHERE
@@ -40,7 +40,7 @@ SELECT DISTINCT id
 
 -- Id of shade_list_builder slices that has a descendant of ShadeNode modification
 DROP VIEW IF EXISTS slices_id_with_modification_descendants;
-CREATE PERFETTO VIEW slices_id_with_modification_descendants AS
+CREATE DEJAVIEW VIEW slices_id_with_modification_descendants AS
 SELECT DISTINCT id
   FROM slices_and_descendants
   WHERE
@@ -49,7 +49,7 @@ SELECT DISTINCT id
     descendant_name = 'ShadeNode#moveChildTo';
 
 DROP TABLE IF EXISTS shade_list_builder_slices_with_inflation;
-CREATE PERFETTO TABLE shade_list_builder_slices_with_inflation AS
+CREATE DEJAVIEW TABLE shade_list_builder_slices_with_inflation AS
 SELECT
   s.name || "_with_inflation" name,
   COUNT(s.name) AS count,
@@ -60,7 +60,7 @@ WHERE s.id IN slices_id_with_inflation_descendants
 GROUP BY s.name;
 
 DROP TABLE IF EXISTS shade_list_builder_slices_with_modification;
-CREATE PERFETTO TABLE shade_list_builder_slices_with_modification AS
+CREATE DEJAVIEW TABLE shade_list_builder_slices_with_modification AS
 SELECT
   s.name || "_with_node_modification" name,
   COUNT(s.name) AS count,
@@ -72,7 +72,7 @@ GROUP BY s.name;
 
 
 DROP VIEW IF EXISTS sysui_notif_shade_list_builder_metric_output;
-CREATE PERFETTO VIEW sysui_notif_shade_list_builder_metric_output AS
+CREATE DEJAVIEW VIEW sysui_notif_shade_list_builder_metric_output AS
 SELECT SysuiNotifShadeListBuilderMetric(
         'all_slices_performance', (
             SELECT SysUiSlicePerformanceStatisticalData(

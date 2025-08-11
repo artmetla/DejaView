@@ -19,9 +19,9 @@
 
 #include <cstddef>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceBlobView;
 
@@ -41,6 +41,6 @@ class ChunkedTraceReader {
   [[nodiscard]] virtual base::Status NotifyEndOfFile() = 0;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_CHUNKED_TRACE_READER_H_

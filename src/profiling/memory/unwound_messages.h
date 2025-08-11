@@ -23,7 +23,7 @@
 #include "src/profiling/common/unwind_support.h"
 #include "src/profiling/memory/wire_protocol.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // Single allocation with an unwound callstack.
@@ -54,6 +54,6 @@ struct HeapNameRecord {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_UNWOUND_MESSAGES_H_

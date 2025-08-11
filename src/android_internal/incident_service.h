@@ -21,12 +21,12 @@
 #include <stdint.h>
 
 // This header declares proxy functions defined in
-// libperfetto_android_internal.so that access internal android functions (e.g.
+// libdejaview_android_internal.so that access internal android functions (e.g.
 // hwbinder).
-// Do not add any include to either perfetto headers or android headers. See
+// Do not add any include to either dejaview headers or android headers. See
 // README.md for more.
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 extern "C" {
@@ -39,6 +39,6 @@ StartIncidentReport(const char* dest_pkg,
 }  // extern "C"
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_ANDROID_INTERNAL_INCIDENT_SERVICE_H_

@@ -24,15 +24,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/forward_decls.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -191,6 +191,6 @@ class ProcessStatsDataSource : public ProbesDataSource {
   base::WeakPtrFactory<ProcessStatsDataSource> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_PS_PROCESS_STATS_DATA_SOURCE_H_

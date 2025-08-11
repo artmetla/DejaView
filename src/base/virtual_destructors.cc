@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/task_runner.h"
+#include "dejaview/base/task_runner.h"
 
 // This translation unit contains the definitions for the destructor of pure
 // virtual interfaces for the current build target. The alternative would be
 // introducing a one-liner .cc file for each pure virtual interface, which is
 // overkill. This is for compliance with -Wweak-vtables.
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 TaskRunner::~TaskRunner() = default;
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

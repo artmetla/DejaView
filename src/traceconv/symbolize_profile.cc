@@ -18,19 +18,19 @@
 
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
 #include "src/profiling/symbolizer/breakpad_symbolizer.h"
 #include "src/profiling/symbolizer/local_symbolizer.h"
 #include "src/profiling/symbolizer/symbolize_database.h"
 #include "src/profiling/symbolizer/symbolizer.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/traceconv/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 // Ingest profile, and emit a symbolization table for each sequence. This can
@@ -40,23 +40,23 @@ int SymbolizeProfile(std::istream* input, std::ostream* output) {
   const char* breakpad_dir = getenv("BREAKPAD_SYMBOL_DIR");
   if (breakpad_dir == nullptr) {
     symbolizer = profiling::LocalSymbolizerOrDie(
-        profiling::GetPerfettoBinaryPath(), getenv("PERFETTO_SYMBOLIZER_MODE"));
+        profiling::GetDejaViewBinaryPath(), getenv("DEJAVIEW_SYMBOLIZER_MODE"));
   } else {
     symbolizer.reset(new profiling::BreakpadSymbolizer(breakpad_dir));
   }
 
   if (!symbolizer)
-    PERFETTO_FATAL("No symbolizer selected");
+    DEJAVIEW_FATAL("No symbolizer selected");
   trace_processor::Config config;
   std::unique_ptr<trace_processor::TraceProcessor> tp =
       trace_processor::TraceProcessor::CreateInstance(config);
 
   if (!ReadTraceUnfinalized(tp.get(), input))
-    PERFETTO_FATAL("Failed to read trace.");
+    DEJAVIEW_FATAL("Failed to read trace.");
 
   tp->Flush();
   if (auto status = tp->NotifyEndOfFile(); !status.ok()) {
-    PERFETTO_FATAL("%s", status.c_message());
+    DEJAVIEW_FATAL("%s", status.c_message());
   }
 
   SymbolizeDatabase(
@@ -67,4 +67,4 @@ int SymbolizeProfile(std::istream* input, std::ostream* output) {
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

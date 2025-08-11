@@ -24,7 +24,7 @@
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/track_event_module.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 void RegisterDefaultModules(TraceProcessorContext* context) {
@@ -48,4 +48,4 @@ void RegisterDefaultModules(TraceProcessorContext* context) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

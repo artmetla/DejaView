@@ -76,7 +76,7 @@ def main():
   lines.append('')
   lines.append('// clang-format off')
   for kv in flags:
-    lines.append('#define PERFETTO_BUILDFLAG_DEFINE_%s() (%s)' % kv)
+    lines.append('#define DEJAVIEW_BUILDFLAG_DEFINE_%s() (%s)' % kv)
   lines.append('')
   lines.append('// clang-format on')
   lines.append('#endif  // %s' % guard)

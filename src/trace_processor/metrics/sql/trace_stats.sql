@@ -15,7 +15,7 @@
 --
 
 DROP VIEW IF EXISTS trace_stats_output;
-CREATE PERFETTO VIEW trace_stats_output AS
+CREATE DEJAVIEW VIEW trace_stats_output AS
 SELECT TraceAnalysisStats(
   'stat', (
     SELECT RepeatedField(TraceAnalysisStats_Stat(

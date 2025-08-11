@@ -17,9 +17,9 @@
 #ifndef SRC_WEBSOCKET_BRIDGE_WEBSOCKET_BRIDGE_H_
 #define SRC_WEBSOCKET_BRIDGE_WEBSOCKET_BRIDGE_H_
 
-#include "perfetto/base/compiler.h"
+#include "dejaview/base/compiler.h"
 
-namespace perfetto {
+namespace dejaview {
 int WebsocketBridgeMain(int argc, char** argv);
 }
 

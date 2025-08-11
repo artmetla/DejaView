@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/heap_profile.h"
+#include "dejaview/heap_profile.h"
 #include "src/profiling/memory/heap_profile_internal.h"
 
 #include <malloc.h>
@@ -30,11 +30,11 @@
 #include <memory>
 #include <type_traits>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
 
 #include "src/profiling/memory/client.h"
 #include "src/profiling/memory/client_api_factory.h"
@@ -51,7 +51,7 @@ struct AHeapInfo {
   void* disabled_callback_data;
 
   // Internal fields.
-  perfetto::profiling::Sampler sampler;
+  dejaview::profiling::Sampler sampler;
   std::atomic<bool> ready;
   std::atomic<bool> enabled;
   std::atomic<uint64_t> adaptive_sampling_shmem_threshold;
@@ -66,8 +66,8 @@ struct AHeapProfileDisableCallbackInfo {};
 
 namespace {
 
-using perfetto::profiling::ScopedSpinlock;
-using perfetto::profiling::UnhookedAllocator;
+using dejaview::profiling::ScopedSpinlock;
+using dejaview::profiling::UnhookedAllocator;
 
 #if defined(__GLIBC__)
 const char* getprogname() {
@@ -96,17 +96,17 @@ const char* getprogname() {
 // cannot use a static initializer because that leads to ordering problems
 // of the ELF's constructors.
 
-alignas(std::shared_ptr<perfetto::profiling::Client>) char g_client_arr[sizeof(
-    std::shared_ptr<perfetto::profiling::Client>)];
+alignas(std::shared_ptr<dejaview::profiling::Client>) char g_client_arr[sizeof(
+    std::shared_ptr<dejaview::profiling::Client>)];
 
 bool g_client_init;
 
-std::shared_ptr<perfetto::profiling::Client>* GetClientLocked() {
+std::shared_ptr<dejaview::profiling::Client>* GetClientLocked() {
   if (!g_client_init) {
-    new (g_client_arr) std::shared_ptr<perfetto::profiling::Client>;
+    new (g_client_arr) std::shared_ptr<dejaview::profiling::Client>;
     g_client_init = true;
   }
-  return reinterpret_cast<std::shared_ptr<perfetto::profiling::Client>*>(
+  return reinterpret_cast<std::shared_ptr<dejaview::profiling::Client>*>(
       &g_client_arr);
 }
 
@@ -120,15 +120,15 @@ AHeapInfo& GetHeap(uint32_t id) {
 }
 
 // Protects g_client, and serves as an external lock for sampling decisions (see
-// perfetto::profiling::Sampler).
+// dejaview::profiling::Sampler).
 //
 // We rely on this atomic's destuction being a nop, as it is possible for the
 // hooks to attempt to acquire the spinlock after its destructor should have run
 // (technically a use-after-destruct scenario).
 static_assert(
-    std::is_trivially_destructible<perfetto::profiling::Spinlock>::value,
+    std::is_trivially_destructible<dejaview::profiling::Spinlock>::value,
     "lock must be trivially destructible.");
-perfetto::profiling::Spinlock g_client_lock{};
+dejaview::profiling::Spinlock g_client_lock{};
 
 std::atomic<uint32_t> g_next_heap_id{kMinHeapId};
 
@@ -159,7 +159,7 @@ void DisableAllHeaps() {
 }
 
 #pragma GCC diagnostic push
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 #pragma GCC diagnostic ignored "-Wmissing-noreturn"
 #endif
 
@@ -168,19 +168,19 @@ void OnSpinlockTimeout() {
   // The process enters into a poisoned state and will reject all
   // subsequent profiling requests.  The current session is kept
   // running but no samples are reported to it.
-  PERFETTO_DFATAL_OR_ELOG(
+  DEJAVIEW_DFATAL_OR_ELOG(
       "Timed out on the spinlock - something is horribly wrong. "
       "Leaking heapprofd client.");
   DisableAllHeaps();
-  perfetto::profiling::PoisonSpinlock(&g_client_lock);
+  dejaview::profiling::PoisonSpinlock(&g_client_lock);
 }
 #pragma GCC diagnostic pop
 
 // Note: g_client can be reset by AHeapProfile_initSession without calling this
 // function.
-void ShutdownLazy(const std::shared_ptr<perfetto::profiling::Client>& client) {
+void ShutdownLazy(const std::shared_ptr<dejaview::profiling::Client>& client) {
   ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-  if (PERFETTO_UNLIKELY(!s.locked())) {
+  if (DEJAVIEW_UNLIKELY(!s.locked())) {
     OnSpinlockTimeout();
     return;
   }
@@ -195,7 +195,7 @@ void ShutdownLazy(const std::shared_ptr<perfetto::profiling::Client>& client) {
 }
 
 uint64_t MaybeToggleHeap(uint32_t heap_id,
-                         perfetto::profiling::Client* client) {
+                         dejaview::profiling::Client* client) {
   AHeapInfo& heap = GetHeap(heap_id);
   if (!heap.ready.load(std::memory_order_acquire))
     return 0;
@@ -257,7 +257,7 @@ uint64_t MaybeToggleHeap(uint32_t heap_id,
 // * we cannot avoid leaks in all cases anyway (e.g. during shutdown sequence,
 //   when only individual straggler threads hold onto the Client).
 void AtForkChild() {
-  PERFETTO_LOG("heapprofd_client: handling atfork.");
+  DEJAVIEW_LOG("heapprofd_client: handling atfork.");
 
   // A thread (that has now disappeared across the fork) could have been holding
   // the spinlock. We're now the only thread post-fork, so we can reset the
@@ -277,7 +277,7 @@ void AtForkChild() {
   // Note: this code assumes that the creation of the empty shared_ptr does not
   // allocate, which should be the case for all implementations as the
   // constructor has to be noexcept.
-  new (g_client_arr) std::shared_ptr<perfetto::profiling::Client>();
+  new (g_client_arr) std::shared_ptr<dejaview::profiling::Client>();
 }
 
 }  // namespace
@@ -301,10 +301,10 @@ __attribute__((visibility("default"))) AHeapInfo* AHeapInfo_create(
   }
 
   if (next_id == kMinHeapId)
-    perfetto::profiling::StartHeapprofdIfStatic();
+    dejaview::profiling::StartHeapprofdIfStatic();
 
   AHeapInfo& info = GetHeap(next_id);
-  perfetto::base::StringCopy(info.heap_name, heap_name, sizeof(info.heap_name));
+  dejaview::base::StringCopy(info.heap_name, heap_name, sizeof(info.heap_name));
   return &info;
 }
 
@@ -315,7 +315,7 @@ __attribute__((visibility("default"))) AHeapInfo* AHeapInfo_setEnabledCallback(
   if (info == nullptr)
     return nullptr;
   if (info->ready.load(std::memory_order_relaxed)) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "AHeapInfo_setEnabledCallback called after heap was registered. "
         "This is always a bug.");
     return nullptr;
@@ -332,7 +332,7 @@ __attribute__((visibility("default"))) AHeapInfo* AHeapInfo_setDisabledCallback(
   if (info == nullptr)
     return nullptr;
   if (info->ready.load(std::memory_order_relaxed)) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "AHeapInfo_setDisabledCallback called after heap was registered. "
         "This is always a bug.");
     return nullptr;
@@ -348,10 +348,10 @@ __attribute__((visibility("default"))) uint32_t AHeapProfile_registerHeap(
     return 0;
   info->ready.store(true, std::memory_order_release);
   auto heap_id = static_cast<uint32_t>(info - &g_heaps[0]);
-  std::shared_ptr<perfetto::profiling::Client> client;
+  std::shared_ptr<dejaview::profiling::Client> client;
   {
     ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-    if (PERFETTO_UNLIKELY(!s.locked())) {
+    if (DEJAVIEW_UNLIKELY(!s.locked())) {
       OnSpinlockTimeout();
       return 0;
     }
@@ -364,7 +364,7 @@ __attribute__((visibility("default"))) uint32_t AHeapProfile_registerHeap(
     uint64_t interval = MaybeToggleHeap(heap_id, client.get());
     if (interval) {
       ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-      if (PERFETTO_UNLIKELY(!s.locked())) {
+      if (DEJAVIEW_UNLIKELY(!s.locked())) {
         OnSpinlockTimeout();
         return 0;
       }
@@ -381,10 +381,10 @@ AHeapProfile_reportAllocation(uint32_t heap_id, uint64_t id, uint64_t size) {
     return false;
   }
   size_t sampled_alloc_sz = 0;
-  std::shared_ptr<perfetto::profiling::Client> client;
+  std::shared_ptr<dejaview::profiling::Client> client;
   {
     ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-    if (PERFETTO_UNLIKELY(!s.locked())) {
+    if (DEJAVIEW_UNLIKELY(!s.locked())) {
       OnSpinlockTimeout();
       return false;
     }
@@ -432,10 +432,10 @@ AHeapProfile_reportSample(uint32_t heap_id, uint64_t id, uint64_t size) {
   if (!heap.enabled.load(std::memory_order_acquire)) {
     return false;
   }
-  std::shared_ptr<perfetto::profiling::Client> client;
+  std::shared_ptr<dejaview::profiling::Client> client;
   {
     ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-    if (PERFETTO_UNLIKELY(!s.locked())) {
+    if (DEJAVIEW_UNLIKELY(!s.locked())) {
       OnSpinlockTimeout();
       return false;
     }
@@ -465,10 +465,10 @@ __attribute__((visibility("default"))) void AHeapProfile_reportFree(
   if (!heap.enabled.load(std::memory_order_acquire)) {
     return;
   }
-  std::shared_ptr<perfetto::profiling::Client> client;
+  std::shared_ptr<dejaview::profiling::Client> client;
   {
     ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-    if (PERFETTO_UNLIKELY(!s.locked())) {
+    if (DEJAVIEW_UNLIKELY(!s.locked())) {
       OnSpinlockTimeout();
       return;
     }
@@ -494,7 +494,7 @@ __attribute__((visibility("default"))) bool AHeapProfile_initSession(
   // The handler will be unpatched automatically if we're dlclosed.
   if (first_init && pthread_atfork(/*prepare=*/nullptr, /*parent=*/nullptr,
                                    &AtForkChild) != 0) {
-    PERFETTO_PLOG("%s: pthread_atfork failed, not installing hooks.",
+    DEJAVIEW_PLOG("%s: pthread_atfork failed, not installing hooks.",
                   getprogname());
     return false;
   }
@@ -502,17 +502,17 @@ __attribute__((visibility("default"))) bool AHeapProfile_initSession(
 
   // TODO(fmayer): Check other destructions of client and make a decision
   // whether we want to ban heap objects in the client or not.
-  std::shared_ptr<perfetto::profiling::Client> old_client;
+  std::shared_ptr<dejaview::profiling::Client> old_client;
   {
     ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-    if (PERFETTO_UNLIKELY(!s.locked())) {
+    if (DEJAVIEW_UNLIKELY(!s.locked())) {
       OnSpinlockTimeout();
       return false;
     }
 
     auto* g_client_ptr = GetClientLocked();
     if (*g_client_ptr && (*g_client_ptr)->IsConnected()) {
-      PERFETTO_LOG("%s: Rejecting concurrent profiling initialization.",
+      DEJAVIEW_LOG("%s: Rejecting concurrent profiling initialization.",
                    getprogname());
       return true;  // success as we're in a valid state
     }
@@ -524,16 +524,16 @@ __attribute__((visibility("default"))) bool AHeapProfile_initSession(
 
   // The dispatch table never changes, so let the custom allocator retain the
   // function pointers directly.
-  UnhookedAllocator<perfetto::profiling::Client> unhooked_allocator(malloc_fn,
+  UnhookedAllocator<dejaview::profiling::Client> unhooked_allocator(malloc_fn,
                                                                     free_fn);
 
   // These factory functions use heap objects, so we need to run them without
   // the spinlock held.
-  std::shared_ptr<perfetto::profiling::Client> client =
-      perfetto::profiling::ConstructClient(unhooked_allocator);
+  std::shared_ptr<dejaview::profiling::Client> client =
+      dejaview::profiling::ConstructClient(unhooked_allocator);
 
   if (!client) {
-    PERFETTO_LOG("%s: heapprofd_client not initialized, not installing hooks.",
+    DEJAVIEW_LOG("%s: heapprofd_client not initialized, not installing hooks.",
                  getprogname());
     return false;
   }
@@ -541,10 +541,10 @@ __attribute__((visibility("default"))) bool AHeapProfile_initSession(
   uint32_t max_heap = g_next_heap_id.load();
   bool heaps_enabled[kMaxNumHeaps] = {};
 
-  PERFETTO_LOG("%s: heapprofd_client initialized.", getprogname());
+  DEJAVIEW_LOG("%s: heapprofd_client initialized.", getprogname());
   {
     ScopedSpinlock s(&g_client_lock, ScopedSpinlock::Mode::Try);
-    if (PERFETTO_UNLIKELY(!s.locked())) {
+    if (DEJAVIEW_UNLIKELY(!s.locked())) {
       OnSpinlockTimeout();
       return false;
     }
@@ -566,7 +566,7 @@ __attribute__((visibility("default"))) bool AHeapProfile_initSession(
 
     // This cannot have been set in the meantime. There are never two concurrent
     // calls to this function, as Bionic uses atomics to guard against that.
-    PERFETTO_DCHECK(*GetClientLocked() == nullptr);
+    DEJAVIEW_DCHECK(*GetClientLocked() == nullptr);
     *GetClientLocked() = client;
   }
 
@@ -581,7 +581,7 @@ __attribute__((visibility("default"))) bool AHeapProfile_initSession(
       continue;
     }
     auto interval = MaybeToggleHeap(i, client.get());
-    PERFETTO_DCHECK(interval > 0);
+    DEJAVIEW_DCHECK(interval > 0);
   }
 
   return true;

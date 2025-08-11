@@ -24,17 +24,17 @@
 #include <random>
 #include <thread>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/tracing.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/tracing.h"
 
-#include "protos/perfetto/config/stress_test_config.gen.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
+#include "protos/dejaview/config/stress_test_config.gen.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
 
-using StressTestConfig = perfetto::protos::gen::StressTestConfig;
+using StressTestConfig = dejaview::protos::gen::StressTestConfig;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 StressTestConfig* g_cfg;
@@ -103,13 +103,13 @@ void StressTestDataSource::Worker::Start() {
 void StressTestDataSource::Worker::Stop() {
   if (!thread_.joinable() || quit_)
     return;
-  PERFETTO_DLOG("Stopping worker %u", id_);
+  DEJAVIEW_DLOG("Stopping worker %u", id_);
   quit_.store(true);
   thread_.join();
 }
 
 void StressTestDataSource::Worker::WorkerMain(uint32_t worker_id) {
-  PERFETTO_DLOG("Worker %u starting", worker_id);
+  DEJAVIEW_DLOG("Worker %u starting", worker_id);
   rnd_seq_ = std::minstd_rand0(0);
   int64_t t_start = base::GetBootTimeNs().count();
   int64_t num_msgs = 0;
@@ -156,7 +156,7 @@ void StressTestDataSource::Worker::WorkerMain(uint32_t worker_id) {
     });  // Trace().
 
   }  // while (!quit)
-  PERFETTO_DLOG("Worker done");
+  DEJAVIEW_DLOG("Worker done");
 }
 
 void StressTestDataSource::Worker::FillPayload(
@@ -189,34 +189,34 @@ void StressTestDataSource::Worker::FillPayload(
 }
 }  // namespace
 
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(StressTestDataSource);
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(StressTestDataSource);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(StressTestDataSource);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(StressTestDataSource);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main() {
-  perfetto::TracingInitArgs args;
-  args.backends = perfetto::kSystemBackend;
+  dejaview::TracingInitArgs args;
+  args.backends = dejaview::kSystemBackend;
 
   std::string config_blob;
   if (isatty(fileno(stdin)))
-    PERFETTO_LOG("Reading StressTestConfig proto from stdin");
-  perfetto::base::ReadFileStream(stdin, &config_blob);
+    DEJAVIEW_LOG("Reading StressTestConfig proto from stdin");
+  dejaview::base::ReadFileStream(stdin, &config_blob);
 
   StressTestConfig cfg;
-  perfetto::g_cfg = &cfg;
+  dejaview::g_cfg = &cfg;
   if (config_blob.empty() || !cfg.ParseFromString(config_blob))
-    PERFETTO_FATAL("A StressTestConfig blob must be passed into stdin");
+    DEJAVIEW_FATAL("A StressTestConfig blob must be passed into stdin");
 
   if (cfg.shmem_page_size_kb())
     args.shmem_page_size_hint_kb = cfg.shmem_page_size_kb();
   if (cfg.shmem_size_kb())
     args.shmem_page_size_hint_kb = cfg.shmem_size_kb();
 
-  perfetto::Tracing::Initialize(args);
-  perfetto::DataSourceDescriptor dsd;
-  dsd.set_name("perfetto.stress_test");
-  perfetto::StressTestDataSource::Register(dsd);
+  dejaview::Tracing::Initialize(args);
+  dejaview::DataSourceDescriptor dsd;
+  dsd.set_name("dejaview.stress_test");
+  dejaview::StressTestDataSource::Register(dsd);
 
   for (;;) {
     std::this_thread::sleep_for(std::chrono::seconds(30));

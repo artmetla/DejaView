@@ -16,12 +16,12 @@
  -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.perfetto.cts.reporter">
+    package="android.dejaview.cts.reporter">
     <uses-permission android:name="android.permission.DUMP"/>
     <uses-permission android:name="android.permission.PACKAGE_USAGE_STATS"/>
     <application>
         <service
-            android:name=".PerfettoReportService"
+            android:name=".DejaViewReportService"
             android:permission="android.permission.BIND_TRACE_REPORT_SERVICE"/>
     </application>
 </manifest>

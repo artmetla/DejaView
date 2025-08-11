@@ -18,14 +18,14 @@
 
 #include <string>
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/ftrace/sched.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/ftrace/sched.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(PacketStreamValidatorTest, NullPacket) {
@@ -265,4 +265,4 @@ TEST(PacketStreamValidatorTest, TrailingGarbage) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

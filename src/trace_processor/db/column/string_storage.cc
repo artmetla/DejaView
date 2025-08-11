@@ -27,10 +27,10 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/containers/string_pool.h"
@@ -41,9 +41,9 @@
 #include "src/trace_processor/util/glob.h"
 #include "src/trace_processor/util/regex.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 namespace {
 
@@ -91,7 +91,7 @@ struct Glob {
 struct GlobFullStringPool {
   GlobFullStringPool(StringPool* pool, const util::GlobMatcher& matcher)
       : pool_(pool), matches_(pool->MaxSmallStringId().raw_id()) {
-    PERFETTO_DCHECK(!pool->HasLargeString());
+    DEJAVIEW_DCHECK(!pool->HasLargeString());
     for (auto it = pool->CreateIterator(); it; ++it) {
       auto id = it.StringId();
       matches_[id.raw_id()] = matcher.Matches(pool->Get(id));
@@ -115,7 +115,7 @@ struct Regex {
 struct RegexFullStringPool {
   RegexFullStringPool(StringPool* pool, const regex::Regex& regex)
       : pool_(pool), matches_(pool->MaxSmallStringId().raw_id()) {
-    PERFETTO_DCHECK(!pool->HasLargeString());
+    DEJAVIEW_DCHECK(!pool->HasLargeString());
     for (auto it = pool->CreateIterator(); it; ++it) {
       auto id = it.StringId();
       matches_[id.raw_id()] =
@@ -240,16 +240,16 @@ SingleSearchResult StringStorage::ChainImpl::SingleSearch(FilterOp op,
       // Caller should ensure that the regex is valid.
       base::StatusOr<regex::Regex> regex =
           regex::Regex::Create(sql_val.AsString());
-      PERFETTO_CHECK(regex.status().ok());
+      DEJAVIEW_CHECK(regex.status().ok());
       return Regex{string_pool_}((*data_)[i], regex.value())
                  ? SingleSearchResult::kMatch
                  : SingleSearchResult::kNoMatch;
     }
     case FilterOp::kIsNull:
     case FilterOp::kIsNotNull:
-      PERFETTO_FATAL("Already handled above");
+      DEJAVIEW_FATAL("Already handled above");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 SearchValidationResult StringStorage::ChainImpl::ValidateSearchConstraints(
@@ -282,7 +282,7 @@ RangeOrBitVector StringStorage::ChainImpl::SearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Range search_range) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "StringStorage::ChainImpl::Search",
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "StringStorage::ChainImpl::Search",
                     [&search_range, op](metatrace::Record* r) {
                       r->AddArg("Start", std::to_string(search_range.start));
                       r->AddArg("End", std::to_string(search_range.end));
@@ -343,8 +343,8 @@ RangeOrBitVector StringStorage::ChainImpl::SearchValidated(
 void StringStorage::ChainImpl::IndexSearchValidated(FilterOp op,
                                                     SqlValue sql_val,
                                                     Indices& indices) const {
-  PERFETTO_DCHECK(indices.tokens.size() <= size());
-  PERFETTO_TP_TRACE(
+  DEJAVIEW_DCHECK(indices.tokens.size() <= size());
+  DEJAVIEW_TP_TRACE(
       metatrace::Category::DB, "StringStorage::ChainImpl::IndexSearch",
       [&indices, op](metatrace::Record* r) {
         r->AddArg("Count", std::to_string(indices.tokens.size()));
@@ -471,7 +471,7 @@ BitVector StringStorage::ChainImpl::LinearSearch(FilterOp op,
       // Caller should ensure that the regex is valid.
       base::StatusOr<regex::Regex> regex =
           regex::Regex::Create(sql_val.AsString());
-      PERFETTO_CHECK(regex.status().ok());
+      DEJAVIEW_CHECK(regex.status().ok());
 
       // For very big string pools (or small ranges) or pools with large
       // strings run a standard regex function.
@@ -533,15 +533,15 @@ Range StringStorage::ChainImpl::BinarySearchIntrinsic(
     case FilterOp::kIsNotNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Shouldn't be called");
+      DEJAVIEW_FATAL("Shouldn't be called");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void StringStorage::ChainImpl::StableSort(Token* start,
                                           Token* end,
                                           SortDirection direction) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "StringStorage::ChainImpl::StableSort");
   switch (direction) {
     case SortDirection::kAscending: {
@@ -588,11 +588,11 @@ void StringStorage::ChainImpl::StableSort(Token* start,
       return;
     }
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void StringStorage::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "StringStorage::ChainImpl::Distinct");
   std::unordered_set<StringPool::Id> s;
   indices.tokens.erase(
@@ -605,7 +605,7 @@ void StringStorage::ChainImpl::Distinct(Indices& indices) const {
 
 std::optional<Token> StringStorage::ChainImpl::MaxElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "StringStorage::ChainImpl::MaxElement");
   auto tok = std::max_element(indices.tokens.begin(), indices.tokens.end(),
                               [this](const Token& lhs, const Token& rhs) {
@@ -620,7 +620,7 @@ std::optional<Token> StringStorage::ChainImpl::MaxElement(
 
 std::optional<Token> StringStorage::ChainImpl::MinElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "StringStorage::ChainImpl::MinElement");
   auto tok = std::min_element(indices.tokens.begin(), indices.tokens.end(),
                               [this](const Token& lhs, const Token& rhs) {
@@ -641,4 +641,4 @@ SqlValue StringStorage::ChainImpl::Get_AvoidUsingBecauseSlow(
              : SqlValue::String(string_pool_->Get(id).c_str());
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

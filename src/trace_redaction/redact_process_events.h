@@ -22,9 +22,9 @@
 #include "src/trace_redaction/redact_sched_events.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Goes through a trace packet and filters:
 //
@@ -115,6 +115,6 @@ class RedactProcessEvents : public TransformPrimitive {
   std::unique_ptr<PidFilter> filter_;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_REDACT_PROCESS_EVENTS_H_

@@ -25,15 +25,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 #include "src/trace_processor/importers/perf/perf_event_attr.h"
 #include "src/trace_processor/importers/perf/reader.h"
@@ -41,7 +41,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 namespace {
 bool OffsetsMatch(const PerfEventAttr& attr, const PerfEventAttr& other) {
   return attr.id_offset_from_start() == other.id_offset_from_start() &&
@@ -131,14 +131,14 @@ bool PerfSession::ReadEventId(const perf_event_header& header,
   Reader reader(payload.copy());
 
   if (header.type != PERF_RECORD_SAMPLE) {
-    PERFETTO_CHECK(first.id_offset_from_end().has_value());
+    DEJAVIEW_CHECK(first.id_offset_from_end().has_value());
     if (reader.size_left() < *first.id_offset_from_end()) {
       return false;
     }
     const size_t off = reader.size_left() - *first.id_offset_from_end();
     return reader.Skip(off) && reader.Read(id);
   }
-  PERFETTO_CHECK(first.id_offset_from_start().has_value());
+  DEJAVIEW_CHECK(first.id_offset_from_start().has_value());
   return reader.Skip(*first.id_offset_from_start()) && reader.Read(id);
 }
 
@@ -202,4 +202,4 @@ bool PerfSession::HasPerfClock() const {
   return false;
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

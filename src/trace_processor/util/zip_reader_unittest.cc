@@ -22,15 +22,15 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/base/test/status_matchers.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 namespace {
 using base::gtest_matchers::IsError;
 
@@ -98,7 +98,7 @@ void ValidateTestZip(ZipReader& zr) {
   ASSERT_EQ(vec2str(dec), "foo\n");
 
   // This file is DEFLATE-d and requires zlib.
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
   res = zr.files()[1].Decompress(&dec);
   ASSERT_TRUE(res.ok()) << res.message();
   ASSERT_EQ(dec.size(), 89u);
@@ -163,7 +163,7 @@ TEST(ZipReaderTest, Find) {
 }
 
 // All the tests below require zlib.
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 TEST(ZipReaderTest, ValidZip_DecompressLines) {
   ZipReader zr;
@@ -201,7 +201,7 @@ TEST(ZipReaderTest, MalformedZip_DecomprError) {
   ASSERT_THAT(zr.files()[1].Decompress(&ignored), IsError());
 }
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 
 }  // namespace
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util

@@ -28,16 +28,16 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/public/abi/pb_decoder_abi.h"
-#include "perfetto/public/pb_utils.h"
-#include "perfetto/public/tracing_session.h"
+#include "dejaview/public/abi/pb_decoder_abi.h"
+#include "dejaview/public/pb_utils.h"
+#include "dejaview/public/tracing_session.h"
 
 #include "test/gtest_and_gmock.h"
 
 // Pretty printer for gtest
-void PrintTo(const PerfettoPbDecoderField& field, std::ostream*);
+void PrintTo(const DejaViewPbDecoderField& field, std::ostream*);
 
-namespace perfetto {
+namespace dejaview {
 namespace shlib {
 namespace test_utils {
 
@@ -90,13 +90,13 @@ class TracingSession {
     std::vector<std::string> disabled_categories_;
   };
 
-  static TracingSession Adopt(struct PerfettoTracingSessionImpl*);
+  static TracingSession Adopt(struct DejaViewTracingSessionImpl*);
 
   TracingSession(TracingSession&&) noexcept;
 
   ~TracingSession();
 
-  struct PerfettoTracingSessionImpl* session() const { return session_; }
+  struct DejaViewTracingSessionImpl* session() const { return session_; }
 
   bool FlushBlocking(uint32_t timeout_ms);
   // Waits for the tracing session to be stopped.
@@ -109,7 +109,7 @@ class TracingSession {
 
  private:
   TracingSession() = default;
-  struct PerfettoTracingSessionImpl* session_;
+  struct DejaViewTracingSessionImpl* session_;
   std::unique_ptr<WaitableEvent> stopped_;
 };
 
@@ -119,25 +119,25 @@ class FieldViewBase {
   class Iterator {
    public:
     using iterator_category = std::input_iterator_tag;
-    using value_type = const PerfettoPbDecoderField;
+    using value_type = const DejaViewPbDecoderField;
     using pointer = value_type;
     using reference = value_type;
     reference operator*() const {
-      struct PerfettoPbDecoder decoder;
+      struct DejaViewPbDecoder decoder;
       decoder.read_ptr = read_ptr_;
       decoder.end_ptr = end_ptr_;
-      struct PerfettoPbDecoderField field;
+      struct DejaViewPbDecoderField field;
       do {
-        field = PerfettoPbDecoderParseField(&decoder);
-      } while (field.status == PERFETTO_PB_DECODER_OK &&
+        field = DejaViewPbDecoderParseField(&decoder);
+      } while (field.status == DEJAVIEW_PB_DECODER_OK &&
                skipper_.ShouldSkip(field));
       return field;
     }
     Iterator& operator++() {
-      struct PerfettoPbDecoder decoder;
+      struct DejaViewPbDecoder decoder;
       decoder.read_ptr = read_ptr_;
       decoder.end_ptr = end_ptr_;
-      PerfettoPbDecoderSkipField(&decoder);
+      DejaViewPbDecoderSkipField(&decoder);
       read_ptr_ = decoder.read_ptr;
       AdvanceToFirstInterestingField();
       return *this;
@@ -163,17 +163,17 @@ class FieldViewBase {
       AdvanceToFirstInterestingField();
     }
     void AdvanceToFirstInterestingField() {
-      struct PerfettoPbDecoder decoder;
+      struct DejaViewPbDecoder decoder;
       decoder.read_ptr = read_ptr_;
       decoder.end_ptr = end_ptr_;
-      struct PerfettoPbDecoderField field;
+      struct DejaViewPbDecoderField field;
       const uint8_t* prev_read_ptr;
       do {
         prev_read_ptr = decoder.read_ptr;
-        field = PerfettoPbDecoderParseField(&decoder);
-      } while (field.status == PERFETTO_PB_DECODER_OK &&
+        field = DejaViewPbDecoderParseField(&decoder);
+      } while (field.status == DEJAVIEW_PB_DECODER_OK &&
                skipper_.ShouldSkip(field));
-      if (field.status == PERFETTO_PB_DECODER_OK) {
+      if (field.status == DEJAVIEW_PB_DECODER_OK) {
         read_ptr_ = prev_read_ptr;
       } else {
         read_ptr_ = decoder.read_ptr;
@@ -184,7 +184,7 @@ class FieldViewBase {
     const uint8_t* end_ptr_;
     const FieldSkipper& skipper_;
   };
-  using value_type = const PerfettoPbDecoderField;
+  using value_type = const DejaViewPbDecoderField;
   using const_iterator = Iterator;
   template <typename... Args>
   explicit FieldViewBase(const uint8_t* begin, const uint8_t* end, Args... args)
@@ -193,10 +193,10 @@ class FieldViewBase {
   explicit FieldViewBase(const std::vector<uint8_t>& data, Args... args)
       : FieldViewBase(data.data(), data.data() + data.size(), args...) {}
   template <typename... Args>
-  explicit FieldViewBase(const struct PerfettoPbDecoderField& field,
+  explicit FieldViewBase(const struct DejaViewPbDecoderField& field,
                          Args... args)
       : s_(args...) {
-    if (field.wire_type != PERFETTO_PB_WIRE_TYPE_DELIMITED) {
+    if (field.wire_type != DEJAVIEW_PB_WIRE_TYPE_DELIMITED) {
       abort();
     }
     begin_ = field.value.delimited.start;
@@ -204,7 +204,7 @@ class FieldViewBase {
   }
   Iterator begin() const { return Iterator(begin_, end_, s_); }
   Iterator end() const { return Iterator(end_, end_, s_); }
-  PerfettoPbDecoderField front() const { return *begin(); }
+  DejaViewPbDecoderField front() const { return *begin(); }
 
   size_t size() const {
     size_t count = 0;
@@ -217,7 +217,7 @@ class FieldViewBase {
 
   bool ok() const {
     for (auto field : *this) {
-      if (field.status != PERFETTO_PB_DECODER_OK) {
+      if (field.status != DEJAVIEW_PB_DECODER_OK) {
         return false;
       }
     }
@@ -235,7 +235,7 @@ template <typename FieldSkipper>
 void PrintTo(const FieldViewBase<FieldSkipper>& field_view, std::ostream* pos) {
   std::ostream& os = *pos;
   os << "{";
-  for (PerfettoPbDecoderField f : field_view) {
+  for (DejaViewPbDecoderField f : field_view) {
     PrintTo(f, pos);
     os << ", ";
   }
@@ -246,7 +246,7 @@ class IdFieldSkipper {
  public:
   explicit IdFieldSkipper(uint32_t id) : id_(id) {}
   explicit IdFieldSkipper(int32_t id) : id_(static_cast<uint32_t>(id)) {}
-  bool ShouldSkip(const struct PerfettoPbDecoderField& field) const {
+  bool ShouldSkip(const struct DejaViewPbDecoderField& field) const {
     return field.id != id_;
   }
 
@@ -257,17 +257,17 @@ class IdFieldSkipper {
 class NoFieldSkipper {
  public:
   NoFieldSkipper() = default;
-  bool ShouldSkip(const struct PerfettoPbDecoderField&) const { return false; }
+  bool ShouldSkip(const struct DejaViewPbDecoderField&) const { return false; }
 };
 
 // View over all the fields of a contiguous serialized protobuf message.
 //
 // Examples:
 //
-// for (struct PerfettoPbDecoderField field : FieldView(msg_begin, msg_end)) {
+// for (struct DejaViewPbDecoderField field : FieldView(msg_begin, msg_end)) {
 //   //...
 // }
-// FieldView fields2(/*PerfettoPbDecoderField*/ nested_field);
+// FieldView fields2(/*DejaViewPbDecoderField*/ nested_field);
 // FieldView fields3(/*std::vector<uint8_t>*/ data);
 // size_t num = fields1.size(); // The number of fields.
 // bool ok = fields1.ok(); // Checks that the message is not malformed.
@@ -280,160 +280,160 @@ using FieldView = FieldViewBase<NoFieldSkipper>;
 // IdFieldView fields(msg_begin, msg_end, id)
 using IdFieldView = FieldViewBase<IdFieldSkipper>;
 
-// Matches a PerfettoPbDecoderField with the specified id. Accepts another
+// Matches a DejaViewPbDecoderField with the specified id. Accepts another
 // matcher to match the contents of the field.
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, PbField(900, VarIntField(5)));
 template <typename M>
 auto PbField(int32_t id, M m) {
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::id, id), m);
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::id, id), m);
 }
 
-// Matches a PerfettoPbDecoderField submessage field. Accepts a container
+// Matches a DejaViewPbDecoderField submessage field. Accepts a container
 // matcher for the subfields.
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, MsgField(ElementsAre(...)));
 template <typename M>
 auto MsgField(M m) {
-  auto f = [](const PerfettoPbDecoderField& field) { return FieldView(field); };
+  auto f = [](const DejaViewPbDecoderField& field) { return FieldView(field); };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_DELIMITED),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_DELIMITED),
       testing::ResultOf(f, m));
 }
 
-// Matches a PerfettoPbDecoderField length delimited field. Accepts a string
+// Matches a DejaViewPbDecoderField length delimited field. Accepts a string
 // matcher.
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, StringField("string"));
 template <typename M>
 auto StringField(M m) {
-  auto f = [](const PerfettoPbDecoderField& field) {
+  auto f = [](const DejaViewPbDecoderField& field) {
     return std::string(
         reinterpret_cast<const char*>(field.value.delimited.start),
         field.value.delimited.len);
   };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_DELIMITED),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_DELIMITED),
       testing::ResultOf(f, m));
 }
 
-// Matches a PerfettoPbDecoderField VarInt field. Accepts an integer matcher
+// Matches a DejaViewPbDecoderField VarInt field. Accepts an integer matcher
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, VarIntField(1)));
 template <typename M>
 auto VarIntField(M m) {
-  auto f = [](const PerfettoPbDecoderField& field) {
+  auto f = [](const DejaViewPbDecoderField& field) {
     return field.value.integer64;
   };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_VARINT),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_VARINT),
       testing::ResultOf(f, m));
 }
 
-// Matches a PerfettoPbDecoderField fixed64 field. Accepts an integer matcher
+// Matches a DejaViewPbDecoderField fixed64 field. Accepts an integer matcher
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, Fixed64Field(1)));
 template <typename M>
 auto Fixed64Field(M m) {
-  auto f = [](const PerfettoPbDecoderField& field) {
+  auto f = [](const DejaViewPbDecoderField& field) {
     return field.value.integer64;
   };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_FIXED64),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_FIXED64),
       testing::ResultOf(f, m));
 }
 
-// Matches a PerfettoPbDecoderField fixed32 field. Accepts an integer matcher
+// Matches a DejaViewPbDecoderField fixed32 field. Accepts an integer matcher
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, Fixed32Field(1)));
 template <typename M>
 auto Fixed32Field(M m) {
-  auto f = [](const PerfettoPbDecoderField& field) {
+  auto f = [](const DejaViewPbDecoderField& field) {
     return field.value.integer32;
   };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_FIXED32),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_FIXED32),
       testing::ResultOf(f, m));
 }
 
-// Matches a PerfettoPbDecoderField double field. Accepts an double matcher
+// Matches a DejaViewPbDecoderField double field. Accepts an double matcher
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, DoubleField(1.0)));
 template <typename M>
 auto DoubleField(M m) {
-  auto f = [](const PerfettoPbDecoderField& field) {
+  auto f = [](const DejaViewPbDecoderField& field) {
     return field.value.double_val;
   };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_FIXED64),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_FIXED64),
       testing::ResultOf(f, m));
 }
 
-// Matches a PerfettoPbDecoderField float field. Accepts a float matcher
+// Matches a DejaViewPbDecoderField float field. Accepts a float matcher
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, FloatField(1.0)));
 template <typename M>
 auto FloatField(M m) {
-  auto f = [](const PerfettoPbDecoderField& field) {
+  auto f = [](const DejaViewPbDecoderField& field) {
     return field.value.float_val;
   };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_FIXED32),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_FIXED32),
       testing::ResultOf(f, m));
 }
 
-// Matches a PerfettoPbDecoderField submessage field. Accepts a container
+// Matches a DejaViewPbDecoderField submessage field. Accepts a container
 // matcher for the subfields.
 //
 // Example:
-// PerfettoPbDecoderField field = ...
+// DejaViewPbDecoderField field = ...
 // EXPECT_THAT(field, AllFieldsWithId(900, ElementsAre(...)));
 template <typename M>
 auto AllFieldsWithId(int32_t id, M m) {
-  auto f = [id](const PerfettoPbDecoderField& field) {
+  auto f = [id](const DejaViewPbDecoderField& field) {
     return IdFieldView(field, id);
   };
   return testing::AllOf(
-      testing::Field(&PerfettoPbDecoderField::status, PERFETTO_PB_DECODER_OK),
-      testing::Field(&PerfettoPbDecoderField::wire_type,
-                     PERFETTO_PB_WIRE_TYPE_DELIMITED),
+      testing::Field(&DejaViewPbDecoderField::status, DEJAVIEW_PB_DECODER_OK),
+      testing::Field(&DejaViewPbDecoderField::wire_type,
+                     DEJAVIEW_PB_WIRE_TYPE_DELIMITED),
       testing::ResultOf(f, m));
 }
 
 }  // namespace test_utils
 }  // namespace shlib
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_SHARED_LIB_TEST_UTILS_H_

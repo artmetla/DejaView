@@ -26,19 +26,19 @@
 #include <unistd.h>
 #include <optional>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 // Args should include "atrace" for argv[0].
 bool ExecvAtrace(const std::vector<std::string>& args,
                  std::string* atrace_errors) {
@@ -55,7 +55,7 @@ bool ExecvAtrace(const std::vector<std::string>& args,
   base::Pipe err_pipe = base::Pipe::Create(base::Pipe::kRdNonBlock);
 
   pid_t pid = fork();
-  PERFETTO_CHECK(pid >= 0);
+  DEJAVIEW_CHECK(pid >= 0);
   if (pid == 0) {
     // Duplicate the write end of the pipe into stderr.
     if ((dup2(*err_pipe.wr, STDERR_FILENO) == -1)) {
@@ -144,7 +144,7 @@ bool ExecvAtrace(const std::vector<std::string>& args,
     }
 
     // Data is available to be read from the fd.
-    int64_t count = PERFETTO_EINTR(read(*err_pipe.rd, buffer, sizeof(buffer)));
+    int64_t count = DEJAVIEW_EINTR(read(*err_pipe.rd, buffer, sizeof(buffer)));
     if (ret < 0 && errno == EAGAIN) {
       continue;
     } else if (count < 0) {
@@ -158,19 +158,19 @@ bool ExecvAtrace(const std::vector<std::string>& args,
   }
 
   // Wait until the child process exits fully.
-  PERFETTO_EINTR(waitpid(pid, &status, 0));
+  DEJAVIEW_EINTR(waitpid(pid, &status, 0));
 
   bool ok = WIFEXITED(status) && WEXITSTATUS(status) == 0;
   if (!ok)
-    PERFETTO_ELOG("%s", error.c_str());
+    DEJAVIEW_ELOG("%s", error.c_str());
   if (atrace_errors)
     atrace_errors->append(error);
   return ok;
 }
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
 bool IsSdkGreaterOrEqualThan(uint32_t val) {
   std::string str_value = base::GetAndroidProp("ro.build.version.sdk");
   if (str_value.empty())
@@ -188,19 +188,19 @@ AtraceWrapperImpl::~AtraceWrapperImpl() = default;
 
 bool AtraceWrapperImpl::RunAtrace(const std::vector<std::string>& args,
                                   std::string* atrace_errors) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   return ExecvAtrace(args, atrace_errors);
 #else
   base::ignore_result(args);
   base::ignore_result(atrace_errors);
-  PERFETTO_LOG("Atrace only supported on Android.");
+  DEJAVIEW_LOG("Atrace only supported on Android.");
   return false;
 #endif
 }
 
 bool AtraceWrapperImpl::SupportsUserspaceOnly() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   // Sideloaded case. We could be sideloaded on a modern device or an older one.
   return IsSdkGreaterOrEqualThan(28);  // 28 == Android P.
 #else
@@ -210,8 +210,8 @@ bool AtraceWrapperImpl::SupportsUserspaceOnly() {
 }
 
 bool AtraceWrapperImpl::SupportsPreferSdk() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   // Sideloaded case. We could be sideloaded on a modern device or an older one.
   return IsSdkGreaterOrEqualThan(36);  // 35 == Android V.
 #else
@@ -220,4 +220,4 @@ bool AtraceWrapperImpl::SupportsPreferSdk() {
 #endif
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

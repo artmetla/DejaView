@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 import("../../../gn/test.gni")
 
-assert(enable_perfetto_traced_probes)
+assert(enable_dejaview_traced_probes)
 
 # The unprivileged daemon that is allowed to access tracefs (for ftrace).
 # Registers as a Producer on the traced daemon.
 executable("traced_probes") {
   deps = [
-    "../../../:libperfetto",
+    "../../../:libdejaview",
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/traced",
+    "../../../include/dejaview/ext/traced",
   ]
   sources = [ "main.cc" ]
   assert_no_deps = [ "../../../gn:protobuf_lite" ]
@@ -32,7 +32,7 @@ executable("traced_probes") {
 # Contains all the implementation but not the main() entry point. This target
 # is shared both by the executable and tests.
 source_set("probes") {
-  public_deps = [ "../../../include/perfetto/ext/traced" ]
+  public_deps = [ "../../../include/dejaview/ext/traced" ]
   deps = [
     ":probes_src",
     "../../../gn:default_deps",
@@ -50,10 +50,10 @@ source_set("probes_src") {
   deps = [
     ":data_source",
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/traced",
-    "../../../protos/perfetto/config/ftrace:cpp",
-    "../../../protos/perfetto/trace:zero",
-    "../../../protos/perfetto/trace/ps:zero",
+    "../../../include/dejaview/ext/traced",
+    "../../../protos/dejaview/config/ftrace:cpp",
+    "../../../protos/dejaview/trace:zero",
+    "../../../protos/dejaview/trace/ps:zero",
     "../../../src/kernel_utils:syscall_table",
     "../../android_stats",
     "../../base",
@@ -94,7 +94,7 @@ source_set("data_source") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":probes_src",

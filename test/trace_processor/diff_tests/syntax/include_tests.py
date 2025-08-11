@@ -19,7 +19,7 @@ from python.generators.diff_tests.testing import DiffTestBlueprint
 from python.generators.diff_tests.testing import TestSuite
 
 
-class PerfettoInclude(TestSuite):
+class DejaViewInclude(TestSuite):
 
   def test_import(self):
     return DiffTestBlueprint(
@@ -61,7 +61,7 @@ class PerfettoInclude(TestSuite):
         1000
         """))
 
-  def test_include_perfetto_module(self):
+  def test_include_dejaview_module(self):
     return DiffTestBlueprint(
         trace=TextProto(r"""
         packet {
@@ -92,7 +92,7 @@ class PerfettoInclude(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
 
         SELECT TRACE_START();
         """,
@@ -133,7 +133,7 @@ class PerfettoInclude(TestSuite):
         """),
         query="""
         SELECT IMPORT('common.timestamps');
-        INCLUDE PERFETTO MODULE common.timestamps;
+        INCLUDE DEJAVIEW MODULE common.timestamps;
 
         SELECT TRACE_START();
         """,

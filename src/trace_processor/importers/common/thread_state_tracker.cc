@@ -22,7 +22,7 @@
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 ThreadStateTracker::ThreadStateTracker(TraceProcessorContext* context)
     : storage_(context->storage.get()),
@@ -222,4 +222,4 @@ bool ThreadStateTracker::IsBlocked(StringId state) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

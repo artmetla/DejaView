@@ -24,7 +24,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE linux.cpu.utilization.system;
+        INCLUDE DEJAVIEW MODULE linux.cpu.utilization.system;
 
         SELECT * FROM cpu_utilization_per_second;
         """,
@@ -67,7 +67,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE linux.cpu.utilization.process;
+        INCLUDE DEJAVIEW MODULE linux.cpu.utilization.process;
 
         SELECT *
         FROM cpu_process_utilization_per_second(10);
@@ -91,7 +91,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE linux.cpu.utilization.thread;
+        INCLUDE DEJAVIEW MODULE linux.cpu.utilization.thread;
 
         SELECT *
         FROM cpu_thread_utilization_per_second(10);
@@ -126,7 +126,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_postboot_unlock.pftrace'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.system;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.system;
 
              SELECT
               millicycles,
@@ -146,7 +146,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.system;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.system;
 
              SELECT
               millicycles,
@@ -166,7 +166,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_postboot_unlock.pftrace'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.system;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.system;
 
              SELECT
               cpu,
@@ -194,7 +194,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.system;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.system;
 
              SELECT
               cpu,
@@ -218,7 +218,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.thread;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.thread;
 
              SELECT
               utid,
@@ -242,7 +242,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.thread;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.thread;
 
              SELECT
               utid,
@@ -275,7 +275,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.process;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.process;
 
              SELECT
               upid,
@@ -299,7 +299,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.process;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.process;
 
              SELECT
               upid,
@@ -324,7 +324,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_postboot_unlock.pftrace'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.slice;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.slice;
 
              SELECT
               id,
@@ -353,7 +353,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_postboot_unlock.pftrace'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.utilization.slice;
+             INCLUDE DEJAVIEW MODULE linux.cpu.utilization.slice;
 
              SELECT
               id,
@@ -383,7 +383,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.frequency;
+             INCLUDE DEJAVIEW MODULE linux.cpu.frequency;
              select
                track_id,
                freq,
@@ -417,7 +417,7 @@ class LinuxCpu(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_cpu_eos.pb'),
         query=("""
-             INCLUDE PERFETTO MODULE linux.cpu.idle;
+             INCLUDE DEJAVIEW MODULE linux.cpu.idle;
              select
                track_id,
                idle,
@@ -510,7 +510,7 @@ class LinuxCpu(TestSuite):
           }
          """),
         query="""
-         INCLUDE PERFETTO MODULE linux.cpu.idle_stats;
+         INCLUDE DEJAVIEW MODULE linux.cpu.idle_stats;
          SELECT * FROM cpu_idle_stats;
          """,
         out=Csv("""
@@ -562,7 +562,7 @@ class LinuxCpu(TestSuite):
         }
          """),
         query="""
-         INCLUDE PERFETTO MODULE linux.cpu.idle_time_in_state;
+         INCLUDE DEJAVIEW MODULE linux.cpu.idle_time_in_state;
          SELECT * FROM cpu_idle_time_in_state_counters;
          """,
         out=Csv("""

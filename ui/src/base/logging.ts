@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {VERSION} from '../gen/perfetto_version';
+import {VERSION} from '../gen/dejaview_version';
 import {exists} from './utils';
 
 export type ErrorType = 'ERROR' | 'PROMISE_REJ' | 'OTHER';
@@ -139,8 +139,8 @@ export function reportError(err: ErrorEvent | PromiseRejectionEvent | {}) {
     // Beautify the Wasm error message if possible. Most Wasm errors are of the
     // form RuntimeError: unreachable or RuntimeError: abort. Those lead to bug
     // titles that are undistinguishable from each other. Instead try using the
-    // first entry of the stack that contains a perfetto:: function name.
-    const wasmFunc = stack.find((e) => e.name.includes('perfetto::'))?.name;
+    // first entry of the stack that contains a dejaview:: function name.
+    const wasmFunc = stack.find((e) => e.name.includes('dejaview::'))?.name;
     if (errMsg.includes('RuntimeError') && exists(wasmFunc)) {
       errMsg += ` @ ${wasmFunc.trim()}`;
     }

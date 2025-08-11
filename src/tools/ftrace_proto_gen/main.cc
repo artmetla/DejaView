@@ -26,9 +26,9 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/descriptor.pb.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/getopt.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/getopt.h"
 #include "src/tools/ftrace_proto_gen/ftrace_descriptor_gen.h"
 #include "src/tools/ftrace_proto_gen/ftrace_proto_gen.h"
 #include "src/traced/probes/ftrace/format_parser/format_parser.h"
@@ -40,7 +40,7 @@ inline std::unique_ptr<std::ostream> MakeOFStream(const std::string& filename) {
 
 inline std::unique_ptr<std::ostream> MakeVerifyStream(
     const std::string& filename) {
-  return std::unique_ptr<std::ostream>(new perfetto::VerifyStream(filename));
+  return std::unique_ptr<std::ostream>(new dejaview::VerifyStream(filename));
 }
 
 void PrintUsage(const char* bin_name) {
@@ -99,12 +99,12 @@ int main(int argc, char** argv) {
     return 1;
   }
 
-  PERFETTO_CHECK(!event_list_path.empty());
-  PERFETTO_CHECK(!output_dir.empty());
-  PERFETTO_CHECK(!proto_descriptor.empty());
+  DEJAVIEW_CHECK(!event_list_path.empty());
+  DEJAVIEW_CHECK(!output_dir.empty());
+  DEJAVIEW_CHECK(!proto_descriptor.empty());
 
-  std::vector<perfetto::FtraceEventName> event_list =
-      perfetto::ReadAllowList(event_list_path);
+  std::vector<dejaview::FtraceEventName> event_list =
+      dejaview::ReadAllowList(event_list_path);
   std::vector<std::string> events_info;
 
   google::protobuf::DescriptorPool descriptor_pool;
@@ -112,19 +112,19 @@ int main(int argc, char** argv) {
   {
     google::protobuf::FileDescriptorSet file_descriptor_set;
     std::string descriptor_bytes;
-    if (!perfetto::base::ReadFile(proto_descriptor, &descriptor_bytes)) {
+    if (!dejaview::base::ReadFile(proto_descriptor, &descriptor_bytes)) {
       fprintf(stderr, "Failed to open %s\n", proto_descriptor.c_str());
       return 1;
     }
     file_descriptor_set.ParseFromString(descriptor_bytes);
 
     for (const auto& d : file_descriptor_set.file()) {
-      PERFETTO_CHECK(descriptor_pool.BuildFile(d));
+      DEJAVIEW_CHECK(descriptor_pool.BuildFile(d));
     }
   }
 
   std::set<std::string> groups;
-  std::multimap<std::string, const perfetto::FtraceEventName*> group_to_event;
+  std::multimap<std::string, const dejaview::FtraceEventName*> group_to_event;
   std::set<std::string> new_events;
   for (const auto& event : event_list) {
     if (!event.valid())
@@ -133,7 +133,7 @@ int main(int argc, char** argv) {
     group_to_event.emplace(event.group(), &event);
     struct stat buf;
     if (stat(
-            ("protos/perfetto/trace/ftrace/" + event.name() + ".proto").c_str(),
+            ("protos/dejaview/trace/ftrace/" + event.name() + ".proto").c_str(),
             &buf) == -1) {
       new_events.insert(event.name());
     }
@@ -142,7 +142,7 @@ int main(int argc, char** argv) {
   {
     std::unique_ptr<std::ostream> out =
         ostream_factory(output_dir + "/ftrace_event.proto");
-    perfetto::GenerateFtraceEventProto(event_list, groups, out.get());
+    dejaview::GenerateFtraceEventProto(event_list, groups, out.get());
   }
 
   for (const std::string& group : groups) {
@@ -153,7 +153,7 @@ int main(int argc, char** argv) {
       fprintf(stderr, "Failed to open %s\n", output_path.c_str());
       return 1;
     }
-    *fout << perfetto::ProtoHeader();
+    *fout << dejaview::ProtoHeader();
 
     auto range = group_to_event.equal_range(group);
     for (auto it = range.first; it != range.second; ++it) {
@@ -162,34 +162,34 @@ int main(int argc, char** argv) {
         continue;
 
       std::string proto_name =
-          perfetto::EventNameToProtoName(group, event.name());
-      perfetto::Proto proto;
+          dejaview::EventNameToProtoName(group, event.name());
+      dejaview::Proto proto;
       proto.name = proto_name;
       proto.event_name = event.name();
       const google::protobuf::Descriptor* d =
-          descriptor_pool.FindMessageTypeByName("perfetto.protos." +
+          descriptor_pool.FindMessageTypeByName("dejaview.protos." +
                                                 proto_name);
       if (d)
-        proto = perfetto::Proto(event.name(), *d);
+        proto = dejaview::Proto(event.name(), *d);
       else
-        PERFETTO_LOG("Did not find %s", proto_name.c_str());
+        DEJAVIEW_LOG("Did not find %s", proto_name.c_str());
       for (int i = optind; i < argc; ++i) {
         std::string input_dir = argv[i];
         std::string input_path = input_dir + event.group() + "/" +
                                  event.name() + std::string("/format");
 
         std::string contents;
-        if (!perfetto::base::ReadFile(input_path, &contents)) {
+        if (!dejaview::base::ReadFile(input_path, &contents)) {
           continue;
         }
 
-        perfetto::FtraceEvent format;
-        if (!perfetto::ParseFtraceEvent(contents, &format)) {
+        dejaview::FtraceEvent format;
+        if (!dejaview::ParseFtraceEvent(contents, &format)) {
           fprintf(stderr, "Could not parse file %s.\n", input_path.c_str());
           return 1;
         }
 
-        auto proto_fields = perfetto::ToProtoFields(format);
+        auto proto_fields = dejaview::ToProtoFields(format);
         proto.UnionFields(proto_fields);
       }
 
@@ -206,25 +206,25 @@ int main(int argc, char** argv) {
         proto_field++;
 
       events_info.push_back(
-          perfetto::SingleEventInfo(proto, event.group(), proto_field));
+          dejaview::SingleEventInfo(proto, event.group(), proto_field));
 
       *fout << proto.ToString();
-      PERFETTO_CHECK(!fout->fail());
+      DEJAVIEW_CHECK(!fout->fail());
     }
   }
 
   {
     std::unique_ptr<std::ostream> out = ostream_factory(
         "src/trace_processor/importers/ftrace/ftrace_descriptors.cc");
-    perfetto::GenerateFtraceDescriptors(descriptor_pool, out.get());
-    PERFETTO_CHECK(!out->fail());
+    dejaview::GenerateFtraceDescriptors(descriptor_pool, out.get());
+    DEJAVIEW_CHECK(!out->fail());
   }
 
   {
     std::unique_ptr<std::ostream> out =
         ostream_factory("src/traced/probes/ftrace/event_info.cc");
-    perfetto::GenerateEventInfo(events_info, out.get());
-    PERFETTO_CHECK(!out->fail());
+    dejaview::GenerateEventInfo(events_info, out.get());
+    DEJAVIEW_CHECK(!out->fail());
   }
 
   if (update_build_files) {
@@ -258,6 +258,6 @@ ftrace_proto_names = [
       *f << "  \"" << group << ".proto\",\n";
     }
     *f << "]\n";
-    PERFETTO_CHECK(!f->fail());
+    DEJAVIEW_CHECK(!f->fail());
   }
 }

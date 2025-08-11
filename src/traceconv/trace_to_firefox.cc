@@ -21,29 +21,29 @@
 #include <memory>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/traceconv/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 namespace {
 
 void ExportFirefoxProfile(trace_processor::TraceProcessor& tp,
                           std::ostream* output) {
   auto it = tp.ExecuteQuery(R"(
-      INCLUDE PERFETTO MODULE export.to_firefox_profile;
+      INCLUDE DEJAVIEW MODULE export.to_firefox_profile;
       SELECT CAST(export_to_firefox_profile() AS BLOB);
     )");
-  PERFETTO_CHECK(it.Next());
+  DEJAVIEW_CHECK(it.Next());
 
   it.Get(0).AsBytes();
   output->write(reinterpret_cast<const char*>(it.Get(0).AsBytes()),
                 static_cast<std::streamsize>(it.Get(0).bytes_count));
 
-  PERFETTO_CHECK(!it.Next());
-  PERFETTO_CHECK(it.Status().ok());
+  DEJAVIEW_CHECK(!it.Next());
+  DEJAVIEW_CHECK(it.Status().ok());
 }
 
 std::unique_ptr<trace_processor::TraceProcessor> LoadTrace(
@@ -73,4 +73,4 @@ bool TraceToFirefoxProfile(std::istream* input, std::ostream* output) {
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

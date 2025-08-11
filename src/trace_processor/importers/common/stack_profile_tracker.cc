@@ -19,13 +19,13 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/profiler_util.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 std::vector<FrameId> StackProfileTracker::JavaFramesForName(
@@ -79,4 +79,4 @@ void StackProfileTracker::OnFrameCreated(FrameId frame_id) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

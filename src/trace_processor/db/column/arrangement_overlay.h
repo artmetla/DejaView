@@ -23,12 +23,12 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/overlay_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 // Storage responsible for rearranging the elements of another Storage. It deals
 // with duplicates, permutations and selection; for selection only, it's more
@@ -92,6 +92,6 @@ class ArrangementOverlay final : public OverlayLayer {
   const DataLayerChain::Indices::State arrangement_state_;
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_ARRANGEMENT_OVERLAY_H_

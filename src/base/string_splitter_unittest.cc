@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_splitter.h"
 
 #include <vector>
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -377,4 +377,4 @@ TEST(StringSplitterTest, EmptyTokens) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

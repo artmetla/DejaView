@@ -25,7 +25,7 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
           WITH foo AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -44,7 +44,7 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
           WITH foo AS (
             SELECT 5 AS source_node_id, 10 AS dest_node_id
@@ -63,9 +63,9 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source_node_id, NULL AS dest_node_id WHERE FALSE
           UNION ALL
           VALUES (10, 11)
@@ -85,9 +85,9 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source, NULL AS dest WHERE FALSE
           UNION ALL
           VALUES ('R', 'A'), ('R', 'B'), ('R', 'C'), ('A', 'D')
@@ -139,7 +139,7 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
           WITH foo AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -157,7 +157,7 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
           WITH foo AS (
             SELECT 5 AS source_node_id, 10 AS dest_node_id
@@ -176,9 +176,9 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source_node_id, NULL AS dest_node_id WHERE FALSE
           UNION ALL
           VALUES (10, 11)
@@ -198,9 +198,9 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source, NULL AS dest WHERE FALSE
           UNION ALL
           VALUES ('R', 'A'), ('R', 'B'), ('R', 'C'), ('A', 'D')
@@ -252,9 +252,9 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT 1 AS node_id, 0 AS node_parent_id, 1 AS sort_key
           UNION ALL
           SELECT 2 AS node_id, 1 AS node_parent_id, 2 AS sort_key
@@ -274,9 +274,9 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT 0 AS source_node_id, 0 AS dest_node_id, 0 AS edge_weight
           UNION ALL
           VALUES (1, 2, 1)
@@ -289,7 +289,7 @@ class GraphSearchTests(TestSuite):
           UNION ALL
           VALUES (5, 6, 0);
 
-          CREATE PERFETTO TABLE roots AS
+          CREATE DEJAVIEW TABLE roots AS
           SELECT 0 AS root_node_id, 0 AS root_target_weight
           UNION ALL
           VALUES (1, 2)
@@ -318,9 +318,9 @@ class GraphSearchTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.search;
+          INCLUDE DEJAVIEW MODULE graphs.search;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT 0 AS source_node_id, 0 AS dest_node_id, 0 AS edge_weight
           UNION ALL
           VALUES (1, 2, 1)
@@ -333,7 +333,7 @@ class GraphSearchTests(TestSuite):
           UNION ALL
           VALUES (5, 6, 0);
 
-          CREATE PERFETTO TABLE roots AS
+          CREATE DEJAVIEW TABLE roots AS
           SELECT 0 AS root_node_id, 0 AS root_target_weight
           UNION ALL
           VALUES (1, 2)

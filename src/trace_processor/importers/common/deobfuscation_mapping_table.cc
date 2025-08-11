@@ -15,10 +15,10 @@
  */
 
 #include "src/trace_processor/importers/common/deobfuscation_mapping_table.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 bool DeobfuscationMappingTable::AddClassTranslation(
@@ -26,7 +26,7 @@ bool DeobfuscationMappingTable::AddClassTranslation(
     StringId obfuscated_class_name,
     StringId deobfuscated_class_name,
     base::FlatHashMap<StringId, StringId> obfuscated_to_deobfuscated_members) {
-  if (PERFETTO_UNLIKELY(!default_package_id_)) {
+  if (DEJAVIEW_UNLIKELY(!default_package_id_)) {
     default_package_id_ = package;
   }
 
@@ -41,7 +41,7 @@ bool DeobfuscationMappingTable::AddClassTranslation(
 
 std::optional<StringId> DeobfuscationMappingTable::TranslateClass(
     StringId obfuscated_class_name) const {
-  if (PERFETTO_UNLIKELY(!default_package_id_.has_value())) {
+  if (DEJAVIEW_UNLIKELY(!default_package_id_.has_value())) {
     return std::nullopt;
   }
   return TranslateClass(default_package_id_.value(), obfuscated_class_name);
@@ -88,4 +88,4 @@ std::optional<StringId> DeobfuscationMappingTable::TranslateMember(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

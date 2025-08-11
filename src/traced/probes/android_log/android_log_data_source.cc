@@ -17,24 +17,24 @@
 #include "src/traced/probes/android_log/android_log_data_source.h"
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/common/android_log_constants.pbzero.h"
-#include "protos/perfetto/config/android/android_log_config.pbzero.h"
-#include "protos/perfetto/trace/android/android_log.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/android_log_constants.pbzero.h"
+#include "protos/dejaview/config/android/android_log_config.pbzero.h"
+#include "protos/dejaview/trace/android/android_log.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -64,7 +64,7 @@ struct logger_entry_v4 {
 // Event types definition in the binary encoded format, from
 // liblog/include/log/log.h .
 // Note that these values don't match the textual definitions of
-// system/core/android_logevent.logtags (which are not used by perfetto).
+// system/core/android_logevent.logtags (which are not used by dejaview).
 // The latter are off by one (INT = 1, LONG=2 and so on).
 enum AndroidEventLogType {
   EVENT_TYPE_INT = 0,
@@ -158,7 +158,7 @@ base::UnixSocketRaw AndroidLogDataSource::ConnectLogdrSocket() {
   auto socket = base::UnixSocketRaw::CreateMayFail(base::SockFamily::kUnix,
                                                    base::SockType::kSeqPacket);
   if (!socket || !socket.Connect(kLogdrSocket)) {
-    PERFETTO_PLOG("Failed to connect to %s", kLogdrSocket);
+    DEJAVIEW_PLOG("Failed to connect to %s", kLogdrSocket);
     return base::UnixSocketRaw();
   }
   return socket;
@@ -170,9 +170,9 @@ void AndroidLogDataSource::Start() {
   if (!(logdr_sock_ = ConnectLogdrSocket()))
     return;
 
-  PERFETTO_DLOG("Starting Android log data source: %s", mode_.c_str());
+  DEJAVIEW_DLOG("Starting Android log data source: %s", mode_.c_str());
   if (logdr_sock_.Send(mode_.data(), mode_.size()) <= 0) {
-    PERFETTO_PLOG("send() failed on logdr socket %s", kLogdrSocket);
+    DEJAVIEW_PLOG("send() failed on logdr socket %s", kLogdrSocket);
     return;
   }
   logdr_sock_.SetBlocking(false);
@@ -197,7 +197,7 @@ void AndroidLogDataSource::EnableSocketWatchTask(bool enable) {
 }
 
 void AndroidLogDataSource::OnSocketDataAvailable() {
-  PERFETTO_DCHECK(fd_watch_task_enabled_);
+  DEJAVIEW_DCHECK(fd_watch_task_enabled_);
   auto now_ms = base::GetWallTimeMs().count();
 
   // Disable the FD watch until the delayed read happens, otherwise we get a
@@ -242,11 +242,11 @@ void AndroidLogDataSource::ReadLogSocket() {
       });
     }
     char* buf = reinterpret_cast<char*>(buf_.Get());
-    PERFETTO_DCHECK(reinterpret_cast<uintptr_t>(buf) % 16 == 0);
+    DEJAVIEW_DCHECK(reinterpret_cast<uintptr_t>(buf) % 16 == 0);
     size_t payload_size = reinterpret_cast<logger_entry_v4*>(buf)->len;
     size_t hdr_size = reinterpret_cast<logger_entry_v4*>(buf)->hdr_size;
     if (payload_size + hdr_size > static_cast<size_t>(rsize)) {
-      PERFETTO_DLOG(
+      DEJAVIEW_DLOG(
           "Invalid Android log frame (hdr: %zu, payload: %zu, rsize: %zd)",
           hdr_size, payload_size, rsize);
       stats_.num_failed++;
@@ -276,13 +276,13 @@ void AndroidLogDataSource::ReadLogSocket() {
       // Entries in the EVENTS buffer are special, they are binary encoded.
       // See https://developer.android.com/reference/android/util/EventLog.
       if (!ParseBinaryEvent(buf, end, log_packet, &evt)) {
-        PERFETTO_DLOG("Failed to parse Android log binary event");
+        DEJAVIEW_DLOG("Failed to parse Android log binary event");
         stats_.num_failed++;
         continue;
       }
     } else {
       if (!ParseTextEvent(buf, end, log_packet, &evt)) {
-        PERFETTO_DLOG("Failed to parse Android log text event");
+        DEJAVIEW_DLOG("Failed to parse Android log text event");
         stats_.num_failed++;
         continue;
       }
@@ -306,7 +306,7 @@ void AndroidLogDataSource::ReadLogSocket() {
   // avoid that we keep re-triggering the log socket by writing into the log
   // buffer ourselves.
   if (num_events > 3)
-    PERFETTO_DLOG("Seen %zu Android log events", num_events);
+    DEJAVIEW_DLOG("Seen %zu Android log events", num_events);
 }
 
 bool AndroidLogDataSource::ParseTextEvent(
@@ -321,7 +321,7 @@ bool AndroidLogDataSource::ParseTextEvent(
     return false;
 
   if (prio > 10) {
-    PERFETTO_DLOG("Skipping log event with suspiciously high priority %d",
+    DEJAVIEW_DLOG("Skipping log event with suspiciously high priority %d",
                   prio);
     return false;
   }
@@ -443,7 +443,7 @@ bool AndroidLogDataSource::ParseBinaryEvent(
         break;
       }
       default:
-        PERFETTO_DLOG(
+        DEJAVIEW_DLOG(
             "Skipping unknown Android log binary event of type %d for %s at pos"
             " %zd after parsing %zu fields",
             static_cast<int>(type), fmt->name.c_str(), buf - start, field_num);
@@ -476,7 +476,7 @@ void AndroidLogDataSource::ParseEventLogDefinitions() {
   std::string event_log_tags = ReadEventLogDefinitions();
   for (base::StringSplitter ss(std::move(event_log_tags), '\n'); ss.Next();) {
     if (!ParseEventLogDefinitionLine(ss.cur_token(), ss.cur_token_size() + 1)) {
-      PERFETTO_DLOG("Could not parse event log format: %s", ss.cur_token());
+      DEJAVIEW_DLOG("Could not parse event log format: %s", ss.cur_token());
     }
   }
 }
@@ -522,7 +522,7 @@ bool AndroidLogDataSource::ParseEventLogDefinitionLine(char* line, size_t len) {
 std::string AndroidLogDataSource::ReadEventLogDefinitions() {
   std::string contents;
   if (!base::ReadFile(kLogTagsPath, &contents)) {
-    PERFETTO_PLOG("Failed to read %s", kLogTagsPath);
+    DEJAVIEW_PLOG("Failed to read %s", kLogTagsPath);
     return "";
   }
   return contents;
@@ -534,4 +534,4 @@ const AndroidLogDataSource::EventFormat* AndroidLogDataSource::GetEventFormat(
   return it == event_formats_.end() ? nullptr : &it->second;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

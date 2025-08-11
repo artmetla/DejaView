@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {test} from '@playwright/test';
-import {PerfettoTestHelper} from './perfetto_ui_test_helper';
+import {DejaViewTestHelper} from './dejaview_ui_test_helper';
 
 test.describe.configure({mode: 'parallel'});
 
@@ -21,8 +21,8 @@ test.describe.configure({mode: 'parallel'});
 // Regression test for aosp/3106008 .
 test('debuggable chip', async ({browser}) => {
   const page = await browser.newPage();
-  const pth = new PerfettoTestHelper(page);
-  await pth.openTraceFile('api32_startup_warm.perfetto-trace');
+  const pth = new DejaViewTestHelper(page);
+  await pth.openTraceFile('api32_startup_warm.dejaview-trace');
   const trackGroup = pth.locateTrackGroup(
     'androidx.benchmark.integration.macrobenchmark.test 7527',
   );
@@ -35,7 +35,7 @@ test('debuggable chip', async ({browser}) => {
 
 test('trace error notification', async ({browser}) => {
   const page = await browser.newPage();
-  const pth = new PerfettoTestHelper(page);
+  const pth = new DejaViewTestHelper(page);
   await pth.openTraceFile('clusterfuzz_14753');
   await pth.waitForIdleAndScreenshot('error-icon.png', {
     clip: {x: 1800, y: 0, width: 150, height: 150},

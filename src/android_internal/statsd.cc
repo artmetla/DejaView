@@ -19,7 +19,7 @@
 #include <binder/ProcessState.h>
 #include <stats_subscription.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 int32_t AddAtomSubscription(const uint8_t* subscription_config,
@@ -46,4 +46,4 @@ void FlushAtomSubscription(int32_t subscription_id) {
 }
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview

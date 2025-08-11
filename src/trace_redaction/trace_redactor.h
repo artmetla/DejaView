@@ -22,13 +22,13 @@
 #include <string_view>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
-// Removes sensitive information from Perfetto traces by executing collect,
+// Removes sensitive information from DejaView traces by executing collect,
 // build, and transforms primtives in the correct order.
 //
 // The caller is responsible for adding all neccessary primitives. Primitives
@@ -119,6 +119,6 @@ class TraceRedactor {
   std::vector<std::unique_ptr<TransformPrimitive>> transformers_;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_TRACE_REDACTOR_H_

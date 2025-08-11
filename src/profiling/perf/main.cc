@@ -17,5 +17,5 @@
 #include "src/profiling/perf/traced_perf.h"
 
 int main(int argc, char** argv) {
-  return perfetto::TracedPerfMain(argc, argv);
+  return dejaview::TracedPerfMain(argc, argv);
 }

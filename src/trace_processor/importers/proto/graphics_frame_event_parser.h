@@ -20,15 +20,15 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/proto/vulkan_memory_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/trace/android/graphics_frame_event.pbzero.h"
+#include "protos/dejaview/trace/android/graphics_frame_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace trace_processor {
 
@@ -83,6 +83,6 @@ class GraphicsFrameEventParser {
   std::unordered_map<StringId, int64_t> last_acquired_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_GRAPHICS_FRAME_EVENT_PARSER_H_

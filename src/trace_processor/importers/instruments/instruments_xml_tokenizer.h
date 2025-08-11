@@ -17,12 +17,12 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_INSTRUMENTS_XML_TOKENIZER_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_INSTRUMENTS_XML_TOKENIZER_H_
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::instruments_importer {
+namespace dejaview::trace_processor::instruments_importer {
 
 class InstrumentsXmlTokenizer : public ChunkedTraceReader {
  public:
@@ -39,6 +39,6 @@ class InstrumentsXmlTokenizer : public ChunkedTraceReader {
   class Impl* impl_;
 };
 
-}  // namespace perfetto::trace_processor::instruments_importer
+}  // namespace dejaview::trace_processor::instruments_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_INSTRUMENTS_XML_TOKENIZER_H_

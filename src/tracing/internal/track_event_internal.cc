@@ -14,29 +14,29 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/track_event_internal.h"
+#include "dejaview/tracing/internal/track_event_internal.h"
 
-#include "perfetto/base/proc_utils.h"
-#include "perfetto/base/time.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/internal/track_event_interned_fields.h"
-#include "perfetto/tracing/track_event.h"
-#include "perfetto/tracing/track_event_category_registry.h"
-#include "perfetto/tracing/track_event_interned_data_index.h"
-#include "protos/perfetto/common/data_source_descriptor.gen.h"
-#include "protos/perfetto/common/track_event_descriptor.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.pbzero.h"
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_MAC)
+#include "dejaview/base/proc_utils.h"
+#include "dejaview/base/time.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/internal/track_event_interned_fields.h"
+#include "dejaview/tracing/track_event.h"
+#include "dejaview/tracing/track_event_category_registry.h"
+#include "dejaview/tracing/track_event_interned_data_index.h"
+#include "protos/dejaview/common/data_source_descriptor.gen.h"
+#include "protos/dejaview/common/track_event_descriptor.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.pbzero.h"
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_MAC)
 #include <os/signpost.h>
 #endif
 
-using perfetto::protos::pbzero::ClockSnapshot;
+using dejaview::protos::pbzero::ClockSnapshot;
 
-namespace perfetto {
+namespace dejaview {
 
 TrackEventSessionObserver::~TrackEventSessionObserver() = default;
 void TrackEventSessionObserver::OnSetup(const DataSourceBase::SetupArgs&) {}
@@ -121,7 +121,7 @@ bool NameMatchesPattern(const std::string& pattern,
   // wildcard at the end of the pattern.
   size_t i = pattern.find('*');
   if (i != std::string::npos) {
-    PERFETTO_DCHECK(i == pattern.size() - 1);
+    DEJAVIEW_DCHECK(i == pattern.size() - 1);
     if (match_type != MatchType::kPattern)
       return false;
     return name.substr(0, i) == pattern.substr(0, i);
@@ -194,8 +194,8 @@ void TrackEventInternal::RemoveSessionObserver(
       registry, observer);
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 static constexpr protos::pbzero::BuiltinClock kDefaultTraceClock =
     protos::pbzero::BUILTIN_CLOCK_BOOTTIME;
 #else
@@ -371,11 +371,11 @@ bool TrackEventInternal::IsCategoryEnabled(
 // static
 uint64_t TrackEventInternal::GetTimeNs() {
   if (GetClockId() == protos::pbzero::BUILTIN_CLOCK_BOOTTIME)
-    return static_cast<uint64_t>(perfetto::base::GetBootTimeNs().count());
+    return static_cast<uint64_t>(dejaview::base::GetBootTimeNs().count());
   else if (GetClockId() == protos::pbzero::BUILTIN_CLOCK_MONOTONIC)
-    return static_cast<uint64_t>(perfetto::base::GetWallTimeNs().count());
-  PERFETTO_DCHECK(GetClockId() == protos::pbzero::BUILTIN_CLOCK_MONOTONIC_RAW);
-  return static_cast<uint64_t>(perfetto::base::GetWallTimeRawNs().count());
+    return static_cast<uint64_t>(dejaview::base::GetWallTimeNs().count());
+  DEJAVIEW_DCHECK(GetClockId() == protos::pbzero::BUILTIN_CLOCK_MONOTONIC_RAW);
+  return static_cast<uint64_t>(dejaview::base::GetWallTimeRawNs().count());
 }
 
 // static
@@ -423,16 +423,16 @@ void TrackEventInternal::ResetIncrementalState(
           thread_time_counter_track.uuid);
     }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_MAC)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_MAC)
     // Emit a MacOS point-of-interest signpost to synchonize Mac profiler time
     // with boot time.
     // TODO(leszeks): Consider allowing synchronization against other clocks
     // than boot time.
     static os_log_t log_handle = os_log_create(
-        "dev.perfetto.clock_sync", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
+        "dev.dejaview.clock_sync", OS_LOG_CATEGORY_POINTS_OF_INTEREST);
     os_signpost_event_emit(
         log_handle, OS_SIGNPOST_ID_EXCLUSIVE, "boottime", "%" PRId64,
-        static_cast<uint64_t>(perfetto::base::GetBootTimeNs().count()));
+        static_cast<uint64_t>(dejaview::base::GetBootTimeNs().count()));
 #endif
 
     if (tls_state.default_clock != static_cast<uint32_t>(GetClockId())) {
@@ -442,7 +442,7 @@ void TrackEventInternal::ResetIncrementalState(
       trace_clock->set_clock_id(static_cast<uint32_t>(GetClockId()));
       trace_clock->set_timestamp(sequence_timestamp.value);
 
-      if (PERFETTO_LIKELY(tls_state.default_clock == kClockIdIncremental)) {
+      if (DEJAVIEW_LIKELY(tls_state.default_clock == kClockIdIncremental)) {
         // Delta-encoded incremental clock in nanoseconds by default but
         // configurable by |tls_state.timestamp_unit_multiplier|.
         ClockSnapshot::Clock* clock_incremental = clocks->add_clocks();
@@ -487,14 +487,14 @@ TrackEventInternal::NewTracePacket(TraceWriterBase* trace_writer,
                                    const TrackEventTlsState& tls_state,
                                    TraceTimestamp timestamp,
                                    uint32_t seq_flags) {
-  if (PERFETTO_UNLIKELY(tls_state.default_clock != kClockIdIncremental &&
+  if (DEJAVIEW_UNLIKELY(tls_state.default_clock != kClockIdIncremental &&
                         timestamp.clock_id == kClockIdIncremental)) {
     timestamp.clock_id = tls_state.default_clock;
   }
   auto packet = trace_writer->NewTracePacket();
   auto ts_unit_multiplier = tls_state.timestamp_unit_multiplier;
-  if (PERFETTO_LIKELY(timestamp.clock_id == kClockIdIncremental)) {
-    if (PERFETTO_LIKELY(incr_state->last_timestamp_ns <= timestamp.value)) {
+  if (DEJAVIEW_LIKELY(timestamp.clock_id == kClockIdIncremental)) {
+    if (DEJAVIEW_LIKELY(incr_state->last_timestamp_ns <= timestamp.value)) {
       // No need to set the clock id here, since kClockIdIncremental is the
       // clock id assumed by default.
       auto time_diff_ns = timestamp.value - incr_state->last_timestamp_ns;
@@ -507,7 +507,7 @@ TrackEventInternal::NewTracePacket(TraceWriterBase* trace_writer,
                                          ? static_cast<uint32_t>(GetClockId())
                                          : kClockIdAbsolute);
     }
-  } else if (PERFETTO_LIKELY(timestamp.clock_id == tls_state.default_clock)) {
+  } else if (DEJAVIEW_LIKELY(timestamp.clock_id == tls_state.default_clock)) {
     packet->set_timestamp(timestamp.value / ts_unit_multiplier);
   } else {
     packet->set_timestamp(timestamp.value);
@@ -519,19 +519,19 @@ TrackEventInternal::NewTracePacket(TraceWriterBase* trace_writer,
 
 // static
 void TrackEventInternal::WriteEventName(StaticString event_name,
-                                        perfetto::EventContext& event_ctx,
+                                        dejaview::EventContext& event_ctx,
                                         const TrackEventTlsState&) {
-  if (PERFETTO_LIKELY(event_name.value != nullptr)) {
+  if (DEJAVIEW_LIKELY(event_name.value != nullptr)) {
     size_t name_iid = InternedEventName::Get(&event_ctx, event_name.value);
     event_ctx.event()->set_name_iid(name_iid);
   }
 }
 
 // static
-void TrackEventInternal::WriteEventName(perfetto::DynamicString event_name,
-                                        perfetto::EventContext& event_ctx,
+void TrackEventInternal::WriteEventName(dejaview::DynamicString event_name,
+                                        dejaview::EventContext& event_ctx,
                                         const TrackEventTlsState& tls_state) {
-  if (PERFETTO_UNLIKELY(tls_state.filter_dynamic_event_names)) {
+  if (DEJAVIEW_UNLIKELY(tls_state.filter_dynamic_event_names)) {
     event_ctx.event()->set_name(kFilteredEventName,
                                 sizeof(kFilteredEventName) - 1);
   } else {
@@ -545,10 +545,10 @@ EventContext TrackEventInternal::WriteEvent(
     TrackEventIncrementalState* incr_state,
     TrackEventTlsState& tls_state,
     const Category* category,
-    perfetto::protos::pbzero::TrackEvent::Type type,
+    dejaview::protos::pbzero::TrackEvent::Type type,
     const TraceTimestamp& timestamp,
     bool on_current_thread_track) {
-  PERFETTO_DCHECK(!incr_state->was_cleared);
+  DEJAVIEW_DCHECK(!incr_state->was_cleared);
   auto packet = NewTracePacket(trace_writer, incr_state, tls_state, timestamp);
   EventContext ctx(trace_writer, std::move(packet), incr_state, &tls_state);
 
@@ -584,7 +584,7 @@ EventContext TrackEventInternal::WriteEvent(
 
 // static
 protos::pbzero::DebugAnnotation* TrackEventInternal::AddDebugAnnotation(
-    perfetto::EventContext* event_ctx,
+    dejaview::EventContext* event_ctx,
     const char* name) {
   auto annotation = event_ctx->event()->add_debug_annotations();
   annotation->set_name_iid(InternedDebugAnnotationName::Get(event_ctx, name));
@@ -593,12 +593,12 @@ protos::pbzero::DebugAnnotation* TrackEventInternal::AddDebugAnnotation(
 
 // static
 protos::pbzero::DebugAnnotation* TrackEventInternal::AddDebugAnnotation(
-    perfetto::EventContext* event_ctx,
-    perfetto::DynamicString name) {
+    dejaview::EventContext* event_ctx,
+    dejaview::DynamicString name) {
   auto annotation = event_ctx->event()->add_debug_annotations();
   annotation->set_name(name.value);
   return annotation;
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

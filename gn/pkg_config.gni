@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("perfetto.gni")
+import("dejaview.gni")
 
 declare_args() {
   # These are provided by chromium's build/config/linux/pkg_config.gni, but
   # need to be defined if they have not been already.
-  if (perfetto_use_pkgconfig) {
+  if (dejaview_use_pkgconfig) {
     if (!defined(pkg_config)) {
       pkg_config = "pkg-config"
     }
@@ -33,7 +33,7 @@ declare_args() {
 template("pkg_config") {
   config(target_name) {
     assert(defined(invoker.pkg_deps), "pkg_deps must be set")
-    if (perfetto_use_pkgconfig) {
+    if (dejaview_use_pkgconfig) {
       forward_variables_from(invoker, "*")
 
       if (current_toolchain == host_toolchain) {
@@ -68,7 +68,7 @@ template("pkg_config") {
         }
         ldflags += _pkg_config_result.ldflags
       }
-    } else {  # !perfetto_use_pkgconfig
+    } else {  # !dejaview_use_pkgconfig
       not_needed(invoker, "*")
     }
   }

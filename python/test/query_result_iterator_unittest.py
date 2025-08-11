@@ -14,10 +14,10 @@
 
 import unittest
 
-from perfetto.common.exceptions import PerfettoException
-from perfetto.common.query_result_iterator import QueryResultIterator
-from perfetto.trace_processor.api import PLATFORM_DELEGATE
-from perfetto.trace_processor.protos import ProtoFactory
+from dejaview.common.exceptions import DejaViewException
+from dejaview.common.query_result_iterator import QueryResultIterator
+from dejaview.trace_processor.api import PLATFORM_DELEGATE
+from dejaview.trace_processor.protos import ProtoFactory
 
 PROTO_FACTORY = ProtoFactory(PLATFORM_DELEGATE())
 
@@ -173,9 +173,9 @@ class TestQueryResultIterator(unittest.TestCase):
 
     # It's always the case that the number of cells is a multiple of the number
     # of columns. However, here this is clearly not the case, so raise a
-    # PerfettoException during the data integrity check in
+    # DejaViewException during the data integrity check in
     # the constructor
-    with self.assertRaises(PerfettoException):
+    with self.assertRaises(DejaViewException):
       qr_iterator = QueryResultIterator(
           ['foo_id', 'foo_num', 'foo_dur', 'foo_ms'], [batch])
 
@@ -192,8 +192,8 @@ class TestQueryResultIterator(unittest.TestCase):
 
     # In this batch we declare the columns types to be CELL_INVALID,
     # CELL_VARINT but that doesn't match the data which are both ints*
-    # so we should raise a PerfettoException.
-    with self.assertRaises(PerfettoException):
+    # so we should raise a DejaViewException.
+    with self.assertRaises(DejaViewException):
       for row in qr_iterator:
         pass
 
@@ -339,6 +339,6 @@ class TestQueryResultIterator(unittest.TestCase):
 
     # In this batch we declare the columns types to be CELL_INVALID,
     # CELL_VARINT but that doesn't match the data which are both ints*
-    # so we should raise a PerfettoException.
-    with self.assertRaises(PerfettoException):
+    # so we should raise a DejaViewException.
+    with self.assertRaises(DejaViewException):
       _ = qr_iterator.as_pandas_dataframe()

@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
 
 #include <string>
 
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(TracePacketTest, Simple) {
@@ -144,4 +144,4 @@ TEST(TracePacketTest, MoveOperators) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

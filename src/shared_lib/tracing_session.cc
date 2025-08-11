@@ -14,62 +14,62 @@
  * limitations under the License.
  */
 
-#include "perfetto/public/abi/tracing_session_abi.h"
+#include "dejaview/public/abi/tracing_session_abi.h"
 
 #include <condition_variable>
 #include <mutex>
 
-#include "perfetto/tracing/tracing.h"
-#include "protos/perfetto/config/trace_config.gen.h"
+#include "dejaview/tracing/tracing.h"
+#include "protos/dejaview/config/trace_config.gen.h"
 
-struct PerfettoTracingSessionImpl* PerfettoTracingSessionSystemCreate() {
-  std::unique_ptr<perfetto::TracingSession> tracing_session =
-      perfetto::Tracing::NewTrace(perfetto::kSystemBackend);
-  return reinterpret_cast<struct PerfettoTracingSessionImpl*>(
+struct DejaViewTracingSessionImpl* DejaViewTracingSessionSystemCreate() {
+  std::unique_ptr<dejaview::TracingSession> tracing_session =
+      dejaview::Tracing::NewTrace(dejaview::kSystemBackend);
+  return reinterpret_cast<struct DejaViewTracingSessionImpl*>(
       tracing_session.release());
 }
 
-struct PerfettoTracingSessionImpl* PerfettoTracingSessionInProcessCreate() {
-  std::unique_ptr<perfetto::TracingSession> tracing_session =
-      perfetto::Tracing::NewTrace(perfetto::kInProcessBackend);
-  return reinterpret_cast<struct PerfettoTracingSessionImpl*>(
+struct DejaViewTracingSessionImpl* DejaViewTracingSessionInProcessCreate() {
+  std::unique_ptr<dejaview::TracingSession> tracing_session =
+      dejaview::Tracing::NewTrace(dejaview::kInProcessBackend);
+  return reinterpret_cast<struct DejaViewTracingSessionImpl*>(
       tracing_session.release());
 }
 
-void PerfettoTracingSessionSetup(struct PerfettoTracingSessionImpl* session,
+void DejaViewTracingSessionSetup(struct DejaViewTracingSessionImpl* session,
                                  void* cfg_begin,
                                  size_t cfg_len) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
-  perfetto::TraceConfig cfg;
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
+  dejaview::TraceConfig cfg;
   cfg.ParseFromArray(cfg_begin, cfg_len);
   ts->Setup(cfg);
 }
 
-void PerfettoTracingSessionSetStopCb(struct PerfettoTracingSessionImpl* session,
-                                     PerfettoTracingSessionStopCb cb,
+void DejaViewTracingSessionSetStopCb(struct DejaViewTracingSessionImpl* session,
+                                     DejaViewTracingSessionStopCb cb,
                                      void* user_arg) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   ts->SetOnStopCallback([session, cb, user_arg]() { cb(session, user_arg); });
 }
 
-void PerfettoTracingSessionStartAsync(
-    struct PerfettoTracingSessionImpl* session) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+void DejaViewTracingSessionStartAsync(
+    struct DejaViewTracingSessionImpl* session) {
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   ts->Start();
 }
 
-void PerfettoTracingSessionStartBlocking(
-    struct PerfettoTracingSessionImpl* session) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+void DejaViewTracingSessionStartBlocking(
+    struct DejaViewTracingSessionImpl* session) {
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   ts->StartBlocking();
 }
 
-void PerfettoTracingSessionFlushAsync(
-    struct PerfettoTracingSessionImpl* session,
+void DejaViewTracingSessionFlushAsync(
+    struct DejaViewTracingSessionImpl* session,
     uint32_t timeout_ms,
-    PerfettoTracingSessionFlushCb cb,
+    DejaViewTracingSessionFlushCb cb,
     void* user_arg) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   std::function<void(bool)> flush_cb = [](bool) {};
   if (cb) {
     flush_cb = [cb, session, user_arg](bool success) {
@@ -79,30 +79,30 @@ void PerfettoTracingSessionFlushAsync(
   ts->Flush(std::move(flush_cb), timeout_ms);
 }
 
-bool PerfettoTracingSessionFlushBlocking(
-    struct PerfettoTracingSessionImpl* session,
+bool DejaViewTracingSessionFlushBlocking(
+    struct DejaViewTracingSessionImpl* session,
     uint32_t timeout_ms) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   return ts->FlushBlocking(timeout_ms);
 }
 
-void PerfettoTracingSessionStopAsync(
-    struct PerfettoTracingSessionImpl* session) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+void DejaViewTracingSessionStopAsync(
+    struct DejaViewTracingSessionImpl* session) {
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   ts->Stop();
 }
 
-void PerfettoTracingSessionStopBlocking(
-    struct PerfettoTracingSessionImpl* session) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+void DejaViewTracingSessionStopBlocking(
+    struct DejaViewTracingSessionImpl* session) {
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   ts->StopBlocking();
 }
 
-void PerfettoTracingSessionReadTraceBlocking(
-    struct PerfettoTracingSessionImpl* session,
-    PerfettoTracingSessionReadCb callback,
+void DejaViewTracingSessionReadTraceBlocking(
+    struct DejaViewTracingSessionImpl* session,
+    DejaViewTracingSessionReadCb callback,
     void* user_arg) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
 
   std::mutex mutex;
   std::condition_variable cv;
@@ -110,7 +110,7 @@ void PerfettoTracingSessionReadTraceBlocking(
   bool all_read = false;
 
   ts->ReadTrace([&mutex, &all_read, &cv, session, callback, user_arg](
-                    perfetto::TracingSession::ReadTraceCallbackArgs args) {
+                    dejaview::TracingSession::ReadTraceCallbackArgs args) {
     callback(session, static_cast<const void*>(args.data), args.size,
              args.has_more, user_arg);
     std::unique_lock<std::mutex> lock(mutex);
@@ -125,7 +125,7 @@ void PerfettoTracingSessionReadTraceBlocking(
   }
 }
 
-void PerfettoTracingSessionDestroy(struct PerfettoTracingSessionImpl* session) {
-  auto* ts = reinterpret_cast<perfetto::TracingSession*>(session);
+void DejaViewTracingSessionDestroy(struct DejaViewTracingSessionImpl* session) {
+  auto* ts = reinterpret_cast<dejaview::TracingSession*>(session);
   delete ts;
 }

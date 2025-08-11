@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/profiling/pprof_builder.h"
+#include "dejaview/profiling/pprof_builder.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <cxxabi.h>
 #endif
 
@@ -29,13 +29,13 @@
 #include <unordered_map>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/traceconv/utils.h"
 
@@ -56,7 +56,7 @@
 // function/location/line.
 
 namespace {
-using StringId = ::perfetto::trace_processor::StringPool::Id;
+using StringId = ::dejaview::trace_processor::StringPool::Id;
 
 // In-memory representation of a Profile.Function.
 struct Function {
@@ -110,7 +110,7 @@ struct Location {
 template <>
 struct std::hash<Function> {
   size_t operator()(const Function& loc) const {
-    perfetto::base::Hasher hasher;
+    dejaview::base::Hasher hasher;
     hasher.Update(loc.name_id.raw_id());
     hasher.Update(loc.system_name_id.raw_id());
     hasher.Update(loc.filename_id.raw_id());
@@ -121,7 +121,7 @@ struct std::hash<Function> {
 template <>
 struct std::hash<Location> {
   size_t operator()(const Location& loc) const {
-    perfetto::base::Hasher hasher;
+    dejaview::base::Hasher hasher;
     hasher.Update(loc.mapping_id);
     hasher.Update(loc.single_function_id);
     for (auto line : loc.inlined_functions) {
@@ -132,14 +132,14 @@ struct std::hash<Location> {
   }
 };
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 namespace {
 
-using ::perfetto::trace_processor::Iterator;
+using ::dejaview::trace_processor::Iterator;
 
 uint64_t ToPprofId(int64_t id) {
-  PERFETTO_DCHECK(id >= 0);
+  DEJAVIEW_DCHECK(id >= 0);
   return static_cast<uint64_t>(id) + 1;
 }
 
@@ -165,7 +165,7 @@ std::optional<int64_t> GetStatsEntry(
   auto it = tp->ExecuteQuery(query);
   if (!it.Next()) {
     if (!it.Status().ok()) {
-      PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+      DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                               it.Status().message().c_str());
       return std::nullopt;
     }
@@ -192,7 +192,7 @@ class LocationTracker {
       bool inserted = false;
       std::tie(it, inserted) = locations_.emplace(
           std::move(loc), static_cast<int64_t>(locations_.size()));
-      PERFETTO_DCHECK(inserted);
+      DEJAVIEW_DCHECK(inserted);
     }
     return it->second;
   }
@@ -203,7 +203,7 @@ class LocationTracker {
       bool inserted = false;
       std::tie(it, inserted) =
           functions_.emplace(func, static_cast<int64_t>(functions_.size()));
-      PERFETTO_DCHECK(inserted);
+      DEJAVIEW_DCHECK(inserted);
     }
     return it->second;
   }
@@ -222,7 +222,7 @@ class LocationTracker {
   const std::vector<int64_t>& LocationsForCallstack(
       int64_t callstack_id) const {
     auto it = callsite_to_locations_.find(callstack_id);
-    PERFETTO_CHECK(callstack_id >= 0 && it != callsite_to_locations_.end());
+    DEJAVIEW_CHECK(callstack_id >= 0 && it != callsite_to_locations_.end());
     return it->second;
   }
 
@@ -272,7 +272,7 @@ PreprocessInliningInfo(trace_processor::TraceProcessor* tp,
   }
 
   if (!it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             it.Status().message().c_str());
     return {};
   }
@@ -358,7 +358,7 @@ LocationTracker PreprocessLocations(trace_processor::TraceProcessor* tp,
       if (symbol_set_id.has_value()) {
         auto it = inlining_info.find(*symbol_set_id);
         if (it == inlining_info.end()) {
-          PERFETTO_DFATAL_OR_ELOG(
+          DEJAVIEW_DFATAL_OR_ELOG(
               "Failed to find stack_profile_symbol entry for symbol_set_id "
               "%" PRIi64 "",
               *symbol_set_id);
@@ -395,14 +395,14 @@ LocationTracker PreprocessLocations(trace_processor::TraceProcessor* tp,
     }
 
     if (!c_it.Status().ok()) {
-      PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+      DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                               c_it.Status().message().c_str());
       return {};
     }
   }
 
   if (!cid_it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             cid_it.Status().message().c_str());
     return {};
   }
@@ -419,7 +419,7 @@ class GProfileBuilder {
     // The pprof format requires the first entry in the string table to be the
     // empty string.
     int64_t empty_id = ToStringTableId(StringId::Null());
-    PERFETTO_CHECK(empty_id == 0);
+    DEJAVIEW_CHECK(empty_id == 0);
   }
 
   void WriteSampleTypes(
@@ -436,7 +436,7 @@ class GProfileBuilder {
   bool AddSample(const protozero::PackedVarInt& values, int64_t callstack_id) {
     const auto& location_ids = locations_.LocationsForCallstack(callstack_id);
     if (location_ids.empty()) {
-      PERFETTO_DFATAL_OR_ELOG(
+      DEJAVIEW_DFATAL_OR_ELOG(
           "Failed to find frames for callstack id %" PRIi64 "", callstack_id);
       return false;
     }
@@ -511,7 +511,7 @@ class GProfileBuilder {
     }
 
     if (written_locations != seen_locations_.size()) {
-      PERFETTO_DFATAL_OR_ELOG(
+      DEJAVIEW_DFATAL_OR_ELOG(
           "Found only %zu/%zu locations during serialization.",
           written_locations, seen_locations_.size());
       return false;
@@ -543,7 +543,7 @@ class GProfileBuilder {
     }
 
     if (written_functions != seen_functions.size()) {
-      PERFETTO_DFATAL_OR_ELOG(
+      DEJAVIEW_DFATAL_OR_ELOG(
           "Found only %zu/%zu functions during serialization.",
           written_functions, seen_functions.size());
       return false;
@@ -579,12 +579,12 @@ class GProfileBuilder {
       gmapping->set_build_id(interned_build_id);
     }
     if (!mapping_it.Status().ok()) {
-      PERFETTO_DFATAL_OR_ELOG("Invalid mapping iterator: %s",
+      DEJAVIEW_DFATAL_OR_ELOG("Invalid mapping iterator: %s",
                               mapping_it.Status().message().c_str());
       return false;
     }
     if (mappings_no != seen_mappings.size()) {
-      PERFETTO_DFATAL_OR_ELOG("Missing mappings.");
+      DEJAVIEW_DFATAL_OR_ELOG("Missing mappings.");
       return false;
     }
     return true;
@@ -605,7 +605,7 @@ class GProfileBuilder {
       bool inserted = false;
       std::tie(it, inserted) =
           interning_remapper_.emplace(interned_id, table_id);
-      PERFETTO_DCHECK(inserted);
+      DEJAVIEW_DCHECK(inserted);
     }
     return it->second;
   }
@@ -661,10 +661,10 @@ static bool VerifyPIDStats(trace_processor::TraceProcessor* tp, uint64_t pid) {
   std::optional<int64_t> stat =
       GetStatsEntry(tp, "heapprofd_buffer_corrupted", std::make_optional(pid));
   if (!stat.has_value()) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to get heapprofd_buffer_corrupted stat");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to get heapprofd_buffer_corrupted stat");
   } else if (stat.value() > 0) {
     success = false;
-    PERFETTO_ELOG("WARNING: The profile for %" PRIu64
+    DEJAVIEW_ELOG("WARNING: The profile for %" PRIu64
                   " ended early due to a buffer corruption."
                   " THIS IS ALWAYS A BUG IN HEAPPROFD OR"
                   " CLIENT MEMORY CORRUPTION.",
@@ -672,20 +672,20 @@ static bool VerifyPIDStats(trace_processor::TraceProcessor* tp, uint64_t pid) {
   }
   stat = GetStatsEntry(tp, "heapprofd_buffer_overran", std::make_optional(pid));
   if (!stat.has_value()) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to get heapprofd_buffer_overran stat");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to get heapprofd_buffer_overran stat");
   } else if (stat.value() > 0) {
     success = false;
-    PERFETTO_ELOG("WARNING: The profile for %" PRIu64
+    DEJAVIEW_ELOG("WARNING: The profile for %" PRIu64
                   " ended early due to a buffer overrun.",
                   pid);
   }
 
   stat = GetStatsEntry(tp, "heapprofd_rejected_concurrent", pid);
   if (!stat.has_value()) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to get heapprofd_rejected_concurrent stat");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to get heapprofd_rejected_concurrent stat");
   } else if (stat.value() > 0) {
     success = false;
-    PERFETTO_ELOG("WARNING: The profile for %" PRIu64
+    DEJAVIEW_ELOG("WARNING: The profile for %" PRIu64
                   " was rejected due to a concurrent profile.",
                   pid);
   }
@@ -725,7 +725,7 @@ static bool WriteAllocations(GProfileBuilder* builder,
       Iterator& it = (*view_its)[i];
       bool next = it.Next();
       if (!it.Status().ok()) {
-        PERFETTO_DFATAL_OR_ELOG("Invalid view iterator: %s",
+        DEJAVIEW_DFATAL_OR_ELOG("Invalid view iterator: %s",
                                 it.Status().message().c_str());
         return false;
       }
@@ -734,7 +734,7 @@ static bool WriteAllocations(GProfileBuilder* builder,
     }
 
     if (!all_next) {
-      PERFETTO_CHECK(!any_next);
+      DEJAVIEW_CHECK(!any_next);
       break;
     }
 
@@ -744,7 +744,7 @@ static bool WriteAllocations(GProfileBuilder* builder,
       if (i == 0) {
         callstack_id = (*view_its)[i].Get(0).AsLong();
       } else if (callstack_id != (*view_its)[i].Get(0).AsLong()) {
-        PERFETTO_DFATAL_OR_ELOG("Wrong callstack.");
+        DEJAVIEW_DFATAL_OR_ELOG("Wrong callstack.");
         return false;
       }
       sample_values.Append((*view_its)[i].Get(1).AsLong());
@@ -813,12 +813,12 @@ static bool TraceToHeapPprof(trace_processor::TraceProcessor* tp,
   }
 
   if (!it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             it.Status().message().c_str());
     return false;
   }
   if (any_fail) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "One or more of your profiles had an issue. Please consult "
         "https://perfetto.dev/docs/data-sources/"
         "native-heap-profiler#troubleshooting");
@@ -954,7 +954,7 @@ LocationTracker PreprocessLocationsForJavaHeap(
   }
 
   if (!it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             it.Status().message().c_str());
     return {};
   }
@@ -967,14 +967,14 @@ LocationTracker PreprocessLocationsForJavaHeap(
     int64_t current_parent_id = parent.first;
     while (current_parent_id != -1) {
       auto id_it = interned_ids.find(current_parent_id);
-      PERFETTO_CHECK(id_it != interned_ids.end());
+      DEJAVIEW_CHECK(id_it != interned_ids.end());
 
       auto parent_location_id = id_it->second;
       path.push_back(parent_location_id);
 
       // Find parent of the parent
       auto parent_id_it = parents.find(current_parent_id);
-      PERFETTO_CHECK(parent_id_it != parents.end());
+      DEJAVIEW_CHECK(parent_id_it != parents.end());
 
       current_parent_id = parent_id_it->second;
     }
@@ -1040,7 +1040,7 @@ bool TraceToHeapPprof(trace_processor::TraceProcessor* tp,
   }
 
   if (!it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             it.Status().message().c_str());
     return false;
   }
@@ -1071,7 +1071,7 @@ static std::map<uint64_t, ProcessInfo> GetProcessMap(
     process_map[upid].utids.push_back(utid);
   }
   if (!it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             it.Status().message().c_str());
     return {};
   }
@@ -1081,9 +1081,9 @@ static std::map<uint64_t, ProcessInfo> GetProcessMap(
 static void LogTracePerfEventIssues(trace_processor::TraceProcessor* tp) {
   std::optional<int64_t> stat = GetStatsEntry(tp, "perf_samples_skipped");
   if (!stat.has_value()) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to look up perf_samples_skipped stat");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to look up perf_samples_skipped stat");
   } else if (stat.value() > 0) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Warning: the trace recorded %" PRIi64
         " skipped samples, which otherwise matched the tracing config. This "
         "would cause a process to be completely absent from the trace, but "
@@ -1093,10 +1093,10 @@ static void LogTracePerfEventIssues(trace_processor::TraceProcessor* tp) {
 
   stat = GetStatsEntry(tp, "perf_samples_skipped_dataloss");
   if (!stat.has_value()) {
-    PERFETTO_DFATAL_OR_ELOG(
+    DEJAVIEW_DFATAL_OR_ELOG(
         "Failed to look up perf_samples_skipped_dataloss stat");
   } else if (stat.value() > 0) {
-    PERFETTO_ELOG("DATA LOSS: the trace recorded %" PRIi64
+    DEJAVIEW_ELOG("DATA LOSS: the trace recorded %" PRIi64
                   " lost perf samples (within traced_perf). This means that "
                   "the trace is missing information, but it is not known "
                   "which profile that affected.",
@@ -1109,7 +1109,7 @@ static void LogTracePerfEventIssues(trace_processor::TraceProcessor* tp) {
       "select idx, value from stats where name == 'perf_cpu_lost_records' and "
       "value > 0 order by idx asc");
   while (it.Next()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "DATA LOSS: during the trace, the per-cpu kernel ring buffer for cpu "
         "%" PRIi64 " recorded %" PRIi64
         " lost samples. This means that the trace is missing information, "
@@ -1118,7 +1118,7 @@ static void LogTracePerfEventIssues(trace_processor::TraceProcessor* tp) {
         static_cast<int64_t>(it.Get(1).AsLong()));
   }
   if (!it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             it.Status().message().c_str());
   }
 }
@@ -1161,7 +1161,7 @@ static bool TraceToPerfPprof(trace_processor::TraceProcessor* tp,
       builder.AddSample(single_count_value, callsite_id);
     }
     if (!it.Status().ok()) {
-      PERFETTO_DFATAL_OR_ELOG("Failed to iterate over samples: %s",
+      DEJAVIEW_DFATAL_OR_ELOG("Failed to iterate over samples: %s",
                               it.Status().c_message());
       return false;
     }
@@ -1192,8 +1192,8 @@ bool TraceToPprof(trace_processor::TraceProcessor* tp,
     case (ConversionMode::kJavaHeapProfile):
       return java_heap_profile::TraceToHeapPprof(tp, output, pid, timestamps);
   }
-  PERFETTO_FATAL("unknown conversion option");  // for gcc
+  DEJAVIEW_FATAL("unknown conversion option");  // for gcc
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

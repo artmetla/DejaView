@@ -16,7 +16,7 @@ import m from 'mithril';
 import {FtraceExplorer, FtraceExplorerCache} from './ftrace_explorer';
 import {Engine} from '../../trace_processor/engine';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {NUM} from '../../trace_processor/query_result';
 import {FtraceFilter, FtracePluginState} from './common';
 import {FtraceRawTrack} from './ftrace_track';
@@ -32,7 +32,7 @@ const DEFAULT_STATE: FtracePluginState = {
   },
 };
 
-class FtraceRawPlugin implements PerfettoPlugin {
+class FtraceRawPlugin implements DejaViewPlugin {
   private trash = new DisposableStack();
 
   async onTraceLoad(ctx: Trace): Promise<void> {
@@ -90,7 +90,7 @@ class FtraceRawPlugin implements PerfettoPlugin {
       counters: [],
     };
 
-    const ftraceTabUri = 'perfetto.FtraceRaw#FtraceEventsTab';
+    const ftraceTabUri = 'dejaview.FtraceRaw#FtraceEventsTab';
 
     ctx.tabs.registerTab({
       uri: ftraceTabUri,
@@ -107,7 +107,7 @@ class FtraceRawPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.FtraceRaw#ShowFtraceTab',
+      id: 'dejaview.FtraceRaw#ShowFtraceTab',
       name: 'Show ftrace tab',
       callback: () => {
         ctx.tabs.showTab(ftraceTabUri);
@@ -136,6 +136,6 @@ class FtraceRawPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.FtraceRaw',
+  pluginId: 'dejaview.FtraceRaw',
   plugin: FtraceRawPlugin,
 };

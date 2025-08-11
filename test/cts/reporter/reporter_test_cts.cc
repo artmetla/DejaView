@@ -18,22 +18,22 @@
 #include <random>
 #include "test/gtest_and_gmock.h"
 
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/uuid.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/uuid.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/android_test_utils.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
-TEST(PerfettoReporterTest, TestEndToEndReport) {
+TEST(DejaViewReporterTest, TestEndToEndReport) {
   base::TestTaskRunner task_runner;
   TestHelper helper(&task_runner);
   helper.ConnectFakeProducer();
@@ -52,7 +52,7 @@ TEST(PerfettoReporterTest, TestEndToEndReport) {
   builtin->set_disable_chunk_usage_histograms(true);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
 
   base::Uuid uuid = base::Uuidv4();
@@ -68,16 +68,16 @@ TEST(PerfettoReporterTest, TestEndToEndReport) {
   ds_config->mutable_for_testing()->set_send_batch_on_register(true);
 
   auto* report_config = trace_config.mutable_android_report_config();
-  report_config->set_reporter_service_package("android.perfetto.cts.reporter");
+  report_config->set_reporter_service_package("android.dejaview.cts.reporter");
   report_config->set_reporter_service_class(
-      "android.perfetto.cts.reporter.PerfettoReportService");
+      "android.dejaview.cts.reporter.DejaViewReportService");
   report_config->set_use_pipe_in_framework_for_testing(true);
 
   // We have to construct all the processes we want to fork before we start the
   // service with |StartServiceIfRequired()|. this is because it is unsafe
   // (could deadlock) to fork after we've spawned some threads which might
   // printf (and thus hold locks).
-  auto perfetto_proc = Exec("perfetto",
+  auto dejaview_proc = Exec("dejaview",
                             {
                                 "--upload",
                                 "--no-guardrails",
@@ -87,10 +87,10 @@ TEST(PerfettoReporterTest, TestEndToEndReport) {
                             trace_config.SerializeAsString());
 
   std::string stderr_str;
-  EXPECT_EQ(0, perfetto_proc.Run(&stderr_str)) << stderr_str;
+  EXPECT_EQ(0, dejaview_proc.Run(&stderr_str)) << stderr_str;
 
   static constexpr char kPath[] =
-      "/sdcard/Android/data/android.perfetto.cts.reporter/files/";
+      "/sdcard/Android/data/android.dejaview.cts.reporter/files/";
   std::string path = kPath + uuid.ToPrettyString();
   static constexpr uint32_t kIterationSleepMs = 500;
   static constexpr uint32_t kIterationCount =
@@ -117,4 +117,4 @@ TEST(PerfettoReporterTest, TestEndToEndReport) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

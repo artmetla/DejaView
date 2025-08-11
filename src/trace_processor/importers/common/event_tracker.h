@@ -20,12 +20,12 @@
 #include <array>
 #include <limits>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -93,6 +93,6 @@ class EventTracker {
   TraceProcessorContext* const context_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_EVENT_TRACKER_H_

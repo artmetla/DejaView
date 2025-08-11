@@ -38,7 +38,7 @@ packet {
   trusted_pid: 4233
   first_packet_on_sequence: true
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.inputmethod_service] {
+    [dejaview.protos.WinscopeExtensionsImpl.inputmethod_service] {
       where: "InputMethodService#doFinishInput"
       input_method_service {
         soft_input_window {
@@ -69,7 +69,7 @@ packet {
   trusted_packet_sequence_id: 4
   trusted_pid: 4233
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.inputmethod_service] {
+    [dejaview.protos.WinscopeExtensionsImpl.inputmethod_service] {
       where: "InputMethodService#doStartInput"
       input_method_service {
         soft_input_window {

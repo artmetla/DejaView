@@ -1,11 +1,11 @@
-# Branching Perfetto for Chrome milestones
+# Branching DejaView for Chrome milestones
 
-Merging a (set of) Perfetto change(s) to a Chrome milestone release requires
-creation of a branch in the perfetto repo, cherry-picking of the change(s) to
+Merging a (set of) DejaView change(s) to a Chrome milestone release requires
+creation of a branch in the dejaview repo, cherry-picking of the change(s) to
 the branch, and updating the `DEPS` file in Chrome's milestone branch to point
-to the new perfetto branch's head.
+to the new dejaview branch's head.
 
-## Creating the perfetto branch {#branch}
+## Creating the dejaview branch {#branch}
 
 1.  Determine the branch name: **`chromium/XXXX`**, where `XXXX` is the branch
     number of the milestone (see
@@ -18,7 +18,7 @@ to the new perfetto branch's head.
 
 1.  Look up the appropriate base revision for the branch. You should use the
     revision that Chromium's `DEPS` of the milestone branch points to (search
-    for `perfetto` in the file). The `DEPS` file for branch XXXX is at:
+    for `dejaview` in the file). The `DEPS` file for branch XXXX is at:
 
     `https://chromium.googlesource.com/chromium/src.git/+/refs/branch-heads/XXXX/DEPS`
 
@@ -31,7 +31,7 @@ to the new perfetto branch's head.
     The `NEW BRANCH` button on the top right opens a wizard - fill in the branch
     name and base revision determined above. If this fails with a permission
     issue, contact the [Discord chat](https://discord.gg/35ShE3A) or
-    [perfetto-dev](https://groups.google.com/forum/#!forum/perfetto-dev) mailing
+    [dejaview-dev](https://groups.google.com/forum/#!forum/perfetto-dev) mailing
     list.
 
 ## Cherry-picking the change(s) {#cherry-pick}
@@ -65,7 +65,7 @@ to the new perfetto branch's head.
     ```
     $ gclient sync --with_branch_heads
     $ git fetch
-    $ git checkout -tb perfetto_uprev refs/remotes/branch-heads/XXXX
+    $ git checkout -tb dejaview_uprev refs/remotes/branch-heads/XXXX
     $ ...    # Edit DEPS.
     $ git cl upload
     ```

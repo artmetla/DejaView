@@ -23,7 +23,7 @@ def print_tables():
   print('')
   print('#include "src/kernel_utils/syscall_table.h"')
   print('')
-  print('namespace perfetto {')
+  print('namespace dejaview {')
   print('')
   # First of all merge all the syscall names from all tables and emit one big
   # string with unique names.
@@ -55,7 +55,7 @@ def print_tables():
       print('%d, // %d: %s' % (offset_by_name[syscall_name], i, syscall_name))
     print('  };')
     print('};\n')
-  print('}  // namespace perfetto')
+  print('}  // namespace dejaview')
   print('#endif  // SRC_KERNEL_UTILS_SYSCALL_TABLE_GENERATED_H_')
 
 

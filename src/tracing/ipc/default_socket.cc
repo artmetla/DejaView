@@ -14,53 +14,53 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/tracing/default_socket.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/ipc/basic_types.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/ipc/basic_types.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 
 #include <stdlib.h>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <unistd.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
-const char* kRunPerfettoBaseDir = "/run/perfetto/";
+const char* kRunDejaViewBaseDir = "/run/dejaview/";
 
-// On Linux and CrOS, check /run/perfetto/ before using /tmp/ as the socket
+// On Linux and CrOS, check /run/dejaview/ before using /tmp/ as the socket
 // base directory.
-bool UseRunPerfettoBaseDir() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX)
-  // Note that the trailing / in |kRunPerfettoBaseDir| ensures we are checking
+bool UseRunDejaViewBaseDir() {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+  // Note that the trailing / in |kRunDejaViewBaseDir| ensures we are checking
   // against a directory, not a file.
-  int res = PERFETTO_EINTR(access(kRunPerfettoBaseDir, X_OK));
+  int res = DEJAVIEW_EINTR(access(kRunDejaViewBaseDir, X_OK));
   if (!res)
     return true;
 
   // If the path doesn't exist (ENOENT), fail silently to the caller. Otherwise,
   // fail with an explicit error message.
   if (errno != ENOENT
-#if PERFETTO_BUILDFLAG(PERFETTO_CHROMIUM_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_CHROMIUM_BUILD)
       // access(2) won't return EPERM, but Chromium sandbox returns EPERM if the
       // sandbox doesn't allow the call (e.g. in the child processes).
       && errno != EPERM
 #endif
   ) {
-    PERFETTO_PLOG("%s exists but cannot be accessed. Falling back on /tmp/ ",
-                  kRunPerfettoBaseDir);
+    DEJAVIEW_PLOG("%s exists but cannot be accessed. Falling back on /tmp/ ",
+                  kRunDejaViewBaseDir);
   }
   return false;
 #else
-  base::ignore_result(kRunPerfettoBaseDir);
+  base::ignore_result(kRunDejaViewBaseDir);
   return false;
 #endif
 }
@@ -68,27 +68,27 @@ bool UseRunPerfettoBaseDir() {
 }  // anonymous namespace
 
 const char* GetProducerSocket() {
-  const char* name = getenv("PERFETTO_PRODUCER_SOCK_NAME");
+  const char* name = getenv("DEJAVIEW_PRODUCER_SOCK_NAME");
   if (name == nullptr) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     name = "127.0.0.1:32278";
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     name = "/dev/socket/traced_producer";
 #else
-    // Use /run/perfetto if it exists. Then fallback to /tmp.
+    // Use /run/dejaview if it exists. Then fallback to /tmp.
     static const char* producer_socket =
-        UseRunPerfettoBaseDir() ? "/run/perfetto/traced-producer.sock"
-                                : "/tmp/perfetto-producer";
+        UseRunDejaViewBaseDir() ? "/run/dejaview/traced-producer.sock"
+                                : "/tmp/dejaview-producer";
     name = producer_socket;
 #endif
   }
-  base::ignore_result(UseRunPerfettoBaseDir);  // Silence unused func warnings.
+  base::ignore_result(UseRunDejaViewBaseDir);  // Silence unused func warnings.
   return name;
 }
 
 const char* GetRelaySocket() {
   // The relay socket is optional and is connected only when the env var is set.
-  return getenv("PERFETTO_RELAY_SOCK_NAME");
+  return getenv("DEJAVIEW_RELAY_SOCK_NAME");
 }
 
 std::vector<std::string> TokenizeProducerSockets(
@@ -97,21 +97,21 @@ std::vector<std::string> TokenizeProducerSockets(
 }
 
 const char* GetConsumerSocket() {
-  const char* name = getenv("PERFETTO_CONSUMER_SOCK_NAME");
+  const char* name = getenv("DEJAVIEW_CONSUMER_SOCK_NAME");
   if (name == nullptr) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     name = "127.0.0.1:32279";
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     name = "/dev/socket/traced_consumer";
 #else
-    // Use /run/perfetto if it exists. Then fallback to /tmp.
+    // Use /run/dejaview if it exists. Then fallback to /tmp.
     static const char* consumer_socket =
-        UseRunPerfettoBaseDir() ? "/run/perfetto/traced-consumer.sock"
-                                : "/tmp/perfetto-consumer";
+        UseRunDejaViewBaseDir() ? "/run/dejaview/traced-consumer.sock"
+                                : "/tmp/dejaview-consumer";
     name = consumer_socket;
 #endif
   }
   return name;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

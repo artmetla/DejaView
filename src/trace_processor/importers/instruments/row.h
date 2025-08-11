@@ -20,7 +20,7 @@
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto::trace_processor::instruments_importer {
+namespace dejaview::trace_processor::instruments_importer {
 
 // TODO(leszeks): Would be nice if these were strong type aliases, to be
 // type safe.
@@ -66,6 +66,6 @@ struct alignas(8) Row {
   BacktraceId backtrace = kNullId;
 };
 
-}  // namespace perfetto::trace_processor::instruments_importer
+}  // namespace dejaview::trace_processor::instruments_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_ROW_H_

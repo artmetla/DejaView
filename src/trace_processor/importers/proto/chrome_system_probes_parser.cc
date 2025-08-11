@@ -16,20 +16,20 @@
 
 #include "src/trace_processor/importers/proto/chrome_system_probes_parser.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/proto_decoder.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/proto_decoder.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/storage/metadata.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/ps/process_stats.pbzero.h"
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.pbzero.h"
+#include "protos/dejaview/trace/ps/process_stats.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ChromeSystemProbesParser::ChromeSystemProbesParser(
@@ -83,4 +83,4 @@ void ChromeSystemProbesParser::ParseProcessStats(int64_t ts, ConstBytes blob) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

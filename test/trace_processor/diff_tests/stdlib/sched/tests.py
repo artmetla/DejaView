@@ -25,7 +25,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../common/synth_1.py'),
         query="""
-      INCLUDE PERFETTO MODULE sched.thread_level_parallelism;
+      INCLUDE DEJAVIEW MODULE sched.thread_level_parallelism;
       SELECT * FROM sched_runnable_thread_count;
       """,
         out=Csv("""
@@ -44,7 +44,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../common/synth_1.py'),
         query="""
-      INCLUDE PERFETTO MODULE sched.thread_level_parallelism;
+      INCLUDE DEJAVIEW MODULE sched.thread_level_parallelism;
 
       SELECT * FROM sched_active_cpu_count;
       """,
@@ -64,7 +64,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.time_in_state;
+        INCLUDE DEJAVIEW MODULE sched.time_in_state;
 
         SELECT *
         FROM sched_time_in_state_for_thread
@@ -89,7 +89,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.time_in_state;
+        INCLUDE DEJAVIEW MODULE sched.time_in_state;
 
         SELECT *
         FROM sched_percentage_of_time_in_state
@@ -114,7 +114,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.time_in_state;
+        INCLUDE DEJAVIEW MODULE sched.time_in_state;
 
         SELECT *
         FROM sched_time_in_state_for_thread_in_interval(71039311397, 10000000000, 44);
@@ -131,7 +131,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.time_in_state;
+        INCLUDE DEJAVIEW MODULE sched.time_in_state;
 
         SELECT *
         FROM sched_time_in_state_and_cpu_for_thread_in_interval(71039311397, 10000000000, 44);
@@ -148,7 +148,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-      INCLUDE PERFETTO MODULE sched.time_in_state;
+      INCLUDE DEJAVIEW MODULE sched.time_in_state;
       SELECT * FROM
       sched_time_in_state_for_cpu_in_interval(1, TRACE_START(), TRACE_DUR());
       """,
@@ -166,7 +166,7 @@ class StdlibSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_boot.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE sched.runnable;
+        INCLUDE DEJAVIEW MODULE sched.runnable;
 
         SELECT *
         FROM sched_previous_runnable_on_thread

@@ -22,9 +22,9 @@
 #include <atomic>
 #include <random>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 constexpr uint64_t kSamplerSeed = 1;
@@ -54,7 +54,7 @@ class Sampler {
   // Due to how the poission sampling works, some samples should be accounted
   // multiple times.
   size_t SampleSize(size_t alloc_sz) {
-    if (PERFETTO_UNLIKELY(alloc_sz >= sampling_interval_))
+    if (DEJAVIEW_UNLIKELY(alloc_sz >= sampling_interval_))
       return alloc_sz;
     return static_cast<size_t>(sampling_interval_ * NumberOfSamples(alloc_sz));
   }
@@ -77,7 +77,7 @@ class Sampler {
   size_t NumberOfSamples(size_t alloc_sz) {
     interval_to_next_sample_ -= alloc_sz;
     size_t num_samples = 0;
-    while (PERFETTO_UNLIKELY(interval_to_next_sample_ <= 0)) {
+    while (DEJAVIEW_UNLIKELY(interval_to_next_sample_ <= 0)) {
       interval_to_next_sample_ += NextSampleInterval();
       ++num_samples;
     }
@@ -90,6 +90,6 @@ class Sampler {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_SAMPLER_H_

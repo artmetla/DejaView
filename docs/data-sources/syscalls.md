@@ -1,6 +1,6 @@
 # System calls
 
-On Linux and Android (userdebug builds only) Perfetto can keep track of system
+On Linux and Android (userdebug builds only) DejaView can keep track of system
 calls.
 
 Right now only the syscall number is recorded in the trace, the arguments are

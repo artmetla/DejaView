@@ -24,9 +24,9 @@
 #include <unordered_set>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/endian.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/endian.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/traceconv/utils.h"
 
 // Spec
@@ -34,11 +34,11 @@
 // Parser
 // https://cs.android.com/android/platform/superproject/main/+/main:art/tools/ahat/src/main/com/android/ahat/heapdump/Parser.java
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 namespace {
-constexpr char kHeader[] = "PERFETTO_JAVA_HEAP";
+constexpr char kHeader[] = "DEJAVIEW_JAVA_HEAP";
 constexpr uint32_t kIdSz = 8;
 constexpr uint32_t kStackTraceSerialNumber = 1;
 
@@ -58,7 +58,7 @@ class BigEndianBuffer {
 
   void SetU4(uint32_t val, size_t pos) {
     val = base::HostToBE32(val);
-    PERFETTO_CHECK(pos + 4 <= buf_.size());
+    DEJAVIEW_CHECK(pos + 4 <= buf_.size());
     memcpy(buf_.data() + pos, &val, sizeof(uint32_t));
   }
 
@@ -299,7 +299,7 @@ int TraceToHprof(trace_processor::TraceProcessor* tp,
                  std::ostream* output,
                  uint64_t pid,
                  uint64_t ts) {
-  PERFETTO_DCHECK(tp != nullptr && pid != 0 && ts != 0);
+  DEJAVIEW_DCHECK(tp != nullptr && pid != 0 && ts != 0);
 
   HprofWriter writer(output);
   HeapDump dump(tp);
@@ -318,11 +318,11 @@ int TraceToHprof(std::istream* input,
   // TODO: Simplify this for cmdline users. For example, if there is a single
   // heap graph, use this, and only fail when there is ambiguity.
   if (pid == 0) {
-    PERFETTO_ELOG("Must specify pid");
+    DEJAVIEW_ELOG("Must specify pid");
     return -1;
   }
   if (timestamps.size() != 1) {
-    PERFETTO_ELOG("Must specify single timestamp");
+    DEJAVIEW_ELOG("Must specify single timestamp");
     return -1;
   }
   trace_processor::Config config;
@@ -337,4 +337,4 @@ int TraceToHprof(std::istream* input,
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

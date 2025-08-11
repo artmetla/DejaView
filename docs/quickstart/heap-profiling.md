@@ -26,7 +26,7 @@ If more than one device or emulator is reported you must select one upfront as f
 export ANDROID_SERIAL=SER123456
 ```
 
-Download the `tools/heap_profile` (if you don't have a perfetto checkout):
+Download the `tools/heap_profile` (if you don't have a dejaview checkout):
 
 ```bash
 curl -LO https://raw.githubusercontent.com/google/perfetto/main/tools/heap_profile
@@ -65,7 +65,7 @@ python /path/to/heap_profile -n system_server
 
 ## View profile
 
-Upload the `raw-trace` file from the output directory to the [Perfetto UI](
+Upload the `raw-trace` file from the output directory to the [DejaView UI](
 https://ui.perfetto.dev) and click on diamond marker in the UI track labeled
 _"Heap profile"_.
 

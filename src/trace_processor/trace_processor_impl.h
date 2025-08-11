@@ -27,19 +27,19 @@
 #include <unordered_map>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/iterator_impl.h"
 #include "src/trace_processor/metrics/metrics.h"
-#include "src/trace_processor/perfetto_sql/engine/perfetto_sql_engine.h"
-#include "src/trace_processor/perfetto_sql/intrinsics/functions/create_function.h"
-#include "src/trace_processor/perfetto_sql/intrinsics/functions/create_view_function.h"
+#include "src/trace_processor/dejaview_sql/engine/dejaview_sql_engine.h"
+#include "src/trace_processor/dejaview_sql/intrinsics/functions/create_function.h"
+#include "src/trace_processor/dejaview_sql/intrinsics/functions/create_view_function.h"
 #include "src/trace_processor/trace_processor_storage_impl.h"
 #include "src/trace_processor/util/descriptors.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Coordinates the loading of traces from an arbitrary source and allows
 // execution of SQL queries on the events in these traces.
@@ -118,10 +118,10 @@ class TraceProcessorImpl : public TraceProcessor,
 
   bool IsRootMetricField(const std::string& metric_name);
 
-  void InitPerfettoSqlEngine();
+  void InitDejaViewSqlEngine();
 
   const Config config_;
-  std::unique_ptr<PerfettoSqlEngine> engine_;
+  std::unique_ptr<DejaViewSqlEngine> engine_;
 
   DescriptorPool pool_;
 
@@ -149,6 +149,6 @@ class TraceProcessorImpl : public TraceProcessor,
   bool notify_eof_called_ = false;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_TRACE_PROCESSOR_IMPL_H_

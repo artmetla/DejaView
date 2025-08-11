@@ -20,8 +20,8 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/virtual_memory_mapping.h"
@@ -32,7 +32,7 @@
 #include "src/trace_processor/tables/perf_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 // static
 const char* SpeRecordParserImpl::ToString(spe::DataSource ds) {
@@ -56,7 +56,7 @@ const char* SpeRecordParserImpl::ToString(spe::DataSource ds) {
     case spe::DataSource::kDram:
       return "DRAM";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 // static
@@ -71,7 +71,7 @@ const char* SpeRecordParserImpl::ToString(spe::ExceptionLevel el) {
     case spe::ExceptionLevel::kEl3:
       return "EL3";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 // static
@@ -90,7 +90,7 @@ const char* SpeRecordParserImpl::ToString(OperationName name) {
     case OperationName::kUnknown:
       return "UNKNOWN";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 StringId SpeRecordParserImpl::ToStringId(OperationName name) {
@@ -301,7 +301,7 @@ SpeRecordParserImpl::OperationName SpeRecordParserImpl::GetOperationName(
         case spe::OperationOtherSubclass::kUnknown:
           return OperationName::kUnknown;
       }
-      PERFETTO_FATAL("For GCC");
+      DEJAVIEW_FATAL("For GCC");
 
     case spe::OperationClass::kLoadOrStoreOrAtomic:
       if (spe::OperationTypeLdStAtPayload(payload).IsStore()) {
@@ -315,7 +315,7 @@ SpeRecordParserImpl::OperationName SpeRecordParserImpl::GetOperationName(
     case spe::OperationClass::kUnknown:
       return OperationName::kUnknown;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 VirtualMemoryMapping* SpeRecordParserImpl::GetDummyMapping() {
@@ -356,7 +356,7 @@ uint64_t SpeRecordParserImpl::ReadPayload(spe::ShortHeader short_header) {
     default:
       break;
   }
-  PERFETTO_FATAL("Unreachable");
+  DEJAVIEW_FATAL("Unreachable");
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

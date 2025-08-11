@@ -19,7 +19,7 @@
 
 #include <string>
 
-namespace perfetto {
+namespace dejaview {
 
 class FtraceProcfs;
 struct FtraceStats;
@@ -28,6 +28,6 @@ struct FtraceCpuStats;
 bool DumpCpuStats(std::string text, FtraceCpuStats*);
 bool DumpAllCpuStats(FtraceProcfs*, FtraceStats*);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_CPU_STATS_PARSER_H_

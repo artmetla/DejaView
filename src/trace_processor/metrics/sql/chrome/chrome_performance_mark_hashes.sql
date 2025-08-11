@@ -15,7 +15,7 @@
 
 DROP VIEW IF EXISTS chrome_performance_mark_hashes_output;
 
-CREATE PERFETTO VIEW chrome_performance_mark_hashes_output AS
+CREATE DEJAVIEW VIEW chrome_performance_mark_hashes_output AS
 SELECT ChromePerformanceMarkHashes(
   'site_hash', (
     SELECT RepeatedField(int_value)

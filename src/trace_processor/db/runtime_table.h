@@ -24,9 +24,9 @@
 #include <variant>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column.h"
 #include "src/trace_processor/db/column/overlay_layer.h"
@@ -35,7 +35,7 @@
 #include "src/trace_processor/db/column_storage_overlay.h"
 #include "src/trace_processor/db/table.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Represents a table of data with named, strongly typed columns. Only used
 // where the schema of the table is decided at runtime.
@@ -114,6 +114,6 @@ class RuntimeTable : public Table {
   Table::Schema schema_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_RUNTIME_TABLE_H_

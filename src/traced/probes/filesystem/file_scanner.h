@@ -20,12 +20,12 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/traced/data_source_types.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/traced/data_source_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class FileScanner {
  public:
@@ -70,6 +70,6 @@ class FileScanner {
   base::WeakPtrFactory<FileScanner> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FILESYSTEM_FILE_SCANNER_H_

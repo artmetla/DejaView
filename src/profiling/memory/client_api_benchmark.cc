@@ -14,19 +14,19 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/heap_profile.h"
+#include "dejaview/heap_profile.h"
 #include "src/profiling/memory/heap_profile_internal.h"
 
 #include "src/profiling/memory/client.h"
 #include "src/profiling/memory/client_api_factory.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
 uint32_t GetHeapId() {
   static uint32_t heap_id =
-      AHeapProfile_registerHeap(AHeapInfo_create("dev.perfetto.benchmark"));
+      AHeapProfile_registerHeap(AHeapInfo_create("dev.dejaview.benchmark"));
   return heap_id;
 }
 
@@ -52,16 +52,16 @@ void DisconnectGlobalServerSocket() {
 // details. This is is used to create a test Client here.
 void StartHeapprofdIfStatic() {}
 std::shared_ptr<Client> ConstructClient(
-    UnhookedAllocator<perfetto::profiling::Client> unhooked_allocator) {
+    UnhookedAllocator<dejaview::profiling::Client> unhooked_allocator) {
   base::UnixSocketRaw cli_sock;
   base::UnixSocketRaw& srv_sock = GlobalServerSocket();
   std::tie(cli_sock, srv_sock) = base::UnixSocketRaw::CreatePairPosix(
       base::SockFamily::kUnix, base::SockType::kStream);
   auto ringbuf = SharedRingBuffer::Create(8 * 1048576);
   ringbuf->InfiniteBufferForTesting();
-  PERFETTO_CHECK(ringbuf);
-  PERFETTO_CHECK(cli_sock);
-  PERFETTO_CHECK(srv_sock);
+  DEJAVIEW_CHECK(ringbuf);
+  DEJAVIEW_CHECK(cli_sock);
+  DEJAVIEW_CHECK(srv_sock);
   g_shmem_fd = ringbuf->fd();
   return std::allocate_shared<Client>(unhooked_allocator, std::move(cli_sock),
                                       g_client_config, std::move(*ringbuf),
@@ -75,9 +75,9 @@ static void BM_ClientApiOneTenthAllocation(benchmark::State& state) {
   client_config.default_interval = 32000;
   client_config.all_heaps = true;
   g_client_config = client_config;
-  PERFETTO_CHECK(AHeapProfile_initSession(malloc, free));
+  DEJAVIEW_CHECK(AHeapProfile_initSession(malloc, free));
 
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
 
   for (auto _ : state) {
@@ -96,9 +96,9 @@ static void BM_ClientApiOneHundrethAllocation(benchmark::State& state) {
   client_config.default_interval = 32000;
   client_config.all_heaps = true;
   g_client_config = client_config;
-  PERFETTO_CHECK(AHeapProfile_initSession(malloc, free));
+  DEJAVIEW_CHECK(AHeapProfile_initSession(malloc, free));
 
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
 
   for (auto _ : state) {
@@ -117,9 +117,9 @@ static void BM_ClientApiAlmostNoAllocation(benchmark::State& state) {
   client_config.default_interval = 10000000000000000;
   client_config.all_heaps = true;
   g_client_config = client_config;
-  PERFETTO_CHECK(AHeapProfile_initSession(malloc, free));
+  DEJAVIEW_CHECK(AHeapProfile_initSession(malloc, free));
 
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
 
   for (auto _ : state) {
@@ -138,9 +138,9 @@ static void BM_ClientApiSample(benchmark::State& state) {
   client_config.default_interval = 32000;
   client_config.all_heaps = true;
   g_client_config = client_config;
-  PERFETTO_CHECK(AHeapProfile_initSession(malloc, free));
+  DEJAVIEW_CHECK(AHeapProfile_initSession(malloc, free));
 
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
 
   for (auto _ : state) {
@@ -159,9 +159,9 @@ static void BM_ClientApiDisabledHeapAllocation(benchmark::State& state) {
   client_config.default_interval = 32000;
   client_config.all_heaps = false;
   g_client_config = client_config;
-  PERFETTO_CHECK(AHeapProfile_initSession(malloc, free));
+  DEJAVIEW_CHECK(AHeapProfile_initSession(malloc, free));
 
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
 
   for (auto _ : state) {
@@ -180,9 +180,9 @@ static void BM_ClientApiDisabledHeapFree(benchmark::State& state) {
   client_config.default_interval = 32000;
   client_config.all_heaps = false;
   g_client_config = client_config;
-  PERFETTO_CHECK(AHeapProfile_initSession(malloc, free));
+  DEJAVIEW_CHECK(AHeapProfile_initSession(malloc, free));
 
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
 
   for (auto _ : state) {
@@ -201,9 +201,9 @@ static void BM_ClientApiEnabledHeapFree(benchmark::State& state) {
   client_config.default_interval = 32000;
   client_config.all_heaps = true;
   g_client_config = client_config;
-  PERFETTO_CHECK(AHeapProfile_initSession(malloc, free));
+  DEJAVIEW_CHECK(AHeapProfile_initSession(malloc, free));
 
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
 
   for (auto _ : state) {
@@ -228,4 +228,4 @@ static void BM_ClientApiMallocFree(benchmark::State& state) {
 BENCHMARK(BM_ClientApiMallocFree);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -31,8 +31,8 @@ import textwrap
 import time
 import uuid
 
-from perfetto.prebuilts.manifests.traceconv import *
-from perfetto.prebuilts.perfetto_prebuilts import *
+from dejaview.prebuilts.manifests.traceconv import *
+from dejaview.prebuilts.dejaview_prebuilts import *
 
 # Used for creating directories, etc.
 UUID = str(uuid.uuid4())[-6:]
@@ -105,7 +105,7 @@ def parse_and_validate_args():
       help="Use the specified hardware counter event for sampling.",
       metavar="EVENT",
       action="append",
-      # See: '//perfetto/protos/perfetto/trace/perfetto_trace.proto'.
+      # See: '//dejaview/protos/dejaview/trace/dejaview_trace.proto'.
       choices=['HW_CPU_CYCLES', 'HW_INSTRUCTIONS', 'HW_CACHE_REFERENCES',
                'HW_CACHE_MISSES', 'HW_BRANCH_INSTRUCTIONS', 'HW_BRANCH_MISSES',
                'HW_BUS_CYCLES', 'HW_STALLED_CYCLES_FRONTEND',
@@ -194,8 +194,8 @@ def get_matching_processes(args, names_to_match):
   return matching_processes
 
 
-def get_perfetto_config(args):
-  """Returns a Perfetto config with CPU profiling enabled for the selected
+def get_dejaview_config(args):
+  """Returns a DejaView config with CPU profiling enabled for the selected
   processes.
 
   Args:
@@ -324,10 +324,10 @@ def get_and_prepare_profile_target(args):
 
 
 def record_trace(config, profile_target):
-  """Runs Perfetto with the provided configuration to record a trace.
+  """Runs DejaView with the provided configuration to record a trace.
 
   Args:
-    config: The Perfetto config to be used for tracing/profiling.
+    config: The DejaView config to be used for tracing/profiling.
     profile_target: The directory where the recorded trace is output.
   """
   NULL = open(os.devnull)
@@ -342,18 +342,18 @@ def record_trace(config, profile_target):
   tf = tempfile.NamedTemporaryFile()
   tf.file.write(config.encode('utf-8'))
   tf.file.flush()
-  profile_config_path = '/data/misc/perfetto-configs/config-' + UUID
+  profile_config_path = '/data/misc/dejaview-configs/config-' + UUID
   adb_check_output(['adb', 'push', tf.name, profile_config_path])
   tf.close()
 
 
-  profile_device_path = '/data/misc/perfetto-traces/profile-' + UUID
-  perfetto_command = ('perfetto --txt -c {} -o {} -d')
+  profile_device_path = '/data/misc/dejaview-traces/profile-' + UUID
+  dejaview_command = ('dejaview --txt -c {} -o {} -d')
   try:
-    perfetto_pid = int(
+    dejaview_pid = int(
         adb_check_output([
             'adb', 'exec-out',
-            perfetto_command.format(profile_config_path, profile_device_path)
+            dejaview_command.format(profile_config_path, profile_device_path)
         ]).strip())
   except ValueError as error:
     sys.exit("Unable to start profiling: {}".format(error))
@@ -362,23 +362,23 @@ def record_trace(config, profile_target):
 
   old_handler = signal.signal(signal.SIGINT, sigint_handler)
 
-  perfetto_alive = True
-  while perfetto_alive and not IS_INTERRUPTED:
-    perfetto_alive = subprocess.call(
-        ['adb', 'shell', '[ -d /proc/{} ]'.format(perfetto_pid)], **NO_OUT) == 0
+  dejaview_alive = True
+  while dejaview_alive and not IS_INTERRUPTED:
+    dejaview_alive = subprocess.call(
+        ['adb', 'shell', '[ -d /proc/{} ]'.format(dejaview_pid)], **NO_OUT) == 0
     time.sleep(0.25)
 
   print("Finishing profiling and symbolization...")
 
   if IS_INTERRUPTED:
-    adb_check_output(['adb', 'shell', 'kill', '-INT', str(perfetto_pid)])
+    adb_check_output(['adb', 'shell', 'kill', '-INT', str(dejaview_pid)])
 
   # Restore old handler.
   signal.signal(signal.SIGINT, old_handler)
 
-  while perfetto_alive:
-    perfetto_alive = subprocess.call(
-        ['adb', 'shell', '[ -d /proc/{} ]'.format(perfetto_pid)]) == 0
+  while dejaview_alive:
+    dejaview_alive = subprocess.call(
+        ['adb', 'shell', '[ -d /proc/{} ]'.format(dejaview_pid)]) == 0
     time.sleep(0.25)
 
   profile_host_path = os.path.join(profile_target, 'raw-trace')
@@ -390,7 +390,7 @@ def record_trace(config, profile_target):
 def get_traceconv():
   """Sets up and returns the path to `traceconv`."""
   try:
-    traceconv = get_perfetto_prebuilt(TRACECONV_MANIFEST, soft_fail=True)
+    traceconv = get_dejaview_prebuilt(TRACECONV_MANIFEST, soft_fail=True)
   except Exception as error:
     exit_with_bug_report(error)
   if traceconv is None:
@@ -425,7 +425,7 @@ def symbolize_trace(traceconv, profile_target):
     The path to the symbolized trace file if symbolization was completed,
     and the original trace file, if it was not.
   """
-  binary_path = os.getenv('PERFETTO_BINARY_PATH')
+  binary_path = os.getenv('DEJAVIEW_BINARY_PATH')
   trace_file = os.path.join(profile_target, 'raw-trace')
   files_to_concatenate = [trace_file]
 
@@ -435,7 +435,7 @@ def symbolize_trace(traceconv, profile_target):
         return_code = subprocess.call([traceconv, 'symbolize', trace_file],
                                       env=dict(
                                           os.environ,
-                                          PERFETTO_BINARY_PATH=binary_path),
+                                          DEJAVIEW_BINARY_PATH=binary_path),
                                       stdout=symbols_file)
     except IOError as error:
       sys.exit("Unable to write symbols to disk: {}".format(error))
@@ -499,7 +499,7 @@ def copy_profiles_to_destination(profile_target, profile_path):
 def main(argv):
   args = parse_and_validate_args()
   profile_target = get_and_prepare_profile_target(args)
-  trace_config = get_perfetto_config(args)
+  trace_config = get_dejaview_config(args)
   if args.print_config:
     print(trace_config)
     return 0

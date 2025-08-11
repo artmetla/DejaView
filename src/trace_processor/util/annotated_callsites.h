@@ -23,7 +23,7 @@
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -88,6 +88,6 @@ class AnnotatedCallsites {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_ANNOTATED_CALLSITES_H_

@@ -18,7 +18,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 bool operator==(const ObfuscatedClass& a, const ObfuscatedClass& b);
@@ -244,4 +244,4 @@ Example$$Class -> C:
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

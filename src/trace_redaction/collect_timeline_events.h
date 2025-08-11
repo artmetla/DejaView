@@ -19,9 +19,9 @@
 
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Creates events from process_tree, task_newtask, and sched_process_free
 // packets and stores them in a timeline.
@@ -35,6 +35,6 @@ class CollectTimelineEvents : public CollectPrimitive {
   base::Status End(Context* context) const override;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_COLLECT_TIMELINE_EVENTS_H_

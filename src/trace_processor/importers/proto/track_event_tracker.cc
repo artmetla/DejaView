@@ -27,7 +27,7 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/process_track_translation_table.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -38,7 +38,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 TrackEventTracker::TrackEventTracker(TraceProcessorContext* context)
     : source_key_(context->storage->InternString("source")),
@@ -72,7 +72,7 @@ void TrackEventTracker::ReserveDescriptorProcessTrack(uint64_t uuid,
   if (!it->second.IsForSameTrack(reservation)) {
     // Process tracks should not be reassigned to a different pid later (neither
     // should the type of the track change).
-    PERFETTO_DLOG("New track reservation for process track with uuid %" PRIu64
+    DEJAVIEW_DLOG("New track reservation for process track with uuid %" PRIu64
                   " doesn't match earlier one",
                   uuid);
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
@@ -107,7 +107,7 @@ void TrackEventTracker::ReserveDescriptorThreadTrack(uint64_t uuid,
   if (!it->second.IsForSameTrack(reservation)) {
     // Thread tracks should not be reassigned to a different pid/tid later
     // (neither should the type of the track change).
-    PERFETTO_DLOG("New track reservation for thread track with uuid %" PRIu64
+    DEJAVIEW_DLOG("New track reservation for thread track with uuid %" PRIu64
                   " doesn't match earlier one",
                   uuid);
     context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
@@ -146,7 +146,7 @@ void TrackEventTracker::ReserveDescriptorCounterTrack(
 
   // Counter tracks should not be reassigned to a different parent track later
   // (neither should the type of the track change).
-  PERFETTO_DLOG("New track reservation for counter track with uuid %" PRIu64
+  DEJAVIEW_DLOG("New track reservation for counter track with uuid %" PRIu64
                 " doesn't match earlier one",
                 uuid);
   context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
@@ -169,7 +169,7 @@ void TrackEventTracker::ReserveDescriptorChildTrack(uint64_t uuid,
 
   // Child tracks should not be reassigned to a different parent track later
   // (neither should the type of the track change).
-  PERFETTO_DLOG("New track reservation for child track with uuid %" PRIu64
+  DEJAVIEW_DLOG("New track reservation for child track with uuid %" PRIu64
                 " doesn't match earlier one",
                 uuid);
   context_->storage->IncrementStats(stats::track_event_tokenizer_errors);
@@ -210,7 +210,7 @@ std::optional<TrackId> TrackEventTracker::GetDescriptorTrack(
 
   // Check reservation for track type.
   auto reservation_it = reserved_descriptor_tracks_.find(uuid);
-  PERFETTO_CHECK(reservation_it != reserved_descriptor_tracks_.end());
+  DEJAVIEW_CHECK(reservation_it != reserved_descriptor_tracks_.end());
 
   if (reservation_it->second.pid || reservation_it->second.tid ||
       reservation_it->second.is_counter) {
@@ -236,7 +236,7 @@ std::optional<TrackId> TrackEventTracker::GetDescriptorTrackImpl(
   // The reservation must exist as |resolved_track| would have been std::nullopt
   // otherwise.
   auto reserved_it = reserved_descriptor_tracks_.find(uuid);
-  PERFETTO_CHECK(reserved_it != reserved_descriptor_tracks_.end());
+  DEJAVIEW_CHECK(reserved_it != reserved_descriptor_tracks_.end());
 
   const auto& reservation = reserved_it->second;
 
@@ -339,7 +339,7 @@ TrackId TrackEventTracker::CreateTrackFromResolved(
       return context_->storage->mutable_track_table()->Insert(row).id;
     }
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 std::optional<TrackEventTracker::ResolvedDescriptorTrack>
@@ -404,7 +404,7 @@ TrackEventTracker::ResolveDescriptorTrackImpl(
     descendent_uuids->push_back(uuid);
 
     if (descendent_uuids->size() > kMaxAncestors) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Too many ancestors in parent_track_uuid hierarchy at track %" PRIu64
           " with parent %" PRIu64,
           uuid, reservation.parent_uuid);
@@ -413,7 +413,7 @@ TrackEventTracker::ResolveDescriptorTrackImpl(
 
     if (std::find(descendent_uuids->begin(), descendent_uuids->end(),
                   reservation.parent_uuid) != descendent_uuids->end()) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Loop detected in parent_track_uuid hierarchy at track %" PRIu64
           " with parent %" PRIu64,
           uuid, reservation.parent_uuid);
@@ -423,7 +423,7 @@ TrackEventTracker::ResolveDescriptorTrackImpl(
     parent_resolved_track =
         ResolveDescriptorTrack(reservation.parent_uuid, descendent_uuids);
     if (!parent_resolved_track) {
-      PERFETTO_ELOG("Unknown parent track %" PRIu64 " for track %" PRIu64,
+      DEJAVIEW_ELOG("Unknown parent track %" PRIu64 " for track %" PRIu64,
                     reservation.parent_uuid, uuid);
     }
 
@@ -442,9 +442,9 @@ TrackEventTracker::ResolveDescriptorTrackImpl(
       // Since there should only be one descriptor track for each thread, we
       // assume that its tid was reused. So, start a new thread.
       uint64_t old_uuid = it_and_inserted.first->second;
-      PERFETTO_DCHECK(old_uuid != uuid);  // Every track is only resolved once.
+      DEJAVIEW_DCHECK(old_uuid != uuid);  // Every track is only resolved once.
 
-      PERFETTO_DLOG("Detected tid reuse (pid: %" PRIu32 " tid: %" PRIu32
+      DEJAVIEW_DLOG("Detected tid reuse (pid: %" PRIu32 " tid: %" PRIu32
                     ") from track descriptors (old uuid: %" PRIu64
                     " new uuid: %" PRIu64 " timestamp: %" PRId64 ")",
                     *reservation.pid, *reservation.tid, old_uuid, uuid,
@@ -454,7 +454,7 @@ TrackEventTracker::ResolveDescriptorTrackImpl(
                                                        *reservation.tid);
 
       // Associate the new thread with its process.
-      PERFETTO_CHECK(context_->process_tracker->UpdateThread(
+      DEJAVIEW_CHECK(context_->process_tracker->UpdateThread(
                          *reservation.tid, *reservation.pid) == utid);
 
       descriptor_uuids_by_utid_[utid] = uuid;
@@ -474,9 +474,9 @@ TrackEventTracker::ResolveDescriptorTrackImpl(
       // Since there should only be one descriptor track for each process, we
       // assume that its pid was reused. So, start a new process.
       uint64_t old_uuid = it_and_inserted.first->second;
-      PERFETTO_DCHECK(old_uuid != uuid);  // Every track is only resolved once.
+      DEJAVIEW_DCHECK(old_uuid != uuid);  // Every track is only resolved once.
 
-      PERFETTO_DLOG("Detected pid reuse (pid: %" PRIu32
+      DEJAVIEW_DLOG("Detected pid reuse (pid: %" PRIu32
                     ") from track descriptors (old uuid: %" PRIu64
                     " new uuid: %" PRIu64 " timestamp: %" PRId64 ")",
                     *reservation.pid, old_uuid, uuid,
@@ -522,7 +522,7 @@ TrackEventTracker::ResolveDescriptorTrackImpl(
     if (descendent_uuids &&
         std::find(descendent_uuids->begin(), descendent_uuids->end(),
                   kDefaultDescriptorTrackUuid) != descendent_uuids->end()) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Loop detected in parent_track_uuid hierarchy at track %" PRIu64
           " with parent %" PRIu64,
           uuid, kDefaultDescriptorTrackUuid);
@@ -556,14 +556,14 @@ std::optional<double> TrackEventTracker::ConvertToAbsoluteCounterValue(
     double value) {
   auto reservation_it = reserved_descriptor_tracks_.find(counter_track_uuid);
   if (reservation_it == reserved_descriptor_tracks_.end()) {
-    PERFETTO_DLOG("Unknown counter track with uuid %" PRIu64,
+    DEJAVIEW_DLOG("Unknown counter track with uuid %" PRIu64,
                   counter_track_uuid);
     return std::nullopt;
   }
 
   DescriptorTrackReservation& reservation = reservation_it->second;
   if (!reservation.is_counter) {
-    PERFETTO_DLOG("Track with uuid %" PRIu64 " is not a counter track",
+    DEJAVIEW_DLOG("Track with uuid %" PRIu64 " is not a counter track",
                   counter_track_uuid);
     return std::nullopt;
   }
@@ -573,7 +573,7 @@ std::optional<double> TrackEventTracker::ConvertToAbsoluteCounterValue(
 
   if (reservation.is_incremental) {
     if (reservation.packet_sequence_id != packet_sequence_id) {
-      PERFETTO_DLOG(
+      DEJAVIEW_DLOG(
           "Incremental counter track with uuid %" PRIu64
           " was updated from the wrong packet sequence (expected: %" PRIu32
           " got:%" PRIu32 ")",
@@ -646,4 +646,4 @@ TrackEventTracker::ResolvedDescriptorTrack::Global(bool is_counter,
   return track;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

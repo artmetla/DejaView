@@ -13,8 +13,8 @@ points into the trace. This is possible through the following:
   [`libcutils/trace.h`][libcutils].
 
 This API has been available since Android 4.3 (API level 18) and predates
-Perfetto. All these annotations, which internally are all routed through the
-internal libcutils API, are and will continue to be supported by Perfetto.
+DejaView. All these annotations, which internally are all routed through the
+internal libcutils API, are and will continue to be supported by DejaView.
 
 There are two types of atrace events: System and App events.
 
@@ -22,7 +22,7 @@ There are two types of atrace events: System and App events.
 These events are grouped in categories (also known as _tags_), e.g.
 "am" (ActivityManager), "pm" (PackageManager).
 For a full list of categories see the _Record new trace_ page of the
-[Perfetto UI](https://ui.perfetto.dev).
+[DejaView UI](https://ui.perfetto.dev).
 
 Categories can be used to enable group of events across several processes,
 without having to worry about which particular system process emits them.

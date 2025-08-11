@@ -18,12 +18,12 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -48,7 +48,7 @@ int FuzzRingBuffer(const uint8_t* data, size_t size) {
     return 0;
 
   auto fd = base::TempFile::CreateUnlinked().ReleaseFD();
-  PERFETTO_CHECK(fd);
+  DEJAVIEW_CHECK(fd);
 
   // Use fuzzer input to first fill the SharedRingBuffer::MetadataPage in the
   // first page, and then put the remainder into the data portion of the ring
@@ -68,15 +68,15 @@ int FuzzRingBuffer(const uint8_t* data, size_t size) {
   header.spinlock.locked = false;
   header.spinlock.poisoned = false;
 
-  PERFETTO_CHECK(ftruncate(*fd, static_cast<off_t>(total_size_pages *
+  DEJAVIEW_CHECK(ftruncate(*fd, static_cast<off_t>(total_size_pages *
                                                    base::GetSysPageSize())) ==
                  0);
-  PERFETTO_CHECK(base::WriteAll(*fd, &header, sizeof(header)) != -1);
-  PERFETTO_CHECK(lseek(*fd, base::GetSysPageSize(), SEEK_SET) != -1);
-  PERFETTO_CHECK(base::WriteAll(*fd, payload, payload_size) != -1);
+  DEJAVIEW_CHECK(base::WriteAll(*fd, &header, sizeof(header)) != -1);
+  DEJAVIEW_CHECK(lseek(*fd, base::GetSysPageSize(), SEEK_SET) != -1);
+  DEJAVIEW_CHECK(base::WriteAll(*fd, payload, payload_size) != -1);
 
   auto buf = SharedRingBuffer::Attach(std::move(fd));
-  PERFETTO_CHECK(!!buf);
+  DEJAVIEW_CHECK(!!buf);
 
   bool did_read;
   do {
@@ -95,10 +95,10 @@ int FuzzRingBuffer(const uint8_t* data, size_t size) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  return perfetto::profiling::FuzzRingBuffer(data, size);
+  return dejaview::profiling::FuzzRingBuffer(data, size);
 }

@@ -18,7 +18,7 @@
 #include "src/base/test/tmp_dir_tree.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(LinuxPowerSysfsDataSourceTest, BatteryCounters) {
@@ -141,4 +141,4 @@ TEST(LinuxPowerSysfsDataSourceTest, EnergyVoltageNow) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

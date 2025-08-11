@@ -18,9 +18,9 @@
 
 #include <string.h>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace ftrace_utils {
 
@@ -61,7 +61,7 @@ TaskState::TaskState(uint16_t raw_state,
   parsed_ = raw_state & (0x40 - 1);
 
   // Parsing upper bits depends on kernel version. Default to 4.4 because old
-  // perfetto traces don't record kernel version.
+  // dejaview traces don't record kernel version.
   auto version = VersionNumber{4, 4};
   if (opt_version) {
     version = opt_version.value();
@@ -87,13 +87,13 @@ TaskState::TaskState(uint16_t raw_state,
       parsed_ |= kPreempted;
 
     // Attempt to notice REPORT_TASK_MAX changing. If this dcheck fires, please
-    // file a bug report against perfetto. Exactly 4.14 kernels are excluded
+    // file a bug report against dejaview. Exactly 4.14 kernels are excluded
     // from the dcheck since there are known instances of such kernels that
     // still use the old flag mask in practice. So we'll still mark the states
     // as invalid but not crash debug builds.
     if (raw_state & 0xfe00) {
       parsed_ = kInvalid;
-      PERFETTO_DCHECK((version == VersionNumber{4, 14}));
+      DEJAVIEW_DCHECK((version == VersionNumber{4, 14}));
     }
     return;
   }
@@ -148,7 +148,7 @@ TaskState::TaskStateStr TaskState::ToString(char separator) const {
     buffer[pos++] = 'R';
     if (parsed_ & kPreempted) {
       buffer[pos++] = '+';
-      PERFETTO_DCHECK(parsed_ == kPreempted);
+      DEJAVIEW_DCHECK(parsed_ == kPreempted);
     }
   } else {
     auto append = [&](ParsedFlag flag, char c) {
@@ -257,4 +257,4 @@ uint16_t TaskState::ToRawStateOnlyForSystraceConversions() const {
 
 }  // namespace ftrace_utils
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

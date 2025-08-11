@@ -1,4 +1,4 @@
-[perfetto.protos.frame_times] {
+[dejaview.protos.frame_times] {
   frame_time: 16.816
   frame_time: 16.791
   frame_time: 16.677

@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/base64.h"
+#include "dejaview/ext/base/base64.h"
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -358,4 +358,4 @@ TEST(Base64Test, Decode) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,7 +21,7 @@
 #include <optional>
 #include <vector>
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 // This pool contains all trace addresses of a given query and facilitates a
 // thread safe way of popping traces and returning them to the pool if the query
@@ -39,6 +39,6 @@ class TraceAddressPool {
   uint32_t running_queries_ = 0;
 };
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 #endif  // SRC_BIGTRACE_ORCHESTRATOR_TRACE_ADDRESS_POOL_H_

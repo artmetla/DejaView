@@ -14,4 +14,4 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE deprecated.v42.common.slices;
+INCLUDE DEJAVIEW MODULE deprecated.v42.common.slices;

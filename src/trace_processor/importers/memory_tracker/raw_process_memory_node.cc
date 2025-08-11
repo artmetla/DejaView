@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/raw_process_memory_node.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/raw_process_memory_node.h"
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -23,9 +23,9 @@
 #include <functional>
 #include <memory>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 RawProcessMemoryNode::RawProcessMemoryNode(LevelOfDetail level_of_detail,
@@ -49,4 +49,4 @@ RawMemoryGraphNode* RawProcessMemoryNode::GetAllocatorNode(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

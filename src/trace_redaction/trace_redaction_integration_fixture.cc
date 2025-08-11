@@ -16,10 +16,10 @@
 
 #include "src/trace_redaction/trace_redaction_integration_fixture.h"
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 #include "src/base/test/utils.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 TraceRedactionIntegrationFixure::TraceRedactionIntegrationFixure() {
   dest_trace_ = tmp_dir_.AbsolutePath("dst.pftrace");
@@ -68,4 +68,4 @@ base::StatusOr<std::string> TraceRedactionIntegrationFixure::ReadRawTrace(
   return base::ErrStatus("Failed to read %s", path.c_str());
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

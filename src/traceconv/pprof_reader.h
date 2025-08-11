@@ -21,7 +21,7 @@
 
 #include "protos/third_party/pprof/profile.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace pprof {
 
 class PprofProfileReader {
@@ -61,6 +61,6 @@ class PprofProfileReader {
 };
 
 }  // namespace pprof
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_PPROF_READER_H_

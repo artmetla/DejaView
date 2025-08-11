@@ -23,10 +23,10 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_event.h"
 #include "src/trace_processor/importers/art_method/art_method_event.h"
 #include "src/trace_processor/importers/common/parser_types.h"
@@ -42,7 +42,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/bump_allocator.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 TraceSorter::TraceSorter(TraceProcessorContext* context,
                          SortingMode sorting_mode)
@@ -51,7 +51,7 @@ TraceSorter::TraceSorter(TraceProcessorContext* context,
   const char* env = getenv("TRACE_PROCESSOR_SORT_ONLY");
   bypass_next_stage_for_testing_ = env && !strcmp(env, "1");
   if (bypass_next_stage_for_testing_)
-    PERFETTO_ELOG("TEST MODE: bypassing protobuf parsing stage");
+    DEJAVIEW_ELOG("TEST MODE: bypassing protobuf parsing stage");
 }
 
 TraceSorter::~TraceSorter() {
@@ -68,24 +68,24 @@ TraceSorter::~TraceSorter() {
 }
 
 void TraceSorter::Queue::Sort(TraceTokenBuffer& buffer, bool use_slow_sorting) {
-  PERFETTO_DCHECK(needs_sorting());
-  PERFETTO_DCHECK(sort_start_idx_ < events_.size());
+  DEJAVIEW_DCHECK(needs_sorting());
+  DEJAVIEW_DCHECK(sort_start_idx_ < events_.size());
 
   // If sort_min_ts_ has been set, it will no long be max_int, and so will be
   // smaller than max_ts_.
-  PERFETTO_DCHECK(sort_min_ts_ < std::numeric_limits<int64_t>::max());
+  DEJAVIEW_DCHECK(sort_min_ts_ < std::numeric_limits<int64_t>::max());
 
   // We know that all events between [0, sort_start_idx_] are sorted. Within
   // this range, perform a bound search and find the iterator for the min
   // timestamp that broke the monotonicity. Re-sort from there to the end.
   auto sort_end = events_.begin() + static_cast<ssize_t>(sort_start_idx_);
   if (use_slow_sorting) {
-    PERFETTO_DCHECK(sort_min_ts_ <= max_ts_);
-    PERFETTO_DCHECK(std::is_sorted(events_.begin(), sort_end,
+    DEJAVIEW_DCHECK(sort_min_ts_ <= max_ts_);
+    DEJAVIEW_DCHECK(std::is_sorted(events_.begin(), sort_end,
                                    TimestampedEvent::SlowOperatorLess{buffer}));
   } else {
-    PERFETTO_DCHECK(sort_min_ts_ < max_ts_);
-    PERFETTO_DCHECK(std::is_sorted(events_.begin(), sort_end));
+    DEJAVIEW_DCHECK(sort_min_ts_ < max_ts_);
+    DEJAVIEW_DCHECK(std::is_sorted(events_.begin(), sort_end));
   }
   auto sort_begin = std::lower_bound(events_.begin(), sort_end, sort_min_ts_,
                                      &TimestampedEvent::Compare);
@@ -100,10 +100,10 @@ void TraceSorter::Queue::Sort(TraceTokenBuffer& buffer, bool use_slow_sorting) {
 
   // At this point |events_| must be fully sorted
   if (use_slow_sorting) {
-    PERFETTO_DCHECK(std::is_sorted(events_.begin(), events_.end(),
+    DEJAVIEW_DCHECK(std::is_sorted(events_.begin(), events_.end(),
                                    TimestampedEvent::SlowOperatorLess{buffer}));
   } else {
-    PERFETTO_DCHECK(std::is_sorted(events_.begin(), events_.end()));
+    DEJAVIEW_DCHECK(std::is_sorted(events_.begin(), events_.end()));
   }
 }
 
@@ -147,7 +147,7 @@ void TraceSorter::SortAndExtractEventsUntilAllocId(
         auto& queue = sorter_data.queues[i];
         if (queue.events_.empty())
           continue;
-        PERFETTO_DCHECK(queue.max_ts_ <= append_max_ts_);
+        DEJAVIEW_DCHECK(queue.max_ts_ <= append_max_ts_);
 
         // Checking for |all_queues_empty| is necessary here as in fuzzer cases
         // we can end up with |int64::max()| as the value here.
@@ -171,7 +171,7 @@ void TraceSorter::SortAndExtractEventsUntilAllocId(
     auto& events = queue.events_;
     if (queue.needs_sorting())
       queue.Sort(token_buffer_, use_slow_sorting_);
-    PERFETTO_DCHECK(queue.min_ts_ == events.front().ts);
+    DEJAVIEW_DCHECK(queue.min_ts_ == events.front().ts);
 
     // Now that we identified the min-queue, extract all events from it until
     // we hit either: (1) the min-ts of the 2nd queue or (2) the packet index
@@ -185,7 +185,7 @@ void TraceSorter::SortAndExtractEventsUntilAllocId(
       if (event.ts > min_queue_ts[1]) {
         // We should never hit this condition on the first extraction as by
         // the algorithm above (event.ts =) min_queue_ts[0] <= min_queue[1].
-        PERFETTO_DCHECK(num_extracted > 0);
+        DEJAVIEW_DCHECK(num_extracted > 0);
         break;
       }
 
@@ -282,9 +282,9 @@ void TraceSorter::ParseTracePacket(TraceProcessorContext& context,
     case TimestampedEvent::Type::kInlineSchedWaking:
     case TimestampedEvent::Type::kEtwEvent:
     case TimestampedEvent::Type::kFtraceEvent:
-      PERFETTO_FATAL("Invalid event type");
+      DEJAVIEW_FATAL("Invalid event type");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void TraceSorter::ParseEtwPacket(TraceProcessorContext& context,
@@ -313,9 +313,9 @@ void TraceSorter::ParseEtwPacket(TraceProcessorContext& context,
     case TimestampedEvent::Type::kGeckoEvent:
     case TimestampedEvent::Type::kArtMethodEvent:
     case TimestampedEvent::Type::kPerfTextEvent:
-      PERFETTO_FATAL("Invalid event type");
+      DEJAVIEW_FATAL("Invalid event type");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void TraceSorter::ParseFtracePacket(TraceProcessorContext& context,
@@ -350,9 +350,9 @@ void TraceSorter::ParseFtracePacket(TraceProcessorContext& context,
     case TimestampedEvent::Type::kGeckoEvent:
     case TimestampedEvent::Type::kArtMethodEvent:
     case TimestampedEvent::Type::kPerfTextEvent:
-      PERFETTO_FATAL("Invalid event type");
+      DEJAVIEW_FATAL("Invalid event type");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void TraceSorter::ExtractAndDiscardTokenizedObject(
@@ -413,7 +413,7 @@ void TraceSorter::ExtractAndDiscardTokenizedObject(
           token_buffer_.Extract<perf_text_importer::PerfTextEvent>(id));
       return;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 void TraceSorter::MaybeExtractEvent(size_t min_machine_idx,
@@ -427,7 +427,7 @@ void TraceSorter::MaybeExtractEvent(size_t min_machine_idx,
 
   latest_pushed_event_ts_ = std::max(latest_pushed_event_ts_, timestamp);
 
-  if (PERFETTO_UNLIKELY(bypass_next_stage_for_testing_)) {
+  if (DEJAVIEW_UNLIKELY(bypass_next_stage_for_testing_)) {
     // Parse* would extract this event and push it to the next stage. Since we
     // are skipping that, just extract and discard it.
     ExtractAndDiscardTokenizedObject(event);
@@ -449,4 +449,4 @@ void TraceSorter::MaybeExtractEvent(size_t min_machine_idx,
   }
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -16,7 +16,7 @@
 
 syntax = "proto2";
 
-package perfetto.protos;
+package dejaview.protos;
 
 // This is a manual import of ShellSubscription:
 // https://cs.android.com/android/platform/superproject/main/+/main:packages/modules/StatsD/statsd/src/shell/shell_config.proto?q=f:statsD%2Fstatsd%20f:shell_config.proto

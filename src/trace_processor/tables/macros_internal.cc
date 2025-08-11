@@ -22,9 +22,9 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
@@ -34,16 +34,16 @@
 #include "src/trace_processor/db/column/storage_layer.h"
 #include "src/trace_processor/db/column_storage_overlay.h"
 
-namespace perfetto::trace_processor::macros_internal {
+namespace dejaview::trace_processor::macros_internal {
 
-PERFETTO_NO_INLINE MacroTable::MacroTable(StringPool* pool,
+DEJAVIEW_NO_INLINE MacroTable::MacroTable(StringPool* pool,
                                           std::vector<ColumnLegacy> columns,
                                           const MacroTable* parent)
     : Table(pool, 0u, std::move(columns), EmptyOverlaysFromParent(parent)),
       allow_inserts_(true),
       parent_(parent) {}
 
-PERFETTO_NO_INLINE MacroTable::MacroTable(StringPool* pool,
+DEJAVIEW_NO_INLINE MacroTable::MacroTable(StringPool* pool,
                                           std::vector<ColumnLegacy> columns,
                                           const MacroTable& parent,
                                           const RowMap& parent_overlay)
@@ -54,15 +54,15 @@ PERFETTO_NO_INLINE MacroTable::MacroTable(StringPool* pool,
       allow_inserts_(false),
       parent_(&parent) {}
 
-PERFETTO_NO_INLINE void MacroTable::UpdateOverlaysAfterParentInsert() {
+DEJAVIEW_NO_INLINE void MacroTable::UpdateOverlaysAfterParentInsert() {
   CopyLastInsertFrom(parent_->overlays());
 }
 
-PERFETTO_NO_INLINE void MacroTable::UpdateSelfOverlayAfterInsert() {
+DEJAVIEW_NO_INLINE void MacroTable::UpdateSelfOverlayAfterInsert() {
   IncrementRowCountAndAddToLastOverlay();
 }
 
-PERFETTO_NO_INLINE std::vector<ColumnLegacy>
+DEJAVIEW_NO_INLINE std::vector<ColumnLegacy>
 MacroTable::CopyColumnsFromParentOrAddRootColumns(MacroTable* self,
                                                   const MacroTable* parent) {
   std::vector<ColumnLegacy> columns;
@@ -77,13 +77,13 @@ MacroTable::CopyColumnsFromParentOrAddRootColumns(MacroTable* self,
   return columns;
 }
 
-PERFETTO_NO_INLINE void MacroTable::OnConstructionCompletedRegularConstructor(
+DEJAVIEW_NO_INLINE void MacroTable::OnConstructionCompletedRegularConstructor(
     std::initializer_list<RefPtr<column::StorageLayer>> storage_layers,
     std::initializer_list<RefPtr<column::OverlayLayer>> null_layers) {
   std::vector<RefPtr<column::OverlayLayer>> overlay_layers(
       OverlayCount(parent_) + 1);
   for (uint32_t i = 0; i < overlay_layers.size() - 1; ++i) {
-    PERFETTO_CHECK(overlays()[i].row_map().IsBitVector());
+    DEJAVIEW_CHECK(overlays()[i].row_map().IsBitVector());
     overlay_layers[i].reset(
         new column::SelectorOverlay(overlays()[i].row_map().GetIfBitVector()));
   }
@@ -91,7 +91,7 @@ PERFETTO_NO_INLINE void MacroTable::OnConstructionCompletedRegularConstructor(
                                  std::move(overlay_layers));
 }
 
-PERFETTO_NO_INLINE std::vector<ColumnStorageOverlay>
+DEJAVIEW_NO_INLINE std::vector<ColumnStorageOverlay>
 MacroTable::EmptyOverlaysFromParent(const MacroTable* parent) {
   std::vector<ColumnStorageOverlay> overlays(parent ? parent->overlays().size()
                                                     : 0);
@@ -102,14 +102,14 @@ MacroTable::EmptyOverlaysFromParent(const MacroTable* parent) {
   return overlays;
 }
 
-PERFETTO_NO_INLINE std::vector<ColumnStorageOverlay>
+DEJAVIEW_NO_INLINE std::vector<ColumnStorageOverlay>
 MacroTable::SelectedOverlaysFromParent(
     const macros_internal::MacroTable& parent,
     const RowMap& rm) {
   std::vector<ColumnStorageOverlay> overlays;
   for (const auto& overlay : parent.overlays()) {
     overlays.emplace_back(overlay.SelectRows(rm));
-    PERFETTO_DCHECK(overlays.back().size() == rm.size());
+    DEJAVIEW_DCHECK(overlays.back().size() == rm.size());
   }
   overlays.emplace_back(rm.size());
   return overlays;
@@ -134,4 +134,4 @@ BaseConstIterator& BaseConstIterator::operator++() {
 BaseRowReference::BaseRowReference(const MacroTable* table, uint32_t row_number)
     : table_(table), row_number_(row_number) {}
 
-}  // namespace perfetto::trace_processor::macros_internal
+}  // namespace dejaview::trace_processor::macros_internal

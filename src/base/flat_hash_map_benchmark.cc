@@ -21,12 +21,12 @@
 #include <sys/mman.h>
 #include <unistd.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_view.h"
 
 // This benchmark allows to compare our FlatHashMap implementation against
 // reference implementations from Absl (Google), Folly F14 (FB), and Tssil's
@@ -39,12 +39,12 @@
 //   -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_FLAGS='-DNDEBUG -O3 -msse4.2 -mavx'.
 //   That sets cflags for a more fair comparison.
 // - Set is_debug=false in the GN args.
-// - Set the GN var perfetto_benchmark_3p_libs_prefix="/usr/local" (or whatever
+// - Set the GN var dejaview_benchmark_3p_libs_prefix="/usr/local" (or whatever
 //   other directory you set as DESTDIR when running make install).
-// The presence of the perfetto_benchmark_3p_libs_prefix GN variable will
-// automatically define PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS.
+// The presence of the dejaview_benchmark_3p_libs_prefix GN variable will
+// automatically define DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS.
 
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 
 // Last tested: https://github.com/abseil/abseil-cpp @ f2dbd918d.
 #include <absl/container/flat_hash_map.h>
@@ -58,12 +58,12 @@
 
 namespace {
 
-using namespace perfetto;
+using namespace dejaview;
 using benchmark::Counter;
-using perfetto::base::AlreadyHashed;
-using perfetto::base::LinearProbe;
-using perfetto::base::QuadraticHalfProbe;
-using perfetto::base::QuadraticProbe;
+using dejaview::base::AlreadyHashed;
+using dejaview::base::LinearProbe;
+using dejaview::base::QuadraticHalfProbe;
+using dejaview::base::QuadraticProbe;
 
 // Our FlatHashMap doesn't have a STL-like interface, mainly because we use
 // columnar-oriented storage, not array-of-tuples, so we can't easily map into
@@ -288,7 +288,7 @@ void BM_HashMap_LookupRandInts(benchmark::State& state) {
     int64_t total = 0;
     for (const size_t key : keys) {
       auto it = mapz.find(static_cast<uint64_t>(key));
-      PERFETTO_CHECK(it != mapz.end());
+      DEJAVIEW_CHECK(it != mapz.end());
       total += it->second;
     }
     benchmark::DoNotOptimize(total);
@@ -310,7 +310,7 @@ using Ours_QuadCompProbing =
 using StdUnorderedMap =
     std::unordered_map<uint64_t, uint64_t, AlreadyHashed<uint64_t>>;
 
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 using RobinMap = tsl::robin_map<uint64_t, uint64_t, AlreadyHashed<uint64_t>>;
 using AbslFlatHashMap =
     absl::flat_hash_map<uint64_t, uint64_t, AlreadyHashed<uint64_t>>;
@@ -322,7 +322,7 @@ BENCHMARK(BM_HashMap_InsertTraceStrings_AppendOnly);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, Ours_LinearProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, Ours_QuadProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, StdUnorderedMap);
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, RobinMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, AbslFlatHashMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertTraceStrings, FollyF14FastMap);
@@ -333,7 +333,7 @@ BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, Ours<TID_ARGS, LinearProbe>);
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, Ours<TID_ARGS, QuadraticProbe>);
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, Ours<TID_ARGS, QuadraticHalfProbe>);
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, std::unordered_map<TID_ARGS>);
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, tsl::robin_map<TID_ARGS>);
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, absl::flat_hash_map<TID_ARGS>);
 BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, folly::F14FastMap<TID_ARGS>);
@@ -342,7 +342,7 @@ BENCHMARK_TEMPLATE(BM_HashMap_TraceTids, folly::F14FastMap<TID_ARGS>);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertRandInts, Ours_LinearProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertRandInts, Ours_QuadProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertRandInts, StdUnorderedMap);
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_InsertRandInts, RobinMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertRandInts, AbslFlatHashMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertRandInts, FollyF14FastMap);
@@ -352,7 +352,7 @@ BENCHMARK_TEMPLATE(BM_HashMap_InsertCollidingInts, Ours_LinearProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertCollidingInts, Ours_QuadProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertCollidingInts, Ours_QuadCompProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertCollidingInts, StdUnorderedMap);
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_InsertCollidingInts, RobinMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertCollidingInts, AbslFlatHashMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertCollidingInts, FollyF14FastMap);
@@ -362,7 +362,7 @@ BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, Ours_LinearProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, Ours_QuadProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, Ours_QuadCompProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, StdUnorderedMap);
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, RobinMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, AbslFlatHashMap);
 BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, FollyF14FastMap);
@@ -371,7 +371,7 @@ BENCHMARK_TEMPLATE(BM_HashMap_InsertDupeInts, FollyF14FastMap);
 BENCHMARK_TEMPLATE(BM_HashMap_LookupRandInts, Ours_LinearProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_LookupRandInts, Ours_QuadProbing);
 BENCHMARK_TEMPLATE(BM_HashMap_LookupRandInts, StdUnorderedMap);
-#if defined(PERFETTO_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
+#if defined(DEJAVIEW_HASH_MAP_COMPARE_THIRD_PARTY_LIBS)
 BENCHMARK_TEMPLATE(BM_HashMap_LookupRandInts, RobinMap);
 BENCHMARK_TEMPLATE(BM_HashMap_LookupRandInts, AbslFlatHashMap);
 BENCHMARK_TEMPLATE(BM_HashMap_LookupRandInts, FollyF14FastMap);

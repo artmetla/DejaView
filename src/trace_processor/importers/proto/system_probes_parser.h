@@ -20,11 +20,11 @@
 #include <array>
 #include <vector>
 
-#include "perfetto/protozero/field.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.pbzero.h"
+#include "dejaview/protozero/field.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.pbzero.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -97,6 +97,6 @@ class SystemProbesParser {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_SYSTEM_PROBES_PARSER_H_

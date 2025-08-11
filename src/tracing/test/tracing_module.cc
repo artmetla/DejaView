@@ -16,7 +16,7 @@
 
 #include "src/tracing/test/tracing_module.h"
 
-#include "protos/perfetto/trace/track_event/log_message.pbzero.h"
+#include "protos/dejaview/trace/track_event/log_message.pbzero.h"
 #include "src/tracing/test/tracing_module_categories.h"
 
 #include <stdio.h>
@@ -24,8 +24,8 @@
 // This file is for checking that multiple sets of trace event categories can be
 // combined into the same program.
 
-PERFETTO_TRACK_EVENT_STATIC_STORAGE_IN_NAMESPACE(tracing_module);
-PERFETTO_TRACK_EVENT_STATIC_STORAGE_IN_NAMESPACE_WITH_ATTRS(tracing_extra,
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE_IN_NAMESPACE(tracing_module);
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE_IN_NAMESPACE_WITH_ATTRS(tracing_extra,
                                                             [[maybe_unused]]);
 
 namespace tracing_extra {
@@ -44,7 +44,7 @@ namespace tracing_module {
 // The following two functions test selecting the category set on a
 // per-namespace level.
 namespace test_ns1 {
-PERFETTO_USE_CATEGORIES_FROM_NAMESPACE(tracing_extra);
+DEJAVIEW_USE_CATEGORIES_FROM_NAMESPACE(tracing_extra);
 
 void EmitEvent();
 void EmitEvent() {
@@ -54,7 +54,7 @@ void EmitEvent() {
 }  // namespace test_ns1
 
 namespace test_ns2 {
-PERFETTO_USE_CATEGORIES_FROM_NAMESPACE(tracing_module);
+DEJAVIEW_USE_CATEGORIES_FROM_NAMESPACE(tracing_module);
 
 void EmitEvent();
 void EmitEvent() {
@@ -68,11 +68,11 @@ void InitializeCategories() {
   tracing_extra::TrackEvent::Register();
 }
 
-void AddSessionObserver(perfetto::TrackEventSessionObserver* observer) {
+void AddSessionObserver(dejaview::TrackEventSessionObserver* observer) {
   TrackEvent::AddSessionObserver(observer);
 }
 
-void RemoveSessionObserver(perfetto::TrackEventSessionObserver* observer) {
+void RemoveSessionObserver(dejaview::TrackEventSessionObserver* observer) {
   TrackEvent::RemoveSessionObserver(observer);
 }
 
@@ -100,15 +100,15 @@ void EmitTrackEventsFromAllNamespaces() {
   tracing_extra::EmitEventFromExtraNamespace();
 
   // Make the other namespace the default.
-  PERFETTO_USE_CATEGORIES_FROM_NAMESPACE_SCOPED(tracing_extra);
+  DEJAVIEW_USE_CATEGORIES_FROM_NAMESPACE_SCOPED(tracing_extra);
   TRACE_EVENT_BEGIN("extra", "OverrideNamespaceFromModule");
 
   test_ns1::EmitEvent();
   test_ns2::EmitEvent();
 }
 
-perfetto::internal::TrackEventIncrementalState* GetIncrementalState() {
-  perfetto::internal::TrackEventIncrementalState* state = nullptr;
+dejaview::internal::TrackEventIncrementalState* GetIncrementalState() {
+  dejaview::internal::TrackEventIncrementalState* state = nullptr;
   TrackEvent::Trace([&state](TrackEvent::TraceContext ctx) {
     state = ctx.GetIncrementalState();
   });
@@ -123,7 +123,7 @@ void FunctionWithOneTrackEvent() {
 }
 
 void FunctionWithOneTrackEventWithTypedArgument() {
-  TRACE_EVENT_BEGIN("cat1", "EventWithArg", [](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("cat1", "EventWithArg", [](dejaview::EventContext ctx) {
     auto log = ctx.event()->set_log_message();
     log->set_body_iid(0x42);
   });
@@ -147,7 +147,7 @@ void FunctionWithOneTrackEventWithDebugAnnotations() {
 }
 
 void FunctionWithOneTrackEventWithCustomTrack() {
-  TRACE_EVENT_BEGIN("cat1", "EventWithTrack", perfetto::Track(8086));
+  TRACE_EVENT_BEGIN("cat1", "EventWithTrack", dejaview::Track(8086));
   // Simulates the non-tracing work of this function, which should take priority
   // over the above trace event in terms of instruction scheduling.
   puts("Hello");

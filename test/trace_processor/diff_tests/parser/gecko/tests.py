@@ -25,7 +25,7 @@ class GeckoParser(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('trace_processor_perf_as_gecko.json'),
         query="""
-          INCLUDE PERFETTO MODULE stacks.cpu_profiling;
+          INCLUDE DEJAVIEW MODULE stacks.cpu_profiling;
 
           SELECT id, parent_id, name, mapping_name, self_count, cumulative_count
           FROM cpu_profiling_summary_tree
@@ -34,22 +34,22 @@ class GeckoParser(TestSuite):
         out=Csv('''
           "id","parent_id","name","mapping_name","self_count","cumulative_count"
           0,"[NULL]","__libc_start_call_main","/usr/lib/x86_64-linux-gnu/libc.so.6",0,37030
-          1,0,"main","/usr/local/google/home/lalitm/perfetto/out/linux_clang_release/trace_processor_shell",0,37030
-          2,1,"perfetto::trace_processor::(anonymous namespace)::TraceProcessorMain(int, char**)","/usr/local/google/home/lalitm/perfetto/out/linux_clang_release/trace_processor_shell",0,37030
-          3,2,"perfetto::trace_processor::(anonymous namespace)::StartInteractiveShell(perfetto::trace_processor::(anonymous namespace)::InteractiveOptions const&)","/usr/local/google/home/lalitm/perfetto/out/linux_clang_release/trace_processor_shell",0,37029
+          1,0,"main","/usr/local/google/home/lalitm/dejaview/out/linux_clang_release/trace_processor_shell",0,37030
+          2,1,"dejaview::trace_processor::(anonymous namespace)::TraceProcessorMain(int, char**)","/usr/local/google/home/lalitm/dejaview/out/linux_clang_release/trace_processor_shell",0,37030
+          3,2,"dejaview::trace_processor::(anonymous namespace)::StartInteractiveShell(dejaview::trace_processor::(anonymous namespace)::InteractiveOptions const&)","/usr/local/google/home/lalitm/dejaview/out/linux_clang_release/trace_processor_shell",0,37029
           4,3,"read","/usr/lib/x86_64-linux-gnu/libc.so.6",8,8
           5,3,"cfree@GLIBC_2.2.5","/usr/lib/x86_64-linux-gnu/libc.so.6",1,1
           6,2,"clock_gettime@@GLIBC_2.17","/usr/lib/x86_64-linux-gnu/libc.so.6",1,1
-          7,3,"perfetto::trace_processor::TraceProcessorImpl::ExecuteQuery(std::__Cr::basic_string<char, std::__Cr::char_traits<char>, std::__Cr::allocator<char> > const&)","/usr/local/google/home/lalitm/perfetto/out/linux_clang_release/trace_processor_shell",0,37020
-          8,7,"perfetto::trace_processor::PerfettoSqlEngine::ExecuteUntilLastStatement(perfetto::trace_processor::SqlSource)","/usr/local/google/home/lalitm/perfetto/out/linux_clang_release/trace_processor_shell",0,37020
-          9,8,"perfetto::trace_processor::PerfettoSqlEngine::ExecuteInclude(perfetto::trace_processor::PerfettoSqlParser::Include const&, perfetto::trace_processor::PerfettoSqlParser const&)","/usr/local/google/home/lalitm/perfetto/out/linux_clang_release/trace_processor_shell",0,37020
+          7,3,"dejaview::trace_processor::TraceProcessorImpl::ExecuteQuery(std::__Cr::basic_string<char, std::__Cr::char_traits<char>, std::__Cr::allocator<char> > const&)","/usr/local/google/home/lalitm/dejaview/out/linux_clang_release/trace_processor_shell",0,37020
+          8,7,"dejaview::trace_processor::DejaViewSqlEngine::ExecuteUntilLastStatement(dejaview::trace_processor::SqlSource)","/usr/local/google/home/lalitm/dejaview/out/linux_clang_release/trace_processor_shell",0,37020
+          9,8,"dejaview::trace_processor::DejaViewSqlEngine::ExecuteInclude(dejaview::trace_processor::DejaViewSqlParser::Include const&, dejaview::trace_processor::DejaViewSqlParser const&)","/usr/local/google/home/lalitm/dejaview/out/linux_clang_release/trace_processor_shell",0,37020
         '''))
 
   def test_gecko_samples_simpleperf_smoke(self):
     return DiffTestBlueprint(
         trace=DataPath('simpleperf_as_gecko.json'),
         query="""
-          INCLUDE PERFETTO MODULE stacks.cpu_profiling;
+          INCLUDE DEJAVIEW MODULE stacks.cpu_profiling;
 
           SELECT id, parent_id, name, mapping_name, self_count, cumulative_count
           FROM cpu_profiling_summary_tree

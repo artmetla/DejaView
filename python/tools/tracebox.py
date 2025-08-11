@@ -24,10 +24,10 @@ BASH_FALLBACK=""" "
 exec python3 - "$@" <<'#'EOF
 #"""  # yapf: disable
 
-from perfetto.prebuilts.manifests.tracebox import *
-from perfetto.prebuilts.perfetto_prebuilts import *
+from dejaview.prebuilts.manifests.tracebox import *
+from dejaview.prebuilts.dejaview_prebuilts import *
 
 if __name__ == '__main__':
-  run_perfetto_prebuilt(TRACEBOX_MANIFEST)
+  run_dejaview_prebuilt(TRACEBOX_MANIFEST)
 
 #EOF

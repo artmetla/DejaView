@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/paged_memory.h"
+#include "dejaview/ext/base/paged_memory.h"
 
 #include <algorithm>
 #include <cmath>
 #include <cstddef>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
-#else  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#else  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <sys/mman.h>
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/container_annotations.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/container_annotations.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -53,25 +53,25 @@ size_t GuardSize() {
 // static
 PagedMemory PagedMemory::Allocate(size_t req_size, int flags) {
   size_t rounded_up_size = RoundUpToSysPageSize(req_size);
-  PERFETTO_CHECK(rounded_up_size >= req_size);
+  DEJAVIEW_CHECK(rounded_up_size >= req_size);
   size_t outer_size = rounded_up_size + GuardSize() * 2;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   void* ptr = VirtualAlloc(nullptr, outer_size, MEM_RESERVE, PAGE_NOACCESS);
   if (!ptr && (flags & kMayFail))
     return PagedMemory();
-  PERFETTO_CHECK(ptr);
+  DEJAVIEW_CHECK(ptr);
   char* usable_region = reinterpret_cast<char*>(ptr) + GuardSize();
-#else   // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#else   // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   void* ptr = mmap(nullptr, outer_size, PROT_READ | PROT_WRITE,
                    MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
   if (ptr == MAP_FAILED && (flags & kMayFail))
     return PagedMemory();
-  PERFETTO_CHECK(ptr && ptr != MAP_FAILED);
+  DEJAVIEW_CHECK(ptr && ptr != MAP_FAILED);
   char* usable_region = reinterpret_cast<char*>(ptr) + GuardSize();
   int res = mprotect(ptr, GuardSize(), PROT_NONE);
   res |= mprotect(usable_region + rounded_up_size, GuardSize(), PROT_NONE);
-  PERFETTO_CHECK(res == 0);
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+  DEJAVIEW_CHECK(res == 0);
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
   auto memory = PagedMemory(usable_region, req_size);
 #if TRACK_COMMITTED_SIZE()
@@ -105,65 +105,65 @@ PagedMemory& PagedMemory::operator=(PagedMemory&& other) {
 PagedMemory::~PagedMemory() {
   if (!p_)
     return;
-  PERFETTO_CHECK(size_);
+  DEJAVIEW_CHECK(size_);
   char* start = p_ - GuardSize();
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   BOOL res = VirtualFree(start, 0, MEM_RELEASE);
-  PERFETTO_CHECK(res != 0);
-#else   // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+  DEJAVIEW_CHECK(res != 0);
+#else   // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   const size_t outer_size = RoundUpToSysPageSize(size_) + GuardSize() * 2;
   int res = munmap(start, outer_size);
-  PERFETTO_CHECK(res == 0);
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+  DEJAVIEW_CHECK(res == 0);
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   ANNOTATE_DELETE_BUFFER(p_, size_, committed_size_)
 }
 
 bool PagedMemory::AdviseDontNeed(void* p, size_t size) {
-  PERFETTO_DCHECK(p_);
-  PERFETTO_DCHECK(p >= p_);
-  PERFETTO_DCHECK(static_cast<char*>(p) + size <= p_ + size_);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) || PERFETTO_BUILDFLAG(PERFETTO_OS_NACL)
+  DEJAVIEW_DCHECK(p_);
+  DEJAVIEW_DCHECK(p >= p_);
+  DEJAVIEW_DCHECK(static_cast<char*>(p) + size <= p_ + size_);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) || DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_NACL)
   // Discarding pages on Windows has more CPU cost than is justified for the
   // possible memory savings.
   return false;
-#else   // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) ||
-        // PERFETTO_BUILDFLAG(PERFETTO_OS_NACL)
+#else   // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) ||
+        // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_NACL)
   // http://man7.org/linux/man-pages/man2/madvise.2.html
   int res = madvise(p, size, MADV_DONTNEED);
-  PERFETTO_DCHECK(res == 0);
+  DEJAVIEW_DCHECK(res == 0);
   return true;
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) ||
-        // PERFETTO_BUILDFLAG(PERFETTO_OS_NACL)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) ||
+        // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_NACL)
 }
 
 #if TRACK_COMMITTED_SIZE()
 void PagedMemory::EnsureCommitted(size_t committed_size) {
-  PERFETTO_DCHECK(committed_size <= size_);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+  DEJAVIEW_DCHECK(committed_size <= size_);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   if (committed_size_ >= committed_size)
     return;
   // Rounding up.
   size_t delta = committed_size - committed_size_;
   size_t num_additional_chunks =
       (delta + kCommitChunkSize - 1) / kCommitChunkSize;
-  PERFETTO_DCHECK(num_additional_chunks * kCommitChunkSize >= delta);
+  DEJAVIEW_DCHECK(num_additional_chunks * kCommitChunkSize >= delta);
   // Don't commit more than the total size.
   size_t commit_size = std::min(num_additional_chunks * kCommitChunkSize,
                                 size_ - committed_size_);
   void* res = VirtualAlloc(p_ + committed_size_, commit_size, MEM_COMMIT,
                            PAGE_READWRITE);
-  PERFETTO_CHECK(res);
+  DEJAVIEW_CHECK(res);
   ANNOTATE_CHANGE_SIZE(p_, size_, committed_size_,
                        committed_size_ + commit_size)
   committed_size_ += commit_size;
-#else   // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#else   // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // mmap commits automatically as needed, so we only track here for ASAN.
   committed_size = std::max(committed_size_, committed_size);
   ANNOTATE_CHANGE_SIZE(p_, size_, committed_size_, committed_size)
   committed_size_ = committed_size;
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 }
 #endif  // TRACK_COMMITTED_SIZE()
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

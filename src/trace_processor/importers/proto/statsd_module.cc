@@ -15,10 +15,10 @@
  */
 #include "src/trace_processor/importers/proto/statsd_module.h"
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/trace/statsd/statsd_atom.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/trace/statsd/statsd_atom.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/machine_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
@@ -32,7 +32,7 @@
 
 #include "src/trace_processor/importers/proto/atoms.descriptor.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -88,8 +88,8 @@ base::Status ParseGenericEvent(const protozero::ConstBytes& cb,
 
 }  // namespace
 
-using perfetto::protos::pbzero::StatsdAtom;
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::StatsdAtom;
+using dejaview::protos::pbzero::TracePacket;
 
 PoolAndDescriptor::PoolAndDescriptor(const uint8_t* data,
                                      size_t size,
@@ -162,9 +162,9 @@ void StatsdModule::ParseTracePacketData(const TracePacket::Decoder& decoder,
   auto it = atoms_wrapper.atom();
   // There should be exactly one atom per trace packet at this point.
   // If not something has gone wrong in tokenization above.
-  PERFETTO_CHECK(it);
+  DEJAVIEW_CHECK(it);
   ParseAtom(ts, *it++);
-  PERFETTO_CHECK(!it);
+  DEJAVIEW_CHECK(!it);
 }
 
 void StatsdModule::ParseAtom(int64_t ts, protozero::ConstBytes nested_bytes) {
@@ -251,4 +251,4 @@ AsyncTrackSetTracker::TrackSetId StatsdModule::InternAsyncTrackSetId() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

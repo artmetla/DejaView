@@ -20,7 +20,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace glob_aware {
 namespace {
@@ -114,4 +114,4 @@ TEST(ProcCmdlineTest, FindAndMatchRelativePath) {
 }  // namespace
 }  // namespace glob_aware
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

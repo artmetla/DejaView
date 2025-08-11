@@ -22,9 +22,9 @@
 
 #include <limits>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using HistValue = int64_t;
 
@@ -51,17 +51,17 @@ class Histogram {
   static constexpr size_t num_buckets() { return kNumBuckets; }
 
   HistValue GetBucketThres(size_t n) const {
-    PERFETTO_DCHECK(n < kNumBuckets);
+    DEJAVIEW_DCHECK(n < kNumBuckets);
     return bucket_thres_[n];
   }
 
   uint64_t GetBucketCount(size_t n) const {
-    PERFETTO_DCHECK(n < kNumBuckets);
+    DEJAVIEW_DCHECK(n < kNumBuckets);
     return bucket_count_[n];
   }
 
   HistValue GetBucketSum(size_t n) const {
-    PERFETTO_DCHECK(n < kNumBuckets);
+    DEJAVIEW_DCHECK(n < kNumBuckets);
     return bucket_sum_[n];
   }
 
@@ -88,6 +88,6 @@ class Histogram {
   uint64_t bucket_count_[kNumBuckets]{};
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_SERVICE_HISTOGRAM_H_

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {getThreadOrProcUri} from '../../public/utils';
 import {NUM, NUM_NULL, STR} from '../../trace_processor/query_result';
 import {
@@ -29,7 +29,7 @@ import {
 
 // This plugin is responsible for adding summary tracks for process and thread
 // groups.
-class ProcessSummaryPlugin implements PerfettoPlugin {
+class ProcessSummaryPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     await this.addProcessTrackGroups(ctx);
     await this.addKernelThreadSummary(ctx);
@@ -39,7 +39,7 @@ class ProcessSummaryPlugin implements PerfettoPlugin {
     const cpuCount = Math.max(...ctx.traceInfo.cpus, -1) + 1;
 
     const result = await ctx.engine.query(`
-      INCLUDE PERFETTO MODULE android.process_metadata;
+      INCLUDE DEJAVIEW MODULE android.process_metadata;
 
       select *
       from (
@@ -203,6 +203,6 @@ class ProcessSummaryPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.ProcessSummary',
+  pluginId: 'dejaview.ProcessSummary',
   plugin: ProcessSummaryPlugin,
 };

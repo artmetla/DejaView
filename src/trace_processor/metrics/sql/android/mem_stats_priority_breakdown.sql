@@ -15,7 +15,7 @@
 --
 
 DROP TABLE IF EXISTS {{table_name}}_by_priority_stats;
-CREATE PERFETTO TABLE {{table_name}}_by_priority_stats AS
+CREATE DEJAVIEW TABLE {{table_name}}_by_priority_stats AS
 SELECT
   process.name AS process_name,
   CASE
@@ -43,7 +43,7 @@ GROUP BY 1, 2
 ORDER BY 1, 2;
 
 DROP VIEW IF EXISTS {{table_name}}_by_priority_stats_proto;
-CREATE PERFETTO VIEW {{table_name}}_by_priority_stats_proto AS
+CREATE DEJAVIEW VIEW {{table_name}}_by_priority_stats_proto AS
 SELECT
   process_name,
   priority,

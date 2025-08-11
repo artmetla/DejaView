@@ -21,10 +21,10 @@
 #include <memory>
 #include <vector>
 
-#include "perfetto/trace_processor/read_trace.h"
+#include "dejaview/trace_processor/read_trace.h"
 #include "src/traceconv/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 // Naive: puts multiple copies of the trace in memory, but good enough for
@@ -44,4 +44,4 @@ bool UnpackCompressedPackets(std::istream* input, std::ostream* output) {
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

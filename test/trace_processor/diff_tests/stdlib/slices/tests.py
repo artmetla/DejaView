@@ -26,7 +26,7 @@ class Slices(TestSuite):
     return DiffTestBlueprint(
         trace=Path('trace.py'),
         query="""
-        INCLUDE PERFETTO MODULE slices.with_context;
+        INCLUDE DEJAVIEW MODULE slices.with_context;
 
         SELECT name, ts, dur, depth, thread_name, tid, process_name, pid
         FROM thread_slice;
@@ -41,7 +41,7 @@ class Slices(TestSuite):
     return DiffTestBlueprint(
         trace=Path('trace.py'),
         query="""
-        INCLUDE PERFETTO MODULE slices.with_context;
+        INCLUDE DEJAVIEW MODULE slices.with_context;
 
         SELECT name, ts, dur, depth, process_name, pid
         FROM process_slice;
@@ -55,7 +55,7 @@ class Slices(TestSuite):
     return DiffTestBlueprint(
         trace=Path('trace.py'),
         query="""
-        INCLUDE PERFETTO MODULE slices.slices;
+        INCLUDE DEJAVIEW MODULE slices.slices;
 
         SELECT name, ts, dur, depth, thread_name, tid, process_name, pid
         FROM _slice_with_thread_and_process_info;
@@ -74,7 +74,7 @@ class Slices(TestSuite):
     return DiffTestBlueprint(
         trace=Path('trace.py'),
         query="""
-        INCLUDE PERFETTO MODULE slices.hierarchy;
+        INCLUDE DEJAVIEW MODULE slices.hierarchy;
 
         SELECT name, ts, dur, depth
         FROM _slice_ancestor_and_self(
@@ -91,7 +91,7 @@ class Slices(TestSuite):
     return DiffTestBlueprint(
         trace=Path('trace.py'),
         query="""
-        INCLUDE PERFETTO MODULE slices.hierarchy;
+        INCLUDE DEJAVIEW MODULE slices.hierarchy;
 
         SELECT name, ts, dur, depth
         FROM _slice_descendant_and_self(
@@ -110,7 +110,7 @@ class Slices(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE slices.flat_slices;
+        INCLUDE DEJAVIEW MODULE slices.flat_slices;
 
         SELECT e.name, e.ts, e.dur, e.depth
         FROM _slice_flattened e
@@ -138,7 +138,7 @@ class Slices(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('example_android_trace_30s.pb'),
         query="""
-        INCLUDE PERFETTO MODULE slices.cpu_time;
+        INCLUDE DEJAVIEW MODULE slices.cpu_time;
 
         SELECT id, cpu_time
         FROM thread_slice_cpu_time

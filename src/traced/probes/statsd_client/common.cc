@@ -15,19 +15,19 @@
  */
 
 #include "src/traced/probes/statsd_client/common.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/config/statsd/statsd_tracing_config.pbzero.h"
-#include "protos/perfetto/trace/statsd/statsd_atom.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/statsd/statsd_tracing_config.pbzero.h"
+#include "protos/dejaview/trace/statsd/statsd_atom.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "protos/third_party/statsd/shell_config.pbzero.h"
 
-using ::perfetto::protos::pbzero::StatsdPullAtomConfig;
-using ::perfetto::protos::pbzero::StatsdShellSubscription;
-using ::perfetto::protos::pbzero::StatsdTracingConfig;
+using ::dejaview::protos::pbzero::StatsdPullAtomConfig;
+using ::dejaview::protos::pbzero::StatsdShellSubscription;
+using ::dejaview::protos::pbzero::StatsdTracingConfig;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 void AddPullAtoms(const StatsdPullAtomConfig::Decoder& cfg,
@@ -75,4 +75,4 @@ std::string CreateStatsdShellConfig(const DataSourceConfig& config) {
   return msg.SerializeAsString();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

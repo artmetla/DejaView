@@ -1,23 +1,23 @@
 package {
     // See: http://go/android-license-faq
     // A large-scale-change added 'default_applicable_licenses' to import
-    // all of the 'license_kinds' from "external_perfetto_license"
+    // all of the 'license_kinds' from "external_dejaview_license"
     // to get the below license kinds:
     //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["external_perfetto_license"],
+    default_applicable_licenses: ["external_dejaview_license"],
 }
 
 cc_test {
-  name: "VtsPerfettoTestCases",
+  name: "VtsDejaViewTestCases",
   srcs: [
-    "vendor_perfetto_atrace_test.cc",
+    "vendor_dejaview_atrace_test.cc",
   ],
   static_libs: [
     "libgmock",
-    "perfetto_vts_deps",
+    "dejaview_vts_deps",
   ],
   whole_static_libs: [
-    "perfetto_gtest_logcat_printer",
+    "dejaview_gtest_logcat_printer",
   ],
   shared_libs: [
     "libandroid",
@@ -27,6 +27,6 @@ cc_test {
     "vts",
   ],
   defaults: [
-    "perfetto_defaults",
+    "dejaview_defaults",
   ],
 }

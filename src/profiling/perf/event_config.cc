@@ -23,14 +23,14 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/profiling/perf/regs_parsing.h"
 
-#include "protos/perfetto/common/perf_events.gen.h"
-#include "protos/perfetto/config/profiling/perf_event_config.gen.h"
+#include "protos/dejaview/common/perf_events.gen.h"
+#include "protos/dejaview/config/profiling/perf_event_config.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -64,7 +64,7 @@ std::optional<uint32_t> ParseTracepointAndResolveId(
   std::string tp_name;
   std::tie(tp_group, tp_name) = SplitTracepointString(full_name);
   if (tp_group.empty() || tp_name.empty()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Invalid tracepoint format: %s. Should be a full path like "
         "sched:sched_switch or sched/sched_switch.",
         full_name.c_str());
@@ -73,7 +73,7 @@ std::optional<uint32_t> ParseTracepointAndResolveId(
 
   uint32_t tracepoint_id = tracepoint_id_lookup(tp_group, tp_name);
   if (!tracepoint_id) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Failed to resolve tracepoint %s to its id. Check that tracefs is "
         "accessible and the event exists.",
         full_name.c_str());
@@ -122,7 +122,7 @@ std::optional<uint32_t> ChooseActualRingBufferPages(uint32_t config_value) {
   }
 
   if (!IsPowerOfTwo(config_value)) {
-    PERFETTO_ELOG("kernel buffer size must be a power of two pages");
+    DEJAVIEW_ELOG("kernel buffer size must be a power of two pages");
     return std::nullopt;
   }
 
@@ -216,7 +216,7 @@ std::optional<PerfCounter> ToPerfCounter(
                                          PERF_COUNT_HW_REF_CPU_CYCLES);
 
     default:
-      PERFETTO_ELOG("Unrecognised PerfEvents::Counter enum value: %zu",
+      DEJAVIEW_ELOG("Unrecognised PerfEvents::Counter enum value: %zu",
                     static_cast<size_t>(pb_enum));
       return std::nullopt;
   }
@@ -343,7 +343,7 @@ std::optional<EventConfig> EventConfig::Create(
   } else {
     sampling_frequency = kDefaultSamplingFrequencyHz;
   }
-  PERFETTO_DCHECK(sampling_period && !sampling_frequency ||
+  DEJAVIEW_DCHECK(sampling_period && !sampling_frequency ||
                   !sampling_period && sampling_frequency);
 
   // Leader event. Default: CPU timer.
@@ -444,7 +444,7 @@ std::optional<EventConfig> EventConfig::Create(
     // likely as good as no limit in practice.
     samples_per_tick_limit = *ring_buffer_pages * (base::GetSysPageSize() / 8);
   }
-  PERFETTO_DLOG("Capping samples (not records) per tick to [%" PRIu64 "]",
+  DEJAVIEW_DLOG("Capping samples (not records) per tick to [%" PRIu64 "]",
                 samples_per_tick_limit);
   if (samples_per_tick_limit == 0)
     return std::nullopt;
@@ -567,4 +567,4 @@ EventConfig::EventConfig(const DataSourceConfig& raw_ds_config,
       raw_ds_config_(raw_ds_config) /* full copy */ {}
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

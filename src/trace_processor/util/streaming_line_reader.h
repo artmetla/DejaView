@@ -20,9 +20,9 @@
 #include <functional>
 #include <vector>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -87,6 +87,6 @@ class StreamingLineReader {
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_STREAMING_LINE_READER_H_

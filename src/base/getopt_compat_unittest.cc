@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/getopt_compat.h"
+#include "dejaview/ext/base/getopt_compat.h"
 
 // This test has two roles:
 // 1. In Windows builds it's a plain unittest for our getopt_compat.cc
@@ -23,9 +23,9 @@
 // It does so creating a gtest typed test, and defining two structs that inject
 // getopt functions and global variables like optind.
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <getopt.h>
 #endif
 
@@ -36,7 +36,7 @@
 using testing::ElementsAre;
 using testing::ElementsAreArray;
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -52,7 +52,7 @@ struct OurGetopt {
   char*& optarg = getopt_compat::optarg;
 };
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 struct SystemGetopt {
   using LongOptionType = ::option;
   using GetoptFn = decltype(&::getopt);
@@ -74,7 +74,7 @@ class GetoptCompatTest : public testing::Test {
     // When calling getopt() several times, MacOS requires that optind is reset
     // to 1, while Linux requires optind to be reset to 0. Also MacOS requires
     // optreset to be set as well.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
     impl.optind = 1;
     optreset = 1;  // It has no corresponding variable in other OSes.
 #else
@@ -92,7 +92,7 @@ class GetoptCompatTest : public testing::Test {
   T impl;
 };
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 using GetoptTestTypes = ::testing::Types<OurGetopt>;
 #else
 using GetoptTestTypes = ::testing::Types<OurGetopt, SystemGetopt>;
@@ -397,4 +397,4 @@ TYPED_TEST(GetoptCompatTest, OpterrHandling) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

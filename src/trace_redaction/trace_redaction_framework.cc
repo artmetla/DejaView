@@ -16,7 +16,7 @@
 
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 CollectPrimitive::~CollectPrimitive() = default;
 
@@ -32,4 +32,4 @@ BuildPrimitive::~BuildPrimitive() = default;
 
 TransformPrimitive::~TransformPrimitive() = default;
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

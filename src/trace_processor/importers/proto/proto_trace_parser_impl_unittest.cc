@@ -26,12 +26,12 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
@@ -62,43 +62,43 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/common/perf_events.gen.h"
-#include "protos/perfetto/common/perf_events.pbzero.h"
-#include "protos/perfetto/common/sys_stats_counters.pbzero.h"
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
-#include "protos/perfetto/trace/chrome/chrome_benchmark_metadata.pbzero.h"
-#include "protos/perfetto/trace/chrome/chrome_trace_event.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/generic.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
-#include "protos/perfetto/trace/ftrace/task.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_uuid.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/counter_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
-#include "protos/perfetto/trace/track_event/log_message.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/source_location.pbzero.h"
-#include "protos/perfetto/trace/track_event/task_execution.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/common/perf_events.gen.h"
+#include "protos/dejaview/common/perf_events.pbzero.h"
+#include "protos/dejaview/common/sys_stats_counters.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_benchmark_metadata.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_trace_event.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/generic.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/ftrace/task.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_uuid.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/counter_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/log_message.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/source_location.pbzero.h"
+#include "protos/dejaview/trace/track_event/task_execution.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 #include "src/trace_processor/importers/proto/perf_sample_tracker.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using ::std::make_pair;
@@ -3082,7 +3082,7 @@ TEST_F(ProtoTraceParserTest, PerfEventWithMultipleCounter) {
     perf_sample->set_pid(1);
     perf_sample->set_tid(42);
     perf_sample->set_cpu_mode(
-        ::perfetto::protos::pbzero::Profiling_CpuMode::MODE_USER);
+        ::dejaview::protos::pbzero::Profiling_CpuMode::MODE_USER);
     perf_sample->set_timebase_count(512);
     perf_sample->add_follower_counts(1024);
     perf_sample->add_follower_counts(2048);
@@ -3111,4 +3111,4 @@ TEST_F(ProtoTraceParserTest, PerfEventWithMultipleCounter) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

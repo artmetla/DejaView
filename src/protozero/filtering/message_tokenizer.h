@@ -19,9 +19,9 @@
 
 #include <stdint.h>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/proto_utils.h"
 
 namespace protozero {
 
@@ -70,8 +70,8 @@ class MessageTokenizer {
     // Parsing a fixed32/64 field is the only case where we don't have to do
     // any varint decoding. This is why this block is before the remaining
     // switch statement below (all the rest is a varint).
-    if (PERFETTO_UNLIKELY(state_ == kFixedIntValue)) {
-      PERFETTO_DCHECK(fixed_int_bits_ == 32 || fixed_int_bits_ == 64);
+    if (DEJAVIEW_UNLIKELY(state_ == kFixedIntValue)) {
+      DEJAVIEW_DCHECK(fixed_int_bits_ == 32 || fixed_int_bits_ == 64);
       fixed_int_value_ |= static_cast<uint64_t>(octet) << fixed_int_shift_;
       fixed_int_shift_ += 8;
       if (fixed_int_shift_ < fixed_int_bits_)
@@ -90,7 +90,7 @@ class MessageTokenizer {
     varint_ |= static_cast<uint64_t>(octet & 0x7F) << varint_shift_;
     if (octet & 0x80) {
       varint_shift_ += 7;
-      if (PERFETTO_UNLIKELY(varint_shift_ >= 64)) {
+      if (DEJAVIEW_UNLIKELY(varint_shift_ >= 64)) {
         varint_shift_ = 0;
         state_ = kInvalidVarInt;
       }
@@ -149,7 +149,7 @@ class MessageTokenizer {
 
       case kFixedIntValue:
         // Unreacheable because of the if before the switch.
-        PERFETTO_DCHECK(false);
+        DEJAVIEW_DCHECK(false);
         break;
 
       // Unrecoverable error states.

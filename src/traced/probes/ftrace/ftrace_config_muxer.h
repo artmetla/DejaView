@@ -29,7 +29,7 @@
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "src/traced/probes/ftrace/proto_translation_table.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos {
 namespace pbzero {
@@ -101,7 +101,7 @@ struct FtraceDataSourceConfig {
 //
 // Specifically FtraceConfigMuxer takes in a *requested* FtraceConfig
 // (|SetupConfig|), makes a best effort attempt to modify the ftrace
-// debugfs files to honor those settings without interrupting other perfetto
+// debugfs files to honor those settings without interrupting other dejaview
 // traces already in progress or other users of ftrace, then returns an
 // FtraceConfigId representing that config or zero on failure.
 //
@@ -195,7 +195,7 @@ class FtraceConfigMuxer {
     // Categories that should be enabled. This is a union of all the active
     // configs.
     std::vector<std::string> atrace_categories;
-    // Categories for which the perfetto SDK track_event should be enabled.
+    // Categories for which the dejaview SDK track_event should be enabled.
     std::vector<std::string> atrace_categories_prefer_sdk;
     bool saved_tracing_on;  // Backup for the original tracing_on.
   };
@@ -269,6 +269,6 @@ size_t ComputeCpuBufferSizeInPages(size_t requested_buffer_size_kb,
                                    bool buffer_size_lower_bound,
                                    int64_t sysconf_phys_pages);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FTRACE_CONFIG_MUXER_H_

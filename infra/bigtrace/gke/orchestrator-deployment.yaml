@@ -28,7 +28,7 @@ spec:
     spec:
       containers:
       - image: # [ZONE]-docker.pkg.dev/[PROJECT_NAME]/[REPO_NAME]/bigtrace_orchestrator
-        command: ["/perfetto/out/dist/orchestrator_main"]
+        command: ["/dejaview/out/dist/orchestrator_main"]
         args: ["-l", "worker:5052", "-r", "dns:///", "-s", "0.0.0.0:5051", "-t", "100"]
         imagePullPolicy: IfNotPresent
         name: orchestrator

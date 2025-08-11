@@ -18,8 +18,8 @@
 #define SRC_PROFILING_MEMORY_SHARED_RING_BUFFER_H_
 #include <optional>
 
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/profiling/memory/scoped_spinlock.h"
 #include "src/profiling/memory/util.h"
 
@@ -31,7 +31,7 @@
 
 #include <stdint.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // A concurrent, multi-writer single-reader ring buffer FIFO, based on a
@@ -82,19 +82,19 @@ class SharedRingBuffer {
   };
 
   struct Stats {
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) bytes_written;
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) num_writes_succeeded;
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) num_writes_corrupt;
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) num_writes_overflow;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) bytes_written;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) num_writes_succeeded;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) num_writes_corrupt;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) num_writes_overflow;
 
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) num_reads_succeeded;
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) num_reads_corrupt;
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) num_reads_nodata;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) num_reads_succeeded;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) num_reads_corrupt;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) num_reads_nodata;
 
     // Fields below get set by GetStats as copies of atomics in MetadataPage.
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) failed_spinlocks;
-    PERFETTO_CROSS_ABI_ALIGNED(uint64_t) client_spinlock_blocked_us;
-    PERFETTO_CROSS_ABI_ALIGNED(ErrorState) error_state;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) failed_spinlocks;
+    DEJAVIEW_CROSS_ABI_ALIGNED(uint64_t) client_spinlock_blocked_us;
+    DEJAVIEW_CROSS_ABI_ALIGNED(ErrorState) error_state;
   };
 
   static std::optional<SharedRingBuffer> Create(size_t);
@@ -132,7 +132,7 @@ class SharedRingBuffer {
   size_t EndRead(Buffer);
 
   Stats GetStats(ScopedSpinlock& spinlock) {
-    PERFETTO_DCHECK(spinlock.locked());
+    DEJAVIEW_DCHECK(spinlock.locked());
     Stats stats = meta_->stats;
     stats.failed_spinlocks =
         meta_->failed_spinlocks.load(std::memory_order_relaxed);
@@ -149,7 +149,7 @@ class SharedRingBuffer {
   // done under the lock. This will be used to increment the sequence_number.
   ScopedSpinlock AcquireLock(ScopedSpinlock::Mode mode) {
     auto lock = ScopedSpinlock(&meta_->spinlock, mode);
-    if (PERFETTO_UNLIKELY(!lock.locked()))
+    if (DEJAVIEW_UNLIKELY(!lock.locked()))
       meta_->failed_spinlocks.fetch_add(1, std::memory_order_relaxed);
     return lock;
   }
@@ -187,13 +187,13 @@ class SharedRingBuffer {
   // Exposed for fuzzers.
   struct MetadataPage {
     alignas(8) Spinlock spinlock;
-    PERFETTO_CROSS_ABI_ALIGNED(std::atomic<uint64_t>) read_pos;
-    PERFETTO_CROSS_ABI_ALIGNED(std::atomic<uint64_t>) write_pos;
+    DEJAVIEW_CROSS_ABI_ALIGNED(std::atomic<uint64_t>) read_pos;
+    DEJAVIEW_CROSS_ABI_ALIGNED(std::atomic<uint64_t>) write_pos;
 
-    PERFETTO_CROSS_ABI_ALIGNED(std::atomic<uint64_t>)
+    DEJAVIEW_CROSS_ABI_ALIGNED(std::atomic<uint64_t>)
     client_spinlock_blocked_us;
-    PERFETTO_CROSS_ABI_ALIGNED(std::atomic<uint64_t>) failed_spinlocks;
-    PERFETTO_CROSS_ABI_ALIGNED(std::atomic<ErrorState>) error_state;
+    DEJAVIEW_CROSS_ABI_ALIGNED(std::atomic<uint64_t>) failed_spinlocks;
+    DEJAVIEW_CROSS_ABI_ALIGNED(std::atomic<ErrorState>) error_state;
     alignas(sizeof(uint64_t)) std::atomic<bool> shutting_down;
     alignas(sizeof(uint64_t)) std::atomic<bool> reader_paused;
     // For stats that are only accessed by a single thread or under the
@@ -250,9 +250,9 @@ class SharedRingBuffer {
   }
 
   inline size_t read_avail(const PointerPositions& pos) {
-    PERFETTO_DCHECK(pos.write_pos >= pos.read_pos);
+    DEJAVIEW_DCHECK(pos.write_pos >= pos.read_pos);
     auto res = static_cast<size_t>(pos.write_pos - pos.read_pos);
-    PERFETTO_DCHECK(res <= size_);
+    DEJAVIEW_DCHECK(res <= size_);
     return res;
   }
 
@@ -275,6 +275,6 @@ class SharedRingBuffer {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_SHARED_RING_BUFFER_H_

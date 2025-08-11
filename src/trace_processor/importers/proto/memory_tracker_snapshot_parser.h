@@ -17,14 +17,14 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_MEMORY_TRACKER_SNAPSHOT_PARSER_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_MEMORY_TRACKER_SNAPSHOT_PARSER_H_
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/graph_processor.h"
-#include "protos/perfetto/trace/memory_graph.pbzero.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/graph_processor.h"
+#include "protos/dejaview/trace/memory_graph.pbzero.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -117,6 +117,6 @@ class MemoryTrackerSnapshotParser {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_MEMORY_TRACKER_SNAPSHOT_PARSER_H_

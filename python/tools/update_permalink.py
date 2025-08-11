@@ -10,7 +10,7 @@ import ssl
 import hashlib
 import copy
 
-BUCKET_NAME = "perfetto-ui-data"
+BUCKET_NAME = "dejaview-ui-data"
 CURRENT_STATE_VERSION = 28
 
 

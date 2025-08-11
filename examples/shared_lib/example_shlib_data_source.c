@@ -16,46 +16,46 @@
 
 #include <unistd.h>
 
-#include "perfetto/public/data_source.h"
-#include "perfetto/public/producer.h"
-#include "perfetto/public/protos/trace/test_event.pzc.h"
-#include "perfetto/public/protos/trace/trace_packet.pzc.h"
+#include "dejaview/public/data_source.h"
+#include "dejaview/public/producer.h"
+#include "dejaview/public/protos/trace/test_event.pzc.h"
+#include "dejaview/public/protos/trace/trace_packet.pzc.h"
 
-static struct PerfettoDs custom = PERFETTO_DS_INIT();
+static struct DejaViewDs custom = DEJAVIEW_DS_INIT();
 
 int main(void) {
-  struct PerfettoProducerInitArgs args = PERFETTO_PRODUCER_INIT_ARGS_INIT();
-  args.backends = PERFETTO_BACKEND_SYSTEM;
-  PerfettoProducerInit(args);
+  struct DejaViewProducerInitArgs args = DEJAVIEW_PRODUCER_INIT_ARGS_INIT();
+  args.backends = DEJAVIEW_BACKEND_SYSTEM;
+  DejaViewProducerInit(args);
 
-  PerfettoDsRegister(&custom, "com.example.custom_data_source",
-                     PerfettoDsParamsDefault());
+  DejaViewDsRegister(&custom, "com.example.custom_data_source",
+                     DejaViewDsParamsDefault());
 
   for (;;) {
-    PERFETTO_DS_TRACE(custom, ctx) {
-      struct PerfettoDsRootTracePacket root;
-      PerfettoDsTracerPacketBegin(&ctx, &root);
+    DEJAVIEW_DS_TRACE(custom, ctx) {
+      struct DejaViewDsRootTracePacket root;
+      DejaViewDsTracerPacketBegin(&ctx, &root);
 
-      perfetto_protos_TracePacket_set_timestamp(&root.msg, 42);
+      dejaview_protos_TracePacket_set_timestamp(&root.msg, 42);
       {
-        struct perfetto_protos_TestEvent for_testing;
-        perfetto_protos_TracePacket_begin_for_testing(&root.msg, &for_testing);
+        struct dejaview_protos_TestEvent for_testing;
+        dejaview_protos_TracePacket_begin_for_testing(&root.msg, &for_testing);
 
-        perfetto_protos_TestEvent_set_cstr_str(&for_testing,
+        dejaview_protos_TestEvent_set_cstr_str(&for_testing,
                                                "This is a long string");
         {
-          struct perfetto_protos_TestEvent_TestPayload payload;
-          perfetto_protos_TestEvent_begin_payload(&for_testing, &payload);
+          struct dejaview_protos_TestEvent_TestPayload payload;
+          dejaview_protos_TestEvent_begin_payload(&for_testing, &payload);
 
           for (int i = 0; i < 1000; i++) {
-            perfetto_protos_TestEvent_TestPayload_set_cstr_str(&payload,
+            dejaview_protos_TestEvent_TestPayload_set_cstr_str(&payload,
                                                                "nested");
           }
-          perfetto_protos_TestEvent_end_payload(&for_testing, &payload);
+          dejaview_protos_TestEvent_end_payload(&for_testing, &payload);
         }
-        perfetto_protos_TracePacket_end_for_testing(&root.msg, &for_testing);
+        dejaview_protos_TracePacket_end_for_testing(&root.msg, &for_testing);
       }
-      PerfettoDsTracerPacketEnd(&ctx, &root);
+      DejaViewDsTracerPacketEnd(&ctx, &root);
     }
     sleep(1);
   }

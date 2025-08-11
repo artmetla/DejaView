@@ -24,18 +24,18 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/json/json_utils.h"
 #include "src/trace_processor/importers/systrace/systrace_line.h"
 #include "src/trace_processor/sorter/trace_sorter.h"  // IWYU pragma: keep
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 std::string FormatErrorContext(const char* s, const char* e) {
@@ -309,7 +309,7 @@ ReadKeyRes ReadOneJsonKey(const char* start,
 base::Status ExtractValueForJsonKey(base::StringView dict,
                                     const std::string& key,
                                     std::optional<std::string>* value) {
-  PERFETTO_DCHECK(dict.size() >= 2);
+  DEJAVIEW_DCHECK(dict.size() >= 2);
 
   const char* start = dict.data();
   const char* end = dict.data() + dict.size();
@@ -340,8 +340,8 @@ base::Status ExtractValueForJsonKey(base::StringView dict,
       return base::ErrStatus("Unexpected character after JSON dict: '%c'", *s);
     }
 
-    PERFETTO_DCHECK(state == kInsideDict);
-    PERFETTO_DCHECK(s < end);
+    DEJAVIEW_DCHECK(state == kInsideDict);
+    DEJAVIEW_DCHECK(s < end);
 
     if (*s == '}') {
       ++s;
@@ -367,7 +367,7 @@ base::Status ExtractValueForJsonKey(base::StringView dict,
           FormatErrorContext(s, end).c_str());
     }
 
-    PERFETTO_DCHECK(res == ReadKeyRes::kFoundKey);
+    DEJAVIEW_DCHECK(res == ReadKeyRes::kFoundKey);
 
     if (*s == '[') {
       return base::ErrStatus(
@@ -458,7 +458,7 @@ JsonTraceTokenizer::JsonTraceTokenizer(TraceProcessorContext* ctx)
 JsonTraceTokenizer::~JsonTraceTokenizer() = default;
 
 base::Status JsonTraceTokenizer::Parse(TraceBlobView blob) {
-  PERFETTO_DCHECK(json::IsJsonSupported());
+  DEJAVIEW_DCHECK(json::IsJsonSupported());
 
   buffer_.insert(buffer_.end(), blob.data(), blob.data() + blob.size());
   const char* buf = buffer_.data();
@@ -507,7 +507,7 @@ base::Status JsonTraceTokenizer::Parse(TraceBlobView blob) {
 base::Status JsonTraceTokenizer::ParseInternal(const char* start,
                                                const char* end,
                                                const char** out) {
-  PERFETTO_DCHECK(json::IsJsonSupported());
+  DEJAVIEW_DCHECK(json::IsJsonSupported());
 
   switch (position_) {
     case TracePosition::kDictionaryKey:
@@ -523,7 +523,7 @@ base::Status JsonTraceTokenizer::ParseInternal(const char* start,
                        "Failure parsing JSON: tried to parse data after EOF");
     }
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 base::Status JsonTraceTokenizer::HandleTraceEvent(const char* start,
@@ -603,7 +603,7 @@ base::Status JsonTraceTokenizer::HandleDictionaryKey(const char* start,
 
   // ReadOneJsonKey should ensure that the first character of the value is
   // available.
-  PERFETTO_CHECK(next < end);
+  DEJAVIEW_CHECK(next < end);
 
   if (key == "traceEvents") {
     // Skip the [ character opening the array.
@@ -652,7 +652,7 @@ base::Status JsonTraceTokenizer::HandleDictionaryKey(const char* start,
     case SkipValueRes::kEndOfValue:
       return ParseInternal(next, end, out);
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 base::Status JsonTraceTokenizer::HandleSystemTraceEvent(const char* start,
@@ -696,4 +696,4 @@ base::Status JsonTraceTokenizer::NotifyEndOfFile() {
              : base::ErrStatus("JSON trace file is incomplete");
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

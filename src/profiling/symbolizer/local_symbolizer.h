@@ -24,11 +24,11 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 #include "src/profiling/symbolizer/subprocess.h"
 #include "src/profiling/symbolizer/symbolizer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 bool ParseLlvmSymbolizerJsonLine(const std::string& line,
@@ -123,6 +123,6 @@ std::unique_ptr<Symbolizer> LocalSymbolizerOrDie(
     const char* mode);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_LOCAL_SYMBOLIZER_H_

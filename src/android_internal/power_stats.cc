@@ -16,7 +16,7 @@
 
 #include "src/android_internal/power_stats.h"
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 
 #include <string.h>
 
@@ -32,7 +32,7 @@
 
 #include <binder/IServiceManager.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 namespace hal = android::hardware::power::stats::V1_0;
@@ -506,4 +506,4 @@ bool PowerStatsAidlDataProvider::GetPowerEntityStateResidency(
 /*** End of Power Stats AIDL Implemenation ************************************/
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview

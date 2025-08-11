@@ -24,11 +24,11 @@
 
 #include <google/protobuf/compiler/importer.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/protozero/filtering/filter_bytecode_generator.h"
 #include "src/protozero/filtering/filter_bytecode_parser.h"
 
@@ -50,7 +50,7 @@ void MultiFileErrorCollectorImpl::AddError(const std::string& filename,
                                            int line,
                                            int column,
                                            const std::string& message) {
-  PERFETTO_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
+  DEJAVIEW_ELOG("Error %s %d:%d: %s", filename.c_str(), line, column,
                 message.c_str());
 }
 
@@ -58,7 +58,7 @@ void MultiFileErrorCollectorImpl::AddWarning(const std::string& filename,
                                              int line,
                                              int column,
                                              const std::string& message) {
-  PERFETTO_ELOG("Warning %s %d:%d: %s", filename.c_str(), line, column,
+  DEJAVIEW_ELOG("Warning %s %d:%d: %s", filename.c_str(), line, column,
                 message.c_str());
 }
 
@@ -79,20 +79,20 @@ bool FilterUtil::LoadMessageDefinition(
   filter_string_fields_seen_.clear();
 
   // The protobuf compiler doesn't like backslashes and prints an error like:
-  // Error C:\it7mjanpw3\perfetto-a16500 -1:0: Backslashes, consecutive slashes,
+  // Error C:\it7mjanpw3\dejaview-a16500 -1:0: Backslashes, consecutive slashes,
   // ".", or ".." are not allowed in the virtual path.
   // Given that C:\foo\bar is a legit path on windows, fix it at this level
   // because the problem is really the protobuf compiler being too picky.
   static auto normalize_for_win = [](const std::string& path) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-    return perfetto::base::ReplaceAll(path, "\\", "/");
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+    return dejaview::base::ReplaceAll(path, "\\", "/");
 #else
     return path;
 #endif
   };
 
   google::protobuf::compiler::DiskSourceTree dst;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // If the path is absolute, maps "C:/" -> "C:/" (without hardcoding 'C').
   if (proto_file.size() > 3 && proto_file[1] == ':') {
     char win_drive[4]{proto_file[0], ':', '/', '\0'};
@@ -113,14 +113,14 @@ bool FilterUtil::LoadMessageDefinition(
     // most times it's the right guess.
     root_msg = root_file->message_type(0);
     if (root_msg)
-      PERFETTO_LOG(
+      DEJAVIEW_LOG(
           "The guessed root message name is \"%s\". Pass -r com.MyName to "
           "override",
           root_msg->full_name().c_str());
   }
 
   if (!root_msg) {
-    PERFETTO_ELOG("Could not find the root message \"%s\" in %s",
+    DEJAVIEW_ELOG("Could not find the root message \"%s\" in %s",
                   root_message.c_str(), proto_file.c_str());
     return false;
   }
@@ -140,10 +140,10 @@ bool FilterUtil::LoadMessageDefinition(
                       passthrough_fields_seen_.end(),
                       std::back_inserter(unused));
   for (const std::string& message_and_field : unused) {
-    PERFETTO_ELOG("Field not found %s", message_and_field.c_str());
+    DEJAVIEW_ELOG("Field not found %s", message_and_field.c_str());
   }
   if (!unused.empty()) {
-    PERFETTO_ELOG("Passthrough syntax: perfetto.protos.MessageName:field_name");
+    DEJAVIEW_ELOG("Passthrough syntax: dejaview.protos.MessageName:field_name");
     return false;
   }
   std::set_difference(
@@ -151,11 +151,11 @@ bool FilterUtil::LoadMessageDefinition(
       filter_string_fields_seen_.begin(), filter_string_fields_seen_.end(),
       std::back_inserter(unused));
   for (const std::string& message_and_field : unused) {
-    PERFETTO_ELOG("Field not found %s", message_and_field.c_str());
+    DEJAVIEW_ELOG("Field not found %s", message_and_field.c_str());
   }
   if (!unused.empty()) {
-    PERFETTO_ELOG(
-        "Filter string syntax: perfetto.protos.MessageName:field_name");
+    DEJAVIEW_ELOG(
+        "Filter string syntax: dejaview.protos.MessageName:field_name");
     return false;
   }
   return true;
@@ -177,7 +177,7 @@ FilterUtil::Message* FilterUtil::ParseProtoDescriptor(
   for (int i = 0; i < proto->field_count(); ++i) {
     const auto* proto_field = proto->field(i);
     const uint32_t field_id = static_cast<uint32_t>(proto_field->number());
-    PERFETTO_CHECK(msg->fields.count(field_id) == 0);
+    DEJAVIEW_CHECK(msg->fields.count(field_id) == 0);
     auto& field = msg->fields[field_id];
     field.name = proto_field->name();
     field.type = proto_field->type_name();
@@ -190,7 +190,7 @@ FilterUtil::Message* FilterUtil::ParseProtoDescriptor(
       passthrough_fields_seen_.insert(message_and_field);
     }
     if (filter_string_fields_.count(message_and_field)) {
-      PERFETTO_CHECK(field.type == "string");
+      DEJAVIEW_CHECK(field.type == "string");
       field.filter_string = true;
       msg->has_filter_string_fields = true;
       filter_string_fields_seen_.insert(message_and_field);
@@ -261,7 +261,7 @@ void FilterUtil::Dedupe() {
       it = descriptors_.erase(it);
     }
   }
-  PERFETTO_LOG(
+  DEJAVIEW_LOG(
       "Deduplication removed %zu duped descriptors out of %zu descriptors from "
       "%zu fields",
       removed_count, initial_count, field_count);
@@ -269,7 +269,7 @@ void FilterUtil::Dedupe() {
 
 // Prints the list of messages and fields in a diff-friendly text format.
 void FilterUtil::PrintAsText(std::optional<std::string> filter_bytecode) {
-  using perfetto::base::StripPrefix;
+  using dejaview::base::StripPrefix;
   const std::string& root_name = descriptors_.front().full_name;
   std::string root_prefix = root_name.substr(0, root_name.rfind('.'));
   if (!root_prefix.empty())
@@ -277,7 +277,7 @@ void FilterUtil::PrintAsText(std::optional<std::string> filter_bytecode) {
 
   FilterBytecodeParser parser;
   if (filter_bytecode) {
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         parser.Load(filter_bytecode->data(), filter_bytecode->size()));
   }
 
@@ -315,9 +315,9 @@ void FilterUtil::PrintAsText(std::optional<std::string> filter_bytecode) {
           queue.emplace_back(result.nested_msg_index, nested_type);
         }
       } else {  // simple field
-        PERFETTO_CHECK(result.simple_field() || result.filter_string_field() ||
+        DEJAVIEW_CHECK(result.simple_field() || result.filter_string_field() ||
                        !filter_bytecode);
-        PERFETTO_CHECK(result.filter_string_field() == field.filter_string ||
+        DEJAVIEW_CHECK(result.filter_string_field() == field.filter_string ||
                        !filter_bytecode);
       }
 
@@ -350,7 +350,7 @@ std::string FilterUtil::GenerateFilterBytecode() {
       const Message::Field& field = it->second;
       if (field.nested_type) {
         // Append the index of the target submessage.
-        PERFETTO_CHECK(descr_to_idx.count(field.nested_type));
+        DEJAVIEW_CHECK(descr_to_idx.count(field.nested_type));
         uint32_t nested_msg_index = descr_to_idx[field.nested_type];
         bytecode_gen.AddNestedField(field_id, nested_msg_index);
         ++it;
@@ -394,7 +394,7 @@ std::string FilterUtil::LookupField(const std::string& varint_encoded_path) {
   while (ptr < end) {
     uint64_t varint;
     const uint8_t* next = proto_utils::ParseVarInt(ptr, end, &varint);
-    PERFETTO_CHECK(next != ptr);
+    DEJAVIEW_CHECK(next != ptr);
     fields.emplace_back(static_cast<uint32_t>(varint));
     ptr = next;
   }

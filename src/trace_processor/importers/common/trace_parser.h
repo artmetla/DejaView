@@ -20,7 +20,7 @@
 #include <cstdint>
 #include <string>
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace perf_importer {
 struct Record;
 }
@@ -116,6 +116,6 @@ class PerfTextTraceParser {
                                   perf_text_importer::PerfTextEvent) = 0;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_TRACE_PARSER_H_

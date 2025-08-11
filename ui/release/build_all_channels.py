@@ -98,7 +98,7 @@ def build_all_channels(channels, tmp_dir, merged_dist_dir):
 def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--upload', action='store_true')
-  parser.add_argument('--tmp', default='/tmp/perfetto_ui')
+  parser.add_argument('--tmp', default='/tmp/dejaview_ui')
   parser.add_argument('--branch_only')
 
   args = parser.parse_args()
@@ -124,8 +124,8 @@ def main():
       f.seek(0, 0)
       f.truncate()
       index_html = re.sub(
-          r"data-perfetto_version='[^']*'",
-          "data-perfetto_version='%s'" % json.dumps(channel_map), index_html)
+          r"data-dejaview_version='[^']*'",
+          "data-dejaview_version='%s'" % json.dumps(channel_map), index_html)
       f.write(index_html)
 
   if not args.upload:

@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 
 cc_library(
     name = "jsoncpp",
@@ -38,7 +38,7 @@ cc_library(
     copts = [
         "-Wno-deprecated-declarations",
         "-Isrc/lib_json",
-    ] + PERFETTO_CONFIG.deps_copts.jsoncpp,
+    ] + DEJAVIEW_CONFIG.deps_copts.jsoncpp,
     defines = [
         "JSON_USE_EXCEPTION=0",
     ],

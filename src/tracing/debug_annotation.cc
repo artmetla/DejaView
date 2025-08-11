@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/debug_annotation.h"
+#include "dejaview/tracing/debug_annotation.h"
 
-#include "perfetto/tracing/traced_value.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
+#include "dejaview/tracing/traced_value.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 DebugAnnotation::~DebugAnnotation() = default;
 
@@ -27,4 +27,4 @@ void DebugAnnotation::WriteIntoTracedValue(TracedValue context) const {
   Add(context.annotation_);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

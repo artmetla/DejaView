@@ -18,20 +18,20 @@
 #define SRC_TRACE_PROCESSOR_UTIL_REGEX_H_
 
 #include <optional>
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/status_or.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <regex.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace regex {
 
 constexpr bool IsRegexSupported() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   return false;
 #else
   return true;
@@ -42,7 +42,7 @@ constexpr bool IsRegexSupported() {
 // Doesn't work on Windows.
 class Regex {
  public:
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   ~Regex() {
     if (regex_) {
       regfree(&regex_.value());
@@ -63,7 +63,7 @@ class Regex {
 
   // Parse regex pattern. Returns error if regex pattern is invalid.
   static base::StatusOr<Regex> Create(const char* pattern) {
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     regex_t regex;
     if (regcomp(&regex, pattern, 0)) {
       return base::ErrStatus("Regex pattern '%s' is malformed.", pattern);
@@ -71,22 +71,22 @@ class Regex {
     return Regex(std::move(regex));
 #else
     base::ignore_result(pattern);
-    PERFETTO_FATAL("Windows regex is not supported.");
+    DEJAVIEW_FATAL("Windows regex is not supported.");
 #endif
   }
 
   // Returns true if string matches the regex.
   bool Search(const char* s) const {
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-    PERFETTO_CHECK(regex_);
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+    DEJAVIEW_CHECK(regex_);
     return regexec(&regex_.value(), s, 0, nullptr, 0) == 0;
 #else
     base::ignore_result(s);
-    PERFETTO_FATAL("Windows regex is not supported.");
+    DEJAVIEW_FATAL("Windows regex is not supported.");
 #endif
   }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
  private:
   explicit Regex(regex_t regex) : regex_(std::move(regex)) {}
 
@@ -96,6 +96,6 @@ class Regex {
 }  // namespace regex
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_REGEX_H_

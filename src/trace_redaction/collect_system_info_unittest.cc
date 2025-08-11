@@ -19,12 +19,12 @@
 #include "src/trace_processor/util/status_macros.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/ftrace/sched.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/ftrace/sched.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class CollectSystemInfoTest : public testing::Test {
  protected:
@@ -96,4 +96,4 @@ TEST(BuildSyntheticProcessTest, CreatesThreadsPerCpu) {
   ASSERT_EQ(context.synthetic_process->tids().size(), 9u);
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

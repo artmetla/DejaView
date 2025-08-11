@@ -14,7 +14,7 @@
 
 import("../../../gn/test.gni")
 
-assert(enable_perfetto_trace_processor_sqlite)
+assert(enable_dejaview_trace_processor_sqlite)
 
 source_set("sqlite") {
   sources = [
@@ -37,17 +37,17 @@ source_set("sqlite") {
     "..:metatrace",
     "../../../gn:default_deps",
     "../../../gn:sqlite",
-    "../../../include/perfetto/trace_processor",
-    "../../../include/perfetto/trace_processor:basic_types",
-    "../../../protos/perfetto/trace/ftrace:zero",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../include/dejaview/trace_processor",
+    "../../../include/dejaview/trace_processor:basic_types",
+    "../../../protos/dejaview/trace/ftrace:zero",
+    "../../../protos/dejaview/trace_processor:zero",
     "../../base",
     "../containers",
     "../db",
     "../db/column",
     "../importers/common",
     "../importers/ftrace:ftrace_descriptors",
-    "../perfetto_sql/intrinsics/table_functions:interface",
+    "../dejaview_sql/intrinsics/table_functions:interface",
     "../storage",
     "../types",
     "../util",
@@ -57,7 +57,7 @@ source_set("sqlite") {
   public_deps = [ "bindings" ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [
     "db_sqlite_table_unittest.cc",
@@ -69,14 +69,14 @@ perfetto_unittest_source_set("unittests") {
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
     "../../../gn:sqlite",
-    "../../../include/perfetto/trace_processor:basic_types",
+    "../../../include/dejaview/trace_processor:basic_types",
     "../../base",
     "../../base:test_support",
     "../db",
   ]
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [

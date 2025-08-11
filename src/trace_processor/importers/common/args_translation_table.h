@@ -20,23 +20,23 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/deobfuscation_mapping_table.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
 template <>
-struct std::hash<std::pair<perfetto::trace_processor::MappingId, uint64_t>> {
-  size_t operator()(const std::pair<perfetto::trace_processor::MappingId,
+struct std::hash<std::pair<dejaview::trace_processor::MappingId, uint64_t>> {
+  size_t operator()(const std::pair<dejaview::trace_processor::MappingId,
                                     uint64_t>& p) const {
-    return std::hash<perfetto::trace_processor::MappingId>{}(p.first) ^
+    return std::hash<dejaview::trace_processor::MappingId>{}(p.first) ^
            std::hash<uint64_t>{}(p.second);
   }
 };
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Tracks and stores args translation rules. It allows Trace Processor
@@ -208,6 +208,6 @@ class ArgsTranslationTable {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_ARGS_TRANSLATION_TABLE_H_

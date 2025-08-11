@@ -374,13 +374,13 @@ function RecordingNotes() {
 
   const msgFeatNotSupported = m(
     'span',
-    `Some probes are only supported in Perfetto versions running
+    `Some probes are only supported in DejaView versions running
       on Android Q+. `,
   );
 
-  const msgPerfettoNotSupported = m(
+  const msgDejaViewNotSupported = m(
     'span',
-    `Perfetto is not supported natively before Android P. `,
+    `DejaView is not supported natively before Android P. `,
   );
 
   const msgSideload = m(
@@ -390,13 +390,13 @@ function RecordingNotes() {
       'a',
       {href: sideloadUrl, target: '_blank'},
       `sideload the latest version of
-         Perfetto.`,
+         DejaView.`,
     ),
   );
 
   const msgRecordingNotSupported = m(
     '.note',
-    `Recording Perfetto traces from the UI is not supported natively
+    `Recording DejaView traces from the UI is not supported natively
      before Android Q. If you are using a P device, please select 'Android P'
      as the 'Target Platform' and `,
     m(
@@ -408,14 +408,14 @@ function RecordingNotes() {
 
   const msgChrome = m(
     '.note',
-    `To trace Chrome from the Perfetto UI, you need to install our `,
+    `To trace Chrome from the DejaView UI, you need to install our `,
     m('a', {href: extensionURL, target: '_blank'}, 'Chrome extension'),
     ' and then reload this page. ',
   );
 
   const msgWinEtw = m(
     '.note',
-    `To trace with Etw on Windows from the Perfetto UI, you to run chrome with`,
+    `To trace with Etw on Windows from the DejaView UI, you to run chrome with`,
     ` administrator permission and you need to install our `,
     m('a', {href: extensionURL, target: '_blank'}, 'Chrome extension'),
     ' and then reload this page.',
@@ -459,7 +459,7 @@ function RecordingNotes() {
       notes.push(m('.note', msgFeatNotSupported, msgSideload));
       break;
     case 'O':
-      notes.push(m('.note', msgPerfettoNotSupported, msgSideload));
+      notes.push(m('.note', msgDejaViewNotSupported, msgSideload));
       break;
     case 'L':
       notes.push(msgLinux);
@@ -493,7 +493,7 @@ function RecordingSnippet() {
           'div',
           m(
             'label',
-            `To trace Chrome from the Perfetto UI you just have to press
+            `To trace Chrome from the DejaView UI you just have to press
          'Start Recording'.`,
           ),
         )
@@ -522,13 +522,13 @@ function getRecordCommand(target: RecordingTarget) {
   if (isAndroidP(target)) {
     cmd += `echo '${pbBase64}' | \n`;
     cmd += 'base64 --decode | \n';
-    cmd += 'adb shell "perfetto -c - -o /data/misc/perfetto-traces/trace"\n';
+    cmd += 'adb shell "dejaview -c - -o /data/misc/dejaview-traces/trace"\n';
   } else {
     cmd += isAndroidTarget(target)
-      ? 'adb shell perfetto \\\n'
-      : 'perfetto \\\n';
+      ? 'adb shell dejaview \\\n'
+      : 'dejaview \\\n';
     cmd += '  -c - --txt \\\n';
-    cmd += '  -o /data/misc/perfetto-traces/trace \\\n';
+    cmd += '  -o /data/misc/dejaview-traces/trace \\\n';
     cmd += '<<EOF\n\n';
     cmd += pbtx;
     cmd += '\nEOF\n';
@@ -670,7 +670,7 @@ export async function updateAvailableAdbDevices(
     if (d.productName && d.serialNumber) {
       // TODO(nicomazz): At this stage, we can't know the OS version, so we
       // assume it is 'Q'. This can create problems with devices with an old
-      // version of perfetto. The os detection should be done after the adb
+      // version of dejaview. The os detection should be done after the adb
       // connection, from adb_record_controller
       availableAdbDevices.push({
         name: d.productName,

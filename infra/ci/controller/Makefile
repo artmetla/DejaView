@@ -19,7 +19,7 @@ include $(shell python3 ../config.py makefile)
 GOOGLE_CLOUD_PROJECT=${PROJECT}
 
 test: config.py common_utils.py
-	gcloud auth application-default login --impersonate-service-account perfetto-ci@appspot.gserviceaccount.com
+	gcloud auth application-default login --impersonate-service-account dejaview-ci@appspot.gserviceaccount.com
 	python3 `which dev_appserver.py` app.yaml --support_datastore_emulator=False --log_level ${LOGLEVEL}
 
 deploy: config.py common_utils.py

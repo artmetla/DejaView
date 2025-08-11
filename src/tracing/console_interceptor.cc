@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/console_interceptor.h"
+#include "dejaview/tracing/console_interceptor.h"
 
 #include <stdarg.h>
 
@@ -23,26 +23,26 @@
 #include <optional>
 #include <tuple>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/tracing/internal/track_event_internal.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/tracing/internal/track_event_internal.h"
 
-#include "protos/perfetto/common/interceptor_descriptor.gen.h"
-#include "protos/perfetto/config/data_source_config.gen.h"
-#include "protos/perfetto/config/interceptor_config.gen.h"
-#include "protos/perfetto/config/interceptors/console_config.gen.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/common/interceptor_descriptor.gen.h"
+#include "protos/dejaview/config/data_source_config.gen.h"
+#include "protos/dejaview/config/interceptor_config.gen.h"
+#include "protos/dejaview/config/interceptors/console_config.gen.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // sRGB color.
 struct ConsoleColor {
@@ -96,7 +96,7 @@ ConsoleColor Mix(ConsoleColor a, ConsoleColor b, uint8_t ratio) {
 }
 
 ConsoleColor HueToRGB(uint32_t hue) {
-  PERFETTO_DCHECK(hue < kMaxHue);
+  DEJAVIEW_DCHECK(hue < kMaxHue);
   uint32_t c1 = hue >> kHueBits;
   uint32_t c2 =
       std::min(static_cast<uint32_t>(kTurboColors.size() - 1), c1 + 1u);
@@ -255,7 +255,7 @@ void ConsoleInterceptor::Delegate::OnTrackEvent(
 
 // static
 void ConsoleInterceptor::Register() {
-  perfetto::protos::gen::InterceptorDescriptor desc;
+  dejaview::protos::gen::InterceptorDescriptor desc;
   desc.set_name("console");
   Interceptor<ConsoleInterceptor>::Register(desc);
 }
@@ -269,8 +269,8 @@ void ConsoleInterceptor::OnSetup(const SetupArgs& args) {
   int fd = STDOUT_FILENO;
   if (g_output_fd_for_testing)
     fd = g_output_fd_for_testing;
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_WASM)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WASM)
   bool use_colors = isatty(fd);
 #else
   bool use_colors = false;
@@ -299,7 +299,7 @@ void ConsoleInterceptor::OnTracePacket(InterceptorContext context) {
   {
     auto& tls = context.GetThreadLocalState();
     Delegate delegate(context);
-    perfetto::protos::pbzero::TracePacket::Decoder packet(
+    dejaview::protos::pbzero::TracePacket::Decoder packet(
         context.packet_data.data, context.packet_data.size);
     TrackEventStateTracker::ProcessTracePacket(delegate, tls.sequence_state,
                                                packet);
@@ -320,7 +320,7 @@ void ConsoleInterceptor::Printf(InterceptorContext& context,
     va_start(args, format);
     written = vsnprintf(&tls.message_buffer[tls.buffer_pos],
                         static_cast<size_t>(remaining), format, args);
-    PERFETTO_DCHECK(written >= 0);
+    DEJAVIEW_DCHECK(written >= 0);
     va_end(args);
   }
 
@@ -348,7 +348,7 @@ void ConsoleInterceptor::Printf(InterceptorContext& context,
 void ConsoleInterceptor::Flush(InterceptorContext& context) {
   auto& tls = context.GetThreadLocalState();
   ssize_t res = base::WriteAll(tls.fd, &tls.message_buffer[0], tls.buffer_pos);
-  PERFETTO_DCHECK(res == static_cast<ssize_t>(tls.buffer_pos));
+  DEJAVIEW_DCHECK(res == static_cast<ssize_t>(tls.buffer_pos));
   tls.buffer_pos = 0;
 }
 
@@ -381,7 +381,7 @@ void ConsoleInterceptor::PrintDebugAnnotations(
 
   bool is_first = true;
   for (auto it = track_event.debug_annotations(); it; it++) {
-    perfetto::protos::pbzero::DebugAnnotation::Decoder annotation(*it);
+    dejaview::protos::pbzero::DebugAnnotation::Decoder annotation(*it);
     SetColor(context, slice_color);
     if (!is_first)
       Printf(context, ", ");
@@ -401,7 +401,7 @@ void ConsoleInterceptor::PrintDebugAnnotations(
 // static
 void ConsoleInterceptor::PrintDebugAnnotationName(
     InterceptorContext& context,
-    const perfetto::protos::pbzero::DebugAnnotation::Decoder& annotation) {
+    const dejaview::protos::pbzero::DebugAnnotation::Decoder& annotation) {
   auto& tls = context.GetThreadLocalState();
   protozero::ConstChars name{};
   if (annotation.name_iid()) {
@@ -419,7 +419,7 @@ void ConsoleInterceptor::PrintDebugAnnotationName(
 // static
 void ConsoleInterceptor::PrintDebugAnnotationValue(
     InterceptorContext& context,
-    const perfetto::protos::pbzero::DebugAnnotation::Decoder& annotation) {
+    const dejaview::protos::pbzero::DebugAnnotation::Decoder& annotation) {
   if (annotation.has_bool_value()) {
     Printf(context, "%s", annotation.bool_value() ? "true" : "false");
   } else if (annotation.has_uint_value()) {
@@ -443,7 +443,7 @@ void ConsoleInterceptor::PrintDebugAnnotationValue(
     for (auto it = annotation.dict_entries(); it; ++it) {
       if (!is_first)
         Printf(context, ", ");
-      perfetto::protos::pbzero::DebugAnnotation::Decoder key_value(*it);
+      dejaview::protos::pbzero::DebugAnnotation::Decoder key_value(*it);
       PrintDebugAnnotationName(context, key_value);
       Printf(context, ":");
       PrintDebugAnnotationValue(context, key_value);
@@ -456,7 +456,7 @@ void ConsoleInterceptor::PrintDebugAnnotationValue(
     for (auto it = annotation.array_values(); it; ++it) {
       if (!is_first)
         Printf(context, ", ");
-      perfetto::protos::pbzero::DebugAnnotation::Decoder key_value(*it);
+      dejaview::protos::pbzero::DebugAnnotation::Decoder key_value(*it);
       PrintDebugAnnotationValue(context, key_value);
       is_first = false;
     }
@@ -466,4 +466,4 @@ void ConsoleInterceptor::PrintDebugAnnotationValue(
   }
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

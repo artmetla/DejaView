@@ -16,13 +16,13 @@
 
 #include "src/trace_processor/util/debug_annotation_parser.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "src/trace_processor/util/interned_message_view.h"
 
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -37,7 +37,7 @@ std::string SanitizeDebugAnnotationName(const std::string& raw_name) {
 }
 
 constexpr bool IsJsonSupported() {
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   return true;
 #else
   return false;
@@ -54,7 +54,7 @@ base::Status DebugAnnotationParser::ParseDebugAnnotationName(
     ProtoToArgsParser::Delegate& delegate,
     std::string& result) {
   uint64_t name_iid = annotation.name_iid();
-  if (PERFETTO_LIKELY(name_iid)) {
+  if (DEJAVIEW_LIKELY(name_iid)) {
     auto* decoder = delegate.GetInternedMessage(
         protos::pbzero::InternedData::kDebugAnnotationNames, name_iid);
     if (!decoder)
@@ -254,4 +254,4 @@ DebugAnnotationParser::ParseResult DebugAnnotationParser::ParseNestedValueArgs(
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

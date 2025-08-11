@@ -23,7 +23,7 @@
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 
-namespace perfetto::trace_processor::gecko_importer {
+namespace dejaview::trace_processor::gecko_importer {
 
 struct alignas(8) GeckoEvent {
   struct ThreadMetadata {
@@ -39,6 +39,6 @@ struct alignas(8) GeckoEvent {
   OneOf oneof;
 };
 
-}  // namespace perfetto::trace_processor::gecko_importer
+}  // namespace dejaview::trace_processor::gecko_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_GECKO_GECKO_EVENT_H_

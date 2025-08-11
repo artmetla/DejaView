@@ -21,18 +21,18 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/config/android/android_game_intervention_list_config.gen.h"
-#include "protos/perfetto/trace/android/android_game_intervention_list.gen.h"
-#include "protos/perfetto/trace/android/android_game_intervention_list.pbzero.h"
+#include "protos/dejaview/config/android/android_game_intervention_list_config.gen.h"
+#include "protos/dejaview/trace/android/android_game_intervention_list.gen.h"
+#include "protos/dejaview/trace/android/android_game_intervention_list.pbzero.h"
 
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 class TestAndroidGameInterventionDataSource
@@ -79,7 +79,7 @@ TEST_F(AndroidGameInterventionListDataSourceTest, NonEmptyNameFilter) {
   CreateInstance(DataSourceConfig());
 
   auto pipe = base::Pipe::Create();
-  PERFETTO_CHECK(write(pipe.wr.get(), kValidInterventionLines,
+  DEJAVIEW_CHECK(write(pipe.wr.get(), kValidInterventionLines,
                        sizeof(kValidInterventionLines) - 1) ==
                  sizeof(kValidInterventionLines) - 1);
   pipe.wr.reset();
@@ -141,4 +141,4 @@ TEST_F(AndroidGameInterventionListDataSourceTest, NonEmptyNameFilter) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

@@ -842,7 +842,7 @@ def create_trace():
 
   pool = create_pool(args)
   ProtoTrace = get_message_class(
-      pool, pool.FindMessageTypeByName('perfetto.protos.Trace'))
+      pool, pool.FindMessageTypeByName('dejaview.protos.Trace'))
 
   class EnumPrototype(object):
 
@@ -869,25 +869,25 @@ def create_trace():
   chrome_latency_info_prototypes = ChromeLatencyInfo(
       ComponentType=EnumPrototype.from_descriptor(
           pool.FindEnumTypeByName(
-              'perfetto.protos.ChromeLatencyInfo.LatencyComponentType')),
+              'dejaview.protos.ChromeLatencyInfo.LatencyComponentType')),
       Step=EnumPrototype.from_descriptor(
-          pool.FindEnumTypeByName('perfetto.protos.ChromeLatencyInfo.Step')),
+          pool.FindEnumTypeByName('dejaview.protos.ChromeLatencyInfo.Step')),
   )
 
   prototypes = Prototypes(
       TrackEvent=get_message_class(
-          pool, pool.FindMessageTypeByName('perfetto.protos.TrackEvent')),
+          pool, pool.FindMessageTypeByName('dejaview.protos.TrackEvent')),
       ChromeRAILMode=EnumPrototype.from_descriptor(
-          pool.FindEnumTypeByName('perfetto.protos.ChromeRAILMode')),
+          pool.FindEnumTypeByName('dejaview.protos.ChromeRAILMode')),
       ChromeLatencyInfo=chrome_latency_info_prototypes,
       ChromeProcessDescriptor=get_message_class(
           pool,
           pool.FindMessageTypeByName(
-              'perfetto.protos.ChromeProcessDescriptor')),
+              'dejaview.protos.ChromeProcessDescriptor')),
       CounterDescriptor=get_message_class(
           pool,
-          pool.FindMessageTypeByName('perfetto.protos.CounterDescriptor')),
+          pool.FindMessageTypeByName('dejaview.protos.CounterDescriptor')),
       ThreadDescriptor=get_message_class(
-          pool, pool.FindMessageTypeByName('perfetto.protos.ThreadDescriptor')),
+          pool, pool.FindMessageTypeByName('dejaview.protos.ThreadDescriptor')),
   )
   return Trace(ProtoTrace(), prototypes)

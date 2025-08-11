@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/interceptor.h"
+#include "dejaview/tracing/interceptor.h"
 
-#include "perfetto/tracing/internal/tracing_muxer.h"
+#include "dejaview/tracing/internal/tracing_muxer.h"
 
-namespace perfetto {
+namespace dejaview {
 
 InterceptorBase::~InterceptorBase() = default;
 InterceptorBase::ThreadLocalState::~ThreadLocalState() = default;
@@ -34,4 +34,4 @@ void InterceptorBase::RegisterImpl(
                                     on_trace_packet);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -39,8 +39,8 @@ LINKER_UNIT_TYPES = ('executable', 'shared_library', 'static_library')
 
 # TODO(primiano): investigate these, they require further componentization.
 ODR_VIOLATION_IGNORE_TARGETS = {
-    '//test/cts:perfetto_cts_deps',
-    '//:perfetto_integrationtests',
+    '//test/cts:dejaview_cts_deps',
+    '//:dejaview_integrationtests',
 }
 
 
@@ -173,7 +173,7 @@ def label_without_toolchain(label):
 def label_to_target_name_with_path(label):
   """
   Turn a GN label into a target name involving the full path.
-  e.g., //src/perfetto:tests -> src_perfetto_tests
+  e.g., //src/dejaview:tests -> src_dejaview_tests
   """
   name = re.sub(r'^//:?', '', label)
   name = re.sub(r'[^a-zA-Z0-9_]', '_', name)
@@ -181,14 +181,14 @@ def label_to_target_name_with_path(label):
 
 
 def gen_buildflags(gn_args, target_file):
-  """Generates the perfetto_build_flags.h for the given config.
+  """Generates the dejaview_build_flags.h for the given config.
 
     target_file: the path, relative to the repo root, where the generated
         buildflag header will be copied into.
     """
   tmp_out = prepare_out_directory(gn_args, 'tmp.gen_buildflags')
   build_targets(tmp_out, [BUILDFLAGS_TARGET], quiet=True)
-  src = os.path.join(tmp_out, 'gen', 'build_config', 'perfetto_build_flags.h')
+  src = os.path.join(tmp_out, 'gen', 'build_config', 'dejaview_build_flags.h')
   shutil.copy(src, os.path.join(repo_root(), target_file))
   shutil.rmtree(tmp_out)
 
@@ -226,7 +226,7 @@ class ODRChecker(object):
   paths end up including the same file group. This is to avoid situations like:
 
   traced.exe -> base(file group)
-  traced.exe -> libperfetto(static lib) -> base(file group)
+  traced.exe -> libdejaview(static lib) -> base(file group)
   """
 
   def __init__(self, gn: 'GnParser', target_name: str):
@@ -455,7 +455,7 @@ class GnParser(object):
       target.sources.update(desc.get('sources', []))
     elif target.type == 'action':
       self.actions[gn_target_name] = target
-      target.data.update(desc.get('metadata', {}).get('perfetto_data', []))
+      target.data.update(desc.get('metadata', {}).get('dejaview_data', []))
       target.inputs.update(desc.get('inputs', []))
       target.sources.update(desc.get('sources', []))
       outs = [re.sub('^//out/.+?/gen/', '', x) for x in desc['outputs']]
@@ -465,10 +465,10 @@ class GnParser(object):
       # because root build dir is typically out/xxx/).
       target.args = [re.sub('^../../', '//', x) for x in desc['args']]
       action_types = desc.get('metadata',
-                              {}).get('perfetto_action_type_for_generator', [])
+                              {}).get('dejaview_action_type_for_generator', [])
       target.custom_action_type = action_types[0] if len(
           action_types) > 0 else None
-      python_main = desc.get('metadata', {}).get('perfetto_python_main', [])
+      python_main = desc.get('metadata', {}).get('dejaview_python_main', [])
       target.python_main = python_main[0] if python_main else None
 
     # Default for 'public' is //* - all headers in 'sources' are public.

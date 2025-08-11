@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/db/column_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ColumnStorageBase::~ColumnStorageBase() = default;
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

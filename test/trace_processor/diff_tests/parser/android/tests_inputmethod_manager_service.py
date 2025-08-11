@@ -25,7 +25,7 @@ class InputMethodManagerService(TestSuite):
     return DiffTestBlueprint(
         trace=Path('inputmethod_manager_service.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.winscope.inputmethod;
+        INCLUDE DEJAVIEW MODULE android.winscope.inputmethod;
         SELECT
           id, ts
         FROM
@@ -41,7 +41,7 @@ class InputMethodManagerService(TestSuite):
     return DiffTestBlueprint(
         trace=Path('inputmethod_manager_service.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.winscope.inputmethod;
+        INCLUDE DEJAVIEW MODULE android.winscope.inputmethod;
         SELECT
           args.key, args.display_value
         FROM

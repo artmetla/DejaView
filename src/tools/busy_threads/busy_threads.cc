@@ -20,30 +20,30 @@
 #include <cinttypes>
 #include <thread>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
 
-#define PERFETTO_HAVE_PTHREADS                \
-  (PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-   PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-   PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE))
+#define DEJAVIEW_HAVE_PTHREADS                \
+  (DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+   DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+   DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE))
 
-#if PERFETTO_HAVE_PTHREADS
+#if DEJAVIEW_HAVE_PTHREADS
 #include <pthread.h>
 #endif
 
 // Spawns the requested number threads that alternate between busy-waiting and
 // sleeping.
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 void SetRandomThreadName(uint32_t thread_name_count) {
-#if PERFETTO_HAVE_PTHREADS
+#if DEJAVIEW_HAVE_PTHREADS
   base::StackString<16> name("busy-%" PRIu32,
                              static_cast<uint32_t>(rand()) % thread_name_count);
   pthread_setname_np(pthread_self(), name.c_str());
@@ -51,13 +51,13 @@ void SetRandomThreadName(uint32_t thread_name_count) {
 }
 
 void PrintUsage(const char* bin_name) {
-#if PERFETTO_HAVE_PTHREADS
-  PERFETTO_ELOG(
+#if DEJAVIEW_HAVE_PTHREADS
+  DEJAVIEW_ELOG(
       "Usage: %s [--background] --threads=N --period_us=N --duty_cycle=[1-100] "
       "[--thread_names=N]",
       bin_name);
 #else
-  PERFETTO_ELOG(
+  DEJAVIEW_ELOG(
       "Usage: %s [--background] --threads=N --period_us=N --duty_cycle=[1-100]",
       bin_name);
 #endif
@@ -106,7 +106,7 @@ int BusyThreadsMain(int argc, char** argv) {
     {"threads", required_argument, nullptr, 't'},
     {"period_us", required_argument, nullptr, 'p'},
     {"duty_cycle", required_argument, nullptr, 'c'},
-#if PERFETTO_HAVE_PTHREADS
+#if DEJAVIEW_HAVE_PTHREADS
     {"thread_names", required_argument, nullptr, 'r'},
 #endif
     {nullptr, 0, nullptr, 0}
@@ -126,7 +126,7 @@ int BusyThreadsMain(int argc, char** argv) {
       case 'c':
         duty_cycle = atol(optarg);
         break;
-#if PERFETTO_HAVE_PTHREADS
+#if DEJAVIEW_HAVE_PTHREADS
       case 'r':
         thread_name_count = static_cast<uint32_t>(atoi(optarg));
         break;
@@ -145,15 +145,15 @@ int BusyThreadsMain(int argc, char** argv) {
     pid_t pid;
     switch (pid = fork()) {
       case -1:
-        PERFETTO_FATAL("fork");
+        DEJAVIEW_FATAL("fork");
       case 0: {
-        PERFETTO_CHECK(setsid() != -1);
+        DEJAVIEW_CHECK(setsid() != -1);
         base::ignore_result(chdir("/"));
         base::ScopedFile null = base::OpenFile("/dev/null", O_RDONLY);
-        PERFETTO_CHECK(null);
-        PERFETTO_CHECK(dup2(*null, STDIN_FILENO) != -1);
-        PERFETTO_CHECK(dup2(*null, STDOUT_FILENO) != -1);
-        PERFETTO_CHECK(dup2(*null, STDERR_FILENO) != -1);
+        DEJAVIEW_CHECK(null);
+        DEJAVIEW_CHECK(dup2(*null, STDIN_FILENO) != -1);
+        DEJAVIEW_CHECK(dup2(*null, STDOUT_FILENO) != -1);
+        DEJAVIEW_CHECK(dup2(*null, STDERR_FILENO) != -1);
         // Do not accidentally close stdin/stdout/stderr.
         if (*null <= 2)
           null.release();
@@ -169,7 +169,7 @@ int BusyThreadsMain(int argc, char** argv) {
       static_cast<int64_t>(static_cast<double>(period_us) *
                            (static_cast<double>(duty_cycle) / 100.0));
 
-  PERFETTO_LOG("Spawning %" PRId64 " threads; period duration: %" PRId64
+  DEJAVIEW_LOG("Spawning %" PRId64 " threads; period duration: %" PRId64
                "us; busy duration: %" PRId64 "us.",
                num_threads, period_us, busy_us);
 
@@ -178,7 +178,7 @@ int BusyThreadsMain(int argc, char** argv) {
     std::thread th(BusyWait, tstart, period_us, busy_us, thread_name_count);
     th.detach();
   }
-  PERFETTO_LOG("Threads spawned, Ctrl-C to stop.");
+  DEJAVIEW_LOG("Threads spawned, Ctrl-C to stop.");
   while (sleep(600))
     ;
 
@@ -186,8 +186,8 @@ int BusyThreadsMain(int argc, char** argv) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  return perfetto::BusyThreadsMain(argc, argv);
+  return dejaview::BusyThreadsMain(argc, argv);
 }

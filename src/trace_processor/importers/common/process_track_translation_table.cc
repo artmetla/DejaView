@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/common/process_track_translation_table.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ProcessTrackTranslationTable::ProcessTrackTranslationTable(
     TraceStorage* storage)
     : storage_(storage) {}
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

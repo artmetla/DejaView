@@ -22,16 +22,16 @@
 #include <cstdint>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/iterator.h"
-#include "src/trace_processor/perfetto_sql/engine/perfetto_sql_engine.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/iterator.h"
+#include "src/trace_processor/dejaview_sql/engine/dejaview_sql_engine.h"
 #include "src/trace_processor/sqlite/sqlite_engine.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorImpl;
@@ -39,7 +39,7 @@ class TraceProcessorImpl;
 class IteratorImpl {
  public:
   IteratorImpl(TraceProcessorImpl* impl,
-               base::StatusOr<PerfettoSqlEngine::ExecutionResult>,
+               base::StatusOr<DejaViewSqlEngine::ExecutionResult>,
                uint32_t sql_stats_row);
   ~IteratorImpl();
 
@@ -74,14 +74,14 @@ class IteratorImpl {
 
     bool has_more = result_->stmt.Step();
     if (!result_->stmt.status().ok()) {
-      PERFETTO_DCHECK(!has_more);
+      DEJAVIEW_DCHECK(!has_more);
       result_ = result_->stmt.status();
     }
     return has_more;
   }
 
   SqlValue Get(uint32_t col) const {
-    PERFETTO_DCHECK(result_.ok());
+    DEJAVIEW_DCHECK(result_.ok());
 
     auto column = static_cast<int>(col);
     sqlite3_stmt* stmt = result_->stmt.sqlite_stmt();
@@ -154,12 +154,12 @@ class IteratorImpl {
   void RecordFirstNextInSqlStats();
 
   ScopedTraceProcessor trace_processor_;
-  base::StatusOr<PerfettoSqlEngine::ExecutionResult> result_;
+  base::StatusOr<DejaViewSqlEngine::ExecutionResult> result_;
   uint32_t sql_stats_row_ = 0;
   bool called_next_ = false;
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_ITERATOR_IMPL_H_

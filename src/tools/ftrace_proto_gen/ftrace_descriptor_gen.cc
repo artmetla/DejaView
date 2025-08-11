@@ -19,13 +19,13 @@
 #include <google/protobuf/descriptor.h>
 #include <google/protobuf/descriptor.pb.h>
 
-namespace perfetto {
+namespace dejaview {
 
 void GenerateFtraceDescriptors(
     const google::protobuf::DescriptorPool& descriptor_pool,
     std::ostream* fout) {
   const google::protobuf::Descriptor* ftrace_event =
-      descriptor_pool.FindMessageTypeByName("perfetto.protos.FtraceEvent");
+      descriptor_pool.FindMessageTypeByName("dejaview.protos.FtraceEvent");
   const google::protobuf::OneofDescriptor* one_of_event =
       ftrace_event->FindOneofByName("event");
 
@@ -57,7 +57,7 @@ void GenerateFtraceDescriptors(
   *fout << R"(
 #include "src/trace_processor/importers/ftrace/ftrace_descriptors.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -105,7 +105,7 @@ std::array<FtraceMessageDescriptor,
 } // namespace
 
 FtraceMessageDescriptor* GetMessageDescriptorForId(size_t id) {
-  PERFETTO_CHECK(id < descriptors.size());
+  DEJAVIEW_CHECK(id < descriptors.size());
   return &descriptors[id];
 }
 
@@ -121,7 +121,7 @@ size_t GetDescriptorsSize() {
   return descriptors.size();
 }
   )";
-  *fout << "} // namespace trace_processor\n} // namespace perfetto\n";
+  *fout << "} // namespace trace_processor\n} // namespace dejaview\n";
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

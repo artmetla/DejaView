@@ -1,38 +1,38 @@
 package {
     // See: http://go/android-license-faq
     // A large-scale-change added 'default_applicable_licenses' to import
-    // all of the 'license_kinds' from "external_perfetto_license"
+    // all of the 'license_kinds' from "external_dejaview_license"
     // to get the below license kinds:
     //   SPDX-license-identifier-Apache-2.0
-    default_applicable_licenses: ["external_perfetto_license"],
+    default_applicable_licenses: ["external_dejaview_license"],
 }
 
 cc_test {
-  name: "CtsPerfettoTestCases",
-  team: "trendy_team_perfetto",
+  name: "CtsDejaViewTestCases",
+  team: "trendy_team_dejaview",
   srcs: [
     "device_feature_test_cts.cc",
     "heapprofd_java_test_cts.cc",
     "heapprofd_test_cts.cc",
     "producer_to_consumer_integrationtest_cts.cc",
     "traced_perf_test_cts.cc",
-    ":perfetto_end_to_end_integrationtests",
-    ":perfetto_protos_perfetto_config_cpp_gen",
-    ":perfetto_protos_perfetto_common_cpp_gen"
+    ":dejaview_end_to_end_integrationtests",
+    ":dejaview_protos_dejaview_config_cpp_gen",
+    ":dejaview_protos_dejaview_common_cpp_gen"
   ],
   generated_headers: [
-    "perfetto_protos_perfetto_config_cpp_gen_headers",
-    "perfetto_protos_perfetto_common_cpp_gen_headers",
+    "dejaview_protos_dejaview_config_cpp_gen_headers",
+    "dejaview_protos_dejaview_common_cpp_gen_headers",
   ],
   static_libs: [
     "libgmock",
     "libprotobuf-cpp-lite",
-    "libperfetto_client_experimental",
-    "perfetto_cts_deps",
-    "perfetto_trace_protos",
+    "libdejaview_client_experimental",
+    "dejaview_cts_deps",
+    "dejaview_trace_protos",
   ],
   whole_static_libs: [
-    "perfetto_gtest_logcat_printer",
+    "dejaview_gtest_logcat_printer",
   ],
   shared_libs: [
     "libandroid",
@@ -56,18 +56,18 @@ cc_test {
   },
   per_testcase_directory: true,
   data: [
-        ":CtsPerfettoNonProfileableApp",
-        ":CtsPerfettoProfileableApp",
-        ":CtsPerfettoProducerApp",
-        ":CtsPerfettoReleaseApp",
-        ":CtsPerfettoDebuggableApp",
-        "perfetto_device_preparer.sh",
+        ":CtsDejaViewNonProfileableApp",
+        ":CtsDejaViewProfileableApp",
+        ":CtsDejaViewProducerApp",
+        ":CtsDejaViewReleaseApp",
+        ":CtsDejaViewDebuggableApp",
+        "dejaview_device_preparer.sh",
   ],
   stl: "libc++_static",
   // This test is also run via Mainline Testing against the ART Mainline
   // Module, which is updatable since Android 12 (API level 31).
   min_sdk_version: "31",
   defaults: [
-    "perfetto_defaults",
+    "dejaview_defaults",
   ],
 }

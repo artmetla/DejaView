@@ -24,12 +24,12 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 struct alignas(8) InlineSchedSwitch {
   int64_t prev_state;
@@ -106,6 +106,6 @@ struct alignas(8) LegacyV8CpuProfileEvent {
 };
 static_assert(sizeof(LegacyV8CpuProfileEvent) % 8 == 0);
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_PARSER_TYPES_H_

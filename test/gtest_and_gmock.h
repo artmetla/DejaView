@@ -25,7 +25,7 @@
 // 1 applies recursively also to the test translation units, 2 applies only
 // to gmock/gtest includes.
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
 #if defined(__GNUC__) || defined(__clang__)
 #pragma GCC diagnostic push
@@ -39,10 +39,10 @@
 #if defined(__clang__)
 #pragma GCC diagnostic ignored "-Wshift-sign-overflow"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_NACL)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_NACL)
 // -Wcomma isn't supported on NaCL.
 #pragma GCC diagnostic ignored "-Wcomma"
-#endif  // PERFETTO_OS_NACL
+#endif  // DEJAVIEW_OS_NACL
 
 #endif  // defined(__clang__)
 

@@ -56,8 +56,8 @@ def main():
             continue
           incl = m[0]
 
-          # Allow only #include "perfetto/..." or "protos/..." but not "src/".
-          if not (incl.startswith('perfetto/') or incl.startswith('protos/')):
+          # Allow only #include "dejaview/..." or "protos/..." but not "src/".
+          if not (incl.startswith('dejaview/') or incl.startswith('protos/')):
             sys.stderr.write(
                 ('Public header %s is trying to include %s which is outside ' +
                  'of include/. If you are trying to include a library use ' +
@@ -70,8 +70,8 @@ def main():
             continue
 
           # Public (non-/ext/) headers cannot include /ext/ headers.
-          if (not rel_path.startswith('include/perfetto/ext/') and
-              incl.startswith('perfetto/ext/')):
+          if (not rel_path.startswith('include/dejaview/ext/') and
+              incl.startswith('dejaview/ext/')):
             sys.stderr.write(('Public header %s cannot include the non-public' +
                               '/ext/ header %s.\n') % (rel_path, incl))
             errors += 1

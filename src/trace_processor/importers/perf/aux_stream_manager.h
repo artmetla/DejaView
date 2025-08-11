@@ -22,11 +22,11 @@
 #include <memory>
 #include <optional>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/circular_queue.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/circular_queue.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/aux_data_tokenizer.h"
 #include "src/trace_processor/importers/perf/aux_record.h"
 #include "src/trace_processor/importers/perf/auxtrace_record.h"
@@ -35,7 +35,7 @@
 #include "src/trace_processor/importers/perf/time_conv_record.h"
 #include "src/trace_processor/storage/stats.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 class TraceProcessorContext;
 
@@ -139,6 +139,6 @@ inline std::optional<uint64_t> AuxStream::ConvertTscToPerfTime(
 
 }  // namespace perf_importer
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_AUX_STREAM_MANAGER_H_

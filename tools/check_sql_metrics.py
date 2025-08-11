@@ -48,13 +48,13 @@ def check_if_create_table_allowlisted(
     allowlist_key = os.path.normpath(filename[len(stdlib_path):])
     if allowlist_key not in allowlist_normpath:
       errors.append(f"CREATE TABLE '{name}' is deprecated. "
-                    "Use CREATE PERFETTO TABLE instead.\n"
+                    "Use CREATE DEJAVIEW TABLE instead.\n"
                     f"Offending file: {filename}\n")
       continue
     if name not in allowlist_normpath[allowlist_key]:
       errors.append(
           f"Table '{name}' uses CREATE TABLE which is deprecated "
-          "and this table is not allowlisted. Use CREATE PERFETTO TABLE.\n"
+          "and this table is not allowlisted. Use CREATE DEJAVIEW TABLE.\n"
           f"Offending file: {filename}\n")
   return errors
 
@@ -107,14 +107,14 @@ def check(path: str, metrics_sources: str) -> List[str]:
   for line in lines:
     if line.startswith('--'):
       continue
-    if 'create perfetto function' in line.casefold():
+    if 'create dejaview function' in line.casefold():
       errors.append(
-          f'Use "CREATE OR REPLACE PERFETTO FUNCTION" in Perfetto metrics, '
+          f'Use "CREATE OR REPLACE DEJAVIEW FUNCTION" in DejaView metrics, '
           f'to prevent the file from crashing if the metric is rerun.\n'
           f'Offending file: {path}\n')
-    if 'create perfetto macro' in line.casefold():
+    if 'create dejaview macro' in line.casefold():
       errors.append(
-          f'Use "CREATE OR REPLACE PERFETTO MACRO" in Perfetto metrics, to '
+          f'Use "CREATE OR REPLACE DEJAVIEW MACRO" in DejaView metrics, to '
           f'prevent the file from crashing if the metric is rerun.\n'
           f'Offending file: {path}\n')
 

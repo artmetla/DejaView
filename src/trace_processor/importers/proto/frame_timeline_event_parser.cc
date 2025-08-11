@@ -18,8 +18,8 @@
 
 #include <cinttypes>
 
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/flow_tracker.h"
@@ -28,9 +28,9 @@
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -644,4 +644,4 @@ void FrameTimelineEventParser::ParseFrameTimelineEvent(int64_t timestamp,
   }
 }
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,7 +19,7 @@ source_set("threading") {
     "..:base",
     "../../../gn:default_deps",
   ]
-  public_deps = [ "../../../include/perfetto/ext/base/threading" ]
+  public_deps = [ "../../../include/dejaview/ext/base/threading" ]
   sources = [
     "spawn.cc",
     "stream_combinators.cc",
@@ -27,7 +27,7 @@ source_set("threading") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":threading",

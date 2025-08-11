@@ -23,7 +23,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 #if defined(ADDRESS_SANITIZER)
@@ -119,4 +119,4 @@ TEST(SanitizerTests, NoSanitizersConfigured) {
 #endif
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

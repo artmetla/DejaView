@@ -17,18 +17,18 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_FRAME_TIMELINE_EVENT_PARSER_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_FRAME_TIMELINE_EVENT_PARSER_H_
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/trace/android/frame_timeline_event.pbzero.h"
+#include "protos/dejaview/trace/android/frame_timeline_event.pbzero.h"
 
 #include <map>
 #include <unordered_map>
 #include <unordered_set>
 
-namespace perfetto {
+namespace dejaview {
 
 namespace trace_processor {
 
@@ -101,6 +101,6 @@ class FrameTimelineEventParser {
   std::multimap<int64_t, SliceId> display_token_to_surface_slice_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_FRAME_TIMELINE_EVENT_PARSER_H_

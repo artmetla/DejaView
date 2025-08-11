@@ -18,10 +18,10 @@
 
 #include <memory>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_blob.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_blob.h"
 
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/args_translation_table.h"
@@ -49,38 +49,38 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/common/sys_stats_counters.pbzero.h"
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
-#include "protos/perfetto/trace/chrome/chrome_benchmark_metadata.pbzero.h"
-#include "protos/perfetto/trace/chrome/chrome_trace_event.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/generic.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
-#include "protos/perfetto/trace/ftrace/task.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/counter_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
-#include "protos/perfetto/trace/track_event/log_message.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/source_location.pbzero.h"
-#include "protos/perfetto/trace/track_event/task_execution.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/common/sys_stats_counters.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_benchmark_metadata.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_trace_event.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/generic.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/ftrace/task.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/counter_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/log_message.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/source_location.pbzero.h"
+#include "protos/dejaview/trace/track_event/task_execution.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 using ::testing::_;
@@ -433,30 +433,30 @@ TEST_F(FuchsiaTraceParserTest, FxtWithProtos) {
   }
 
   protos->Finalize();
-  std::vector<uint8_t> perfetto_bytes = protos.SerializeAsArray();
+  std::vector<uint8_t> dejaview_bytes = protos.SerializeAsArray();
 
-  // Set up an FXT Perfetto Blob Header
-  uint64_t blob_type_perfetto = uint64_t{3} << 48;
-  uint64_t unpadded_blob_size_bytes = uint64_t{perfetto_bytes.size()} << 32;
+  // Set up an FXT DejaView Blob Header
+  uint64_t blob_type_dejaview = uint64_t{3} << 48;
+  uint64_t unpadded_blob_size_bytes = uint64_t{dejaview_bytes.size()} << 32;
   uint64_t blob_name_ref = uint64_t{0x8008} << 16;
-  uint64_t size_words = ((perfetto_bytes.size() + 7) / 8 + 2) << 4;
+  uint64_t size_words = ((dejaview_bytes.size() + 7) / 8 + 2) << 4;
   uint64_t record_type = 5;
 
-  uint64_t header = blob_type_perfetto | unpadded_blob_size_bytes |
+  uint64_t header = blob_type_dejaview | unpadded_blob_size_bytes |
                     blob_name_ref | size_words | record_type;
 
   // Pad the blob to a multiple of 8 bytes.
-  while (perfetto_bytes.size() % 8) {
-    perfetto_bytes.push_back(0);
+  while (dejaview_bytes.size() % 8) {
+    dejaview_bytes.push_back(0);
   }
 
   push_word(header);
   // Inline Name Ref
   push_word(0xBBBBBBBBBBBBBBBB);
   trace_bytes_.insert(trace_bytes_.end(),
-                      reinterpret_cast<uint64_t*>(perfetto_bytes.data()),
-                      reinterpret_cast<uint64_t*>(perfetto_bytes.data() +
-                                                  perfetto_bytes.size()));
+                      reinterpret_cast<uint64_t*>(dejaview_bytes.data()),
+                      reinterpret_cast<uint64_t*>(dejaview_bytes.data() +
+                                                  dejaview_bytes.size()));
   EXPECT_CALL(*process_, UpdateThread(16, 15)).WillRepeatedly(Return(1u));
 
   tables::ThreadTable::Row row(16);
@@ -621,4 +621,4 @@ TEST_F(FuchsiaTraceParserTest, LegacySchedulerEvents) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

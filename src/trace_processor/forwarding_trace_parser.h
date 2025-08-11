@@ -19,12 +19,12 @@
 
 #include <memory>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -47,6 +47,6 @@ class ForwardingTraceParser : public ChunkedTraceReader {
   TraceType trace_type_ = kUnknownTraceType;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_FORWARDING_TRACE_PARSER_H_

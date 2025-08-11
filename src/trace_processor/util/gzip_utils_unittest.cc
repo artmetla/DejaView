@@ -21,11 +21,11 @@
 #include <zlib.h>
 #include <fstream>
 #include <iostream>
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
 using std::string;
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -45,7 +45,7 @@ static std::string TrivialGzipCompress(const std::string& input) {
   deflateInit(&defstream, Z_BEST_COMPRESSION);  // GZip decompress
   deflate(&defstream, Z_FINISH);
   deflateEnd(&defstream);
-  PERFETTO_CHECK(defstream.avail_out > 0);
+  DEJAVIEW_CHECK(defstream.avail_out > 0);
   return std::string(output, buffer_len - defstream.avail_out);
 }
 
@@ -142,4 +142,4 @@ TEST(GzipDecompressor, DISABLED_FileInFileOut) {
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

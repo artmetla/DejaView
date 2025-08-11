@@ -60,7 +60,7 @@
 -- Using TABLE and not VIEW as this gives better, localized error messages in cases
 -- `relevant_slice_table_name` is not correct (e.g. missing cuj_id).
 DROP TABLE IF EXISTS {{table_name_prefix}}_query_slice;
-CREATE PERFETTO TABLE {{table_name_prefix}}_query_slice AS
+CREATE DEJAVIEW TABLE {{table_name_prefix}}_query_slice AS
 SELECT DISTINCT
   slice.cuj_id,
   slice.utid,
@@ -75,7 +75,7 @@ JOIN {{slice_table_name}} android_jank_cuj_slice_table
 
 -- Flat view of frames and slices matched and "trimmed" to each frame boundaries.
 DROP VIEW IF EXISTS {{table_name_prefix}}_slice_in_frame;
-CREATE PERFETTO VIEW {{table_name_prefix}}_slice_in_frame AS
+CREATE DEJAVIEW VIEW {{table_name_prefix}}_slice_in_frame AS
 SELECT
   frame.*,
   query_slice.id AS slice_id,
@@ -94,7 +94,7 @@ JOIN {{table_name_prefix}}_query_slice query_slice
 
 -- Aggregated view of frames and slices overall durations within each frame boundaries.
 DROP VIEW IF EXISTS {{table_name_prefix}}_slice_in_frame_agg;
-CREATE PERFETTO VIEW {{table_name_prefix}}_slice_in_frame_agg AS
+CREATE DEJAVIEW VIEW {{table_name_prefix}}_slice_in_frame_agg AS
 SELECT
   cuj_id,
   frame_number,

@@ -17,7 +17,7 @@ import {
   EXPECTED_FRAMES_SLICE_TRACK_KIND,
 } from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {getOrCreateGroupForProcess} from '../../public/standard_groups';
 import {getTrackName} from '../../public/utils';
 import {TrackNode} from '../../public/workspace';
@@ -27,7 +27,7 @@ import {ExpectedFramesTrack} from './expected_frames_track';
 import {FrameSelectionAggregator} from './frame_selection_aggregator';
 import {ThreadSliceDetailsPanel} from '../../frontend/thread_slice_details_tab';
 
-class FramesPlugin implements PerfettoPlugin {
+class FramesPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     this.addExpectedFrames(ctx);
     this.addActualFrames(ctx);
@@ -161,6 +161,6 @@ class FramesPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.Frames',
+  pluginId: 'dejaview.Frames',
   plugin: FramesPlugin,
 };

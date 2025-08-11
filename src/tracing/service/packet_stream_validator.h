@@ -17,9 +17,9 @@
 #ifndef SRC_TRACING_SERVICE_PACKET_STREAM_VALIDATOR_H_
 #define SRC_TRACING_SERVICE_PACKET_STREAM_VALIDATOR_H_
 
-#include "perfetto/ext/tracing/core/slice.h"
+#include "dejaview/ext/tracing/core/slice.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Checks that the stream of trace packets sent by the producer is well formed.
 // This includes:
@@ -37,6 +37,6 @@ class PacketStreamValidator {
   static bool Validate(const Slices&);
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_SERVICE_PACKET_STREAM_VALIDATOR_H_

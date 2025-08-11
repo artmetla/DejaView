@@ -23,7 +23,7 @@
 -- from track_event's.
 
 -- Extracts an int value with the given name from the metadata table.
-CREATE OR REPLACE PERFETTO FUNCTION _extract_int_metadata(
+CREATE OR REPLACE DEJAVIEW FUNCTION _extract_int_metadata(
   -- The name of the metadata entry.
   name STRING)
 -- int_value for the given name. NULL if there's no such entry.
@@ -32,7 +32,7 @@ SELECT int_value FROM metadata WHERE name = ($name);
 
 DROP VIEW IF EXISTS chrome_event_stats_per_thread;
 
-CREATE PERFETTO VIEW chrome_event_stats_per_thread
+CREATE DEJAVIEW VIEW chrome_event_stats_per_thread
 AS
 SELECT
   COUNT(*) AS cnt, CAST(COUNT(*) AS DOUBLE) / (MAX(ts + dur) - MIN(ts)) AS rate, utid
@@ -48,7 +48,7 @@ DROP VIEW IF EXISTS chrome_event_cnt_cutoff;
 -- cutoff at around 10 events for a typical trace, and threads with fewer events are usually:
 -- 1. Not particularly interesting for the reliable range definition.
 -- 2. Create a lot of noise for other metrics, such as event rate.
-CREATE PERFETTO VIEW chrome_event_cnt_cutoff
+CREATE DEJAVIEW VIEW chrome_event_cnt_cutoff
 AS
 SELECT cnt
 FROM
@@ -65,7 +65,7 @@ DROP VIEW IF EXISTS chrome_event_rate_cutoff;
 -- Choose the top 25% event rate. 25% is a somewhat arbitrary number. The goal is to strike
 -- balance between not cropping too many events and making sure that the chance of data loss in the
 -- range declared "reliable" is low.
-CREATE PERFETTO VIEW chrome_event_rate_cutoff
+CREATE DEJAVIEW VIEW chrome_event_rate_cutoff
 AS
 SELECT rate
 FROM
@@ -83,7 +83,7 @@ DROP VIEW IF EXISTS chrome_reliable_range_per_thread;
 -- above.
 -- See b/239830951 for the analysis showing why we don't want to include all threads here
 -- (TL;DR - it makes the "reliable range" too short for a typical trace).
-CREATE PERFETTO VIEW chrome_reliable_range_per_thread
+CREATE DEJAVIEW VIEW chrome_reliable_range_per_thread
 AS
 SELECT
   utid,
@@ -114,7 +114,7 @@ GROUP BY utid;
 -- Renderer main thread (assuming that the corresponding process is present).
 DROP VIEW IF EXISTS chrome_processes_with_missing_main;
 
-CREATE PERFETTO VIEW chrome_processes_with_missing_main
+CREATE DEJAVIEW VIEW chrome_processes_with_missing_main
 AS
 SELECT
   upid
@@ -134,7 +134,7 @@ WHERE utid is NULL;
 
 DROP VIEW IF EXISTS chrome_processes_data_loss_free_period;
 
-CREATE PERFETTO VIEW chrome_processes_data_loss_free_period
+CREATE DEJAVIEW VIEW chrome_processes_data_loss_free_period
 AS
 SELECT
   upid AS limiting_upid,
@@ -155,7 +155,7 @@ LIMIT 1;
 
 DROP VIEW IF EXISTS chrome_reliable_range;
 
-CREATE PERFETTO VIEW chrome_reliable_range
+CREATE DEJAVIEW VIEW chrome_reliable_range
 AS
 SELECT
   -- If the trace has a cropping packet, we don't want to recompute the reliable

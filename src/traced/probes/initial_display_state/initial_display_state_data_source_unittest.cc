@@ -15,19 +15,19 @@
  */
 
 #include "src/traced/probes/initial_display_state/initial_display_state_data_source.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/android/initial_display_state.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/android/initial_display_state.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
 using ::testing::AnyOf;
 using ::testing::ElementsAre;
 using ::testing::Return;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 class TestInitialDisplayStateDataSource : public InitialDisplayStateDataSource {
@@ -109,4 +109,4 @@ TEST_F(InitialDisplayStateDataSourceTest, Failure) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

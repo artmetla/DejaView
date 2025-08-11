@@ -17,10 +17,10 @@
 #ifndef SRC_TRACE_REDACTION_PROTO_UTIL_H_
 #define SRC_TRACE_REDACTION_PROTO_UTIL_H_
 
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/message.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/message.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // This is here, and not in protozero, because field and message are never found
 // together. Because trace redaction is the only user of this function, it is
@@ -31,6 +31,6 @@ void AppendField(const protozero::Field& field, protozero::Message* message);
 
 }  // namespace proto_util
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_PROTO_UTIL_H_

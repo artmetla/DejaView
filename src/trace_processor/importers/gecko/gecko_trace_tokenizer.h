@@ -19,11 +19,11 @@
 
 #include <string>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::gecko_importer {
+namespace dejaview::trace_processor::gecko_importer {
 
 class GeckoTraceTokenizer : public ChunkedTraceReader {
  public:
@@ -38,6 +38,6 @@ class GeckoTraceTokenizer : public ChunkedTraceReader {
   std::string pending_json_;
 };
 
-}  // namespace perfetto::trace_processor::gecko_importer
+}  // namespace dejaview::trace_processor::gecko_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_GECKO_GECKO_TRACE_TOKENIZER_H_

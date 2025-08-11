@@ -17,7 +17,7 @@
 #include "src/trace_redaction/modify.h"
 #include "src/trace_redaction/proto_util.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 PidCommModifier::~PidCommModifier() = default;
 
@@ -28,10 +28,10 @@ void ClearComms::Modify(const Context& context,
                         int32_t,
                         int32_t* pid,
                         std::string* comm) const {
-  PERFETTO_DCHECK(context.timeline);
-  PERFETTO_DCHECK(context.package_uid.has_value());
-  PERFETTO_DCHECK(pid);
-  PERFETTO_DCHECK(comm);
+  DEJAVIEW_DCHECK(context.timeline);
+  DEJAVIEW_DCHECK(context.package_uid.has_value());
+  DEJAVIEW_DCHECK(pid);
+  DEJAVIEW_DCHECK(comm);
 
   if (!context.timeline->PidConnectsToUid(ts, *pid, *context.package_uid)) {
     comm->clear();
@@ -55,4 +55,4 @@ void DoNothing::Modify(
   proto_util::AppendField(event, parent_message);
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

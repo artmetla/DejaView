@@ -25,21 +25,21 @@
 #include <string>
 #include <unordered_map>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/traced/data_source_types.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/traced/data_source_types.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/traced/probes/filesystem/file_scanner.h"
 #include "src/traced/probes/filesystem/fs_mount.h"
 #include "src/traced/probes/filesystem/lru_inode_cache.h"
 #include "src/traced/probes/probes_data_source.h"
 
-#include "protos/perfetto/trace/filesystem/inode_file_map.pbzero.h"
+#include "protos/dejaview/trace/filesystem/inode_file_map.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using InodeFileMap = protos::pbzero::InodeFileMap;
 class TraceWriter;
@@ -131,6 +131,6 @@ class InodeFileDataSource : public ProbesDataSource,
   base::WeakPtrFactory<InodeFileDataSource> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FILESYSTEM_INODE_FILE_DATA_SOURCE_H_

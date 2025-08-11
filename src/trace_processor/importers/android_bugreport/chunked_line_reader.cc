@@ -20,15 +20,15 @@
 #include <cstring>
 #include <utility>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 
 namespace {
 
@@ -82,7 +82,7 @@ base::Status ChunkedLineReader::Parse(TraceBlobView data) {
     return base::OkStatus();
   }
 
-  if (PERFETTO_LIKELY(buffer_.size() == 0)) {
+  if (DEJAVIEW_LIKELY(buffer_.size() == 0)) {
     ASSIGN_OR_RETURN(buffer_, SpliceLoop(std::move(data)));
     return base::OkStatus();
   }
@@ -105,4 +105,4 @@ base::Status ChunkedLineReader::NotifyEndOfFile() {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

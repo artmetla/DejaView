@@ -17,7 +17,7 @@
 #ifndef SRC_TRACE_PROCESSOR_TYPES_TCP_STATE_H_
 #define SRC_TRACE_PROCESSOR_TYPES_TCP_STATE_H_
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Sock IPV4 Protocol Definition, from include/uapi/linux/in.h.
@@ -60,6 +60,6 @@ static constexpr const char* const kTcpStateNames[] = {
     "TCP_NEW_SYN_RECV", "TCP_MAX_STATES"};
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_TCP_STATE_H_

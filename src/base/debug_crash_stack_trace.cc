@@ -27,8 +27,8 @@
 #include <unistd.h>
 #include <unwind.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/file_utils.h"
 
 // Some glibc headers hit this when using signals.
 #pragma GCC diagnostic push
@@ -40,12 +40,12 @@
 #error This translation unit should not be used in release builds
 #endif
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_STANDALONE_BUILD)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_STANDALONE_BUILD)
 #error This translation unit should not be used in non-standalone builds
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <backtrace.h>
 #endif
 
@@ -66,7 +66,7 @@ SigHandler g_signals[] = {{SIGSEGV, {}}, {SIGILL, {}}, {SIGTRAP, {}},
 
 template <typename T>
 void Print(const T& str) {
-  perfetto::base::WriteAll(STDERR_FILENO, str, sizeof(str));
+  dejaview::base::WriteAll(STDERR_FILENO, str, sizeof(str));
 }
 
 template <typename T>
@@ -74,7 +74,7 @@ void PrintHex(T n) {
   for (unsigned i = 0; i < sizeof(n) * 8; i += 4) {
     char nibble = static_cast<char>(n >> (sizeof(n) * 8 - i - 4)) & 0x0F;
     char c = (nibble < 10) ? '0' + nibble : 'A' + nibble - 10;
-    perfetto::base::WriteAll(STDERR_FILENO, &c, 1);
+    dejaview::base::WriteAll(STDERR_FILENO, &c, 1);
   }
 }
 
@@ -147,11 +147,11 @@ void SignalHandler(int sig_num, siginfo_t* info, void* /*ucontext*/) {
   StackCrawlState unwind_state(frames, kMaxFrames);
   _Unwind_Backtrace(&TraceStackFrame, &unwind_state);
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   auto bt_error = [](void*, const char* msg, int) {
     Print("libbacktrace error: ");
-    perfetto::base::WriteAll(STDERR_FILENO, msg, strlen(msg));
+    dejaview::base::WriteAll(STDERR_FILENO, msg, strlen(msg));
     Print("\n");
   };
   struct backtrace_state* bt_state =
@@ -165,8 +165,8 @@ void SignalHandler(int sig_num, siginfo_t* info, void* /*ucontext*/) {
     };
     SymbolInfo sym{{}, {}};
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     auto symbolize_callback = [](void* data, uintptr_t /*pc*/,
                                  const char* filename, int lineno,
                                  const char* function) -> int {
@@ -203,7 +203,7 @@ void SignalHandler(int sig_num, siginfo_t* info, void* /*ucontext*/) {
         // might be moved.
         g_demangled_name = demangled;
       }
-      perfetto::base::WriteAll(STDERR_FILENO, sym.sym_name,
+      dejaview::base::WriteAll(STDERR_FILENO, sym.sym_name,
                                strlen(sym.sym_name));
     } else {
       Print("0x");
@@ -211,7 +211,7 @@ void SignalHandler(int sig_num, siginfo_t* info, void* /*ucontext*/) {
     }
     if (sym.file_name[0]) {
       Print("\n     ");
-      perfetto::base::WriteAll(STDERR_FILENO, sym.file_name,
+      dejaview::base::WriteAll(STDERR_FILENO, sym.file_name,
                                strlen(sym.file_name));
     }
     Print("\n");
@@ -225,7 +225,7 @@ void SignalHandler(int sig_num, siginfo_t* info, void* /*ucontext*/) {
 // In order to retrigger it, we have to queue a new signal by calling
 // kill() ourselves.  The special case (si_pid == 0 && sig == SIGABRT) is
 // due to the kernel sending a SIGABRT from a user request via SysRQ.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
     if (kill(getpid(), sig_num) < 0) {
 #else
     if (syscall(__NR_tgkill, getpid(), syscall(__NR_gettid), sig_num) < 0) {
@@ -240,7 +240,7 @@ void SignalHandler(int sig_num, siginfo_t* info, void* /*ucontext*/) {
 
 }  // namespace
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 // The prototype for this function is in logging.h.
@@ -267,6 +267,6 @@ void EnableStacktraceOnCrashForDebug() {
   pthread_atfork(nullptr, nullptr, &RestoreSignalHandlers);
 }
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview
 
 #pragma GCC diagnostic pop

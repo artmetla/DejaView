@@ -19,12 +19,12 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/containers/bit_vector.h"
 
 namespace {
 
-using perfetto::trace_processor::BitVector;
+using dejaview::trace_processor::BitVector;
 
 bool IsBenchmarkFunctionalOnly() {
   return getenv("BENCHMARK_FUNCTIONAL_TEST_ONLY") != nullptr;
@@ -219,7 +219,7 @@ static void BM_BitVectorCountSetBits(benchmark::State& state) {
   for (auto _ : state) {
     benchmark::DoNotOptimize(res &= bv.CountSetBits());
   }
-  PERFETTO_CHECK(res == count);
+  DEJAVIEW_CHECK(res == count);
 }
 BENCHMARK(BM_BitVectorCountSetBits)->Apply(BitVectorArgs);
 

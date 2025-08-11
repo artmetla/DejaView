@@ -81,7 +81,7 @@ function main() {
   const cssLoadPromise = defer<void>();
   const css = document.createElement('link');
   css.rel = 'stylesheet';
-  css.href = root + 'perfetto.css';
+  css.href = root + 'dejaview.css';
   css.onload = () => cssLoadPromise.resolve();
   css.onerror = (err) => cssLoadPromise.reject(err);
   const favicon = document.head.querySelector('#favicon') as HTMLLinkElement;

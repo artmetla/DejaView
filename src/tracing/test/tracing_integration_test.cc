@@ -16,34 +16,34 @@
 
 #include <cinttypes>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_stats.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/ipc/consumer_ipc_client.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/ext/tracing/ipc/service_ipc_host.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_stats.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/ipc/consumer_ipc_client.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/ext/tracing/ipc/service_ipc_host.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/trace_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/ipc/test/test_socket.h"
 #include "src/tracing/service/tracing_service_impl.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/config/trace_config.gen.h"
-#include "protos/perfetto/trace/clock_snapshot.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/trace_config.gen.h"
+#include "protos/dejaview/trace/clock_snapshot.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using testing::_;
@@ -146,7 +146,7 @@ class TracingIntegrationTest : public ::testing::Test {
 
     // Create and connect a Producer.
     producer_endpoint_ = ProducerIPCClient::Connect(
-        kProducerSock.name(), &producer_, "perfetto.mock_producer",
+        kProducerSock.name(), &producer_, "dejaview.mock_producer",
         task_runner_.get(), GetProducerSMBScrapingMode());
     auto on_producer_connect =
         task_runner_->CreateCheckpoint("on_producer_connect");
@@ -155,7 +155,7 @@ class TracingIntegrationTest : public ::testing::Test {
 
     // Register a data source.
     DataSourceDescriptor ds_desc;
-    ds_desc.set_name("perfetto.test");
+    ds_desc.set_name("dejaview.test");
     producer_endpoint_->RegisterDataSource(ds_desc);
 
     // Create and connect a Consumer.
@@ -213,7 +213,7 @@ TEST_F(TracingIntegrationTest, WithIPCTransport) {
   TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(4096 * 10);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.test");
+  ds_config->set_name("dejaview.test");
   ds_config->set_target_buffer(0);
   consumer_endpoint_->EnableTracing(trace_config);
 
@@ -246,7 +246,7 @@ TEST_F(TracingIntegrationTest, WithIPCTransport) {
             ASSERT_EQ(setup_cfg_proto, cfg);
             ASSERT_NE(0u, id);
             ds_iid = id;
-            ASSERT_EQ("perfetto.test", cfg.name());
+            ASSERT_EQ("dejaview.test", cfg.name());
             global_buf_id = static_cast<BufferID>(cfg.target_buffer());
             ASSERT_NE(0u, global_buf_id);
             ASSERT_LE(global_buf_id, std::numeric_limits<BufferID>::max());
@@ -285,9 +285,9 @@ TEST_F(TracingIntegrationTest, WithIPCTransport) {
           Invoke([&num_pack_rx, all_packets_rx, &trace_config,
                   &saw_clock_snapshot, &saw_trace_config, &saw_trace_stats](
                      std::vector<TracePacket>* packets, bool has_more) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
             const int kExpectedMinNumberOfClocks = 1;
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
             const int kExpectedMinNumberOfClocks = 2;
 #else
             const int kExpectedMinNumberOfClocks = 6;
@@ -339,7 +339,7 @@ TEST_F(TracingIntegrationTest, ValidErrorOnDisconnection) {
   TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(4096 * 10);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.test");
+  ds_config->set_name("dejaview.test");
   consumer_endpoint_->EnableTracing(trace_config);
 
   auto on_create_ds_instance =
@@ -363,13 +363,13 @@ TEST_F(TracingIntegrationTest, ValidErrorOnDisconnection) {
   // connection and trigger the EXPECT_CALL(OnTracingDisabled) above.
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 TEST_F(TracingIntegrationTest, WriteIntoFile) {
   // Start tracing.
   TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(4096 * 10);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.test");
+  ds_config->set_name("dejaview.test");
   ds_config->set_target_buffer(0);
   trace_config.set_write_into_file(true);
   base::TempFile tmp_file = base::TempFile::CreateUnlinked();
@@ -459,7 +459,7 @@ TEST_F(TracingIntegrationTestWithSMBScrapingProducer, ScrapeOnFlush) {
   TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(4096 * 10);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("perfetto.test");
+  ds_config->set_name("dejaview.test");
   ds_config->set_target_buffer(0);
   consumer_endpoint_->EnableTracing(trace_config);
 
@@ -559,4 +559,4 @@ TEST_F(TracingIntegrationTestWithSMBScrapingProducer, ScrapeOnFlush) {
 // - Out of order Enable/Disable/FreeBuffers calls.
 // - DisableTracing does actually freeze the buffers.
 
-}  // namespace perfetto
+}  // namespace dejaview

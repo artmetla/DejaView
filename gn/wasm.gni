@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("perfetto.gni")
+import("dejaview.gni")
 import("wasm_vars.gni")
 
-if (perfetto_root_path == "//") {
+if (dejaview_root_path == "//") {
   import("//gn/standalone/wasm.gni")
 } else {
   # Create a dummy template to avoid GN warnings in non-standalone builds.

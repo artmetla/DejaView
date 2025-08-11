@@ -16,15 +16,15 @@
  */
 
 #include "src/trace_redaction/collect_frame_cookies.h"
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/ext/base/status_or.h"
 #include "src/base/test/status_matchers.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/android/frame_timeline_event.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/android/frame_timeline_event.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 namespace {
 
 constexpr uint64_t kTimeStep = 1000;
@@ -127,7 +127,7 @@ protos::gen::TracePacket CreateStartPacket(FrameCookieType type,
       return CreateActualDisplayFrameStart(ts, pid, cookie);
   }
 
-  PERFETTO_FATAL("Unhandled case. This should never happen.");
+  DEJAVIEW_FATAL("Unhandled case. This should never happen.");
 }
 
 void CollectCookies(const std::string& packet, Context* context) {
@@ -414,4 +414,4 @@ TEST_F(TransformStartCookiesTest, Drop) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

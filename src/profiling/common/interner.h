@@ -22,9 +22,9 @@
 #include <functional>
 #include <unordered_set>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 using InternID = uint32_t;
@@ -106,14 +106,14 @@ class Interner {
       auto it_and_inserted = entries_.emplace(std::move(item));
       next_id++;
       it = it_and_inserted.first;
-      PERFETTO_DCHECK(it_and_inserted.second);
+      DEJAVIEW_DCHECK(it_and_inserted.second);
     }
     Entry& entry = const_cast<Entry&>(*it);
     entry.ref_count++;
     return Interned(&entry);
   }
 
-  ~Interner() { PERFETTO_DCHECK(entries_.empty()); }
+  ~Interner() { DEJAVIEW_DCHECK(entries_.empty()); }
 
   size_t entry_count_for_testing() { return entries_.size(); }
 
@@ -138,6 +138,6 @@ template <typename T>
 using Interned = typename Interner<T>::Interned;
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_COMMON_INTERNER_H_

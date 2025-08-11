@@ -19,12 +19,12 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/version_number.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class SystemInfoTracker : public Destructible {
@@ -54,6 +54,6 @@ class SystemInfoTracker : public Destructible {
   std::optional<uint32_t> num_cpus_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_SYSTEM_INFO_TRACKER_H_

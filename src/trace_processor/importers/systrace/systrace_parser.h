@@ -21,12 +21,12 @@
 
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace systrace_utils {
@@ -167,7 +167,7 @@ inline SystraceParseResult ParseSystraceTracePoint(
   };
 
   auto f0_phase = read_next_field();
-  if (PERFETTO_UNLIKELY(f0_phase.empty()))
+  if (DEJAVIEW_UNLIKELY(f0_phase.empty()))
     return SystraceParseResult::kFailure;
   out->phase = f0_phase.at(0);
 
@@ -197,7 +197,7 @@ inline SystraceParseResult ParseSystraceTracePoint(
       auto f2_name = read_next_field();
       auto f3_cookie = read_next_field();
       auto maybe_cookie = base::StringToInt64(f3_cookie.ToStdString());
-      if (PERFETTO_UNLIKELY(!has_tgid || f2_name.empty() || f3_cookie.empty() ||
+      if (DEJAVIEW_UNLIKELY(!has_tgid || f2_name.empty() || f3_cookie.empty() ||
                             !maybe_cookie)) {
         return SystraceParseResult::kFailure;
       }
@@ -207,7 +207,7 @@ inline SystraceParseResult ParseSystraceTracePoint(
     }
     case 'I': {  // Instant.
       auto f2_name = read_next_field();
-      if (PERFETTO_UNLIKELY(!has_tgid || f2_name.empty())) {
+      if (DEJAVIEW_UNLIKELY(!has_tgid || f2_name.empty())) {
         return SystraceParseResult::kFailure;
       }
       out->name = f2_name;
@@ -216,7 +216,7 @@ inline SystraceParseResult ParseSystraceTracePoint(
     case 'N': {  // Instant on track.
       auto f2_track_name = read_next_field();
       auto f3_name = read_next_field();
-      if (PERFETTO_UNLIKELY(!has_tgid || f2_track_name.empty() ||
+      if (DEJAVIEW_UNLIKELY(!has_tgid || f2_track_name.empty() ||
                             f3_name.empty())) {
         return SystraceParseResult::kFailure;
       }
@@ -228,7 +228,7 @@ inline SystraceParseResult ParseSystraceTracePoint(
       auto f2_name = read_next_field();
       auto f3_value = read_next_field();
       auto maybe_value = base::StringToInt64(f3_value.ToStdString());
-      if (PERFETTO_UNLIKELY(!has_tgid || f2_name.empty() || f3_value.empty() ||
+      if (DEJAVIEW_UNLIKELY(!has_tgid || f2_name.empty() || f3_value.empty() ||
                             !maybe_value)) {
         return SystraceParseResult::kFailure;
       }
@@ -240,7 +240,7 @@ inline SystraceParseResult ParseSystraceTracePoint(
       auto f2_track_name = read_next_field();
       auto f3_name = read_next_field();
       auto maybe_cookie = base::StringToInt64(read_next_field().ToStdString());
-      if (PERFETTO_UNLIKELY(!has_tgid || f2_track_name.empty() ||
+      if (DEJAVIEW_UNLIKELY(!has_tgid || f2_track_name.empty() ||
                             f3_name.empty() || !maybe_cookie)) {
         return SystraceParseResult::kFailure;
       }
@@ -255,7 +255,7 @@ inline SystraceParseResult ParseSystraceTracePoint(
       auto f4 = read_next_field();
       auto maybe_cookie_str = f4.empty() ? f3 : f4;
       auto maybe_cookie = base::StringToInt64(maybe_cookie_str.ToStdString());
-      if (PERFETTO_UNLIKELY(!has_tgid || f2_track_name.empty() ||
+      if (DEJAVIEW_UNLIKELY(!has_tgid || f2_track_name.empty() ||
                             !maybe_cookie)) {
         return SystraceParseResult::kFailure;
       }
@@ -323,6 +323,6 @@ class SystraceParser : public Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_SYSTRACE_SYSTRACE_PARSER_H_

@@ -15,12 +15,12 @@
  */
 
 #include "shell_transitions_tracker.h"
-#include "perfetto/ext/base/crash_keys.h"
+#include "dejaview/ext/base/crash_keys.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/storage/metadata.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 ShellTransitionsTracker::ShellTransitionsTracker(TraceProcessorContext* context)
     : context_(context) {}
@@ -46,4 +46,4 @@ ShellTransitionsTracker::InternTransition(int32_t transition_id) {
   return row_id;
 }
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

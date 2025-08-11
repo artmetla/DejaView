@@ -13,23 +13,23 @@
 # limitations under the License.
 
 import("../../../gn/fuzzer.gni")
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 import("../../../gn/test.gni")
 
-perfetto_unittest_source_set("test_support") {
+dejaview_unittest_source_set("test_support") {
   testonly = true
   public_deps = [
-    "../../../include/perfetto/test:test_support",
+    "../../../include/dejaview/test:test_support",
     "../core:test_support",
   ]
   deps = [
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../protos/perfetto/trace:cpp",
-    "../../../protos/perfetto/trace:lite",
-    "../../../protos/perfetto/trace:zero",
-    "../../../protos/perfetto/trace/ftrace:cpp",
-    "../../../protos/perfetto/trace/track_event:lite",
+    "../../../protos/dejaview/trace:cpp",
+    "../../../protos/dejaview/trace:lite",
+    "../../../protos/dejaview/trace:zero",
+    "../../../protos/dejaview/trace/ftrace:cpp",
+    "../../../protos/dejaview/trace/track_event:lite",
     "../../base",
     "../../base:test_support",
     "../core",
@@ -61,8 +61,8 @@ perfetto_unittest_source_set("test_support") {
   }
 }
 
-if (enable_perfetto_ipc && enable_perfetto_system_consumer) {
-  perfetto_unittest_source_set("tracing_integration_test") {
+if (enable_dejaview_ipc && enable_dejaview_system_consumer) {
+  dejaview_unittest_source_set("tracing_integration_test") {
     testonly = true
     deps = [
       ":test_support",
@@ -78,12 +78,12 @@ if (enable_perfetto_ipc && enable_perfetto_system_consumer) {
     sources = [ "tracing_integration_test.cc" ]
 
     # TODO(primiano): remove the build_with_chromium conditional once the root
-    # //BUILD.gn:libperfetto (in chromium) stops adding tracing:platform_fake.
+    # //BUILD.gn:libdejaview (in chromium) stops adding tracing:platform_fake.
     # The problem is the following: in chrome builds we end up with duplicate
     # symbol definitions in the test because both platorm (impl and fake) are
     # present: impl added here and fake coming from chromium's base (full path:
-    # perfetto_unittests -> //(chromium)base:test_support -> //(chromium)base
-    # -> libperfetto -> platform_fake.
+    # dejaview_unittests -> //(chromium)base:test_support -> //(chromium)base
+    # -> libdejaview -> platform_fake.
     if (!build_with_chromium) {
       deps += [
         "..:client_api_without_backends",
@@ -94,28 +94,28 @@ if (enable_perfetto_ipc && enable_perfetto_system_consumer) {
   }
 }
 
-if (enable_perfetto_integration_tests) {
+if (enable_dejaview_integration_tests) {
   source_set("client_api_integrationtests") {
     testonly = true
     deps = [
       ":api_test_support",
       "../:client_api",
       "../:platform_impl",
-      "../../../:libperfetto_client_experimental",
+      "../../../:libdejaview_client_experimental",
       "../../../gn:default_deps",
       "../../../gn:gtest_and_gmock",
-      "../../../include/perfetto/tracing/core",
-      "../../../protos/perfetto/common:cpp",
-      "../../../protos/perfetto/common:zero",
-      "../../../protos/perfetto/config/track_event:cpp",
-      "../../../protos/perfetto/trace:cpp",
-      "../../../protos/perfetto/trace:zero",
-      "../../../protos/perfetto/trace/gpu:cpp",
-      "../../../protos/perfetto/trace/gpu:zero",
-      "../../../protos/perfetto/trace/interned_data:cpp",
-      "../../../protos/perfetto/trace/interned_data:zero",
-      "../../../protos/perfetto/trace/profiling:cpp",
-      "../../../protos/perfetto/trace/track_event:cpp",
+      "../../../include/dejaview/tracing/core",
+      "../../../protos/dejaview/common:cpp",
+      "../../../protos/dejaview/common:zero",
+      "../../../protos/dejaview/config/track_event:cpp",
+      "../../../protos/dejaview/trace:cpp",
+      "../../../protos/dejaview/trace:zero",
+      "../../../protos/dejaview/trace/gpu:cpp",
+      "../../../protos/dejaview/trace/gpu:zero",
+      "../../../protos/dejaview/trace/interned_data:cpp",
+      "../../../protos/dejaview/trace/interned_data:zero",
+      "../../../protos/dejaview/trace/profiling:cpp",
+      "../../../protos/dejaview/trace/track_event:cpp",
       "../../../test:integrationtest_initializer",
       "../../base",
     ]
@@ -129,19 +129,19 @@ if (enable_perfetto_integration_tests) {
     ]
   }
 
-  # api_test_support needs to be self-contained and not leak any other perfetto
+  # api_test_support needs to be self-contained and not leak any other dejaview
   # deps. See comment in api_test_support.h
   source_set("api_test_support") {
     testonly = true
     deps = [
-      "../../..:libperfetto_client_experimental",
+      "../../..:libdejaview_client_experimental",
       "../../../gn:default_deps",
       "../../base",
       "../../tracing:client_api_without_backends",
     ]
 
     # The system tracing backend requires IPC support.
-    if (enable_perfetto_ipc) {
+    if (enable_dejaview_ipc) {
       deps += [ "../../../test:test_helper" ]
     }
     sources = [

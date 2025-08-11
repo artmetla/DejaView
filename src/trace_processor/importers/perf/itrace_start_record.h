@@ -20,10 +20,10 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_processor/importers/perf/sample_id.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 struct Record;
 
@@ -35,6 +35,6 @@ struct ItraceStartRecord {
   base::Status Parse(const Record& record);
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_ITRACE_START_RECORD_H_

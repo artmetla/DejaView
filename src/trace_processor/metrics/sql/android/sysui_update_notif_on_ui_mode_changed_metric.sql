@@ -13,11 +13,11 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE android.slices;
+INCLUDE DEJAVIEW MODULE android.slices;
 
 -- Table of updateNotifOnUiModeChanged slices
 DROP TABLE IF EXISTS sysui_update_notif_on_ui_mode_changed_slices;
-CREATE PERFETTO TABLE sysui_update_notif_on_ui_mode_changed_slices AS
+CREATE DEJAVIEW TABLE sysui_update_notif_on_ui_mode_changed_slices AS
 SELECT
   s.name name,
   dur,
@@ -33,7 +33,7 @@ WHERE
 
 -- Table of updateNotifOnUiModeChanged slices statistical performance information
 DROP TABLE IF EXISTS sysui_update_notif_on_ui_mode_changed_metric;
-CREATE PERFETTO TABLE sysui_update_notif_on_ui_mode_changed_metric AS
+CREATE DEJAVIEW TABLE sysui_update_notif_on_ui_mode_changed_metric AS
 SELECT
   s.name name,
   COUNT(s.name) AS count,
@@ -43,7 +43,7 @@ FROM sysui_update_notif_on_ui_mode_changed_slices s
 GROUP BY s.name;
 
 DROP VIEW IF EXISTS sysui_update_notif_on_ui_mode_changed_metric_output;
-CREATE PERFETTO VIEW sysui_update_notif_on_ui_mode_changed_metric_output AS
+CREATE DEJAVIEW VIEW sysui_update_notif_on_ui_mode_changed_metric_output AS
 SELECT SysuiUpdateNotifOnUiModeChangedMetric(
         'all_slices_performance', (
             SELECT SysUiSlicePerformanceStatisticalData(

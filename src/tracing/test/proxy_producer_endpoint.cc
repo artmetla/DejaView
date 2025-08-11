@@ -16,9 +16,9 @@
 
 #include "src/tracing/test/proxy_producer_endpoint.h"
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 
-namespace perfetto {
+namespace dejaview {
 
 ProxyProducerEndpoint::~ProxyProducerEndpoint() = default;
 
@@ -131,4 +131,4 @@ void ProxyProducerEndpoint::Sync(std::function<void()> callback) {
   backend_->Sync(callback);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

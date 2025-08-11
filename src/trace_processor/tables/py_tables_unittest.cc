@@ -26,7 +26,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::tables {
+namespace dejaview::trace_processor::tables {
 
 TestEventTable::~TestEventTable() = default;
 TestEventChildTable::~TestEventChildTable() = default;
@@ -289,4 +289,4 @@ TEST_F(PyTablesUnittest, SetIdColumns) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::tables
+}  // namespace dejaview::trace_processor::tables

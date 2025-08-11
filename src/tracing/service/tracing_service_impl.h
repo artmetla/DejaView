@@ -27,33 +27,33 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/circular_queue.h"
-#include "perfetto/ext/base/periodic_task.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/uuid.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/observable_events.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/trace_stats.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "perfetto/tracing/core/trace_config.h"
-#include "src/android_stats/perfetto_atoms.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/circular_queue.h"
+#include "dejaview/ext/base/periodic_task.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/uuid.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/observable_events.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/trace_stats.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "dejaview/tracing/core/trace_config.h"
+#include "src/android_stats/dejaview_atoms.h"
 #include "src/tracing/core/id_allocator.h"
 
 namespace protozero {
 class MessageFilter;
 }
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -198,7 +198,7 @@ class TracingServiceImpl : public TracingService {
     // SharedMemoryArbiterImpl methods themselves are thread-safe.
     std::unique_ptr<SharedMemoryArbiterImpl> inproc_shmem_arbiter_;
 
-    PERFETTO_THREAD_CHECKER(thread_checker_)
+    DEJAVIEW_THREAD_CHECKER(thread_checker_)
     base::WeakPtrFactory<ProducerEndpointImpl> weak_ptr_factory_;  // Keep last.
   };
 
@@ -264,7 +264,7 @@ class TracingServiceImpl : public TracingService {
     // flush the events to the consumer has been queued.
     std::unique_ptr<ObservableEvents> observable_events_;
 
-    PERFETTO_THREAD_CHECKER(thread_checker_)
+    DEJAVIEW_THREAD_CHECKER(thread_checker_)
     base::WeakPtrFactory<ConsumerEndpointImpl> weak_ptr_factory_;  // Keep last.
   };
 
@@ -306,7 +306,7 @@ class TracingServiceImpl : public TracingService {
     TracingServiceImpl* const service_;
     base::CircularQueue<SyncedClockSnapshots> synced_clocks_;
 
-    PERFETTO_THREAD_CHECKER(thread_checker_)
+    DEJAVIEW_THREAD_CHECKER(thread_checker_)
   };
 
   explicit TracingServiceImpl(std::unique_ptr<SharedMemory::Factory>,
@@ -511,7 +511,7 @@ class TracingServiceImpl : public TracingService {
     size_t num_buffers() const { return buffers_index.size(); }
 
     uint32_t delay_to_next_write_period_ms() const {
-      PERFETTO_DCHECK(write_period_ms > 0);
+      DEJAVIEW_DCHECK(write_period_ms > 0);
       return write_period_ms -
              static_cast<uint32_t>(base::GetWallTimeMs().count() %
                                    write_period_ms);
@@ -539,7 +539,7 @@ class TracingServiceImpl : public TracingService {
       static_assert(kMaxPacketSequenceID > kMaxProducerID * kMaxWriterID,
                     "PacketSequenceID value space doesn't cover service "
                     "sequence ID and all producer/writer ID combinations!");
-      PERFETTO_DCHECK(last_packet_sequence_id < kMaxPacketSequenceID);
+      DEJAVIEW_DCHECK(last_packet_sequence_id < kMaxPacketSequenceID);
       PacketSequenceID sequence_id = ++last_packet_sequence_id;
       packet_sequence_ids[key] = sequence_id;
       return sequence_id;
@@ -875,10 +875,10 @@ class TracingServiceImpl : public TracingService {
   void OnStartTriggersTimeout(TracingSessionID tsid);
   void MaybeLogUploadEvent(const TraceConfig&,
                            const base::Uuid&,
-                           PerfettoStatsdAtom atom,
+                           DejaViewStatsdAtom atom,
                            const std::string& trigger_name = "");
   void MaybeLogTriggerEvent(const TraceConfig&,
-                            PerfettoTriggerAtom atom,
+                            DejaViewTriggerAtom atom,
                             const std::string& trigger_name);
   size_t PurgeExpiredAndCountTriggerInWindow(int64_t now_ns,
                                              uint64_t trigger_name_hash);
@@ -926,12 +926,12 @@ class TracingServiceImpl : public TracingService {
   uint64_t chunks_discarded_ = 0;
   uint64_t patches_discarded_ = 0;
 
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
 
   base::WeakPtrFactory<TracingServiceImpl>
       weak_ptr_factory_;  // Keep at the end.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_SERVICE_TRACING_SERVICE_IMPL_H_

@@ -17,13 +17,13 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_CHUNKED_LINE_READER_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_CHUNKED_LINE_READER_H_
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 
 // Adapter on top of `ChunkedTraceReader` that performs line by line parsing.
 class ChunkedLineReader : public ChunkedTraceReader {
@@ -48,5 +48,5 @@ class ChunkedLineReader : public ChunkedTraceReader {
   TraceBlobView buffer_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_CHUNKED_LINE_READER_H_

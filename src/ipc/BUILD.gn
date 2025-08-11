@@ -13,18 +13,18 @@
 # limitations under the License.
 
 import("../../gn/fuzzer.gni")
-import("../../gn/perfetto.gni")
-import("../../gn/perfetto_component.gni")
+import("../../gn/dejaview.gni")
+import("../../gn/dejaview_component.gni")
 import("../../gn/proto_library.gni")
 import("../../gn/test.gni")
 
 # This build file should not be leaked into all embedders. Only select
 # projects should be depending on our IPC layer.
-assert(enable_perfetto_ipc)
+assert(enable_dejaview_ipc)
 
-if (perfetto_component_type == "static_library") {
+if (dejaview_component_type == "static_library") {
   # In build generators everything else outside should just depend on the
-  # :perfetto_ipc static library (at the end of this file) rather than
+  # :dejaview_ipc static library (at the end of this file) rather than
   # individual sub-targets.
   _ipc_visibility = [ ":*" ]  # Only targets defined in this file.
 } else {
@@ -33,13 +33,13 @@ if (perfetto_component_type == "static_library") {
 
 source_set("client") {
   public_deps = [
-    "../../include/perfetto/ext/ipc",
+    "../../include/dejaview/ext/ipc",
     "../base:unix_socket",
   ]
   deps = [
     ":common",
     "../../gn:default_deps",
-    "../../protos/perfetto/ipc:wire_protocol_cpp",
+    "../../protos/dejaview/ipc:wire_protocol_cpp",
     "../base",
   ]
   sources = [
@@ -52,13 +52,13 @@ source_set("client") {
 
 source_set("host") {
   public_deps = [
-    "../../include/perfetto/ext/ipc",
+    "../../include/dejaview/ext/ipc",
     "../base:unix_socket",
   ]
   deps = [
     ":common",
     "../../gn:default_deps",
-    "../../protos/perfetto/ipc:wire_protocol_cpp",
+    "../../protos/dejaview/ipc:wire_protocol_cpp",
     "../base",
   ]
   sources = [
@@ -70,8 +70,8 @@ source_set("host") {
 
 source_set("common") {
   public_deps = [
-    "../../include/perfetto/ext/ipc",
-    "../../protos/perfetto/ipc:wire_protocol_cpp",
+    "../../include/dejaview/ext/ipc",
+    "../../protos/dejaview/ipc:wire_protocol_cpp",
   ]
   deps = [
     "../../gn:default_deps",
@@ -86,17 +86,17 @@ source_set("common") {
   visibility = _ipc_visibility
 }
 
-perfetto_fuzzer_test("buffered_frame_deserializer_fuzzer") {
+dejaview_fuzzer_test("buffered_frame_deserializer_fuzzer") {
   sources = [ "buffered_frame_deserializer_fuzzer.cc" ]
   deps = [
     ":common",
     "../../gn:default_deps",
-    "../../protos/perfetto/ipc:wire_protocol_cpp",
+    "../../protos/dejaview/ipc:wire_protocol_cpp",
     "../base",
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":client",
@@ -106,7 +106,7 @@ perfetto_unittest_source_set("unittests") {
     ":test_messages_ipc",
     "../../gn:default_deps",
     "../../gn:gtest_and_gmock",
-    "../../protos/perfetto/ipc:wire_protocol_cpp",
+    "../../protos/dejaview/ipc:wire_protocol_cpp",
     "../base",
     "../base:test_support",
   ]
@@ -119,7 +119,7 @@ perfetto_unittest_source_set("unittests") {
   ]
 }
 
-perfetto_proto_library("test_messages_@TYPE@") {
+dejaview_proto_library("test_messages_@TYPE@") {
   proto_generators = [
     "ipc",
     "zero",
@@ -135,10 +135,10 @@ perfetto_proto_library("test_messages_@TYPE@") {
 # This is used by Bazel BUILD rules. The problem it solves is the following:
 # In GN builds we want to keep client and host separate. This allows reducing
 # the binary size by splitting targets all the way up to the client library
-# (libperfetto_client_experimental). In bazel/blaze we fuse everything together
+# (libdejaview_client_experimental). In bazel/blaze we fuse everything together
 # because handling this split is too complex due to the lack of a
 # source_set-equivalent.
-perfetto_component("perfetto_ipc") {
+dejaview_component("dejaview_ipc") {
   public_deps = [
     ":client",
     ":common",

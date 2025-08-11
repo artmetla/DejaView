@@ -17,7 +17,7 @@
 Usage: ./tools/package_prebuilts_for_github_release v20.0
 
 This will generate one .zip file for every os-arch combo (e.g. android-arm.zip)
-into /tmp/perfetto-prebuilts-v20.0/ .
+into /tmp/dejaview-prebuilts-v20.0/ .
 """
 
 import argparse
@@ -36,7 +36,7 @@ def main():
   parser.add_argument('version')
 
   args = parser.parse_args()
-  tmpdir = '/tmp/perfetto-prebuilts-' + args.version
+  tmpdir = '/tmp/dejaview-prebuilts-' + args.version
   src = 'gs://perfetto-luci-artifacts/%s/' % args.version
   os.makedirs(tmpdir, exist_ok=True)
   os.chdir(tmpdir)

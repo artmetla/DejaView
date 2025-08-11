@@ -16,13 +16,13 @@
 
 #include "src/traced/service/builtin_producer.h"
 
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/config/android/android_sdk_sysprop_guard_config.gen.h"
+#include "protos/dejaview/config/android/android_sdk_sysprop_guard_config.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 constexpr char kHeapprofdDataSourceName[] = "android.heapprofd";
@@ -32,17 +32,17 @@ constexpr char kLazyTracedPerfPropertyName[] = "traced.lazy.traced_perf";
 
 constexpr char kAndroidSdkSyspropGuardDataSourceName[] =
     "android.sdk_sysprop_guard";
-constexpr char kPerfettoSdkSyspropGuardGenerationPropertyName[] =
-    "debug.tracing.ctl.perfetto.sdk_sysprop_guard_generation";
+constexpr char kDejaViewSdkSyspropGuardGenerationPropertyName[] =
+    "debug.tracing.ctl.dejaview.sdk_sysprop_guard_generation";
 constexpr char kHwuiSkiaBroadTracingPropertyName[] =
     "debug.tracing.ctl.hwui.skia_tracing_enabled";
-constexpr char kHwuiSkiaUsePerfettoPropertyName[] =
-    "debug.tracing.ctl.hwui.skia_use_perfetto_track_events";
+constexpr char kHwuiSkiaUseDejaViewPropertyName[] =
+    "debug.tracing.ctl.hwui.skia_use_dejaview_track_events";
 constexpr char kHwuiSkiaPropertyPackageSeparator[] = ".";
 constexpr char kSurfaceFlingerSkiaBroadTracingPropertyName[] =
     "debug.tracing.ctl.renderengine.skia_tracing_enabled";
-constexpr char kSurfaceFlingerSkiaUsePerfettoPropertyName[] =
-    "debug.tracing.ctl.renderengine.skia_use_perfetto_track_events";
+constexpr char kSurfaceFlingerSkiaUseDejaViewPropertyName[] =
+    "debug.tracing.ctl.renderengine.skia_use_dejaview_track_events";
 
 using ::testing::_;
 using ::testing::InvokeWithoutArgs;
@@ -204,11 +204,11 @@ TEST_P(AndroidSdkSyspropGuardParameterizedTestFixture, SurfaceFlinger) {
       .Times(should_enable ? 1 : 0)
       .WillOnce(Return(true));
   EXPECT_CALL(
-      p, SetAndroidProperty(kSurfaceFlingerSkiaUsePerfettoPropertyName, "true"))
+      p, SetAndroidProperty(kSurfaceFlingerSkiaUseDejaViewPropertyName, "true"))
       .Times(should_enable ? 1 : 0)
       .WillOnce(Return(true));
   EXPECT_CALL(p, SetAndroidProperty(
-                     kPerfettoSdkSyspropGuardGenerationPropertyName, "1"))
+                     kDejaViewSdkSyspropGuardGenerationPropertyName, "1"))
       .Times(should_enable ? 1 : 0)
       .WillOnce(Return(true));
 
@@ -240,11 +240,11 @@ TEST_P(AndroidSdkSyspropGuardParameterizedTestFixture, HwuiGlobal) {
   EXPECT_CALL(p, SetAndroidProperty(kHwuiSkiaBroadTracingPropertyName, "true"))
       .Times(should_enable ? 1 : 0)
       .WillOnce(Return(true));
-  EXPECT_CALL(p, SetAndroidProperty(kHwuiSkiaUsePerfettoPropertyName, "true"))
+  EXPECT_CALL(p, SetAndroidProperty(kHwuiSkiaUseDejaViewPropertyName, "true"))
       .Times(should_enable ? 1 : 0)
       .WillOnce(Return(true));
   EXPECT_CALL(p, SetAndroidProperty(
-                     kPerfettoSdkSyspropGuardGenerationPropertyName, "1"))
+                     kDejaViewSdkSyspropGuardGenerationPropertyName, "1"))
       .Times(should_enable ? 1 : 0)
       .WillOnce(Return(true));
 
@@ -285,14 +285,14 @@ TEST_P(AndroidSdkSyspropGuardParameterizedTestFixture, HwuiPackageFiltered) {
         .Times(should_enable ? 1 : 0)
         .WillOnce(Return(true));
     EXPECT_CALL(
-        p, SetAndroidProperty(kHwuiSkiaUsePerfettoPropertyName +
+        p, SetAndroidProperty(kHwuiSkiaUseDejaViewPropertyName +
                                   (kHwuiSkiaPropertyPackageSeparator + package),
                               "true"))
         .Times(should_enable ? 1 : 0)
         .WillOnce(Return(true));
   }
   EXPECT_CALL(p, SetAndroidProperty(
-                     kPerfettoSdkSyspropGuardGenerationPropertyName, "1"))
+                     kDejaViewSdkSyspropGuardGenerationPropertyName, "1"))
       .Times(should_enable ? 1 : 0)
       .WillOnce(Return(true));
 
@@ -310,4 +310,4 @@ INSTANTIATE_TEST_SUITE_P(BuiltinProducerTest,
                          testing::Values(true, false));
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,7 +21,7 @@
 
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class MetatraceWriter;
 class TraceWriter;
@@ -50,6 +50,6 @@ class MetatraceDataSource : public ProbesDataSource {
   std::unique_ptr<MetatraceWriter> metatrace_writer_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_METATRACE_METATRACE_DATA_SOURCE_H_

@@ -16,11 +16,11 @@
 
 #include "src/trace_processor/importers/common/global_args_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 GlobalArgsTracker::GlobalArgsTracker(TraceStorage* storage)
     : storage_(storage) {}
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -17,17 +17,17 @@
 #include "src/traced/probes/initial_display_state/initial_display_state_data_source.h"
 #include <optional>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/config/android/android_polled_state_config.pbzero.h"
-#include "protos/perfetto/trace/android/initial_display_state.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/android/android_polled_state_config.pbzero.h"
+#include "protos/dejaview/trace/android/initial_display_state.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // static
 const InitialDisplayStateDataSource::Descriptor
@@ -50,7 +50,7 @@ InitialDisplayStateDataSource::InitialDisplayStateDataSource(
       ds_config.android_polled_state_config_raw());
   poll_period_ms_ = cfg.poll_ms();
   if (poll_period_ms_ > 0 && poll_period_ms_ < 100) {
-    PERFETTO_ILOG("poll_ms %" PRIu32
+    DEJAVIEW_ILOG("poll_ms %" PRIu32
                   " is less than minimum of 100ms. Increasing to 100ms.",
                   poll_period_ms_);
     poll_period_ms_ = 100;
@@ -115,12 +115,12 @@ void InitialDisplayStateDataSource::WriteState() {
   writer_->Flush();
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 const std::optional<std::string> InitialDisplayStateDataSource::ReadProperty(
     const std::string name) {
   std::string value = base::GetAndroidProp(name.c_str());
   if (value.empty()) {
-    PERFETTO_ELOG("Unable to read %s", name.c_str());
+    DEJAVIEW_ELOG("Unable to read %s", name.c_str());
     return std::nullopt;
   }
   return std::make_optional(value);
@@ -128,7 +128,7 @@ const std::optional<std::string> InitialDisplayStateDataSource::ReadProperty(
 #else
 const std::optional<std::string> InitialDisplayStateDataSource::ReadProperty(
     const std::string name __attribute__((unused))) {
-  PERFETTO_ELOG("Initial display state only supported on Android.");
+  DEJAVIEW_ELOG("Initial display state only supported on Android.");
   return std::nullopt;
 }
 #endif
@@ -138,4 +138,4 @@ void InitialDisplayStateDataSource::Flush(FlushRequestID,
   writer_->Flush(callback);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -12,13 +12,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This build file is used for both @perfetto_dep_sqlite and
-# @perfetto_dep_sqlite_src.
+# This build file is used for both @dejaview_dep_sqlite and
+# @dejaview_dep_sqlite_src.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 
 # #############################
-# @perfetto_dep_sqlite section
+# @dejaview_dep_sqlite section
 # #############################
 
 filegroup(
@@ -50,7 +50,7 @@ sqlite_copts = [
     "-DSQLITE_TEMP_STORE=3",
     "-DSQLITE_OMIT_LOAD_EXTENSION",
     "-DSQLITE_OMIT_RANDOMNESS",
-] + PERFETTO_CONFIG.deps_copts.sqlite
+] + DEJAVIEW_CONFIG.deps_copts.sqlite
 
 cc_library(
     name = "sqlite",
@@ -65,7 +65,7 @@ cc_library(
 )
 
 # ################################
-# @perfetto_dep_sqlite_src section
+# @dejaview_dep_sqlite_src section
 # ################################
 
 cc_library(
@@ -74,6 +74,6 @@ cc_library(
         "ext/misc/percentile.c",
     ],
     copts = sqlite_copts,
-    deps = PERFETTO_CONFIG.deps.sqlite,
+    deps = DEJAVIEW_CONFIG.deps.sqlite,
     visibility = ["//visibility:public"],
 )

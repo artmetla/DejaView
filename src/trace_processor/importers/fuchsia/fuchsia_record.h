@@ -17,12 +17,12 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_FUCHSIA_FUCHSIA_RECORD_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_FUCHSIA_FUCHSIA_RECORD_H_
 
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/containers/string_pool.h"
 
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 struct FuchsiaThreadInfo {
@@ -73,6 +73,6 @@ class FuchsiaRecord {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FUCHSIA_FUCHSIA_RECORD_H_

@@ -25,7 +25,7 @@ class PowerPowerRails(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('power_rails.pb'),
         query="""
-        INCLUDE PERFETTO MODULE android.power_rails;
+        INCLUDE DEJAVIEW MODULE android.power_rails;
         SELECT
         power_rail_name, AVG(value), COUNT(*)
         FROM android_power_rails_counters

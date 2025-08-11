@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/traced_proto.h"
+#include "dejaview/tracing/traced_proto.h"
 
-#include "perfetto/test/traced_value_test_support.h"
-#include "perfetto/tracing/track_event.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/test_event.pb.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.gen.h"
-#include "protos/perfetto/trace/track_event/track_event.pb.h"
+#include "dejaview/test/traced_value_test_support.h"
+#include "dejaview/tracing/track_event.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/test_event.pb.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.gen.h"
+#include "protos/dejaview/trace/track_event/track_event.pb.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class TracedProtoTest : public ::testing::Test {
  public:
@@ -43,7 +43,7 @@ using TestPayload = protos::pbzero::TestEvent::TestPayload;
 
 TEST_F(TracedProtoTest, SingleInt_WriteField) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   WriteTracedProtoField(proto, TestPayload::kSingleInt, 42);
 
   protos::TestEvent::TestPayload result;
@@ -54,7 +54,7 @@ TEST_F(TracedProtoTest, SingleInt_WriteField) {
 
 TEST_F(TracedProtoTest, SingleInt_Set) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.Set(TestPayload::kSingleInt, 42);
 
   protos::TestEvent::TestPayload result;
@@ -65,7 +65,7 @@ TEST_F(TracedProtoTest, SingleInt_Set) {
 
 TEST_F(TracedProtoTest, RepeatedInt_WriteField) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   WriteTracedProtoField(proto, TestPayload::kRepeatedInts,
                         std::vector<int>{1, 2, 3});
 
@@ -76,7 +76,7 @@ TEST_F(TracedProtoTest, RepeatedInt_WriteField) {
 
 TEST_F(TracedProtoTest, RepeatedInt_AppendValue) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendValue(TestPayload::kRepeatedInts, 1);
 
   protos::TestEvent::TestPayload result;
@@ -86,7 +86,7 @@ TEST_F(TracedProtoTest, RepeatedInt_AppendValue) {
 
 TEST_F(TracedProtoTest, RepeatedInt_AppendFrom) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendFrom(TestPayload::kRepeatedInts, std::vector<int>{1, 2, 3});
 
   protos::TestEvent::TestPayload result;
@@ -96,7 +96,7 @@ TEST_F(TracedProtoTest, RepeatedInt_AppendFrom) {
 
 TEST_F(TracedProtoTest, SingleString_WriteField) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   WriteTracedProtoField(proto, TestPayload::kSingleString, "foo");
 
   protos::TestEvent::TestPayload result;
@@ -107,7 +107,7 @@ TEST_F(TracedProtoTest, SingleString_WriteField) {
 
 TEST_F(TracedProtoTest, SingleString_Set) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.Set(TestPayload::kSingleString, "foo");
 
   protos::TestEvent::TestPayload result;
@@ -118,7 +118,7 @@ TEST_F(TracedProtoTest, SingleString_Set) {
 
 TEST_F(TracedProtoTest, RepeatedString_WriteField) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   WriteTracedProtoField(proto, TestPayload::kStr,
                         std::vector<std::string>{"foo", "bar"});
 
@@ -129,7 +129,7 @@ TEST_F(TracedProtoTest, RepeatedString_WriteField) {
 
 TEST_F(TracedProtoTest, RepeatedString_AppendFrom) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendFrom(TestPayload::kStr, std::vector<std::string>{"foo", "bar"});
 
   protos::TestEvent::TestPayload result;
@@ -139,7 +139,7 @@ TEST_F(TracedProtoTest, RepeatedString_AppendFrom) {
 
 TEST_F(TracedProtoTest, RepeatedString_AppendValue) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendValue(TestPayload::kStr, "foo");
 
   protos::TestEvent::TestPayload result;
@@ -173,7 +173,7 @@ struct TraceFormatTraits<Bar> {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_Method) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, Foo());
 
@@ -184,7 +184,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_Method) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_TraceFormatTraits) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, Bar());
 
@@ -195,7 +195,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_TraceFormatTraits) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_Pointer) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   Bar bar;
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, &bar);
@@ -207,7 +207,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_Pointer) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_UniquePtr) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   std::unique_ptr<Bar> bar(new Bar);
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, bar);
@@ -219,7 +219,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_UniquePtr) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_EmptyUniquePtr) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   std::unique_ptr<Bar> bar;
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, bar);
@@ -231,7 +231,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_EmptyUniquePtr) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_Nullptr) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, nullptr);
 
@@ -242,7 +242,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_Nullptr) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_Method_Set) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, Foo());
 
@@ -253,7 +253,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_Method_Set) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_TraceFormatTraits_Set) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   proto.Set(protos::pbzero::TestEvent::kPayload, Bar());
 
@@ -264,7 +264,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_TraceFormatTraits_Set) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_Pointer_Set) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   Bar bar;
   proto.Set(protos::pbzero::TestEvent::kPayload, &bar);
@@ -276,7 +276,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_Pointer_Set) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_UniquePtr_Set) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   std::unique_ptr<Bar> bar(new Bar);
   proto.Set(protos::pbzero::TestEvent::kPayload, bar);
@@ -288,7 +288,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_UniquePtr_Set) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_EmptyUniquePtr_Set) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   std::unique_ptr<Bar> bar;
   proto.Set(protos::pbzero::TestEvent::kPayload, bar);
@@ -300,7 +300,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_EmptyUniquePtr_Set) {
 
 TEST_F(TracedProtoTest, SingleNestedMessage_Nullptr_Set) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   proto.Set(protos::pbzero::TestEvent::kPayload, nullptr);
 
@@ -311,7 +311,7 @@ TEST_F(TracedProtoTest, SingleNestedMessage_Nullptr_Set) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_Method) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   WriteTracedProtoField(proto, TestPayload::kNested,
                         std::vector<Foo>{Foo(), Foo()});
 
@@ -324,7 +324,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_Method) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_TraceFormatTraits) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   WriteTracedProtoField(proto, TestPayload::kNested,
                         std::vector<Bar>{Bar(), Bar()});
 
@@ -337,7 +337,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_TraceFormatTraits) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_Pointer) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   Bar bar;
   std::vector<Bar*> bars;
   bars.push_back(&bar);
@@ -353,7 +353,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_Pointer) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_Method_AppendValue) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendValue(TestPayload::kNested, Foo());
 
   protos::TestEvent::TestPayload result;
@@ -364,7 +364,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_Method_AppendValue) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_TraceFormatTraits_AppendValue) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendValue(TestPayload::kNested, Bar());
 
   protos::TestEvent::TestPayload result;
@@ -375,7 +375,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_TraceFormatTraits_AppendValue) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_Pointer_AppendValue) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   Bar bar;
   proto.AppendValue(TestPayload::kNested, &bar);
   proto.AppendValue(TestPayload::kNested, nullptr);
@@ -389,7 +389,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_Pointer_AppendValue) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_Method_AppendFrom) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendFrom(TestPayload::kNested, std::vector<Foo>{Foo(), Foo()});
 
   protos::TestEvent::TestPayload result;
@@ -401,7 +401,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_Method_AppendFrom) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_TraceFormatTraits_AppendFrom) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   proto.AppendFrom(TestPayload::kNested, std::vector<Bar>{Bar(), Bar()});
 
   protos::TestEvent::TestPayload result;
@@ -413,7 +413,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_TraceFormatTraits_AppendFrom) {
 
 TEST_F(TracedProtoTest, RepeatedNestedMessage_Pointer_AppendFrom) {
   protozero::HeapBuffered<TestPayload> event;
-  perfetto::TracedProto<TestPayload> proto = context().Wrap(event.get());
+  dejaview::TracedProto<TestPayload> proto = context().Wrap(event.get());
   Bar bar;
   std::vector<Bar*> bars;
   bars.push_back(&bar);
@@ -429,7 +429,7 @@ TEST_F(TracedProtoTest, RepeatedNestedMessage_Pointer_AppendFrom) {
 
 TEST_F(TracedProtoTest, WriteDebugAnnotations) {
   protozero::HeapBuffered<protos::pbzero::TestEvent> event;
-  perfetto::TracedProto<protos::pbzero::TestEvent> proto =
+  dejaview::TracedProto<protos::pbzero::TestEvent> proto =
       context().Wrap(event.get());
   WriteTracedProtoField(proto, protos::pbzero::TestEvent::kPayload, Foo());
 
@@ -445,4 +445,4 @@ TEST_F(TracedProtoTest, WriteDebugAnnotations) {
             "{arg:value}");
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,7 +14,7 @@
 
 import {fetchWithTimeout} from '../../../base/http_utils';
 import {exists} from '../../../base/utils';
-import {VERSION} from '../../../gen/perfetto_version';
+import {VERSION} from '../../../gen/dejaview_version';
 import {AdbConnectionImpl} from '../adb_connection_impl';
 import {
   DataSource,
@@ -160,9 +160,9 @@ export abstract class AndroidTarget implements RecordingTargetV2 {
   composeTraceboxCommand(applet: string) {
     // 1. Set the consumer socket.
     return (
-      'PERFETTO_CONSUMER_SOCK_NAME=@traced_consumer ' +
+      'DEJAVIEW_CONSUMER_SOCK_NAME=@traced_consumer ' +
       // 2. Set the producer socket.
-      'PERFETTO_PRODUCER_SOCK_NAME=@traced_producer ' +
+      'DEJAVIEW_PRODUCER_SOCK_NAME=@traced_producer ' +
       // 3. Start the applet in the background.
       `/data/local/tmp/tracebox ${applet} --background`
     );

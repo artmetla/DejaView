@@ -18,19 +18,19 @@
 
 #include "src/trace_processor/importers/etw/etw_tokenizer.h"
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/etw/etw_event.pbzero.h"
-#include "protos/perfetto/trace/etw/etw_event_bundle.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/etw/etw_event.pbzero.h"
+#include "protos/dejaview/trace/etw/etw_event_bundle.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using protozero::ProtoDecoder;
@@ -40,7 +40,7 @@ using protozero::proto_utils::ParseVarInt;
 using protos::pbzero::BuiltinClock;
 using protos::pbzero::EtwTraceEventBundle;
 
-PERFETTO_ALWAYS_INLINE
+DEJAVIEW_ALWAYS_INLINE
 base::Status EtwTokenizer::TokenizeEtwBundle(
     TraceBlobView bundle,
     RefPtr<PacketSequenceStateGeneration> state) {
@@ -58,7 +58,7 @@ base::Status EtwTokenizer::TokenizeEtwBundle(
   return base::OkStatus();
 }
 
-PERFETTO_ALWAYS_INLINE
+DEJAVIEW_ALWAYS_INLINE
 base::Status EtwTokenizer::TokenizeEtwEvent(
     std::optional<uint32_t> fallback_cpu,
     TraceBlobView event,
@@ -82,7 +82,7 @@ base::Status EtwTokenizer::TokenizeEtwEvent(
   }
 
   static constexpr uint32_t kMaxCpuCount = 1024;
-  if (PERFETTO_UNLIKELY(cpu >= kMaxCpuCount)) {
+  if (DEJAVIEW_UNLIKELY(cpu >= kMaxCpuCount)) {
     return base::ErrStatus(
         "CPU %u is greater than maximum allowed of %u. This is likely because "
         "of trace corruption",
@@ -111,4 +111,4 @@ base::Status EtwTokenizer::TokenizeEtwEvent(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

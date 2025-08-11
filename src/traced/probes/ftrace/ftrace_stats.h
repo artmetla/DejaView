@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos {
 namespace pbzero {
@@ -59,6 +59,6 @@ struct FtraceStats {
   void Write(protos::pbzero::FtraceStats*) const;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FTRACE_STATS_H_

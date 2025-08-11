@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/track.h"
+#include "dejaview/tracing/track.h"
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/thread_utils.h"
-#include "perfetto/ext/base/uuid.h"
-#include "perfetto/tracing/internal/track_event_data_source.h"
-#include "perfetto/tracing/internal/track_event_internal.h"
-#include "protos/perfetto/trace/track_event/counter_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/thread_utils.h"
+#include "dejaview/ext/base/uuid.h"
+#include "dejaview/tracing/internal/track_event_data_source.h"
+#include "dejaview/tracing/internal/track_event_internal.h"
+#include "protos/dejaview/trace/track_event/counter_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // static
 uint64_t Track::process_uuid;
@@ -60,8 +60,8 @@ protos::gen::TrackDescriptor ProcessTrack::Serialize() const {
   auto desc = Track::Serialize();
   auto pd = desc.mutable_process();
   pd->set_pid(static_cast<int32_t>(pid));
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   std::string cmdline;
   if (base::ReadFile("/proc/self/cmdline", &cmdline)) {
     // Since cmdline is a zero-terminated list of arguments, this ends up
@@ -127,13 +127,13 @@ protos::gen::TrackDescriptor CounterTrack::Serialize() const {
 
   if (category_)
     counter->add_categories(category_);
-  if (unit_ != perfetto::protos::pbzero::CounterDescriptor::UNIT_UNSPECIFIED)
+  if (unit_ != dejaview::protos::pbzero::CounterDescriptor::UNIT_UNSPECIFIED)
     counter->set_unit(static_cast<protos::gen::CounterDescriptor_Unit>(unit_));
   {
     // if |type| is set, we don't want to emit |unit_name|. Trace processor
     // infers the track name from the type in that case.
     if (type_ !=
-        perfetto::protos::gen::CounterDescriptor::COUNTER_UNSPECIFIED) {
+        dejaview::protos::gen::CounterDescriptor::COUNTER_UNSPECIFIED) {
       counter->set_type(type_);
     } else if (unit_name_) {
       counter->set_unit_name(unit_name_);
@@ -155,7 +155,7 @@ namespace internal {
 namespace {
 
 uint64_t GetProcessStartTime() {
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   std::string stat;
   if (!base::ReadFile("/proc/self/stat", &stat))
     return 0u;
@@ -177,7 +177,7 @@ uint64_t GetProcessStartTime() {
   return base::CStringToUInt64(splitter.cur_token()).value_or(0u);
 #else
   return 0;
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 }
 
 }  // namespace
@@ -199,7 +199,7 @@ void TrackRegistry::InitializeInstance() {
 // static
 uint64_t TrackRegistry::ComputeProcessUuid() {
   // Use the process start time + pid as the unique identifier for this process.
-  // This ensures that if there are two independent copies of the Perfetto SDK
+  // This ensures that if there are two independent copies of the DejaView SDK
   // in the same process (e.g., one in the app and another in a system
   // framework), events emitted by each will be consistently interleaved on
   // common thread and process tracks.
@@ -234,8 +234,8 @@ void TrackRegistry::WriteTrackDescriptor(
     const SerializedTrackDescriptor& desc,
     protozero::MessageHandle<protos::pbzero::TracePacket> packet) {
   packet->AppendString(
-      perfetto::protos::pbzero::TracePacket::kTrackDescriptorFieldNumber, desc);
+      dejaview::protos::pbzero::TracePacket::kTrackDescriptorFieldNumber, desc);
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

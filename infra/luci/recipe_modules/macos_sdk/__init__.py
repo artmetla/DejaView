@@ -25,7 +25,7 @@ from recipe_engine.recipe_api import Property
 from recipe_engine.config import ConfigGroup, Single
 
 PROPERTIES = {
-    '$perfetto/macos_sdk':
+    '$dejaview/macos_sdk':
  Property(
         help='Properties specifically for the macos_sdk module.',
         param_name='sdk_properties',

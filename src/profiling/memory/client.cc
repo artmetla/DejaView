@@ -30,21 +30,21 @@
 #include <unwindstack/Regs.h>
 #include <unwindstack/RegsGetLocal.h>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/thread_utils.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/thread_utils.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/profiling/memory/sampler.h"
 #include "src/profiling/memory/scoped_spinlock.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 #include "src/profiling/memory/wire_protocol.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -97,7 +97,7 @@ StackRange GetSigAltStackRange() {
   stack_t altstack;
 
   if (sigaltstack(nullptr, &altstack) == -1) {
-    PERFETTO_PLOG("sigaltstack");
+    DEJAVIEW_PLOG("sigaltstack");
     return {nullptr, nullptr};
   }
 
@@ -143,15 +143,15 @@ std::optional<base::UnixSocketRaw> Client::ConnectToHeapprofd(
   auto sock = base::UnixSocketRaw::CreateMayFail(base::SockFamily::kUnix,
                                                  base::SockType::kStream);
   if (!sock || !sock.Connect(sock_name)) {
-    PERFETTO_PLOG("Failed to connect to %s", sock_name.c_str());
+    DEJAVIEW_PLOG("Failed to connect to %s", sock_name.c_str());
     return std::nullopt;
   }
   if (!sock.SetTxTimeout(kClientSockTimeoutMs)) {
-    PERFETTO_PLOG("Failed to set send timeout for %s", sock_name.c_str());
+    DEJAVIEW_PLOG("Failed to set send timeout for %s", sock_name.c_str());
     return std::nullopt;
   }
   if (!sock.SetRxTimeout(kClientSockTimeoutMs)) {
-    PERFETTO_PLOG("Failed to set receive timeout for %s", sock_name.c_str());
+    DEJAVIEW_PLOG("Failed to set receive timeout for %s", sock_name.c_str());
     return std::nullopt;
   }
   return std::move(sock);
@@ -162,7 +162,7 @@ std::shared_ptr<Client> Client::CreateAndHandshake(
     base::UnixSocketRaw sock,
     UnhookedAllocator<Client> unhooked_allocator) {
   if (!sock) {
-    PERFETTO_DFATAL_OR_ELOG("Socket not connected.");
+    DEJAVIEW_DFATAL_OR_ELOG("Socket not connected.");
     return nullptr;
   }
 
@@ -184,12 +184,12 @@ std::shared_ptr<Client> Client::CreateAndHandshake(
 
   base::ScopedFile maps(base::OpenFile("/proc/self/maps", O_RDONLY));
   if (!maps) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to open /proc/self/maps");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to open /proc/self/maps");
     return nullptr;
   }
   base::ScopedFile mem(base::OpenFile("/proc/self/mem", O_RDONLY));
   if (!mem) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to open /proc/self/mem");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to open /proc/self/mem");
     return nullptr;
   }
 
@@ -204,7 +204,7 @@ std::shared_ptr<Client> Client::CreateAndHandshake(
   // /proc/self/mem.
   if (sock.Send(kSingleByte, sizeof(kSingleByte), fds, kHandshakeSize) !=
       sizeof(kSingleByte)) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to send file descriptors.");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to send file descriptors.");
     return nullptr;
   }
 
@@ -221,24 +221,24 @@ std::shared_ptr<Client> Client::CreateAndHandshake(
     ssize_t rd = sock.Receive(reinterpret_cast<char*>(&client_config) + recv,
                               sizeof(client_config) - recv, fd, num_fds);
     if (rd == -1) {
-      PERFETTO_PLOG("Failed to receive ClientConfiguration.");
+      DEJAVIEW_PLOG("Failed to receive ClientConfiguration.");
       return nullptr;
     }
     if (rd == 0) {
-      PERFETTO_LOG("Server disconnected while sending ClientConfiguration.");
+      DEJAVIEW_LOG("Server disconnected while sending ClientConfiguration.");
       return nullptr;
     }
     recv += static_cast<size_t>(rd);
   }
 
   if (!shmem_fd) {
-    PERFETTO_DFATAL_OR_ELOG("Did not receive shmem fd.");
+    DEJAVIEW_DFATAL_OR_ELOG("Did not receive shmem fd.");
     return nullptr;
   }
 
   auto shmem = SharedRingBuffer::Attach(std::move(shmem_fd));
   if (!shmem || !shmem->is_valid()) {
-    PERFETTO_DFATAL_OR_ELOG("Failed to attach to shmem.");
+    DEJAVIEW_DFATAL_OR_ELOG("Failed to attach to shmem.");
     return nullptr;
   }
 
@@ -308,7 +308,7 @@ const char* Client::GetStackEnd(const char* stackptr) {
 // TODO(rsavitski): rename/delete |disable_fork_teardown| config option if this
 // logic sticks, as the option becomes more clone-specific, and quite narrow.
 bool Client::IsPostFork() {
-  if (PERFETTO_UNLIKELY(getpid() != pid_at_creation_)) {
+  if (DEJAVIEW_UNLIKELY(getpid() != pid_at_creation_)) {
     // Only print the message once, even if we do not shut down the client.
     if (!detected_fork_) {
       detected_fork_ = true;
@@ -334,7 +334,7 @@ bool Client::IsPostFork() {
           postfork_return_value_ ? "Not shutting down" : "Shutting down";
       const char* force =
           postfork_return_value_ ? " (fork teardown disabled)" : "";
-      PERFETTO_LOG(
+      DEJAVIEW_LOG(
           "Detected post-fork child situation. Not profiling the child. "
           "%s client%s%s",
           action, force, vfork_detected);
@@ -360,7 +360,7 @@ bool Client::RecordMalloc(uint32_t heap_id,
                           uint64_t sample_size,
                           uint64_t alloc_size,
                           uint64_t alloc_address) {
-  if (PERFETTO_UNLIKELY(IsPostFork())) {
+  if (DEJAVIEW_UNLIKELY(IsPostFork())) {
     return postfork_return_value_;
   }
 
@@ -369,7 +369,7 @@ bool Client::RecordMalloc(uint32_t heap_id,
   unwindstack::AsmGetRegs(metadata.register_data);
   const char* stackend = GetStackEnd(stackptr);
   if (!stackend) {
-    PERFETTO_ELOG("Failed to find stackend.");
+    DEJAVIEW_ELOG("Failed to find stackend.");
     shmem_.SetErrorState(SharedRingBuffer::kInvalidStackBounds);
     return false;
   }
@@ -411,7 +411,7 @@ int64_t Client::SendWireMessageWithRetriesIfBlocking(const WireMessage& msg) {
     if (shmem_.shutting_down())
       return -1;
     int64_t res = SendWireMessage(&shmem_, msg);
-    if (PERFETTO_LIKELY(res >= 0))
+    if (DEJAVIEW_LIKELY(res >= 0))
       return res;
     // retry if in blocking mode and still connected
     if (client_config_.block_client && base::IsAgain(errno) && IsConnected()) {
@@ -422,12 +422,12 @@ int64_t Client::SendWireMessageWithRetriesIfBlocking(const WireMessage& msg) {
   }
   if (IsConnected())
     shmem_.SetErrorState(SharedRingBuffer::kHitTimeout);
-  PERFETTO_PLOG("Failed to write to shared ring buffer. Disconnecting.");
+  DEJAVIEW_PLOG("Failed to write to shared ring buffer. Disconnecting.");
   return -1;
 }
 
 bool Client::RecordFree(uint32_t heap_id, const uint64_t alloc_address) {
-  if (PERFETTO_UNLIKELY(IsPostFork())) {
+  if (DEJAVIEW_UNLIKELY(IsPostFork())) {
     return postfork_return_value_;
   }
 
@@ -456,7 +456,7 @@ bool Client::RecordFree(uint32_t heap_id, const uint64_t alloc_address) {
 bool Client::RecordHeapInfo(uint32_t heap_id,
                             const char* heap_name,
                             uint64_t interval) {
-  if (PERFETTO_UNLIKELY(IsPostFork())) {
+  if (DEJAVIEW_UNLIKELY(IsPostFork())) {
     return postfork_return_value_;
   }
 
@@ -492,9 +492,9 @@ bool Client::SendControlSocketByte() {
   if (sock_.Send(kSingleByte, sizeof(kSingleByte)) == -1 &&
       !base::IsAgain(errno)) {
     if (shmem_.shutting_down()) {
-      PERFETTO_LOG("Profiling session ended.");
+      DEJAVIEW_LOG("Profiling session ended.");
     } else {
-      PERFETTO_PLOG("Failed to send control socket byte.");
+      DEJAVIEW_PLOG("Failed to send control socket byte.");
     }
     return false;
   }
@@ -502,4 +502,4 @@ bool Client::SendControlSocketByte() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -20,12 +20,12 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/trace/profiling/deobfuscation.pbzero.h"
+#include "protos/dejaview/trace/profiling/deobfuscation.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 std::string FullyQualifiedDeobfuscatedName(
@@ -36,6 +36,6 @@ std::optional<std::string> PackageFromLocation(TraceStorage* storage,
                                                base::StringView location);
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_PROFILER_UTIL_H_

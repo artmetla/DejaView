@@ -25,11 +25,11 @@ class GraphPartitionTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.partition;
+          INCLUDE DEJAVIEW MODULE graphs.partition;
 
           -- See the comment in the graphs.partition module for a visual
           -- representation of this graph.
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           WITH data(id, parent_id, group_key) AS (
             VALUES
             (1, NULL, 1),

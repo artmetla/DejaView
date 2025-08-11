@@ -19,13 +19,13 @@
 
 #include <iostream>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 // Returns true in case of success.
 bool TraceToText(std::istream* input, std::ostream* output);
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_TRACE_TO_TEXT_H_

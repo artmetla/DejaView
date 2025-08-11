@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/rpc/query_result_serializer.h"
+#include "dejaview/ext/trace_processor/rpc/query_result_serializer.h"
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
-using perfetto::trace_processor::Config;
-using perfetto::trace_processor::QueryResultSerializer;
-using perfetto::trace_processor::TraceProcessor;
+using dejaview::trace_processor::Config;
+using dejaview::trace_processor::QueryResultSerializer;
+using dejaview::trace_processor::TraceProcessor;
 using VectorType = std::vector<uint8_t>;
 
 namespace {
@@ -43,7 +43,7 @@ void BenchmarkArgs(benchmark::internal::Benchmark* b) {
 void RunQueryChecked(TraceProcessor* tp, const std::string& query) {
   auto iter = tp->ExecuteQuery(query);
   iter.Next();
-  PERFETTO_CHECK(iter.Status().ok());
+  DEJAVIEW_CHECK(iter.Status().ok());
 }
 
 }  // namespace

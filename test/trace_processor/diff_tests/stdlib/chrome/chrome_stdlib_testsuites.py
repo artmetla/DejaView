@@ -5,7 +5,7 @@
 """
 A list of Chrome Stdlib TestSuites to be used by the DiffTestRunner. We
 define this here so we can use the same list in both the Chromium and
-Perfetto repositories.
+DejaView repositories.
 """
 
 from .tests import ChromeStdlib

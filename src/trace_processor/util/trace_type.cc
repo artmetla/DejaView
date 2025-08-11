@@ -22,16 +22,16 @@
 #include <cstdint>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_event.h"
 #include "src/trace_processor/importers/perf_text/perf_text_sample_line_parser.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 // Fuchsia traces have a magic number as documented here:
 // https://fuchsia.googlesource.com/fuchsia/+/HEAD/docs/development/tracing/trace-format/README.md#magic-number-record-trace-info-type-0
@@ -137,7 +137,7 @@ const char* TraceTypeToString(TraceType trace_type) {
     case kUnknownTraceType:
       return "unknown";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 TraceType GuessTraceType(const uint8_t* data, size_t size) {
@@ -234,4 +234,4 @@ TraceType GuessTraceType(const uint8_t* data, size_t size) {
   return kUnknownTraceType;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

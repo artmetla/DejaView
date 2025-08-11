@@ -20,12 +20,12 @@
 #include <functional>
 #include <iostream>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 int SymbolizeProfile(std::istream* input, std::ostream* output);
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_SYMBOLIZE_PROFILE_H_

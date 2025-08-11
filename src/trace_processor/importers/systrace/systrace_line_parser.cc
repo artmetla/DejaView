@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/importers/systrace/systrace_line_parser.h"
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -34,7 +34,7 @@
 #include <cinttypes>
 #include <string>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 SystraceLineParser::SystraceLineParser(TraceProcessorContext* ctx)
@@ -300,4 +300,4 @@ util::Status SystraceLineParser::ParseLine(const SystraceLine& line) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,36 +19,36 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/android_test_utils.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/profiling/java_hprof_config.gen.h"
-#include "protos/perfetto/trace/profiling/heap_graph.gen.h"
-#include "protos/perfetto/trace/profiling/profile_common.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/config/profiling/java_hprof_config.gen.h"
+#include "protos/dejaview/trace/profiling/heap_graph.gen.h"
+#include "protos/dejaview/trace/profiling/profile_common.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
-// Even though ART is a mainline module, there are dependencies on perfetto for
+// Even though ART is a mainline module, there are dependencies on dejaview for
 // OOM heap dumps to work correctly.
 bool SupportsOomHeapDump() {
   auto sdk = base::StringToInt32(base::GetAndroidProp("ro.build.version.sdk"));
   if (sdk && *sdk >= 34) {
-    PERFETTO_LOG("SDK supports OOME heap dumps");
+    DEJAVIEW_LOG("SDK supports OOME heap dumps");
     return true;
   }
   if (base::GetAndroidProp("ro.build.version.codename") == "UpsideDownCake") {
-    PERFETTO_LOG("Codename supports OOME heap dumps");
+    DEJAVIEW_LOG("Codename supports OOME heap dumps");
     return true;
   }
-  PERFETTO_LOG("OOME heap dumps not supported");
+  DEJAVIEW_LOG("OOME heap dumps not supported");
   return false;
 }
 
@@ -102,7 +102,7 @@ std::vector<protos::gen::TracePacket> ProfileRuntime(std::string app_name) {
   helper.WaitForTracingDisabled();
   helper.ReadData();
   helper.WaitForReadData();
-  PERFETTO_CHECK(IsAppRunning(app_name));
+  DEJAVIEW_CHECK(IsAppRunning(app_name));
   StopApp(app_name, "new.app.stopped", &task_runner);
   task_runner.RunUntilCheckpoint("new.app.stopped", 10000 /*ms*/);
   return helper.trace();
@@ -131,7 +131,7 @@ std::vector<protos::gen::TracePacket> TriggerOomHeapDump(
 
   auto* trigger_config = trace_config.mutable_trigger_config();
   trigger_config->set_trigger_mode(
-      perfetto::protos::gen::TraceConfig::TriggerConfig::START_TRACING);
+      dejaview::protos::gen::TraceConfig::TriggerConfig::START_TRACING);
   trigger_config->set_trigger_timeout_ms(60000);
   auto* oom_trigger = trigger_config->add_triggers();
   oom_trigger->set_name("com.android.telemetry.art-outofmemory");
@@ -158,7 +158,7 @@ std::vector<protos::gen::TracePacket> TriggerOomHeapDump(
     helper.WaitForReadData();
   }
 
-  PERFETTO_CHECK(IsAppRunning(app_name));
+  DEJAVIEW_CHECK(IsAppRunning(app_name));
   StopApp(app_name, "new.app.stopped", &task_runner);
   task_runner.RunUntilCheckpoint("new.app.stopped", 10000 /*ms*/);
   return helper.trace();
@@ -188,19 +188,19 @@ void AssertNoProfileContents(std::vector<protos::gen::TracePacket> packets) {
 }
 
 TEST(HeapprofdJavaCtsTest, DebuggableAppRuntime) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets = ProfileRuntime(app_name);
   AssertGraphPresent(packets);
 }
 
 TEST(HeapprofdJavaCtsTest, ProfileableAppRuntime) {
-  std::string app_name = "android.perfetto.cts.app.profileable";
+  std::string app_name = "android.dejaview.cts.app.profileable";
   const auto& packets = ProfileRuntime(app_name);
   AssertGraphPresent(packets);
 }
 
 TEST(HeapprofdJavaCtsTest, ReleaseAppRuntime) {
-  std::string app_name = "android.perfetto.cts.app.release";
+  std::string app_name = "android.dejaview.cts.app.release";
   const auto& packets = ProfileRuntime(app_name);
 
   if (!IsUserBuild())
@@ -210,7 +210,7 @@ TEST(HeapprofdJavaCtsTest, ReleaseAppRuntime) {
 }
 
 TEST(HeapprofdJavaCtsTest, DebuggableAppRuntimeByPid) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
 
   base::TestTaskRunner task_runner;
 
@@ -252,7 +252,7 @@ TEST(HeapprofdJavaCtsTest, DebuggableAppRuntimeByPid) {
   helper.WaitForTracingDisabled();
   helper.ReadData();
   helper.WaitForReadData();
-  PERFETTO_CHECK(IsAppRunning(app_name));
+  DEJAVIEW_CHECK(IsAppRunning(app_name));
   StopApp(app_name, "new.app.stopped", &task_runner);
   task_runner.RunUntilCheckpoint("new.app.stopped", 10000 /*ms*/);
 
@@ -261,7 +261,7 @@ TEST(HeapprofdJavaCtsTest, DebuggableAppRuntimeByPid) {
 }
 
 TEST(HeapprofdJavaCtsTest, DebuggableAppOom) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets = TriggerOomHeapDump(app_name, "*");
   if (SupportsOomHeapDump()) {
     AssertGraphPresent(packets);
@@ -269,7 +269,7 @@ TEST(HeapprofdJavaCtsTest, DebuggableAppOom) {
 }
 
 TEST(HeapprofdJavaCtsTest, ProfileableAppOom) {
-  std::string app_name = "android.perfetto.cts.app.profileable";
+  std::string app_name = "android.dejaview.cts.app.profileable";
   const auto& packets = TriggerOomHeapDump(app_name, "*");
   if (SupportsOomHeapDump()) {
     AssertGraphPresent(packets);
@@ -277,7 +277,7 @@ TEST(HeapprofdJavaCtsTest, ProfileableAppOom) {
 }
 
 TEST(HeapprofdJavaCtsTest, ReleaseAppOom) {
-  std::string app_name = "android.perfetto.cts.app.release";
+  std::string app_name = "android.dejaview.cts.app.release";
   const auto& packets = TriggerOomHeapDump(app_name, "*");
   if (IsUserBuild()) {
     AssertNoProfileContents(packets);
@@ -287,10 +287,10 @@ TEST(HeapprofdJavaCtsTest, ReleaseAppOom) {
 }
 
 TEST(HeapprofdJavaCtsTest, DebuggableAppOomNotSelected) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets = TriggerOomHeapDump(app_name, "not.this.app");
   AssertNoProfileContents(packets);
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

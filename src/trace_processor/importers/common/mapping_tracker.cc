@@ -21,8 +21,8 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/jit_cache.h"
 #include "src/trace_processor/importers/common/virtual_memory_mapping.h"
@@ -30,7 +30,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -44,7 +44,7 @@ bool IsKernelModule(const CreateMappingParams& params) {
 template <typename MappingImpl>
 MappingImpl& MappingTracker::AddMapping(std::unique_ptr<MappingImpl> mapping) {
   auto ptr = mapping.get();
-  PERFETTO_CHECK(
+  DEJAVIEW_CHECK(
       mappings_by_id_.Insert(ptr->mapping_id(), std::move(mapping)).second);
 
   mappings_by_name_and_build_id_[NameAndBuildId{base::StringView(ptr->name()),
@@ -62,7 +62,7 @@ KernelMemoryMapping& MappingTracker::CreateKernelMemoryMapping(
   const bool is_module = IsKernelModule(params);
 
   if (!is_module && kernel_ != nullptr) {
-    PERFETTO_CHECK(params.memory_range == kernel_->memory_range());
+    DEJAVIEW_CHECK(params.memory_range == kernel_->memory_range());
     return *kernel_;
   }
 
@@ -92,7 +92,7 @@ UserMemoryMapping& MappingTracker::CreateUserMemoryMapping(
       mapping_range, [&](std::pair<const AddressRange, JitCache*>& entry) {
         const auto& jit_range = entry.first;
         JitCache* jit_cache = entry.second;
-        PERFETTO_CHECK(jit_range.Contains(mapping_range));
+        DEJAVIEW_CHECK(jit_range.Contains(mapping_range));
         mapping->SetJitCache(jit_cache);
       });
 
@@ -157,7 +157,7 @@ void MappingTracker::AddJitRange(UniquePid upid,
   jit_caches_[upid].TrimOverlapsAndEmplace(jit_range, jit_cache);
   user_memory_[upid].ForOverlaps(
       jit_range, [&](std::pair<const AddressRange, UserMemoryMapping*>& entry) {
-        PERFETTO_CHECK(jit_range.Contains(entry.first));
+        DEJAVIEW_CHECK(jit_range.Contains(entry.first));
         entry.second->SetJitCache(jit_cache);
       });
 }
@@ -174,4 +174,4 @@ DummyMemoryMapping& MappingTracker::CreateDummyMapping(std::string name) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

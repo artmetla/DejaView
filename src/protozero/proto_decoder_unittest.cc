@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_decoder.h"
 
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/message.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/protozero/static_buffer.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/message.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/static_buffer.h"
 #include "test/gtest_and_gmock.h"
 
 #include "src/protozero/test/example_proto/test_messages.pb.h"
@@ -60,7 +60,7 @@ TEST(ProtoDecoderTest, ReadString) {
 TEST(ProtoDecoderTest, SkipVeryLargeFields) {
   const size_t kPayloadSize = 257 * 1024 * 1024;
   const uint64_t data_size = 4096 + kPayloadSize;
-  std::unique_ptr<uint8_t, perfetto::base::FreeDeleter> data(
+  std::unique_ptr<uint8_t, dejaview::base::FreeDeleter> data(
       static_cast<uint8_t*>(malloc(data_size)));
   StaticBuffered<Message> message(data.get(), data_size);
 
@@ -231,7 +231,7 @@ TEST(ProtoDecoderTest, FixedData) {
        135, 999, ProtoWireType::kLengthDelimited, 131},
   };
 
-  for (size_t i = 0; i < perfetto::base::ArraySize(kFieldExpectations); ++i) {
+  for (size_t i = 0; i < dejaview::base::ArraySize(kFieldExpectations); ++i) {
     const FieldExpectation& exp = kFieldExpectations[i];
     TypedProtoDecoder<999, 0> decoder(
         reinterpret_cast<const uint8_t*>(exp.encoded), exp.encoded_size);

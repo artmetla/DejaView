@@ -16,14 +16,14 @@
 
 #include "src/trace_redaction/proto_util.h"
 
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/message.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/message.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 namespace proto_util {
 
 // This is copied from "src/protozero/field.cc", but was modified to use the
-// serialization methods provided in "perfetto/protozero/message.h".
+// serialization methods provided in "dejaview/protozero/message.h".
 void AppendField(const protozero::Field& field, protozero::Message* message) {
   auto id = field.id();
   auto type = field.type();
@@ -52,8 +52,8 @@ void AppendField(const protozero::Field& field, protozero::Message* message) {
 
   // A switch-statement would be preferred, but when using a switch statement,
   // it complains that about case coverage.
-  PERFETTO_FATAL("Unknown field type %u", static_cast<uint8_t>(type));
+  DEJAVIEW_FATAL("Unknown field type %u", static_cast<uint8_t>(type));
 }
 
 }  // namespace proto_util
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

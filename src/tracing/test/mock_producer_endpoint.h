@@ -17,11 +17,11 @@
 #ifndef SRC_TRACING_TEST_MOCK_PRODUCER_ENDPOINT_H_
 #define SRC_TRACING_TEST_MOCK_PRODUCER_ENDPOINT_H_
 
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "protos/perfetto/common/data_source_descriptor.gen.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "protos/dejaview/common/data_source_descriptor.gen.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class MockProducerEndpoint : public TracingService::ProducerEndpoint {
  public:
@@ -65,6 +65,6 @@ class MockProducerEndpoint : public TracingService::ProducerEndpoint {
   MOCK_METHOD(void, Sync, (std::function<void()>), (override));
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_MOCK_PRODUCER_ENDPOINT_H_

@@ -31,12 +31,12 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/status.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column/types.h"
@@ -58,7 +58,7 @@
 #include "src/trace_processor/tables/winscope_tables_py.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // UniquePid is an offset into |unique_processes_|. This is necessary because
@@ -234,36 +234,36 @@ class TraceStorage {
 
   // Example usage: SetStats(stats::android_log_num_failed, 42);
   void SetStats(size_t key, int64_t value) {
-    PERFETTO_DCHECK(key < stats::kNumKeys);
-    PERFETTO_DCHECK(stats::kTypes[key] == stats::kSingle);
+    DEJAVIEW_DCHECK(key < stats::kNumKeys);
+    DEJAVIEW_DCHECK(stats::kTypes[key] == stats::kSingle);
     stats_[key].value = value;
   }
 
   // Example usage: IncrementStats(stats::android_log_num_failed, -1);
   void IncrementStats(size_t key, int64_t increment = 1) {
-    PERFETTO_DCHECK(key < stats::kNumKeys);
-    PERFETTO_DCHECK(stats::kTypes[key] == stats::kSingle);
+    DEJAVIEW_DCHECK(key < stats::kNumKeys);
+    DEJAVIEW_DCHECK(stats::kTypes[key] == stats::kSingle);
     stats_[key].value += increment;
   }
 
   // Example usage: IncrementIndexedStats(stats::cpu_failure, 1);
   void IncrementIndexedStats(size_t key, int index, int64_t increment = 1) {
-    PERFETTO_DCHECK(key < stats::kNumKeys);
-    PERFETTO_DCHECK(stats::kTypes[key] == stats::kIndexed);
+    DEJAVIEW_DCHECK(key < stats::kNumKeys);
+    DEJAVIEW_DCHECK(stats::kTypes[key] == stats::kIndexed);
     stats_[key].indexed_values[index] += increment;
   }
 
   // Example usage: SetIndexedStats(stats::cpu_failure, 1, 42);
   void SetIndexedStats(size_t key, int index, int64_t value) {
-    PERFETTO_DCHECK(key < stats::kNumKeys);
-    PERFETTO_DCHECK(stats::kTypes[key] == stats::kIndexed);
+    DEJAVIEW_DCHECK(key < stats::kNumKeys);
+    DEJAVIEW_DCHECK(stats::kTypes[key] == stats::kIndexed);
     stats_[key].indexed_values[index] = value;
   }
 
   // Example usage: opt_cpu_failure = GetIndexedStats(stats::cpu_failure, 1);
   std::optional<int64_t> GetIndexedStats(size_t key, int index) {
-    PERFETTO_DCHECK(key < stats::kNumKeys);
-    PERFETTO_DCHECK(stats::kTypes[key] == stats::kIndexed);
+    DEJAVIEW_DCHECK(key < stats::kNumKeys);
+    DEJAVIEW_DCHECK(stats::kTypes[key] == stats::kIndexed);
     auto kv = stats_[key].indexed_values.find(index);
     if (kv != stats_[key].indexed_values.end()) {
       return kv->second;
@@ -1252,11 +1252,11 @@ class TraceStorage {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 template <>
-struct std::hash<::perfetto::trace_processor::BaseId> {
-  using argument_type = ::perfetto::trace_processor::BaseId;
+struct std::hash<::dejaview::trace_processor::BaseId> {
+  using argument_type = ::dejaview::trace_processor::BaseId;
   using result_type = size_t;
 
   result_type operator()(const argument_type& r) const {
@@ -1265,37 +1265,37 @@ struct std::hash<::perfetto::trace_processor::BaseId> {
 };
 
 template <>
-struct std::hash<::perfetto::trace_processor::TrackId>
-    : std::hash<::perfetto::trace_processor::BaseId> {};
+struct std::hash<::dejaview::trace_processor::TrackId>
+    : std::hash<::dejaview::trace_processor::BaseId> {};
 template <>
-struct std::hash<::perfetto::trace_processor::MappingId>
-    : std::hash<::perfetto::trace_processor::BaseId> {};
+struct std::hash<::dejaview::trace_processor::MappingId>
+    : std::hash<::dejaview::trace_processor::BaseId> {};
 template <>
-struct std::hash<::perfetto::trace_processor::CallsiteId>
-    : std::hash<::perfetto::trace_processor::BaseId> {};
+struct std::hash<::dejaview::trace_processor::CallsiteId>
+    : std::hash<::dejaview::trace_processor::BaseId> {};
 template <>
-struct std::hash<::perfetto::trace_processor::FrameId>
-    : std::hash<::perfetto::trace_processor::BaseId> {};
+struct std::hash<::dejaview::trace_processor::FrameId>
+    : std::hash<::dejaview::trace_processor::BaseId> {};
 template <>
-struct std::hash<::perfetto::trace_processor::tables::HeapGraphObjectTable::Id>
-    : std::hash<::perfetto::trace_processor::BaseId> {};
+struct std::hash<::dejaview::trace_processor::tables::HeapGraphObjectTable::Id>
+    : std::hash<::dejaview::trace_processor::BaseId> {};
 template <>
-struct std::hash<::perfetto::trace_processor::tables::V8IsolateTable::Id>
-    : std::hash<::perfetto::trace_processor::BaseId> {};
+struct std::hash<::dejaview::trace_processor::tables::V8IsolateTable::Id>
+    : std::hash<::dejaview::trace_processor::BaseId> {};
 template <>
-struct std::hash<::perfetto::trace_processor::tables::JitCodeTable::Id>
-    : std::hash<::perfetto::trace_processor::BaseId> {};
+struct std::hash<::dejaview::trace_processor::tables::JitCodeTable::Id>
+    : std::hash<::dejaview::trace_processor::BaseId> {};
 
 template <>
 struct std::hash<
-    ::perfetto::trace_processor::tables::StackProfileFrameTable::Row> {
+    ::dejaview::trace_processor::tables::StackProfileFrameTable::Row> {
   using argument_type =
-      ::perfetto::trace_processor::tables::StackProfileFrameTable::Row;
+      ::dejaview::trace_processor::tables::StackProfileFrameTable::Row;
   using result_type = size_t;
 
   result_type operator()(const argument_type& r) const {
-    return std::hash<::perfetto::trace_processor::StringId>{}(r.name) ^
-           std::hash<std::optional<::perfetto::trace_processor::MappingId>>{}(
+    return std::hash<::dejaview::trace_processor::StringId>{}(r.name) ^
+           std::hash<std::optional<::dejaview::trace_processor::MappingId>>{}(
                r.mapping) ^
            std::hash<int64_t>{}(r.rel_pc);
   }
@@ -1303,33 +1303,33 @@ struct std::hash<
 
 template <>
 struct std::hash<
-    ::perfetto::trace_processor::tables::StackProfileCallsiteTable::Row> {
+    ::dejaview::trace_processor::tables::StackProfileCallsiteTable::Row> {
   using argument_type =
-      ::perfetto::trace_processor::tables::StackProfileCallsiteTable::Row;
+      ::dejaview::trace_processor::tables::StackProfileCallsiteTable::Row;
   using result_type = size_t;
 
   result_type operator()(const argument_type& r) const {
     return std::hash<int64_t>{}(r.depth) ^
-           std::hash<std::optional<::perfetto::trace_processor::CallsiteId>>{}(
+           std::hash<std::optional<::dejaview::trace_processor::CallsiteId>>{}(
                r.parent_id) ^
-           std::hash<::perfetto::trace_processor::FrameId>{}(r.frame_id);
+           std::hash<::dejaview::trace_processor::FrameId>{}(r.frame_id);
   }
 };
 
 template <>
 struct std::hash<
-    ::perfetto::trace_processor::tables::StackProfileMappingTable::Row> {
+    ::dejaview::trace_processor::tables::StackProfileMappingTable::Row> {
   using argument_type =
-      ::perfetto::trace_processor::tables::StackProfileMappingTable::Row;
+      ::dejaview::trace_processor::tables::StackProfileMappingTable::Row;
   using result_type = size_t;
 
   result_type operator()(const argument_type& r) const {
-    return std::hash<::perfetto::trace_processor::StringId>{}(r.build_id) ^
+    return std::hash<::dejaview::trace_processor::StringId>{}(r.build_id) ^
            std::hash<int64_t>{}(r.exact_offset) ^
            std::hash<int64_t>{}(r.start_offset) ^
            std::hash<int64_t>{}(r.start) ^ std::hash<int64_t>{}(r.end) ^
            std::hash<int64_t>{}(r.load_bias) ^
-           std::hash<::perfetto::trace_processor::StringId>{}(r.name);
+           std::hash<::dejaview::trace_processor::StringId>{}(r.name);
   }
 };
 

@@ -29,13 +29,13 @@
 #include <vector>
 
 // We also want to test legacy trace events.
-#define PERFETTO_ENABLE_LEGACY_TRACE_EVENTS 1
+#define DEJAVIEW_ENABLE_LEGACY_TRACE_EVENTS 1
 
-#include "perfetto/tracing.h"
+#include "dejaview/tracing.h"
 #include "test/gtest_and_gmock.h"
 #include "test/integrationtest_initializer.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>  // For CreateFile().
 #else
 #include <sys/socket.h>
@@ -43,7 +43,7 @@
 #include <sys/un.h>
 #endif
 
-// Deliberately not pulling any non-public perfetto header to spot accidental
+// Deliberately not pulling any non-public dejaview header to spot accidental
 // header public -> non-public dependency while building this file.
 
 // These two are the only headers allowed here, see comments in
@@ -51,81 +51,81 @@
 #include "src/tracing/test/api_test_support.h"
 #include "src/tracing/test/tracing_module.h"
 
-#include "perfetto/base/time.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/base/time.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/trace_config.h"
 
 // xxx.pbzero.h includes are for the writing path (the code that pretends to be
 // production code).
 // yyy.gen.h includes are for the test readback path (the code in the test that
 // checks that the results are valid).
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/common/interceptor_descriptor.gen.h"
-#include "protos/perfetto/common/trace_stats.gen.h"
-#include "protos/perfetto/common/tracing_service_state.gen.h"
-#include "protos/perfetto/common/track_event_descriptor.gen.h"
-#include "protos/perfetto/common/track_event_descriptor.pbzero.h"
-#include "protos/perfetto/config/interceptor_config.gen.h"
-#include "protos/perfetto/config/track_event/track_event_config.gen.h"
-#include "protos/perfetto/trace/clock_snapshot.gen.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/gpu/gpu_render_stage_event.gen.h"
-#include "protos/perfetto/trace/gpu/gpu_render_stage_event.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.gen.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/test_extensions.pbzero.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.gen.h"
-#include "protos/perfetto/trace/track_event/chrome_process_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/chrome_process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/counter_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.gen.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
-#include "protos/perfetto/trace/track_event/log_message.gen.h"
-#include "protos/perfetto/trace/track_event/log_message.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/source_location.gen.h"
-#include "protos/perfetto/trace/track_event/source_location.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.gen.h"
-#include "protos/perfetto/trace/track_event/track_event.gen.h"
-#include "protos/perfetto/trace/trigger.gen.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/common/interceptor_descriptor.gen.h"
+#include "protos/dejaview/common/trace_stats.gen.h"
+#include "protos/dejaview/common/tracing_service_state.gen.h"
+#include "protos/dejaview/common/track_event_descriptor.gen.h"
+#include "protos/dejaview/common/track_event_descriptor.pbzero.h"
+#include "protos/dejaview/config/interceptor_config.gen.h"
+#include "protos/dejaview/config/track_event/track_event_config.gen.h"
+#include "protos/dejaview/trace/clock_snapshot.gen.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/gpu/gpu_render_stage_event.gen.h"
+#include "protos/dejaview/trace/gpu/gpu_render_stage_event.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.gen.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/test_extensions.pbzero.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.gen.h"
+#include "protos/dejaview/trace/track_event/chrome_process_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/chrome_process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/counter_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.gen.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/log_message.gen.h"
+#include "protos/dejaview/trace/track_event/log_message.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/source_location.gen.h"
+#include "protos/dejaview/trace/track_event/source_location.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.gen.h"
+#include "protos/dejaview/trace/track_event/track_event.gen.h"
+#include "protos/dejaview/trace/trigger.gen.h"
 
 // Events in categories starting with "dynamic" will use dynamic category
 // lookup.
-PERFETTO_DEFINE_TEST_CATEGORY_PREFIXES("dynamic");
+DEJAVIEW_DEFINE_TEST_CATEGORY_PREFIXES("dynamic");
 
 // Trace categories used in the tests.
-PERFETTO_DEFINE_CATEGORIES(
-    perfetto::Category("test")
+DEJAVIEW_DEFINE_CATEGORIES(
+    dejaview::Category("test")
         .SetDescription("This is a test category")
         .SetTags("tag"),
-    perfetto::Category("foo"),
-    perfetto::Category("bar"),
-    perfetto::Category("cat").SetTags("slow"),
-    perfetto::Category("cat.verbose").SetTags("debug"),
-    perfetto::Category("cat-with-dashes"),
-    perfetto::Category::Group("foo,bar"),
-    perfetto::Category::Group("baz,bar,quux"),
-    perfetto::Category::Group("red,green,blue,foo"),
-    perfetto::Category::Group("red,green,blue,yellow"),
-    perfetto::Category(TRACE_DISABLED_BY_DEFAULT("cat")));
-PERFETTO_TRACK_EVENT_STATIC_STORAGE();
+    dejaview::Category("foo"),
+    dejaview::Category("bar"),
+    dejaview::Category("cat").SetTags("slow"),
+    dejaview::Category("cat.verbose").SetTags("debug"),
+    dejaview::Category("cat-with-dashes"),
+    dejaview::Category::Group("foo,bar"),
+    dejaview::Category::Group("baz,bar,quux"),
+    dejaview::Category::Group("red,green,blue,foo"),
+    dejaview::Category::Group("red,green,blue,yellow"),
+    dejaview::Category(TRACE_DISABLED_BY_DEFAULT("cat")));
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE();
 
 // Test declaring an extra set of categories in a namespace in addition to the
 // default one.
-PERFETTO_DEFINE_CATEGORIES_IN_NAMESPACE(other_ns,
-                                        perfetto::Category("other_ns"));
-PERFETTO_TRACK_EVENT_STATIC_STORAGE_IN_NAMESPACE(other_ns);
+DEJAVIEW_DEFINE_CATEGORIES_IN_NAMESPACE(other_ns,
+                                        dejaview::Category("other_ns"));
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE_IN_NAMESPACE(other_ns);
 
 // For testing interning of complex objects.
 using SourceLocation = std::tuple<const char* /* file_name */,
@@ -153,7 +153,7 @@ static void WriteFile(const std::string& file_name,
 
 // Unused in merged code, but very handy for debugging when trace generated in
 // a test needs to be exported, to understand it further with other tools.
-PERFETTO_UNUSED static void WriteFile(const std::string& file_name,
+DEJAVIEW_UNUSED static void WriteFile(const std::string& file_name,
                                       const std::vector<char>& data) {
   return WriteFile(file_name, data.data(), data.size());
 }
@@ -164,7 +164,7 @@ bool ContainsKey(const ContainerType& container, const KeyType& key) {
   return container.find(key) != container.end();
 }
 
-// Represents an opaque (from Perfetto's point of view) thread identifier (e.g.,
+// Represents an opaque (from DejaView's point of view) thread identifier (e.g.,
 // base::PlatformThreadId in Chromium).
 struct MyThreadId {
   explicit MyThreadId(int tid_) : tid(tid_) {}
@@ -180,12 +180,12 @@ class MyTimestamp {
   const uint64_t ts;
 };
 
-namespace perfetto {
+namespace dejaview {
 namespace legacy {
 
 template <>
 ThreadTrack ConvertThreadId(const MyThreadId& thread) {
-  return perfetto::ThreadTrack::ForThread(
+  return dejaview::ThreadTrack::ForThread(
       static_cast<base::PlatformThreadId>(thread.tid));
 }
 
@@ -199,14 +199,14 @@ struct TraceTimestampTraits<MyTimestamp> {
   }
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 namespace {
 
-using perfetto::TracingInitArgs;
-using perfetto::internal::TrackEventIncrementalState;
-using perfetto::internal::TrackEventInternal;
-using ::perfetto::test::DataSourceInternalForTest;
+using dejaview::TracingInitArgs;
+using dejaview::internal::TrackEventIncrementalState;
+using dejaview::internal::TrackEventInternal;
+using ::dejaview::test::DataSourceInternalForTest;
 using ::testing::_;
 using ::testing::AllOf;
 using ::testing::ContainerEq;
@@ -270,7 +270,7 @@ Cleanup<Func> MakeCleanup(Func f) {
   return Cleanup<Func>(std::move(f));
 }
 
-class CustomDataSource : public perfetto::DataSource<CustomDataSource> {};
+class CustomDataSource : public dejaview::DataSource<CustomDataSource> {};
 
 class MockDataSource;
 
@@ -283,18 +283,18 @@ struct TestDataSourceHandle {
   WaitableTestEvent on_stop;
   WaitableTestEvent on_flush;
   MockDataSource* instance;
-  perfetto::DataSourceConfig config;
+  dejaview::DataSourceConfig config;
   bool is_datasource_started = false;
   bool handle_stop_asynchronously = false;
   bool handle_flush_asynchronously = false;
   std::function<void()> on_start_callback;
   std::function<void()> on_stop_callback;
-  std::function<void(perfetto::FlushFlags)> on_flush_callback;
+  std::function<void(dejaview::FlushFlags)> on_flush_callback;
   std::function<void()> async_stop_closure;
   std::function<void()> async_flush_closure;
 };
 
-class MockDataSource : public perfetto::DataSource<MockDataSource> {
+class MockDataSource : public dejaview::DataSource<MockDataSource> {
  public:
   void OnSetup(const SetupArgs&) override;
   void OnStart(const StartArgs&) override;
@@ -305,7 +305,7 @@ class MockDataSource : public perfetto::DataSource<MockDataSource> {
 
 constexpr int kTestDataSourceArg = 123;
 
-class MockDataSource2 : public perfetto::DataSource<MockDataSource2> {
+class MockDataSource2 : public dejaview::DataSource<MockDataSource2> {
  public:
   MockDataSource2(int arg) { EXPECT_EQ(arg, kTestDataSourceArg); }
   void OnSetup(const SetupArgs&) override {}
@@ -315,11 +315,11 @@ class MockDataSource2 : public perfetto::DataSource<MockDataSource2> {
 
 // Used to verify that track event data sources in different namespaces register
 // themselves correctly in the muxer.
-class MockTracingMuxer : public perfetto::internal::TracingMuxer {
+class MockTracingMuxer : public dejaview::internal::TracingMuxer {
  public:
   struct DataSource {
-    perfetto::DataSourceDescriptor dsd;
-    perfetto::internal::DataSourceStaticState* static_state;
+    dejaview::DataSourceDescriptor dsd;
+    dejaview::internal::DataSourceStaticState* static_state;
   };
 
   MockTracingMuxer() : TracingMuxer(nullptr), prev_instance_(instance_) {
@@ -328,18 +328,18 @@ class MockTracingMuxer : public perfetto::internal::TracingMuxer {
   ~MockTracingMuxer() override { instance_ = prev_instance_; }
 
   bool RegisterDataSource(
-      const perfetto::DataSourceDescriptor& dsd,
+      const dejaview::DataSourceDescriptor& dsd,
       DataSourceFactory,
-      perfetto::internal::DataSourceParams,
+      dejaview::internal::DataSourceParams,
       bool,
-      perfetto::internal::DataSourceStaticState* static_state) override {
+      dejaview::internal::DataSourceStaticState* static_state) override {
     data_sources.emplace_back(DataSource{dsd, static_state});
     return true;
   }
 
   void UpdateDataSourceDescriptor(
-      const perfetto::DataSourceDescriptor& dsd,
-      const perfetto::internal::DataSourceStaticState* static_state) override {
+      const dejaview::DataSourceDescriptor& dsd,
+      const dejaview::internal::DataSourceStaticState* static_state) override {
     for (auto& rds : data_sources) {
       if (rds.static_state == static_state) {
         rds.dsd = dsd;
@@ -348,20 +348,20 @@ class MockTracingMuxer : public perfetto::internal::TracingMuxer {
     }
   }
 
-  std::unique_ptr<perfetto::TraceWriterBase> CreateTraceWriter(
-      perfetto::internal::DataSourceStaticState*,
+  std::unique_ptr<dejaview::TraceWriterBase> CreateTraceWriter(
+      dejaview::internal::DataSourceStaticState*,
       uint32_t,
-      perfetto::internal::DataSourceState*,
-      perfetto::BufferExhaustedPolicy) override {
+      dejaview::internal::DataSourceState*,
+      dejaview::BufferExhaustedPolicy) override {
     return nullptr;
   }
 
   void DestroyStoppedTraceWritersForCurrentThread() override {}
   void RegisterInterceptor(
-      const perfetto::InterceptorDescriptor&,
+      const dejaview::InterceptorDescriptor&,
       InterceptorFactory,
-      perfetto::InterceptorBase::TLSFactory,
-      perfetto::InterceptorBase::TracePacketCallback) override {}
+      dejaview::InterceptorBase::TLSFactory,
+      dejaview::InterceptorBase::TracePacketCallback) override {}
 
   void ActivateTriggers(const std::vector<std::string>&, uint32_t) override {}
 
@@ -386,13 +386,13 @@ bool TestIncrementalState::constructed;
 bool TestIncrementalState::destroyed;
 
 struct TestIncrementalDataSourceTraits
-    : public perfetto::DefaultDataSourceTraits {
+    : public dejaview::DefaultDataSourceTraits {
   using IncrementalStateType = TestIncrementalState;
   using CustomTlsState = void;
 };
 
 class TestIncrementalDataSource
-    : public perfetto::DataSource<TestIncrementalDataSource,
+    : public dejaview::DataSource<TestIncrementalDataSource,
                                   TestIncrementalDataSourceTraits> {
  public:
   void OnSetup(const SetupArgs&) override {}
@@ -403,26 +403,26 @@ class TestIncrementalDataSource
 // A convenience wrapper around TracingSession that allows to do block on
 //
 struct TestTracingSessionHandle {
-  perfetto::TracingSession* get() { return session.get(); }
-  std::unique_ptr<perfetto::TracingSession> session;
+  dejaview::TracingSession* get() { return session.get(); }
+  std::unique_ptr<dejaview::TracingSession> session;
   WaitableTestEvent on_stop;
 };
 
-class MyDebugAnnotation : public perfetto::DebugAnnotation {
+class MyDebugAnnotation : public dejaview::DebugAnnotation {
  public:
   ~MyDebugAnnotation() override = default;
 
   void Add(
-      perfetto::protos::pbzero::DebugAnnotation* annotation) const override {
+      dejaview::protos::pbzero::DebugAnnotation* annotation) const override {
     annotation->set_legacy_json_value(R"({"key": 123})");
   }
 };
 
-class TestTracingPolicy : public perfetto::TracingPolicy {
+class TestTracingPolicy : public dejaview::TracingPolicy {
  public:
   void ShouldAllowConsumerSession(
       const ShouldAllowConsumerSessionArgs& args) override {
-    EXPECT_NE(args.backend_type, perfetto::BackendType::kUnspecifiedBackend);
+    EXPECT_NE(args.backend_type, dejaview::BackendType::kUnspecifiedBackend);
     args.result_callback(should_allow_consumer_connection);
   }
 
@@ -433,9 +433,9 @@ TestTracingPolicy* g_test_tracing_policy = new TestTracingPolicy();  // Leaked.
 
 class ParsedIncrementalState {
  public:
-  void ClearIfNeeded(const perfetto::protos::gen::TracePacket& packet) {
+  void ClearIfNeeded(const dejaview::protos::gen::TracePacket& packet) {
     if (packet.sequence_flags() &
-        perfetto::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
+        dejaview::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
       incremental_state_was_cleared_ = true;
       categories_.clear();
       event_names_.clear();
@@ -444,7 +444,7 @@ class ParsedIncrementalState {
     }
   }
 
-  void Parse(const perfetto::protos::gen::TracePacket& packet) {
+  void Parse(const dejaview::protos::gen::TracePacket& packet) {
     // Update incremental state.
     if (packet.has_interned_data()) {
       const auto& interned_data = packet.interned_data();
@@ -472,7 +472,7 @@ class ParsedIncrementalState {
 
   std::string GetCategory(uint64_t iid) { return categories_[iid]; }
 
-  std::string GetEventName(const perfetto::protos::gen::TrackEvent& event) {
+  std::string GetEventName(const dejaview::protos::gen::TrackEvent& event) {
     if (event.has_name_iid())
       return event_names_[event.name_iid()];
     return event.name();
@@ -493,7 +493,7 @@ class ParsedIncrementalState {
 };
 
 std::vector<std::string> ReadSlicesFromTrace(
-    const perfetto::protos::gen::Trace& parsed_trace,
+    const dejaview::protos::gen::Trace& parsed_trace,
     bool expect_incremental_state_cleared = true) {
   // Read back the trace, maintaining interning tables as we go.
   std::vector<std::string> slices;
@@ -535,16 +535,16 @@ std::vector<std::string> ReadSlicesFromTrace(
     }
 
     switch (track_event.type()) {
-      case perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN:
+      case dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN:
         slice += "B";
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_SLICE_END:
+      case dejaview::protos::gen::TrackEvent::TYPE_SLICE_END:
         slice += "E";
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_INSTANT:
+      case dejaview::protos::gen::TrackEvent::TYPE_INSTANT:
         slice += "I";
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_UNSPECIFIED: {
+      case dejaview::protos::gen::TrackEvent::TYPE_UNSPECIFIED: {
         EXPECT_TRUE(track_event.has_legacy_event());
         EXPECT_FALSE(track_event.type());
         auto legacy_event = track_event.legacy_event();
@@ -552,7 +552,7 @@ std::vector<std::string> ReadSlicesFromTrace(
             "Legacy_" + std::string(1, static_cast<char>(legacy_event.phase()));
         break;
       }
-      case perfetto::protos::gen::TrackEvent::TYPE_COUNTER:
+      case dejaview::protos::gen::TrackEvent::TYPE_COUNTER:
         slice += "C";
         break;
       default:
@@ -699,16 +699,16 @@ std::vector<std::string> ReadSlicesFromTrace(
     bool expect_incremental_state_cleared = true) {
   EXPECT_GE(raw_trace.size(), 0u);
 
-  perfetto::protos::gen::Trace parsed_trace;
+  dejaview::protos::gen::Trace parsed_trace;
   EXPECT_TRUE(parsed_trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
   return ReadSlicesFromTrace(parsed_trace, expect_incremental_state_cleared);
 }
 
-bool WaitForOneProducerConnected(perfetto::TracingSession* session) {
+bool WaitForOneProducerConnected(dejaview::TracingSession* session) {
   for (size_t i = 0; i < 100; i++) {
     // Blocking read.
     auto result = session->QueryServiceStateBlocking();
-    perfetto::protos::gen::TracingServiceState state;
+    dejaview::protos::gen::TracingServiceState state;
     EXPECT_TRUE(result.success);
     EXPECT_TRUE(state.ParseFromArray(result.service_state_data.data(),
                                      result.service_state_data.size()));
@@ -725,9 +725,9 @@ bool WaitForOneProducerConnected(perfetto::TracingSession* session) {
 // -------------------------
 // Declaration of test class
 // -------------------------
-class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
+class DejaViewApiTest : public ::testing::TestWithParam<dejaview::BackendType> {
  public:
-  static PerfettoApiTest* instance;
+  static DejaViewApiTest* instance;
 
   void SetUp() override {
     instance = this;
@@ -735,26 +735,26 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
 
     // Start a fresh system service for this test, tearing down any previous
     // service that was running.
-    if (GetParam() == perfetto::kSystemBackend) {
-      system_service_ = perfetto::test::SystemService::Start();
+    if (GetParam() == dejaview::kSystemBackend) {
+      system_service_ = dejaview::test::SystemService::Start();
       // If the system backend isn't supported, skip all system backend tests.
       if (!system_service_.valid()) {
         GTEST_SKIP();
       }
     }
 
-    EXPECT_FALSE(perfetto::Tracing::IsInitialized());
+    EXPECT_FALSE(dejaview::Tracing::IsInitialized());
     TracingInitArgs args;
     args.backends = GetParam();
     args.tracing_policy = g_test_tracing_policy;
-    perfetto::Tracing::Initialize(args);
+    dejaview::Tracing::Initialize(args);
     RegisterDataSource<MockDataSource>("my_data_source");
     {
-      perfetto::DataSourceDescriptor dsd;
+      dejaview::DataSourceDescriptor dsd;
       dsd.set_name("CustomDataSource");
       CustomDataSource::Register(dsd);
     }
-    perfetto::TrackEvent::Register();
+    dejaview::TrackEvent::Register();
 
     // Make sure our data source always has a valid handle.
     data_sources_["my_data_source"];
@@ -763,33 +763,33 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
     // connected to the old system service will have been disconnected by the
     // service restarting above. Wait for all producers to connect again before
     // proceeding with the test.
-    perfetto::test::SyncProducers();
+    dejaview::test::SyncProducers();
 
-    perfetto::test::DisableReconnectLimit();
+    dejaview::test::DisableReconnectLimit();
   }
 
   void TearDown() override {
     instance = nullptr;
     sessions_.clear();
-    perfetto::test::TracingMuxerImplInternalsForTest::
+    dejaview::test::TracingMuxerImplInternalsForTest::
         ClearDataSourceTlsStateOnReset<MockDataSource>();
-    perfetto::test::TracingMuxerImplInternalsForTest::
+    dejaview::test::TracingMuxerImplInternalsForTest::
         ClearDataSourceTlsStateOnReset<CustomDataSource>();
-    perfetto::test::TracingMuxerImplInternalsForTest::
-        ClearDataSourceTlsStateOnReset<perfetto::TrackEvent>();
-    perfetto::Tracing::ResetForTesting();
+    dejaview::test::TracingMuxerImplInternalsForTest::
+        ClearDataSourceTlsStateOnReset<dejaview::TrackEvent>();
+    dejaview::Tracing::ResetForTesting();
   }
 
   template <typename DerivedDataSource>
   TestDataSourceHandle* RegisterDataSource(std::string name) {
-    perfetto::DataSourceDescriptor dsd;
+    dejaview::DataSourceDescriptor dsd;
     dsd.set_name(name);
     return RegisterDataSource<DerivedDataSource>(dsd);
   }
 
   template <typename DerivedDataSource>
   TestDataSourceHandle* RegisterDataSource(
-      const perfetto::DataSourceDescriptor& dsd) {
+      const dejaview::DataSourceDescriptor& dsd) {
     EXPECT_EQ(data_sources_.count(dsd.name()), 0u);
     TestDataSourceHandle* handle = &data_sources_[dsd.name()];
     DerivedDataSource::Register(dsd);
@@ -798,24 +798,24 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
 
   template <typename DerivedDataSource>
   TestDataSourceHandle* UpdateDataSource(
-      const perfetto::DataSourceDescriptor& dsd) {
+      const dejaview::DataSourceDescriptor& dsd) {
     EXPECT_EQ(data_sources_.count(dsd.name()), 1u);
     TestDataSourceHandle* handle = &data_sources_[dsd.name()];
     DerivedDataSource::UpdateDescriptor(dsd);
     return handle;
   }
 
-  TestTracingSessionHandle* NewTrace(const perfetto::TraceConfig& cfg,
+  TestTracingSessionHandle* NewTrace(const dejaview::TraceConfig& cfg,
                                      int fd = -1) {
     return NewTrace(cfg, /*backend_type=*/GetParam(), fd);
   }
 
-  TestTracingSessionHandle* NewTrace(const perfetto::TraceConfig& cfg,
-                                     perfetto::BackendType backend_type,
+  TestTracingSessionHandle* NewTrace(const dejaview::TraceConfig& cfg,
+                                     dejaview::BackendType backend_type,
                                      int fd = -1) {
     sessions_.emplace_back();
     TestTracingSessionHandle* handle = &sessions_.back();
-    handle->session = perfetto::Tracing::NewTrace(backend_type);
+    handle->session = dejaview::Tracing::NewTrace(backend_type);
     handle->session->SetOnStopCallback([handle] { handle->on_stop.Notify(); });
     handle->session->Setup(cfg, fd);
     return handle;
@@ -823,8 +823,8 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
 
   TestTracingSessionHandle* NewTraceWithCategories(
       std::vector<std::string> categories,
-      perfetto::protos::gen::TrackEventConfig te_cfg = {},
-      perfetto::TraceConfig cfg = {}) {
+      dejaview::protos::gen::TrackEventConfig te_cfg = {},
+      dejaview::TraceConfig cfg = {}) {
     cfg.set_duration_ms(500);
     cfg.add_buffers()->set_size_kb(1024);
     auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -838,15 +838,15 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
   }
 
   std::vector<std::string> ReadLogMessagesFromTrace(
-      perfetto::TracingSession* tracing_session) {
+      dejaview::TracingSession* tracing_session) {
     std::vector<char> raw_trace = tracing_session->ReadTraceBlocking();
     EXPECT_GE(raw_trace.size(), 0u);
 
     // Read back the trace, maintaining interning tables as we go.
     std::vector<std::string> log_messages;
     std::map<uint64_t, std::string> log_message_bodies;
-    std::map<uint64_t, perfetto::protos::gen::SourceLocation> source_locations;
-    perfetto::protos::gen::Trace parsed_trace;
+    std::map<uint64_t, dejaview::protos::gen::SourceLocation> source_locations;
+    dejaview::protos::gen::Trace parsed_trace;
     EXPECT_TRUE(
         parsed_trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
 
@@ -870,7 +870,7 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
       }
       const auto& track_event = packet.track_event();
       if (track_event.type() !=
-          perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN)
+          dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN)
         continue;
 
       EXPECT_TRUE(track_event.has_log_message());
@@ -892,7 +892,7 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
   }
 
   std::vector<std::string> ReadSlicesFromTraceSession(
-      perfetto::TracingSession* tracing_session) {
+      dejaview::TracingSession* tracing_session) {
     return ReadSlicesFromTrace(tracing_session->ReadTraceBlocking());
   }
 
@@ -902,11 +902,11 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
   }
 
   uint32_t GetMainThreadPacketSequenceId(
-      const perfetto::protos::gen::Trace& trace) {
+      const dejaview::protos::gen::Trace& trace) {
     for (const auto& packet : trace.packet()) {
       if (packet.has_track_descriptor() &&
           packet.track_descriptor().thread().tid() ==
-              static_cast<int32_t>(perfetto::base::GetThreadId())) {
+              static_cast<int32_t>(dejaview::base::GetThreadId())) {
         return packet.trusted_packet_sequence_id();
       }
     }
@@ -916,24 +916,24 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
 
   static std::vector<char> StopSessionAndReturnBytes(
       TestTracingSessionHandle* tracing_session) {
-    perfetto::TrackEvent::Flush();
+    dejaview::TrackEvent::Flush();
     tracing_session->get()->StopBlocking();
     return tracing_session->get()->ReadTraceBlocking();
   }
 
-  static perfetto::protos::gen::Trace StopSessionAndReturnParsedTrace(
+  static dejaview::protos::gen::Trace StopSessionAndReturnParsedTrace(
       TestTracingSessionHandle* tracing_session) {
     std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
-    perfetto::protos::gen::Trace trace;
+    dejaview::protos::gen::Trace trace;
     if (trace.ParseFromArray(raw_trace.data(), raw_trace.size())) {
       return trace;
     } else {
       ADD_FAILURE() << "trace.ParseFromArray failed";
-      return perfetto::protos::gen::Trace();
+      return dejaview::protos::gen::Trace();
     }
   }
 
-  perfetto::test::SystemService system_service_;
+  dejaview::test::SystemService system_service_;
   std::map<std::string, TestDataSourceHandle> data_sources_;
   std::list<TestTracingSessionHandle> sessions_;  // Needs stable pointers.
 };
@@ -941,15 +941,15 @@ class PerfettoApiTest : public ::testing::TestWithParam<perfetto::BackendType> {
 // ---------------------------------------------
 // Definitions for non-inlineable helper methods
 // ---------------------------------------------
-PerfettoApiTest* PerfettoApiTest::instance;
+DejaViewApiTest* DejaViewApiTest::instance;
 
 void MockDataSource::OnSetup(const SetupArgs& args) {
   EXPECT_EQ(handle_, nullptr);
-  auto it = PerfettoApiTest::instance->data_sources_.find(args.config->name());
+  auto it = DejaViewApiTest::instance->data_sources_.find(args.config->name());
 
   // We should not see an OnSetup for a data source that we didn't register
-  // before via PerfettoApiTest::RegisterDataSource().
-  EXPECT_NE(it, PerfettoApiTest::instance->data_sources_.end());
+  // before via DejaViewApiTest::RegisterDataSource().
+  EXPECT_NE(it, DejaViewApiTest::instance->data_sources_.end());
   handle_ = &it->second;
   handle_->config = *args.config;  // Deliberate copy.
   handle_->on_setup.Notify();
@@ -990,9 +990,9 @@ void MockDataSource::OnFlush(const FlushArgs& args) {
 // Test fixtures
 // -------------
 
-TEST_P(PerfettoApiTest, StartAndStopWithoutDataSources) {
+TEST_P(DejaViewApiTest, StartAndStopWithoutDataSources) {
   // Create a new trace session without any data sources configured.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* tracing_session = NewTrace(cfg);
   // This should not timeout.
@@ -1004,44 +1004,44 @@ TEST_P(PerfettoApiTest, StartAndStopWithoutDataSources) {
 // which can result in the per-uid tracing session limit (5) to be hit in later
 // tests.
 // TODO(b/261493947): fix or remove.
-TEST_P(PerfettoApiTest, DISABLED_TrackEventStartStopAndDestroy) {
+TEST_P(DejaViewApiTest, DISABLED_TrackEventStartStopAndDestroy) {
   // This test used to cause a use after free as the tracing session got
   // destroyed. It needed to be run approximately 2000 times to catch it so test
   // with --gtest_repeat=3000 (less if running under GDB).
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("track_event");
 
   // Create five new trace sessions.
-  std::vector<std::unique_ptr<perfetto::TracingSession>> sessions;
+  std::vector<std::unique_ptr<dejaview::TracingSession>> sessions;
   for (size_t i = 0; i < 5; ++i) {
-    sessions.push_back(perfetto::Tracing::NewTrace(/*BackendType=*/GetParam()));
+    sessions.push_back(dejaview::Tracing::NewTrace(/*BackendType=*/GetParam()));
     sessions[i]->Setup(cfg);
     sessions[i]->Start();
     sessions[i]->Stop();
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventStartStopAndStopBlocking) {
+TEST_P(DejaViewApiTest, TrackEventStartStopAndStopBlocking) {
   // This test used to cause a deadlock (due to StopBlocking() after the session
   // already stopped). This usually occurred within 1 or 2 runs of the test so
   // use --gtest_repeat=10
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("track_event");
 
   // Create five new trace sessions.
-  std::vector<std::unique_ptr<perfetto::TracingSession>> sessions;
+  std::vector<std::unique_ptr<dejaview::TracingSession>> sessions;
   for (size_t i = 0; i < 5; ++i) {
-    sessions.push_back(perfetto::Tracing::NewTrace(/*BackendType=*/GetParam()));
+    sessions.push_back(dejaview::Tracing::NewTrace(/*BackendType=*/GetParam()));
     sessions[i]->Setup(cfg);
     sessions[i]->Start();
     sessions[i]->Stop();
@@ -1051,9 +1051,9 @@ TEST_P(PerfettoApiTest, TrackEventStartStopAndStopBlocking) {
   }
 }
 
-TEST_P(PerfettoApiTest, ChangeTraceConfiguration) {
+TEST_P(DejaViewApiTest, ChangeTraceConfiguration) {
   // Setup the trace config.
-  perfetto::TraceConfig trace_config;
+  dejaview::TraceConfig trace_config;
   trace_config.set_duration_ms(2000);
   trace_config.add_buffers()->set_size_kb(1024);
   auto* data_source = trace_config.add_data_sources();
@@ -1061,7 +1061,7 @@ TEST_P(PerfettoApiTest, ChangeTraceConfiguration) {
   // Configure track events with category "foo".
   auto* ds_cfg = data_source->mutable_config();
   ds_cfg->set_name("track_event");
-  perfetto::protos::gen::TrackEventConfig te_cfg;
+  dejaview::protos::gen::TrackEventConfig te_cfg;
   te_cfg.add_disabled_categories("*");
   te_cfg.add_enabled_categories("foo");
   ds_cfg->set_track_event_config_raw(te_cfg.SerializeAsString());
@@ -1089,7 +1089,7 @@ TEST_P(PerfettoApiTest, ChangeTraceConfiguration) {
   // the consumer and producer IPC streams for this test, to ensure that the
   // producer_name_filter change has propagated.
   tracing_session->get()->GetTraceStatsBlocking();  // sync consumer stream.
-  perfetto::test::SyncProducers();                  // sync producer stream.
+  dejaview::test::SyncProducers();                  // sync producer stream.
 
   // Emit a second trace event, this one should be included because
   // the producer name filter was cleared.
@@ -1122,15 +1122,15 @@ void TestCategoryAsTemplateParameter() {
 // thread_time. i.e. sleep without using OS's sleep method, which blocks the
 // thread and OS doesn't schedule it until expected wake-up-time.
 void SpinForThreadTimeNanos(int64_t nano_seconds) {
-  auto time_now = perfetto::base::GetThreadCPUTimeNs().count();
+  auto time_now = dejaview::base::GetThreadCPUTimeNs().count();
   auto goal_time = time_now + nano_seconds;
-  while (perfetto::base::GetThreadCPUTimeNs().count() < goal_time) {
+  while (dejaview::base::GetThreadCPUTimeNs().count() < goal_time) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventTimestampUnitAbsolute) {
+TEST_P(DejaViewApiTest, TrackEventTimestampUnitAbsolute) {
   for (auto unit_multiplier : {1u, 1000u}) {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.set_disable_incremental_timestamps(true);
     te_cfg.set_timestamp_unit_multiplier(unit_multiplier);
     auto* tracing_session = NewTraceWithCategories({"foo"}, te_cfg);
@@ -1191,9 +1191,9 @@ TEST_P(PerfettoApiTest, TrackEventTimestampUnitAbsolute) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventTimestampUnitIncremental) {
+TEST_P(DejaViewApiTest, TrackEventTimestampUnitIncremental) {
   for (auto unit_multiplier : {1u, 1000u}) {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.set_enable_thread_time_sampling(true);
     te_cfg.set_timestamp_unit_multiplier(unit_multiplier);
     auto* tracing_session = NewTraceWithCategories({"foo"}, te_cfg);
@@ -1236,22 +1236,22 @@ TEST_P(PerfettoApiTest, TrackEventTimestampUnitIncremental) {
 
 // Tests that we don't accumulate error when using incremental timestamps with
 // timestamp unit multiplier.
-TEST_P(PerfettoApiTest, TrackEventTimestampIncrementalAccumulatedError) {
+TEST_P(DejaViewApiTest, TrackEventTimestampIncrementalAccumulatedError) {
   constexpr uint64_t kUnitMultiplier = 100000;
   constexpr uint64_t kNumberOfEvents = 1000;
   constexpr uint64_t kTimeBetweenEventsNs = 50000;
 
-  perfetto::protos::gen::TrackEventConfig te_cfg;
+  dejaview::protos::gen::TrackEventConfig te_cfg;
   te_cfg.set_timestamp_unit_multiplier(kUnitMultiplier);
   auto* tracing_session = NewTraceWithCategories({"foo"}, te_cfg);
   tracing_session->get()->StartBlocking();
-  auto start = perfetto::TrackEvent::GetTraceTimeNs();
+  auto start = dejaview::TrackEvent::GetTraceTimeNs();
   TRACE_EVENT_BEGIN("foo", "Start");
   for (uint64_t i = 0; i < kNumberOfEvents; ++i) {
     SpinForThreadTimeNanos(kTimeBetweenEventsNs);
     TRACE_EVENT_BEGIN("foo", "Event");
   }
-  auto end = perfetto::TrackEvent::GetTraceTimeNs();
+  auto end = dejaview::TrackEvent::GetTraceTimeNs();
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
   uint64_t accumulated_timestamp = 0;
   for (const auto& packet : trace.packet()) {
@@ -1264,7 +1264,7 @@ TEST_P(PerfettoApiTest, TrackEventTimestampIncrementalAccumulatedError) {
   EXPECT_LE(accumulated_timestamp, end - start);
 }
 
-TEST_P(PerfettoApiTest, TrackEvent) {
+TEST_P(DejaViewApiTest, TrackEvent) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
@@ -1272,33 +1272,33 @@ TEST_P(PerfettoApiTest, TrackEvent) {
   // Emit one complete track event.
   TRACE_EVENT_BEGIN("test", "TestEvent");
   TRACE_EVENT_END("test");
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
 
   tracing_session->on_stop.Wait();
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
   ASSERT_GE(raw_trace.size(), 0u);
 
   // Read back the trace, maintaining interning tables as we go.
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   std::map<uint64_t, std::string> categories;
   std::map<uint64_t, std::string> event_names;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
 
-  auto now = perfetto::TrackEvent::GetTraceTimeNs();
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-  auto clock_id = perfetto::protos::pbzero::BUILTIN_CLOCK_BOOTTIME;
+  auto now = dejaview::TrackEvent::GetTraceTimeNs();
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+  auto clock_id = dejaview::protos::pbzero::BUILTIN_CLOCK_BOOTTIME;
 #else
-  auto clock_id = perfetto::protos::pbzero::BUILTIN_CLOCK_MONOTONIC;
+  auto clock_id = dejaview::protos::pbzero::BUILTIN_CLOCK_MONOTONIC;
 #endif
-  EXPECT_EQ(clock_id, perfetto::TrackEvent::GetTraceClockId());
+  EXPECT_EQ(clock_id, dejaview::TrackEvent::GetTraceClockId());
 
   bool incremental_state_was_cleared = false;
   bool begin_found = false;
   bool end_found = false;
   bool process_descriptor_found = false;
   uint32_t sequence_id = 0;
-  int32_t cur_pid = perfetto::test::GetCurrentProcessId();
+  int32_t cur_pid = dejaview::test::GetCurrentProcessId();
   uint64_t recent_absolute_time_ns = 0;
   bool found_incremental_clock = false;
   constexpr auto kClockIdIncremental =
@@ -1315,7 +1315,7 @@ TEST_P(PerfettoApiTest, TrackEvent) {
       }
     }
     if (packet.sequence_flags() &
-        perfetto::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
+        dejaview::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
       EXPECT_TRUE(packet.has_trace_packet_defaults());
       incremental_state_was_cleared = true;
       categories.clear();
@@ -1337,8 +1337,8 @@ TEST_P(PerfettoApiTest, TrackEvent) {
       continue;
     EXPECT_TRUE(
         packet.sequence_flags() &
-        (perfetto::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED |
-         perfetto::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE));
+        (dejaview::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED |
+         dejaview::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE));
     const auto& track_event = packet.track_event();
 
     // Make sure we only see track events on one sequence.
@@ -1368,7 +1368,7 @@ TEST_P(PerfettoApiTest, TrackEvent) {
     // Packet uses default (incremental) clock.
     EXPECT_FALSE(packet.has_timestamp_clock_id());
     if (track_event.type() ==
-        perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN) {
+        dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN) {
       EXPECT_FALSE(begin_found);
       EXPECT_EQ(track_event.category_iids().size(), 1u);
       EXPECT_GE(track_event.category_iids()[0], 1u);
@@ -1376,7 +1376,7 @@ TEST_P(PerfettoApiTest, TrackEvent) {
       EXPECT_EQ("TestEvent", event_names[track_event.name_iid()]);
       begin_found = true;
     } else if (track_event.type() ==
-               perfetto::protos::gen::TrackEvent::TYPE_SLICE_END) {
+               dejaview::protos::gen::TrackEvent::TYPE_SLICE_END) {
       EXPECT_FALSE(end_found);
       EXPECT_EQ(track_event.category_iids().size(), 0u);
       EXPECT_EQ(0u, track_event.name_iid());
@@ -1393,10 +1393,10 @@ TEST_P(PerfettoApiTest, TrackEvent) {
   TestCategoryAsTemplateParameter<kTestCategory>();
 }
 
-TEST_P(PerfettoApiTest, TrackEventWithIncrementalTimestamp) {
+TEST_P(DejaViewApiTest, TrackEventWithIncrementalTimestamp) {
   for (auto disable_incremental_timestamps : {false, true}) {
     // Create a new trace session.
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.set_disable_incremental_timestamps(disable_incremental_timestamps);
     auto* tracing_session = NewTraceWithCategories({"bar"}, te_cfg);
     constexpr auto kClockIdIncremental =
@@ -1405,18 +1405,18 @@ TEST_P(PerfettoApiTest, TrackEventWithIncrementalTimestamp) {
 
     std::map<uint64_t, std::string> event_names;
 
-    auto empty_lambda = [](perfetto::EventContext) {};
+    auto empty_lambda = [](dejaview::EventContext) {};
 
     constexpr uint64_t kInstantEvent1Time = 92718891479583;
     TRACE_EVENT_INSTANT(
         "bar", "InstantEvent1",
-        perfetto::TraceTimestamp{kClockIdIncremental, kInstantEvent1Time},
+        dejaview::TraceTimestamp{kClockIdIncremental, kInstantEvent1Time},
         empty_lambda);
 
     constexpr uint64_t kInstantEvent2Time = 92718891618959;
     TRACE_EVENT_INSTANT(
         "bar", "InstantEvent2",
-        perfetto::TraceTimestamp{kClockIdIncremental, kInstantEvent2Time},
+        dejaview::TraceTimestamp{kClockIdIncremental, kInstantEvent2Time},
         empty_lambda);
 
     auto trace = StopSessionAndReturnParsedTrace(tracing_session);
@@ -1462,7 +1462,7 @@ TEST_P(PerfettoApiTest, TrackEventWithIncrementalTimestamp) {
       }
       prv_timestamp = absolute_timestamp;
 
-      if (packet.sequence_flags() & perfetto::protos::pbzero::TracePacket::
+      if (packet.sequence_flags() & dejaview::protos::pbzero::TracePacket::
                                         SEQ_INCREMENTAL_STATE_CLEARED) {
         event_names.clear();
       }
@@ -1490,7 +1490,7 @@ TEST_P(PerfettoApiTest, TrackEventWithIncrementalTimestamp) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventCategories) {
+TEST_P(DejaViewApiTest, TrackEventCategories) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"bar"});
   tracing_session->get()->StartBlocking();
@@ -1508,14 +1508,14 @@ TEST_P(PerfettoApiTest, TrackEventCategories) {
   EXPECT_THAT(trace, Not(HasSubstr("NotEnabled")));
 }
 
-TEST_P(PerfettoApiTest, ClearIncrementalState) {
-  perfetto::DataSourceDescriptor dsd;
+TEST_P(DejaViewApiTest, ClearIncrementalState) {
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("incr_data_source");
   TestIncrementalDataSource::Register(dsd);
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   // Setup the trace config with an incremental state clearing period.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -1544,15 +1544,15 @@ TEST_P(PerfettoApiTest, ClearIncrementalState) {
     std::this_thread::sleep_for(std::chrono::milliseconds(10));
   }
   tracing_session->get()->StopBlocking();
-  perfetto::test::TracingMuxerImplInternalsForTest::
+  dejaview::test::TracingMuxerImplInternalsForTest::
       ClearDataSourceTlsStateOnReset<TestIncrementalDataSource>();
 }
 
-TEST_P(PerfettoApiTest, TrackEventRegistrationWithModule) {
+TEST_P(DejaViewApiTest, TrackEventRegistrationWithModule) {
   MockTracingMuxer muxer;
 
   // Each track event namespace registers its own data source.
-  perfetto::TrackEvent::Register();
+  dejaview::TrackEvent::Register();
   EXPECT_EQ(1u, muxer.data_sources.size());
 
   tracing_module::InitializeCategories();
@@ -1569,18 +1569,18 @@ TEST_P(PerfettoApiTest, TrackEventRegistrationWithModule) {
             muxer.data_sources[2].static_state);
 }
 
-TEST_P(PerfettoApiTest, TrackEventDescriptor) {
+TEST_P(DejaViewApiTest, TrackEventDescriptor) {
   MockTracingMuxer muxer;
 
-  perfetto::TrackEvent::Register();
+  dejaview::TrackEvent::Register();
   EXPECT_EQ(1u, muxer.data_sources.size());
   EXPECT_EQ("track_event", muxer.data_sources[0].dsd.name());
 
-  perfetto::protos::gen::TrackEventDescriptor desc;
+  dejaview::protos::gen::TrackEventDescriptor desc;
   auto desc_raw = muxer.data_sources[0].dsd.track_event_descriptor_raw();
   EXPECT_TRUE(desc.ParseFromArray(desc_raw.data(), desc_raw.size()));
 
-  // Check that the advertised categories match PERFETTO_DEFINE_CATEGORIES (see
+  // Check that the advertised categories match DEJAVIEW_DEFINE_CATEGORIES (see
   // above).
   EXPECT_EQ(7, desc.available_categories_size());
   EXPECT_EQ("test", desc.available_categories()[0].name());
@@ -1598,11 +1598,11 @@ TEST_P(PerfettoApiTest, TrackEventDescriptor) {
   EXPECT_EQ("slow", desc.available_categories()[6].tags()[0]);
 }
 
-TEST_P(PerfettoApiTest, TrackEventSharedIncrementalState) {
+TEST_P(DejaViewApiTest, TrackEventSharedIncrementalState) {
   tracing_module::InitializeCategories();
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -1610,12 +1610,12 @@ TEST_P(PerfettoApiTest, TrackEventSharedIncrementalState) {
   auto* tracing_session = NewTrace(cfg);
   tracing_session->get()->StartBlocking();
 
-  perfetto::internal::TrackEventIncrementalState* main_state = nullptr;
-  perfetto::TrackEvent::Trace(
-      [&main_state](perfetto::TrackEvent::TraceContext ctx) {
+  dejaview::internal::TrackEventIncrementalState* main_state = nullptr;
+  dejaview::TrackEvent::Trace(
+      [&main_state](dejaview::TrackEvent::TraceContext ctx) {
         main_state = ctx.GetIncrementalState();
       });
-  perfetto::internal::TrackEventIncrementalState* module_state =
+  dejaview::internal::TrackEventIncrementalState* module_state =
       tracing_module::GetIncrementalState();
 
   // Both track event data sources should use the same incremental state (thanks
@@ -1625,7 +1625,7 @@ TEST_P(PerfettoApiTest, TrackEventSharedIncrementalState) {
   tracing_session->get()->StopBlocking();
 }
 
-TEST_P(PerfettoApiTest, TrackEventCategoriesWithModule) {
+TEST_P(DejaViewApiTest, TrackEventCategoriesWithModule) {
   // Check that categories defined in two different category registries are
   // enabled and disabled correctly.
   tracing_module::InitializeCategories();
@@ -1652,7 +1652,7 @@ TEST_P(PerfettoApiTest, TrackEventCategoriesWithModule) {
   EXPECT_THAT(trace, HasSubstr("FooEventFromModule2"));
   EXPECT_THAT(trace, Not(HasSubstr("DisabledEventFromModule2")));
 
-  perfetto::protos::gen::Trace parsed_trace;
+  dejaview::protos::gen::Trace parsed_trace;
   ASSERT_TRUE(parsed_trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
 
   uint32_t sequence_id = 0;
@@ -1671,8 +1671,8 @@ TEST_P(PerfettoApiTest, TrackEventCategoriesWithModule) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventNamespaces) {
-  perfetto::TrackEvent::Register();
+TEST_P(DejaViewApiTest, TrackEventNamespaces) {
+  dejaview::TrackEvent::Register();
   other_ns::TrackEvent::Register();
   tracing_module::InitializeCategories();
 
@@ -1686,7 +1686,7 @@ TEST_P(PerfettoApiTest, TrackEventNamespaces) {
 
   // Other namespace in a block scope.
   {
-    PERFETTO_USE_CATEGORIES_FROM_NAMESPACE_SCOPED(other_ns);
+    DEJAVIEW_USE_CATEGORIES_FROM_NAMESPACE_SCOPED(other_ns);
     TRACE_EVENT_INSTANT("other_ns", "OtherNamespaceEvent");
     EXPECT_TRUE(TRACE_EVENT_CATEGORY_ENABLED("other_ns"));
   }
@@ -1708,9 +1708,9 @@ TEST_P(PerfettoApiTest, TrackEventNamespaces) {
                   "B:extra.DefaultNamespace", "B:cat1.DefaultNamespace"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventDynamicCategories) {
+TEST_P(DejaViewApiTest, TrackEventDynamicCategories) {
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -1728,15 +1728,15 @@ TEST_P(PerfettoApiTest, TrackEventDynamicCategories) {
   tracing_session2->get()->StartBlocking();
 
   // Test naming dynamic categories with std::string.
-  perfetto::DynamicCategory dynamic{"dynamic"};
+  dejaview::DynamicCategory dynamic{"dynamic"};
   TRACE_EVENT_BEGIN(dynamic, "EventInDynamicCategory");
-  perfetto::DynamicCategory dynamic_disabled{"dynamic_disabled"};
+  dejaview::DynamicCategory dynamic_disabled{"dynamic_disabled"};
   TRACE_EVENT_BEGIN(dynamic_disabled, "EventInDisabledDynamicCategory");
 
   // Test naming dynamic categories statically.
   TRACE_EVENT_BEGIN("dynamic", "EventInStaticallyNamedDynamicCategory");
 
-  perfetto::DynamicCategory dynamic_2{"dynamic_2"};
+  dejaview::DynamicCategory dynamic_2{"dynamic_2"};
   TRACE_EVENT_BEGIN(dynamic_2, "EventInSecondDynamicCategory");
   TRACE_EVENT_BEGIN("dynamic_2", "EventInSecondStaticallyNamedDynamicCategory");
 
@@ -1746,11 +1746,11 @@ TEST_P(PerfettoApiTest, TrackEventDynamicCategories) {
   std::thread thread([] {
     // Make sure the category name can actually be computed at runtime.
     std::string name = "dyn";
-    if (perfetto::base::GetThreadId())
+    if (dejaview::base::GetThreadId())
       name += "amic";
-    perfetto::DynamicCategory cat{name};
+    dejaview::DynamicCategory cat{name};
     TRACE_EVENT_BEGIN(cat, "DynamicFromOtherThread");
-    perfetto::DynamicCategory cat2{"dynamic_disabled"};
+    dejaview::DynamicCategory cat2{"dynamic_disabled"};
     TRACE_EVENT_BEGIN(cat2, "EventInDisabledDynamicCategory");
   });
   thread.join();
@@ -1775,7 +1775,7 @@ TEST_P(PerfettoApiTest, TrackEventDynamicCategories) {
   EXPECT_THAT(trace, HasSubstr("EventInSecondStaticallyNamedDynamicCategory"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventConcurrentSessions) {
+TEST_P(DejaViewApiTest, TrackEventConcurrentSessions) {
   // Check that categories that are enabled and disabled in two parallel tracing
   // sessions don't interfere.
 
@@ -1824,27 +1824,27 @@ TEST_P(PerfettoApiTest, TrackEventConcurrentSessions) {
   EXPECT_THAT(trace2, Not(HasSubstr("Session2_Third")));
 }
 
-TEST_P(PerfettoApiTest, TrackEventProcessAndThreadDescriptors) {
+TEST_P(DejaViewApiTest, TrackEventProcessAndThreadDescriptors) {
   // Thread and process descriptors can be set before tracing is enabled.
   {
-    auto track = perfetto::ProcessTrack::Current();
+    auto track = dejaview::ProcessTrack::Current();
     auto desc = track.Serialize();
     desc.set_name("hello.exe");
     desc.mutable_chrome_process()->set_process_priority(1);
-    perfetto::TrackEvent::SetTrackDescriptor(track, std::move(desc));
+    dejaview::TrackEvent::SetTrackDescriptor(track, std::move(desc));
   }
 
   // Erased tracks shouldn't show up anywhere.
   {
-    perfetto::Track erased(1234u);
+    dejaview::Track erased(1234u);
     auto desc = erased.Serialize();
     desc.set_name("ErasedTrack");
-    perfetto::TrackEvent::SetTrackDescriptor(erased, std::move(desc));
-    perfetto::TrackEvent::EraseTrackDescriptor(erased);
+    dejaview::TrackEvent::SetTrackDescriptor(erased, std::move(desc));
+    dejaview::TrackEvent::EraseTrackDescriptor(erased);
   }
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -1856,10 +1856,10 @@ TEST_P(PerfettoApiTest, TrackEventProcessAndThreadDescriptors) {
   TRACE_EVENT_INSTANT("test", "MainThreadEvent");
 
   std::thread thread([&] {
-    auto track = perfetto::ThreadTrack::Current();
+    auto track = dejaview::ThreadTrack::Current();
     auto desc = track.Serialize();
     desc.set_name("TestThread");
-    perfetto::TrackEvent::SetTrackDescriptor(track, std::move(desc));
+    dejaview::TrackEvent::SetTrackDescriptor(track, std::move(desc));
     TRACE_EVENT_INSTANT("test", "ThreadEvent");
   });
   thread.join();
@@ -1867,29 +1867,29 @@ TEST_P(PerfettoApiTest, TrackEventProcessAndThreadDescriptors) {
   // Update the process descriptor while tracing is enabled. It should be
   // immediately reflected in the trace.
   {
-    auto track = perfetto::ProcessTrack::Current();
+    auto track = dejaview::ProcessTrack::Current();
     auto desc = track.Serialize();
     desc.set_name("goodbye.exe");
-    perfetto::TrackEvent::SetTrackDescriptor(track, std::move(desc));
-    perfetto::TrackEvent::Flush();
+    dejaview::TrackEvent::SetTrackDescriptor(track, std::move(desc));
+    dejaview::TrackEvent::Flush();
   }
 
   tracing_session->get()->StopBlocking();
 
   // After tracing ends, setting the descriptor has no immediate effect.
   {
-    auto track = perfetto::ProcessTrack::Current();
+    auto track = dejaview::ProcessTrack::Current();
     auto desc = track.Serialize();
     desc.set_name("noop.exe");
-    perfetto::TrackEvent::SetTrackDescriptor(track, std::move(desc));
+    dejaview::TrackEvent::SetTrackDescriptor(track, std::move(desc));
   }
 
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
 
-  std::vector<perfetto::protos::gen::TrackDescriptor> descs;
-  std::vector<perfetto::protos::gen::TrackDescriptor> thread_descs;
+  std::vector<dejaview::protos::gen::TrackDescriptor> descs;
+  std::vector<dejaview::protos::gen::TrackDescriptor> thread_descs;
   uint32_t main_thread_sequence = GetMainThreadPacketSequenceId(trace);
   for (const auto& packet : trace.packet()) {
     if (packet.has_track_descriptor()) {
@@ -1932,9 +1932,9 @@ TEST_P(PerfettoApiTest, TrackEventProcessAndThreadDescriptors) {
   EXPECT_EQ("goodbye.exe", descs[2].name());
 }
 
-TEST_P(PerfettoApiTest, CustomTrackDescriptor) {
+TEST_P(DejaViewApiTest, CustomTrackDescriptor) {
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -1944,13 +1944,13 @@ TEST_P(PerfettoApiTest, CustomTrackDescriptor) {
   auto* tracing_session = NewTrace(cfg);
   tracing_session->get()->StartBlocking();
 
-  auto track = perfetto::ProcessTrack::Current();
+  auto track = dejaview::ProcessTrack::Current();
   auto desc = track.Serialize();
   desc.mutable_process()->set_process_name("testing.exe");
   desc.mutable_thread()->set_tid(
-      static_cast<int32_t>(perfetto::base::GetThreadId()));
+      static_cast<int32_t>(dejaview::base::GetThreadId()));
   desc.mutable_chrome_process()->set_process_priority(123);
-  perfetto::TrackEvent::SetTrackDescriptor(track, std::move(desc));
+  dejaview::TrackEvent::SetTrackDescriptor(track, std::move(desc));
 
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
 
@@ -1973,7 +1973,7 @@ TEST_P(PerfettoApiTest, CustomTrackDescriptor) {
   EXPECT_TRUE(found_desc);
 }
 
-TEST_P(PerfettoApiTest, TrackEventCustomTrack) {
+TEST_P(DejaViewApiTest, TrackEventCustomTrack) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"bar"});
   tracing_session->get()->StartBlocking();
@@ -1982,26 +1982,26 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrack) {
   uint64_t async_id = 123;
 
   {
-    auto track = perfetto::Track(async_id);
+    auto track = dejaview::Track(async_id);
     auto desc = track.Serialize();
     desc.set_name("MyCustomTrack");
-    perfetto::TrackEvent::SetTrackDescriptor(track, std::move(desc));
+    dejaview::TrackEvent::SetTrackDescriptor(track, std::move(desc));
   }
 
   // Start events on one thread and end them on another.
-  TRACE_EVENT_BEGIN("bar", "AsyncEvent", perfetto::Track(async_id), "debug_arg",
+  TRACE_EVENT_BEGIN("bar", "AsyncEvent", dejaview::Track(async_id), "debug_arg",
                     123);
 
-  TRACE_EVENT_BEGIN("bar", "SubEvent", perfetto::Track(async_id),
-                    [](perfetto::EventContext) {});
+  TRACE_EVENT_BEGIN("bar", "SubEvent", dejaview::Track(async_id),
+                    [](dejaview::EventContext) {});
   const auto main_thread_track =
-      perfetto::Track(async_id, perfetto::ThreadTrack::Current());
+      dejaview::Track(async_id, dejaview::ThreadTrack::Current());
   std::thread thread([&] {
-    TRACE_EVENT_END("bar", perfetto::Track(async_id));
-    TRACE_EVENT_END("bar", perfetto::Track(async_id), "arg1", false, "arg2",
+    TRACE_EVENT_END("bar", dejaview::Track(async_id));
+    TRACE_EVENT_END("bar", dejaview::Track(async_id), "arg1", false, "arg2",
                     true);
     const auto thread_track =
-        perfetto::Track(async_id, perfetto::ThreadTrack::Current());
+        dejaview::Track(async_id, dejaview::ThreadTrack::Current());
     // Thread-scoped tracks will have different uuids on different thread even
     // if the id matches.
     ASSERT_NE(main_thread_track.uuid, thread_track.uuid);
@@ -2011,7 +2011,7 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrack) {
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
 
   // Check that the track uuids match on the begin and end events.
-  const auto track = perfetto::Track(async_id);
+  const auto track = dejaview::Track(async_id);
   uint32_t main_thread_sequence = GetMainThreadPacketSequenceId(trace);
   int event_count = 0;
   bool found_descriptor = false;
@@ -2022,7 +2022,7 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrack) {
       auto td = packet.track_descriptor();
       EXPECT_EQ("MyCustomTrack", td.name());
       EXPECT_EQ(track.uuid, td.uuid());
-      EXPECT_EQ(perfetto::ProcessTrack::Current().uuid, td.parent_uuid());
+      EXPECT_EQ(dejaview::ProcessTrack::Current().uuid, td.parent_uuid());
       found_descriptor = true;
       continue;
     }
@@ -2031,7 +2031,7 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrack) {
       continue;
     auto track_event = packet.track_event();
     if (track_event.type() ==
-        perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN) {
+        dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN) {
       EXPECT_EQ(main_thread_sequence, packet.trusted_packet_sequence_id());
       EXPECT_EQ(track.uuid, track_event.track_uuid());
     } else {
@@ -2042,33 +2042,33 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrack) {
   }
   EXPECT_TRUE(found_descriptor);
   EXPECT_EQ(4, event_count);
-  perfetto::TrackEvent::EraseTrackDescriptor(track);
+  dejaview::TrackEvent::EraseTrackDescriptor(track);
 }
 
-TEST_P(PerfettoApiTest, TrackEventCustomTimestampClock) {
+TEST_P(DejaViewApiTest, TrackEventCustomTimestampClock) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
-  static constexpr perfetto::protos::pbzero::BuiltinClock kMyClockId =
-      static_cast<perfetto::protos::pbzero::BuiltinClock>(700);
+  static constexpr dejaview::protos::pbzero::BuiltinClock kMyClockId =
+      static_cast<dejaview::protos::pbzero::BuiltinClock>(700);
   static constexpr uint64_t kTimestamp = 12345678;
 
   // First emit a clock snapshot that maps our custom clock to regular trace
   // time. Note that the clock snapshot should come before any events
   // referencing that clock.
-  perfetto::TrackEvent::Trace([](perfetto::TrackEvent::TraceContext ctx) {
+  dejaview::TrackEvent::Trace([](dejaview::TrackEvent::TraceContext ctx) {
     auto packet = ctx.NewTracePacket();
     packet->set_timestamp_clock_id(
-        static_cast<uint32_t>(perfetto::TrackEvent::GetTraceClockId()));
-    packet->set_timestamp(perfetto::TrackEvent::GetTraceTimeNs());
+        static_cast<uint32_t>(dejaview::TrackEvent::GetTraceClockId()));
+    packet->set_timestamp(dejaview::TrackEvent::GetTraceTimeNs());
     auto* clock_snapshot = packet->set_clock_snapshot();
     // First set the reference clock, i.e., the default trace clock in this
     // case.
     auto* clock = clock_snapshot->add_clocks();
     clock->set_clock_id(
-        static_cast<uint32_t>(perfetto::TrackEvent::GetTraceClockId()));
-    clock->set_timestamp(perfetto::TrackEvent::GetTraceTimeNs());
+        static_cast<uint32_t>(dejaview::TrackEvent::GetTraceClockId()));
+    clock->set_timestamp(dejaview::TrackEvent::GetTraceTimeNs());
     // Then set the value of our reference clock at the same point in time. We
     // pretend our clock is one second behind trace time.
     clock = clock_snapshot->add_clocks();
@@ -2078,7 +2078,7 @@ TEST_P(PerfettoApiTest, TrackEventCustomTimestampClock) {
 
   // Next emit a trace event with a custom timestamp and a custom clock.
   TRACE_EVENT_INSTANT("foo", "EventWithCustomTime",
-                      perfetto::TraceTimestamp{kMyClockId, kTimestamp});
+                      dejaview::TraceTimestamp{kMyClockId, kTimestamp});
   TRACE_EVENT_INSTANT("foo", "EventWithNormalTime");
 
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
@@ -2104,7 +2104,7 @@ TEST_P(PerfettoApiTest, TrackEventCustomTimestampClock) {
 // Only synchronous phases are supported for other threads. Hence disabled this
 // test.
 // TODO(b/261493947): fix or remove.
-TEST_P(PerfettoApiTest, DISABLED_LegacyEventWithThreadOverride) {
+TEST_P(DejaViewApiTest, DISABLED_LegacyEventWithThreadOverride) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
@@ -2115,7 +2115,7 @@ TEST_P(PerfettoApiTest, DISABLED_LegacyEventWithThreadOverride) {
 
   // Check that we wrote a track descriptor for the custom thread track, and
   // that the event was associated with that track.
-  const auto track = perfetto::ThreadTrack::ForThread(456);
+  const auto track = dejaview::ThreadTrack::ForThread(456);
   bool found_descriptor = false;
   bool found_event = false;
   for (const auto& packet : trace.packet()) {
@@ -2138,12 +2138,12 @@ TEST_P(PerfettoApiTest, DISABLED_LegacyEventWithThreadOverride) {
   }
   EXPECT_TRUE(found_descriptor);
   EXPECT_TRUE(found_event);
-  perfetto::TrackEvent::EraseTrackDescriptor(track);
+  dejaview::TrackEvent::EraseTrackDescriptor(track);
 }
 
 // Only synchronous phases are supported for other threads. Hence disabled this
 // test.
-TEST_P(PerfettoApiTest, DISABLED_LegacyEventWithProcessOverride) {
+TEST_P(DejaViewApiTest, DISABLED_LegacyEventWithProcessOverride) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
@@ -2161,7 +2161,7 @@ TEST_P(PerfettoApiTest, DISABLED_LegacyEventWithProcessOverride) {
     if (!packet.has_track_event())
       continue;
     auto track_event = packet.track_event();
-    if (track_event.type() == perfetto::protos::gen::TrackEvent::TYPE_INSTANT) {
+    if (track_event.type() == dejaview::protos::gen::TrackEvent::TYPE_INSTANT) {
       EXPECT_EQ(789, track_event.legacy_event().pid_override());
       EXPECT_EQ(-1, track_event.legacy_event().tid_override());
       found_event = true;
@@ -2170,13 +2170,13 @@ TEST_P(PerfettoApiTest, DISABLED_LegacyEventWithProcessOverride) {
   EXPECT_TRUE(found_event);
 }
 
-TEST_P(PerfettoApiTest, TrackDescriptorWrittenBeforeEvent) {
+TEST_P(DejaViewApiTest, TrackDescriptorWrittenBeforeEvent) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"bar"});
   tracing_session->get()->StartBlocking();
 
   // Emit an event on a custom track.
-  TRACE_EVENT_INSTANT("bar", "Event", perfetto::Track(8086));
+  TRACE_EVENT_INSTANT("bar", "Event", dejaview::Track(8086));
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
 
   // Check that the descriptor was written before the event.
@@ -2193,15 +2193,15 @@ TEST_P(PerfettoApiTest, TrackDescriptorWrittenBeforeEvent) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventCustomTrackAndTimestamp) {
+TEST_P(DejaViewApiTest, TrackEventCustomTrackAndTimestamp) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"bar"});
   tracing_session->get()->StartBlocking();
 
   // Custom track.
-  perfetto::Track track(789);
+  dejaview::Track track(789);
 
-  auto empty_lambda = [](perfetto::EventContext) {};
+  auto empty_lambda = [](dejaview::EventContext) {};
   constexpr uint64_t kBeginEventTime = 10;
   const MyTimestamp kEndEventTime{15};
   TRACE_EVENT_BEGIN("bar", "Event", track, kBeginEventTime, empty_lambda);
@@ -2219,32 +2219,32 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrackAndTimestamp) {
       continue;
 
     EXPECT_EQ(packet.timestamp_clock_id(),
-              static_cast<uint32_t>(perfetto::TrackEvent::GetTraceClockId()));
+              static_cast<uint32_t>(dejaview::TrackEvent::GetTraceClockId()));
     event_count++;
     switch (packet.track_event().type()) {
-      case perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN:
+      case dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN:
         EXPECT_EQ(packet.timestamp(), kBeginEventTime);
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_SLICE_END:
+      case dejaview::protos::gen::TrackEvent::TYPE_SLICE_END:
         EXPECT_EQ(packet.timestamp(), kEndEventTime.ts);
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_INSTANT:
+      case dejaview::protos::gen::TrackEvent::TYPE_INSTANT:
         EXPECT_EQ(packet.timestamp(), kInstantEventTime);
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_COUNTER:
-      case perfetto::protos::gen::TrackEvent::TYPE_UNSPECIFIED:
+      case dejaview::protos::gen::TrackEvent::TYPE_COUNTER:
+      case dejaview::protos::gen::TrackEvent::TYPE_UNSPECIFIED:
         ADD_FAILURE();
     }
   }
   EXPECT_EQ(event_count, 3);
-  perfetto::TrackEvent::EraseTrackDescriptor(track);
+  dejaview::TrackEvent::EraseTrackDescriptor(track);
 }
 
-TEST_P(PerfettoApiTest, TrackEventCustomTrackAndTimestampNoLambda) {
+TEST_P(DejaViewApiTest, TrackEventCustomTrackAndTimestampNoLambda) {
   auto* tracing_session = NewTraceWithCategories({"bar"});
   tracing_session->get()->StartBlocking();
 
-  perfetto::Track track(789);
+  dejaview::Track track(789);
 
   constexpr uint64_t kBeginEventTime = 10;
   constexpr uint64_t kEndEventTime = 15;
@@ -2259,15 +2259,15 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrackAndTimestampNoLambda) {
       continue;
     event_count++;
     switch (packet.track_event().type()) {
-      case perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN:
+      case dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN:
         EXPECT_EQ(packet.timestamp(), kBeginEventTime);
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_SLICE_END:
+      case dejaview::protos::gen::TrackEvent::TYPE_SLICE_END:
         EXPECT_EQ(packet.timestamp(), kEndEventTime);
         break;
-      case perfetto::protos::gen::TrackEvent::TYPE_INSTANT:
-      case perfetto::protos::gen::TrackEvent::TYPE_COUNTER:
-      case perfetto::protos::gen::TrackEvent::TYPE_UNSPECIFIED:
+      case dejaview::protos::gen::TrackEvent::TYPE_INSTANT:
+      case dejaview::protos::gen::TrackEvent::TYPE_COUNTER:
+      case dejaview::protos::gen::TrackEvent::TYPE_UNSPECIFIED:
         ADD_FAILURE();
     }
   }
@@ -2275,14 +2275,14 @@ TEST_P(PerfettoApiTest, TrackEventCustomTrackAndTimestampNoLambda) {
   EXPECT_EQ(event_count, 2);
 }
 
-TEST_P(PerfettoApiTest, TrackEventAnonymousCustomTrack) {
+TEST_P(DejaViewApiTest, TrackEventAnonymousCustomTrack) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"bar"});
   tracing_session->get()->StartBlocking();
 
   // Emit an async event without giving it an explicit descriptor.
   uint64_t async_id = 4004;
-  auto track = perfetto::Track(async_id, perfetto::ThreadTrack::Current());
+  auto track = dejaview::Track(async_id, dejaview::ThreadTrack::Current());
   TRACE_EVENT_BEGIN("bar", "AsyncEvent", track);
   std::thread thread([&] { TRACE_EVENT_END("bar", track); });
   thread.join();
@@ -2297,21 +2297,21 @@ TEST_P(PerfettoApiTest, TrackEventAnonymousCustomTrack) {
         !packet.track_descriptor().has_thread()) {
       auto td = packet.track_descriptor();
       EXPECT_EQ(track.uuid, td.uuid());
-      EXPECT_EQ(perfetto::ThreadTrack::Current().uuid, td.parent_uuid());
+      EXPECT_EQ(dejaview::ThreadTrack::Current().uuid, td.parent_uuid());
       found_descriptor = true;
     }
   }
   EXPECT_TRUE(found_descriptor);
 }
 
-TEST_P(PerfettoApiTest, TrackEventTypedArgs) {
+TEST_P(DejaViewApiTest, TrackEventTypedArgs) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   auto random_value = rand();
   TRACE_EVENT_BEGIN("foo", "EventWithTypedArg",
-                    [random_value](perfetto::EventContext ctx) {
+                    [random_value](dejaview::EventContext ctx) {
                       auto* log = ctx.event()->set_log_message();
                       log->set_source_location_iid(1);
                       log->set_body_iid(2);
@@ -2329,7 +2329,7 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgs) {
       continue;
     const auto& track_event = packet.track_event();
     if (track_event.type() !=
-        perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN)
+        dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN)
       continue;
 
     EXPECT_TRUE(track_event.has_log_message());
@@ -2346,7 +2346,7 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgs) {
   EXPECT_TRUE(found_args);
 }
 
-TEST_P(PerfettoApiTest, InlineTrackEventTypedArgs_SimpleRepeated) {
+TEST_P(DejaViewApiTest, InlineTrackEventTypedArgs_SimpleRepeated) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
@@ -2354,9 +2354,9 @@ TEST_P(PerfettoApiTest, InlineTrackEventTypedArgs_SimpleRepeated) {
   std::vector<uint64_t> flow_ids_old{1, 2, 3};
   std::vector<uint64_t> flow_ids{4, 5, 6};
   TRACE_EVENT_BEGIN("foo", "EventWithTypedArg",
-                    perfetto::protos::pbzero::TrackEvent::kFlowIdsOld,
+                    dejaview::protos::pbzero::TrackEvent::kFlowIdsOld,
                     flow_ids_old,
-                    perfetto::protos::pbzero::TrackEvent::kFlowIds, flow_ids);
+                    dejaview::protos::pbzero::TrackEvent::kFlowIds, flow_ids);
   TRACE_EVENT_END("foo");
 
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
@@ -2367,7 +2367,7 @@ TEST_P(PerfettoApiTest, InlineTrackEventTypedArgs_SimpleRepeated) {
       continue;
     const auto& track_event = packet.track_event();
     if (track_event.type() !=
-        perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN) {
+        dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN) {
       continue;
     }
 
@@ -2382,7 +2382,7 @@ namespace {
 
 struct LogMessage {
   void WriteIntoTrace(
-      perfetto::TracedProto<perfetto::protos::pbzero::LogMessage> context)
+      dejaview::TracedProto<dejaview::protos::pbzero::LogMessage> context)
       const {
     context->set_source_location_iid(1);
     context->set_body_iid(2);
@@ -2390,7 +2390,7 @@ struct LogMessage {
 };
 
 auto GetWriteLogMessageRefLambda = []() {
-  return [](perfetto::EventContext& ctx) {
+  return [](dejaview::EventContext& ctx) {
     auto* log = ctx.event()->set_log_message();
     log->set_source_location_iid(1);
     log->set_body_iid(2);
@@ -2400,9 +2400,9 @@ auto GetWriteLogMessageRefLambda = []() {
 void CheckTypedArguments(
     const std::vector<char>& raw_trace,
     const char* event_name,
-    perfetto::protos::gen::TrackEvent::Type type,
-    std::function<void(const perfetto::protos::gen::TrackEvent&)> checker) {
-  perfetto::protos::gen::Trace parsed_trace;
+    dejaview::protos::gen::TrackEvent::Type type,
+    std::function<void(const dejaview::protos::gen::TrackEvent&)> checker) {
+  dejaview::protos::gen::Trace parsed_trace;
   ASSERT_TRUE(parsed_trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
 
   bool found_slice = false;
@@ -2431,8 +2431,8 @@ void CheckTypedArguments(
 
 void CheckLogMessagePresent(const std::vector<char>& raw_trace) {
   CheckTypedArguments(raw_trace, nullptr,
-                      perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN,
-                      [](const perfetto::protos::gen::TrackEvent& track_event) {
+                      dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN,
+                      [](const dejaview::protos::gen::TrackEvent& track_event) {
                         EXPECT_TRUE(track_event.has_log_message());
                         const auto& log = track_event.log_message();
                         EXPECT_EQ(1u, log.source_location_iid());
@@ -2442,28 +2442,28 @@ void CheckLogMessagePresent(const std::vector<char>& raw_trace) {
 
 }  // namespace
 
-TEST_P(PerfettoApiTest, InlineTrackEventTypedArgs_NestedSingle) {
+TEST_P(DejaViewApiTest, InlineTrackEventTypedArgs_NestedSingle) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("foo", "EventWithTypedArg",
-                    perfetto::protos::pbzero::TrackEvent::kLogMessage,
+                    dejaview::protos::pbzero::TrackEvent::kLogMessage,
                     LogMessage());
   TRACE_EVENT_END("foo");
 
   std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
 }
 
-TEST_P(PerfettoApiTest, TrackEventThreadTime) {
+TEST_P(DejaViewApiTest, TrackEventThreadTime) {
   for (auto enable_thread_time : {true, false}) {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.set_enable_thread_time_sampling(enable_thread_time);
     auto* tracing_session = NewTraceWithCategories({"foo"}, te_cfg);
 
     tracing_session->get()->StartBlocking();
 
-    perfetto::Track custom_track(1);
+    dejaview::Track custom_track(1);
 
     TRACE_EVENT_BEGIN("foo", "event1");
     TRACE_EVENT_BEGIN("foo", "event2");
@@ -2489,7 +2489,7 @@ TEST_P(PerfettoApiTest, TrackEventThreadTime) {
         EXPECT_EQ("thread_time", packet.track_descriptor().static_name());
         auto counter = packet.track_descriptor().counter();
         EXPECT_EQ(
-            perfetto::protos::gen::
+            dejaview::protos::gen::
                 CounterDescriptor_BuiltinCounterType_COUNTER_THREAD_TIME_NS,
             counter.type());
         EXPECT_TRUE(counter.is_incremental());
@@ -2529,13 +2529,13 @@ TEST_P(PerfettoApiTest, TrackEventThreadTime) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_TypedAndUntyped) {
+TEST_P(DejaViewApiTest, TrackEventArgs_TypedAndUntyped) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("foo", "E",
-                    perfetto::protos::pbzero::TrackEvent::kLogMessage,
+                    dejaview::protos::pbzero::TrackEvent::kLogMessage,
                     LogMessage(), "arg", "value");
   TRACE_EVENT_END("foo");
 
@@ -2550,13 +2550,13 @@ TEST_P(PerfettoApiTest, TrackEventArgs_TypedAndUntyped) {
               ElementsAre("B:foo.E(arg=(string)value)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_UntypedAndTyped) {
+TEST_P(DejaViewApiTest, TrackEventArgs_UntypedAndTyped) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("foo", "E", "arg", "value",
-                    perfetto::protos::pbzero::TrackEvent::kLogMessage,
+                    dejaview::protos::pbzero::TrackEvent::kLogMessage,
                     LogMessage());
   TRACE_EVENT_END("foo");
 
@@ -2570,7 +2570,7 @@ TEST_P(PerfettoApiTest, TrackEventArgs_UntypedAndTyped) {
               ElementsAre("B:foo.E(arg=(string)value)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_UntypedAndRefLambda) {
+TEST_P(DejaViewApiTest, TrackEventArgs_UntypedAndRefLambda) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
@@ -2588,7 +2588,7 @@ TEST_P(PerfettoApiTest, TrackEventArgs_UntypedAndRefLambda) {
               ElementsAre("B:foo.E(arg=(string)value)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndUntyped) {
+TEST_P(DejaViewApiTest, TrackEventArgs_RefLambdaAndUntyped) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
@@ -2606,17 +2606,17 @@ TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndUntyped) {
               ElementsAre("B:foo.E(arg=(string)value)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndTyped) {
+TEST_P(DejaViewApiTest, TrackEventArgs_RefLambdaAndTyped) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN(
       "foo", "E",
-      [](perfetto::EventContext& ctx) {
+      [](dejaview::EventContext& ctx) {
         ctx.AddDebugAnnotation("arg", "value");
       },
-      perfetto::protos::pbzero::TrackEvent::kLogMessage, LogMessage());
+      dejaview::protos::pbzero::TrackEvent::kLogMessage, LogMessage());
   TRACE_EVENT_END("foo");
 
   std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
@@ -2629,14 +2629,14 @@ TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndTyped) {
               ElementsAre("B:foo.E(arg=(string)value)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_TypedAndRefLambda) {
+TEST_P(DejaViewApiTest, TrackEventArgs_TypedAndRefLambda) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("foo", "E",
-                    perfetto::protos::pbzero::TrackEvent::kLogMessage,
-                    LogMessage(), [](perfetto::EventContext& ctx) {
+                    dejaview::protos::pbzero::TrackEvent::kLogMessage,
+                    LogMessage(), [](dejaview::EventContext& ctx) {
                       ctx.AddDebugAnnotation("arg", "value");
                     });
   TRACE_EVENT_END("foo");
@@ -2651,17 +2651,17 @@ TEST_P(PerfettoApiTest, TrackEventArgs_TypedAndRefLambda) {
               ElementsAre("B:foo.E(arg=(string)value)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndRefLambda) {
+TEST_P(DejaViewApiTest, TrackEventArgs_RefLambdaAndRefLambda) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN(
       "foo", "E",
-      [](perfetto::EventContext& ctx) {
+      [](dejaview::EventContext& ctx) {
         ctx.AddDebugAnnotation("arg1", "value1");
       },
-      [](perfetto::EventContext& ctx) {
+      [](dejaview::EventContext& ctx) {
         ctx.AddDebugAnnotation("arg2", "value2");
       });
   TRACE_EVENT_END("foo");
@@ -2674,17 +2674,17 @@ TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndRefLambda) {
       ElementsAre("B:foo.E(arg1=(string)value1,arg2=(string)value2)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndLambda) {
+TEST_P(DejaViewApiTest, TrackEventArgs_RefLambdaAndLambda) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN(
       "foo", "E",
-      [](perfetto::EventContext& ctx) {
+      [](dejaview::EventContext& ctx) {
         ctx.AddDebugAnnotation("arg1", "value1");
       },
-      [](perfetto::EventContext ctx) {
+      [](dejaview::EventContext ctx) {
         ctx.AddDebugAnnotation("arg2", "value2");
       });
   TRACE_EVENT_END("foo");
@@ -2697,12 +2697,12 @@ TEST_P(PerfettoApiTest, TrackEventArgs_RefLambdaAndLambda) {
       ElementsAre("B:foo.E(arg1=(string)value1,arg2=(string)value2)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_RefLambda) {
+TEST_P(DejaViewApiTest, TrackEventArgs_RefLambda) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
-  TRACE_EVENT_BEGIN("foo", "E", [](perfetto::EventContext& ctx) {
+  TRACE_EVENT_BEGIN("foo", "E", [](dejaview::EventContext& ctx) {
     ctx.AddDebugAnnotation("arg", "value");
   });
   TRACE_EVENT_END("foo");
@@ -2714,26 +2714,26 @@ TEST_P(PerfettoApiTest, TrackEventArgs_RefLambda) {
               ElementsAre("B:foo.E(arg=(string)value)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_Flow_Global) {
+TEST_P(DejaViewApiTest, TrackEventArgs_Flow_Global) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
-  TRACE_EVENT_INSTANT("foo", "E1", perfetto::Flow::Global(42));
-  TRACE_EVENT_INSTANT("foo", "E2", perfetto::TerminatingFlow::Global(42));
+  TRACE_EVENT_INSTANT("foo", "E1", dejaview::Flow::Global(42));
+  TRACE_EVENT_INSTANT("foo", "E2", dejaview::TerminatingFlow::Global(42));
 
   std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
 
   // Find typed argument.
   CheckTypedArguments(
-      raw_trace, "E1", perfetto::protos::gen::TrackEvent::TYPE_INSTANT,
-      [](const perfetto::protos::gen::TrackEvent& track_event) {
+      raw_trace, "E1", dejaview::protos::gen::TrackEvent::TYPE_INSTANT,
+      [](const dejaview::protos::gen::TrackEvent& track_event) {
         EXPECT_TRUE(track_event.flow_ids_old().empty());
         EXPECT_THAT(track_event.flow_ids(), testing::ElementsAre(42u));
       });
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_Lambda_Multisession) {
+TEST_P(DejaViewApiTest, TrackEventArgs_Lambda_Multisession) {
   // Create two simultaneous tracing sessions.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   auto* tracing_session2 = NewTraceWithCategories({"foo"});
@@ -2741,9 +2741,9 @@ TEST_P(PerfettoApiTest, TrackEventArgs_Lambda_Multisession) {
   tracing_session2->get()->StartBlocking();
 
   // Emit an event in both sessions using an argument function.
-  auto make_arg = []() -> std::function<void(perfetto::EventContext&)> {
-    return [](perfetto::EventContext& ctx) {
-      ctx.event()->set_type(perfetto::protos::pbzero::TrackEvent::TYPE_INSTANT);
+  auto make_arg = []() -> std::function<void(dejaview::EventContext&)> {
+    return [](dejaview::EventContext& ctx) {
+      ctx.event()->set_type(dejaview::protos::pbzero::TrackEvent::TYPE_INSTANT);
       ctx.event()->add_flow_ids(42);
     };
   };
@@ -2754,33 +2754,33 @@ TEST_P(PerfettoApiTest, TrackEventArgs_Lambda_Multisession) {
 
   // Check that the event was output twice.
   CheckTypedArguments(
-      raw_trace, "E1", perfetto::protos::gen::TrackEvent::TYPE_INSTANT,
-      [](const perfetto::protos::gen::TrackEvent& track_event) {
+      raw_trace, "E1", dejaview::protos::gen::TrackEvent::TYPE_INSTANT,
+      [](const dejaview::protos::gen::TrackEvent& track_event) {
         EXPECT_TRUE(track_event.flow_ids_old().empty());
         EXPECT_THAT(track_event.flow_ids(), testing::ElementsAre(42u));
       });
   CheckTypedArguments(
-      raw_trace2, "E1", perfetto::protos::gen::TrackEvent::TYPE_INSTANT,
-      [](const perfetto::protos::gen::TrackEvent& track_event) {
+      raw_trace2, "E1", dejaview::protos::gen::TrackEvent::TYPE_INSTANT,
+      [](const dejaview::protos::gen::TrackEvent& track_event) {
         EXPECT_TRUE(track_event.flow_ids_old().empty());
         EXPECT_THAT(track_event.flow_ids(), testing::ElementsAre(42u));
       });
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_MultipleFlows) {
+TEST_P(DejaViewApiTest, TrackEventArgs_MultipleFlows) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   {
-    TRACE_EVENT("foo", "E1", perfetto::Flow::Global(1),
-                perfetto::Flow::Global(2), perfetto::Flow::Global(3));
+    TRACE_EVENT("foo", "E1", dejaview::Flow::Global(1),
+                dejaview::Flow::Global(2), dejaview::Flow::Global(3));
   }
   {
-    TRACE_EVENT("foo", "E2", perfetto::Flow::Global(1),
-                perfetto::TerminatingFlow::Global(2));
+    TRACE_EVENT("foo", "E2", dejaview::Flow::Global(1),
+                dejaview::TerminatingFlow::Global(2));
   }
-  { TRACE_EVENT("foo", "E3", perfetto::TerminatingFlow::Global(3)); }
+  { TRACE_EVENT("foo", "E3", dejaview::TerminatingFlow::Global(3)); }
 
   std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
   EXPECT_THAT(ReadSlicesFromTrace(raw_trace),
@@ -2789,66 +2789,66 @@ TEST_P(PerfettoApiTest, TrackEventArgs_MultipleFlows) {
                           "B:foo.E3(terminating_flow_ids=3)", "E"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_Flow_ProcessScoped) {
+TEST_P(DejaViewApiTest, TrackEventArgs_Flow_ProcessScoped) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
-  TRACE_EVENT_INSTANT("foo", "E1", perfetto::Flow::ProcessScoped(1));
-  TRACE_EVENT_INSTANT("foo", "E2", perfetto::TerminatingFlow::ProcessScoped(1));
+  TRACE_EVENT_INSTANT("foo", "E1", dejaview::Flow::ProcessScoped(1));
+  TRACE_EVENT_INSTANT("foo", "E2", dejaview::TerminatingFlow::ProcessScoped(1));
   TRACE_EVENT_INSTANT("foo", "Flush");
 
   std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
 
   // Find typed arguments.
   CheckTypedArguments(raw_trace, "E1",
-                      perfetto::protos::gen::TrackEvent::TYPE_INSTANT,
-                      [](const perfetto::protos::gen::TrackEvent& track_event) {
+                      dejaview::protos::gen::TrackEvent::TYPE_INSTANT,
+                      [](const dejaview::protos::gen::TrackEvent& track_event) {
                         EXPECT_EQ(track_event.flow_ids_old_size(), 0);
                         EXPECT_EQ(track_event.flow_ids_size(), 1);
                       });
   CheckTypedArguments(
-      raw_trace, "E2", perfetto::protos::gen::TrackEvent::TYPE_INSTANT,
-      [](const perfetto::protos::gen::TrackEvent& track_event) {
+      raw_trace, "E2", dejaview::protos::gen::TrackEvent::TYPE_INSTANT,
+      [](const dejaview::protos::gen::TrackEvent& track_event) {
         EXPECT_EQ(track_event.terminating_flow_ids_old_size(), 0);
         EXPECT_EQ(track_event.terminating_flow_ids_size(), 1);
       });
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgs_Flow_FromPointer) {
+TEST_P(DejaViewApiTest, TrackEventArgs_Flow_FromPointer) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   int a;
   int* ptr = &a;
-  TRACE_EVENT_INSTANT("foo", "E1", perfetto::Flow::FromPointer(ptr));
-  TRACE_EVENT_INSTANT("foo", "E2", perfetto::TerminatingFlow::FromPointer(ptr));
+  TRACE_EVENT_INSTANT("foo", "E1", dejaview::Flow::FromPointer(ptr));
+  TRACE_EVENT_INSTANT("foo", "E2", dejaview::TerminatingFlow::FromPointer(ptr));
   TRACE_EVENT_INSTANT("foo", "Flush");
 
   std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
 
   // Find typed arguments.
   CheckTypedArguments(raw_trace, "E1",
-                      perfetto::protos::gen::TrackEvent::TYPE_INSTANT,
-                      [](const perfetto::protos::gen::TrackEvent& track_event) {
+                      dejaview::protos::gen::TrackEvent::TYPE_INSTANT,
+                      [](const dejaview::protos::gen::TrackEvent& track_event) {
                         EXPECT_EQ(track_event.flow_ids_old_size(), 0);
                         EXPECT_EQ(track_event.flow_ids_size(), 1);
                       });
   CheckTypedArguments(
-      raw_trace, "E2", perfetto::protos::gen::TrackEvent::TYPE_INSTANT,
-      [](const perfetto::protos::gen::TrackEvent& track_event) {
+      raw_trace, "E2", dejaview::protos::gen::TrackEvent::TYPE_INSTANT,
+      [](const dejaview::protos::gen::TrackEvent& track_event) {
         EXPECT_EQ(track_event.terminating_flow_ids_old_size(), 0);
         EXPECT_EQ(track_event.terminating_flow_ids_size(), 1);
       });
 }
 
 struct InternedLogMessageBody
-    : public perfetto::TrackEventInternedDataIndex<
+    : public dejaview::TrackEventInternedDataIndex<
           InternedLogMessageBody,
-          perfetto::protos::pbzero::InternedData::kLogMessageBodyFieldNumber,
+          dejaview::protos::pbzero::InternedData::kLogMessageBodyFieldNumber,
           std::string> {
-  static void Add(perfetto::protos::pbzero::InternedData* interned_data,
+  static void Add(dejaview::protos::pbzero::InternedData* interned_data,
                   size_t iid,
                   const std::string& value) {
     auto l = interned_data->add_log_message_body();
@@ -2862,7 +2862,7 @@ struct InternedLogMessageBody
 
 int InternedLogMessageBody::commit_count = 0;
 
-TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterning) {
+TEST_P(DejaViewApiTest, TrackEventTypedArgsWithInterning) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
@@ -2873,7 +2873,7 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterning) {
 
   size_t body_iid;
   InternedLogMessageBody::commit_count = 0;
-  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](dejaview::EventContext ctx) {
     EXPECT_EQ(0, InternedLogMessageBody::commit_count);
     body_iid = InternedLogMessageBody::Get(&ctx, "Alas, poor Yorick!");
     auto log = ctx.event()->set_log_message();
@@ -2886,7 +2886,7 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterning) {
   });
   TRACE_EVENT_END("foo");
 
-  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](dejaview::EventContext ctx) {
     // Check that very large amounts of interned data works.
     auto log = ctx.event()->set_log_message();
     log->set_body_iid(InternedLogMessageBody::Get(&ctx, large_message.str()));
@@ -2895,7 +2895,7 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterning) {
   TRACE_EVENT_END("foo");
 
   // Make sure interned data persists across trace points.
-  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](dejaview::EventContext ctx) {
     auto body_iid2 = InternedLogMessageBody::Get(&ctx, "Alas, poor Yorick!");
     EXPECT_EQ(body_iid, body_iid2);
 
@@ -2915,12 +2915,12 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterning) {
 }
 
 struct InternedLogMessageBodySmall
-    : public perfetto::TrackEventInternedDataIndex<
+    : public dejaview::TrackEventInternedDataIndex<
           InternedLogMessageBodySmall,
-          perfetto::protos::pbzero::InternedData::kLogMessageBodyFieldNumber,
+          dejaview::protos::pbzero::InternedData::kLogMessageBodyFieldNumber,
           const char*,
-          perfetto::SmallInternedDataTraits> {
-  static void Add(perfetto::protos::pbzero::InternedData* interned_data,
+          dejaview::SmallInternedDataTraits> {
+  static void Add(dejaview::protos::pbzero::InternedData* interned_data,
                   size_t iid,
                   const char* value) {
     auto l = interned_data->add_log_message_body();
@@ -2929,13 +2929,13 @@ struct InternedLogMessageBodySmall
   }
 };
 
-TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterningByValue) {
+TEST_P(DejaViewApiTest, TrackEventTypedArgsWithInterningByValue) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   size_t body_iid;
-  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](dejaview::EventContext ctx) {
     body_iid = InternedLogMessageBodySmall::Get(&ctx, "This above all:");
     auto log = ctx.event()->set_log_message();
     log->set_body_iid(body_iid);
@@ -2955,12 +2955,12 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterningByValue) {
 }
 
 struct InternedLogMessageBodyHashed
-    : public perfetto::TrackEventInternedDataIndex<
+    : public dejaview::TrackEventInternedDataIndex<
           InternedLogMessageBodyHashed,
-          perfetto::protos::pbzero::InternedData::kLogMessageBodyFieldNumber,
+          dejaview::protos::pbzero::InternedData::kLogMessageBodyFieldNumber,
           std::string,
-          perfetto::HashedInternedDataTraits> {
-  static void Add(perfetto::protos::pbzero::InternedData* interned_data,
+          dejaview::HashedInternedDataTraits> {
+  static void Add(dejaview::protos::pbzero::InternedData* interned_data,
                   size_t iid,
                   const std::string& value) {
     auto l = interned_data->add_log_message_body();
@@ -2969,13 +2969,13 @@ struct InternedLogMessageBodyHashed
   }
 };
 
-TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterningByHashing) {
+TEST_P(DejaViewApiTest, TrackEventTypedArgsWithInterningByHashing) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
   size_t body_iid;
-  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](dejaview::EventContext ctx) {
     // Test using a dynamically created interned value.
     body_iid = InternedLogMessageBodyHashed::Get(
         &ctx, std::string("Though this ") + "be madness,");
@@ -2998,11 +2998,11 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterningByHashing) {
 }
 
 struct InternedSourceLocation
-    : public perfetto::TrackEventInternedDataIndex<
+    : public dejaview::TrackEventInternedDataIndex<
           InternedSourceLocation,
-          perfetto::protos::pbzero::InternedData::kSourceLocationsFieldNumber,
+          dejaview::protos::pbzero::InternedData::kSourceLocationsFieldNumber,
           SourceLocation> {
-  static void Add(perfetto::protos::pbzero::InternedData* interned_data,
+  static void Add(dejaview::protos::pbzero::InternedData* interned_data,
                   size_t iid,
                   const SourceLocation& value) {
     auto l = interned_data->add_source_locations();
@@ -3016,12 +3016,12 @@ struct InternedSourceLocation
   }
 };
 
-TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterningComplexValue) {
+TEST_P(DejaViewApiTest, TrackEventTypedArgsWithInterningComplexValue) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
-  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("foo", "EventWithState", [&](dejaview::EventContext ctx) {
     const SourceLocation location{"file.cc", "SomeFunction", 123};
     auto location_iid = InternedSourceLocation::Get(&ctx, location);
     auto body_iid = InternedLogMessageBody::Get(&ctx, "To be, or not to be");
@@ -3044,14 +3044,14 @@ TEST_P(PerfettoApiTest, TrackEventTypedArgsWithInterningComplexValue) {
               ElementsAre("SomeFunction(file.cc:123): To be, or not to be"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventScoped) {
+TEST_P(DejaViewApiTest, TrackEventScoped) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
   {
     uint64_t arg = 123;
-    TRACE_EVENT("test", "TestEventWithArgs", [&](perfetto::EventContext ctx) {
+    TRACE_EVENT("test", "TestEventWithArgs", [&](dejaview::EventContext ctx) {
       ctx.event()->set_log_message()->set_body_iid(arg);
     });
   }
@@ -3074,7 +3074,7 @@ TEST_P(PerfettoApiTest, TrackEventScoped) {
 }
 
 // A class similar to what Protozero generates for extended message.
-class TestTrackEvent : public perfetto::protos::pbzero::TrackEvent {
+class TestTrackEvent : public dejaview::protos::pbzero::TrackEvent {
  public:
   static const int field_number = 9901;
 
@@ -3084,14 +3084,14 @@ class TestTrackEvent : public perfetto::protos::pbzero::TrackEvent {
   }
 };
 
-TEST_P(PerfettoApiTest, ExtensionClass) {
+TEST_P(DejaViewApiTest, ExtensionClass) {
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
   {
     TRACE_EVENT("test", "TestEventWithExtensionArgs",
-                [&](perfetto::EventContext ctx) {
-                  ctx.event<perfetto::protos::pbzero::TestExtension>()
+                [&](dejaview::EventContext ctx) {
+                  ctx.event<dejaview::protos::pbzero::TestExtension>()
                       ->add_int_extension_for_testing(42);
                 });
   }
@@ -3100,11 +3100,11 @@ TEST_P(PerfettoApiTest, ExtensionClass) {
   EXPECT_GE(raw_trace.size(), 0u);
 
   bool found_extension = false;
-  perfetto::protos::pbzero::Trace_Decoder trace(
+  dejaview::protos::pbzero::Trace_Decoder trace(
       reinterpret_cast<uint8_t*>(raw_trace.data()), raw_trace.size());
 
   for (auto it = trace.packet(); it; ++it) {
-    perfetto::protos::pbzero::TracePacket_Decoder packet(it->data(),
+    dejaview::protos::pbzero::TracePacket_Decoder packet(it->data(),
                                                          it->size());
 
     if (!packet.has_track_event())
@@ -3115,7 +3115,7 @@ TEST_P(PerfettoApiTest, ExtensionClass) {
 
     for (protozero::Field f = decoder.ReadField(); f.valid();
          f = decoder.ReadField()) {
-      if (f.id() == perfetto::protos::pbzero::TestExtension::
+      if (f.id() == dejaview::protos::pbzero::TestExtension::
                         FieldMetadata_IntExtensionForTesting::kFieldId) {
         found_extension = true;
       }
@@ -3125,16 +3125,16 @@ TEST_P(PerfettoApiTest, ExtensionClass) {
   EXPECT_TRUE(found_extension);
 }
 
-TEST_P(PerfettoApiTest, InlineTypedExtensionField) {
+TEST_P(DejaViewApiTest, InlineTypedExtensionField) {
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
   {
     TRACE_EVENT(
         "test", "TestEventWithExtensionArgs",
-        perfetto::protos::pbzero::TestExtension::kIntExtensionForTesting,
+        dejaview::protos::pbzero::TestExtension::kIntExtensionForTesting,
         std::vector<int>{42},
-        perfetto::protos::pbzero::TestExtension::kUintExtensionForTesting, 42u);
+        dejaview::protos::pbzero::TestExtension::kUintExtensionForTesting, 42u);
   }
 
   std::vector<char> raw_trace = StopSessionAndReturnBytes(tracing_session);
@@ -3142,11 +3142,11 @@ TEST_P(PerfettoApiTest, InlineTypedExtensionField) {
 
   bool found_int_extension = false;
   bool found_uint_extension = false;
-  perfetto::protos::pbzero::Trace_Decoder trace(
+  dejaview::protos::pbzero::Trace_Decoder trace(
       reinterpret_cast<uint8_t*>(raw_trace.data()), raw_trace.size());
 
   for (auto it = trace.packet(); it; ++it) {
-    perfetto::protos::pbzero::TracePacket_Decoder packet(it->data(),
+    dejaview::protos::pbzero::TracePacket_Decoder packet(it->data(),
                                                          it->size());
 
     if (!packet.has_track_event())
@@ -3157,11 +3157,11 @@ TEST_P(PerfettoApiTest, InlineTypedExtensionField) {
 
     for (protozero::Field f = decoder.ReadField(); f.valid();
          f = decoder.ReadField()) {
-      if (f.id() == perfetto::protos::pbzero::TestExtension::
+      if (f.id() == dejaview::protos::pbzero::TestExtension::
                         FieldMetadata_IntExtensionForTesting::kFieldId) {
         found_int_extension = true;
       } else if (f.id() ==
-                 perfetto::protos::pbzero::TestExtension::
+                 dejaview::protos::pbzero::TestExtension::
                      FieldMetadata_UintExtensionForTesting::kFieldId) {
         found_uint_extension = true;
       }
@@ -3172,7 +3172,7 @@ TEST_P(PerfettoApiTest, InlineTypedExtensionField) {
   EXPECT_TRUE(found_uint_extension);
 }
 
-TEST_P(PerfettoApiTest, TrackEventInstant) {
+TEST_P(DejaViewApiTest, TrackEventInstant) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
@@ -3183,36 +3183,36 @@ TEST_P(PerfettoApiTest, TrackEventInstant) {
   EXPECT_THAT(slices, ElementsAre("I:test.TestEvent", "I:test.AnotherEvent"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventDefaultGlobalTrack) {
+TEST_P(DejaViewApiTest, TrackEventDefaultGlobalTrack) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_INSTANT("test", "ThreadEvent");
-  TRACE_EVENT_INSTANT("test", "GlobalEvent", perfetto::Track::Global(0u));
+  TRACE_EVENT_INSTANT("test", "GlobalEvent", dejaview::Track::Global(0u));
   auto slices = StopSessionAndReadSlicesFromTrace(tracing_session);
   EXPECT_THAT(slices,
               ElementsAre("I:test.ThreadEvent", "[track=0]I:test.GlobalEvent"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventTrackFromPointer) {
+TEST_P(DejaViewApiTest, TrackEventTrackFromPointer) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
-  perfetto::Track parent_track(1);
+  dejaview::Track parent_track(1);
   int* ptr = reinterpret_cast<int*>(2);
   TRACE_EVENT_INSTANT("test", "Event",
-                      perfetto::Track::FromPointer(ptr, parent_track));
+                      dejaview::Track::FromPointer(ptr, parent_track));
 
-  perfetto::Track track(reinterpret_cast<uintptr_t>(ptr), parent_track);
+  dejaview::Track track(reinterpret_cast<uintptr_t>(ptr), parent_track);
 
   auto slices = StopSessionAndReadSlicesFromTrace(tracing_session);
   EXPECT_THAT(slices, ElementsAre("[track=" + std::to_string(track.uuid) +
                                   "]I:test.Event"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventTrackFromThreadScopedPointer) {
+TEST_P(DejaViewApiTest, TrackEventTrackFromThreadScopedPointer) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
@@ -3220,20 +3220,20 @@ TEST_P(PerfettoApiTest, TrackEventTrackFromThreadScopedPointer) {
   int num = 2;
   TRACE_EVENT_INSTANT("test", "Event0.1");
   TRACE_EVENT_INSTANT("test", "Event0.2");
-  TRACE_EVENT_INSTANT("test", "Event1.1", perfetto::Track::ThreadScoped(&num));
-  TRACE_EVENT_INSTANT("test", "Event1.2", perfetto::Track::ThreadScoped(&num));
+  TRACE_EVENT_INSTANT("test", "Event1.1", dejaview::Track::ThreadScoped(&num));
+  TRACE_EVENT_INSTANT("test", "Event1.2", dejaview::Track::ThreadScoped(&num));
   std::thread t1([&]() {
     TRACE_EVENT_INSTANT("test", "Event2.1",
-                        perfetto::Track::ThreadScoped(&num));
+                        dejaview::Track::ThreadScoped(&num));
     TRACE_EVENT_INSTANT("test", "Event2.2",
-                        perfetto::Track::ThreadScoped(&num));
+                        dejaview::Track::ThreadScoped(&num));
   });
   t1.join();
   std::thread t2([&]() {
     TRACE_EVENT_INSTANT("test", "Event3.1",
-                        perfetto::Track::ThreadScoped(&num));
+                        dejaview::Track::ThreadScoped(&num));
     TRACE_EVENT_INSTANT("test", "Event3.2",
-                        perfetto::Track::ThreadScoped(&num));
+                        dejaview::Track::ThreadScoped(&num));
   });
   t2.join();
 
@@ -3259,16 +3259,16 @@ TEST_P(PerfettoApiTest, TrackEventTrackFromThreadScopedPointer) {
                 .size());
 }
 
-TEST_P(PerfettoApiTest, FilterDebugAnnotations) {
+TEST_P(DejaViewApiTest, FilterDebugAnnotations) {
   for (auto flag : {false, true}) {
     // Create a new trace session.
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.set_filter_debug_annotations(flag);
     auto* tracing_session = NewTraceWithCategories({"test"}, te_cfg);
     tracing_session->get()->StartBlocking();
 
     TRACE_EVENT_BEGIN("test", "Event1");
-    TRACE_EVENT_BEGIN("test", "Event2", [&](perfetto::EventContext ctx) {
+    TRACE_EVENT_BEGIN("test", "Event2", [&](dejaview::EventContext ctx) {
       ctx.AddDebugAnnotation("debug_name", "debug_value");
     });
     TRACE_EVENT_BEGIN("test", "Event3");
@@ -3282,7 +3282,7 @@ TEST_P(PerfettoApiTest, FilterDebugAnnotations) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventDebugAnnotations) {
+TEST_P(DejaViewApiTest, TrackEventDebugAnnotations) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
@@ -3307,10 +3307,10 @@ TEST_P(PerfettoApiTest, TrackEventDebugAnnotations) {
   TRACE_EVENT_BEGIN("test", "E", "signed_enum_arg", SIGNED_ENUM_FOO);
   TRACE_EVENT_BEGIN("test", "E", "class_enum_arg", MyClassEnum::VALUE);
   TRACE_EVENT_BEGIN("test", "E", "traced_value",
-                    [&](perfetto::TracedValue context) {
+                    [&](dejaview::TracedValue context) {
                       std::move(context).WriteInt64(42);
                     });
-  TRACE_EVENT_BEGIN("test", "E", [&](perfetto::EventContext ctx) {
+  TRACE_EVENT_BEGIN("test", "E", [&](dejaview::EventContext ctx) {
     ctx.AddDebugAnnotation("debug_annotation", "value");
   });
   auto slices = StopSessionAndReadSlicesFromTrace(tracing_session);
@@ -3329,7 +3329,7 @@ TEST_P(PerfettoApiTest, TrackEventDebugAnnotations) {
           "B:test.E(debug_annotation=(string)value)"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventCustomDebugAnnotations) {
+TEST_P(DejaViewApiTest, TrackEventCustomDebugAnnotations) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
@@ -3347,9 +3347,9 @@ TEST_P(PerfettoApiTest, TrackEventCustomDebugAnnotations) {
           R"(B:test.E(normal_arg=(string)x,custom_arg=(json){"key": 123}))"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventCustomRawDebugAnnotations) {
+TEST_P(DejaViewApiTest, TrackEventCustomRawDebugAnnotations) {
   // Note: this class is also testing a non-moveable and non-copiable argument.
-  class MyRawDebugAnnotation : public perfetto::DebugAnnotation {
+  class MyRawDebugAnnotation : public dejaview::DebugAnnotation {
    public:
     MyRawDebugAnnotation() { msg_->set_string_value("nested_value"); }
     ~MyRawDebugAnnotation() = default;
@@ -3359,16 +3359,16 @@ TEST_P(PerfettoApiTest, TrackEventCustomRawDebugAnnotations) {
     MyRawDebugAnnotation(const MyRawDebugAnnotation&) = delete;
     MyRawDebugAnnotation(MyRawDebugAnnotation&&) = delete;
 
-    void Add(perfetto::protos::pbzero::DebugAnnotation* annotation) const {
+    void Add(dejaview::protos::pbzero::DebugAnnotation* annotation) const {
       auto ranges = msg_.GetRanges();
       annotation->AppendScatteredBytes(
-          perfetto::protos::pbzero::DebugAnnotation::kNestedValueFieldNumber,
+          dejaview::protos::pbzero::DebugAnnotation::kNestedValueFieldNumber,
           &ranges[0], ranges.size());
     }
 
    private:
     mutable protozero::HeapBuffered<
-        perfetto::protos::pbzero::DebugAnnotation::NestedValue>
+        dejaview::protos::pbzero::DebugAnnotation::NestedValue>
         msg_;
   };
 
@@ -3386,7 +3386,7 @@ TEST_P(PerfettoApiTest, TrackEventCustomRawDebugAnnotations) {
                   "B:test.E(plain_arg=(int)42,raw_arg=(nested)nested_value)"));
 }
 
-TEST_P(PerfettoApiTest, ManyDebugAnnotations) {
+TEST_P(DejaViewApiTest, ManyDebugAnnotations) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
@@ -3397,7 +3397,7 @@ TEST_P(PerfettoApiTest, ManyDebugAnnotations) {
               ElementsAre("B:test.E(arg1=(int)1,arg2=(int)2,arg3=(int)3)"));
 }
 
-TEST_P(PerfettoApiTest, DebugAnnotationAndLambda) {
+TEST_P(DejaViewApiTest, DebugAnnotationAndLambda) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
@@ -3407,7 +3407,7 @@ TEST_P(PerfettoApiTest, DebugAnnotationAndLambda) {
   enum class MyClassEnum { VALUE };
 
   TRACE_EVENT_BEGIN(
-      "test", "E", "key", "value", [](perfetto::EventContext ctx) {
+      "test", "E", "key", "value", [](dejaview::EventContext ctx) {
         ctx.event()->set_log_message()->set_source_location_iid(42);
       });
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
@@ -3418,7 +3418,7 @@ TEST_P(PerfettoApiTest, DebugAnnotationAndLambda) {
       continue;
     const auto& track_event = packet.track_event();
     if (track_event.type() !=
-        perfetto::protos::gen::TrackEvent::TYPE_SLICE_BEGIN)
+        dejaview::protos::gen::TrackEvent::TYPE_SLICE_BEGIN)
       continue;
 
     EXPECT_TRUE(track_event.has_log_message());
@@ -3433,13 +3433,13 @@ TEST_P(PerfettoApiTest, DebugAnnotationAndLambda) {
   EXPECT_TRUE(found_args);
 }
 
-TEST_P(PerfettoApiTest, ProtoInsideDebugAnnotation) {
+TEST_P(DejaViewApiTest, ProtoInsideDebugAnnotation) {
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_INSTANT(
       "test", "E", "key",
-      [](perfetto::TracedProto<perfetto::protos::pbzero::LogMessage> ctx) {
+      [](dejaview::TracedProto<dejaview::protos::pbzero::LogMessage> ctx) {
         ctx->set_source_location_iid(42);
       });
 
@@ -3465,7 +3465,7 @@ TEST_P(PerfettoApiTest, ProtoInsideDebugAnnotation) {
     if (!packet.has_track_event())
       continue;
     const auto& track_event = packet.track_event();
-    if (track_event.type() != perfetto::protos::gen::TrackEvent::TYPE_INSTANT) {
+    if (track_event.type() != dejaview::protos::gen::TrackEvent::TYPE_INSTANT) {
       continue;
     }
 
@@ -3478,12 +3478,12 @@ TEST_P(PerfettoApiTest, ProtoInsideDebugAnnotation) {
   EXPECT_THAT(interned_debug_annotation_names,
               testing::UnorderedElementsAre("key"));
   EXPECT_THAT(interned_debug_annotation_proto_type_names,
-              testing::UnorderedElementsAre(".perfetto.protos.LogMessage"));
+              testing::UnorderedElementsAre(".dejaview.protos.LogMessage"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventComputedName) {
+TEST_P(DejaViewApiTest, TrackEventComputedName) {
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -3493,9 +3493,9 @@ TEST_P(PerfettoApiTest, TrackEventComputedName) {
   auto* tracing_session = NewTrace(cfg);
   tracing_session->get()->StartBlocking();
 
-  // New macros require perfetto::StaticString{} annotation.
+  // New macros require dejaview::StaticString{} annotation.
   for (int i = 0; i < 3; i++)
-    TRACE_EVENT_BEGIN("test", perfetto::StaticString{i % 2 ? "Odd" : "Even"});
+    TRACE_EVENT_BEGIN("test", dejaview::StaticString{i % 2 ? "Odd" : "Even"});
 
   // Legacy macros assume all arguments are static strings.
   for (int i = 0; i < 3; i++)
@@ -3506,24 +3506,24 @@ TEST_P(PerfettoApiTest, TrackEventComputedName) {
                                   "B:test.Even", "B:test.Odd", "B:test.Even"));
 }
 
-TEST_P(PerfettoApiTest, TrackEventEventNameDynamicString) {
+TEST_P(DejaViewApiTest, TrackEventEventNameDynamicString) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
-  TRACE_EVENT_BEGIN("foo", perfetto::DynamicString{std::string("Event1")});
-  TRACE_EVENT_BEGIN("foo", perfetto::DynamicString{std::string("Event2")});
+  TRACE_EVENT_BEGIN("foo", dejaview::DynamicString{std::string("Event1")});
+  TRACE_EVENT_BEGIN("foo", dejaview::DynamicString{std::string("Event2")});
 
   TRACE_EVENT0("foo", TRACE_STR_COPY(std::string("Event3")));
   const char* event4 = "Event4";
   TRACE_EVENT0("foo", event4);
 
   // Ensure that event-name is not emitted in case of `_END` events.
-  PERFETTO_INTERNAL_TRACK_EVENT_WITH_METHOD(
-      TraceForCategory, "foo", perfetto::DynamicString{std::string("Event5")},
-      ::perfetto::protos::pbzero::TrackEvent::TYPE_SLICE_END);
-  PERFETTO_INTERNAL_TRACK_EVENT_WITH_METHOD(
-      TraceForCategory, "foo", perfetto::StaticString{"Event6"},
-      ::perfetto::protos::pbzero::TrackEvent::TYPE_SLICE_END);
+  DEJAVIEW_INTERNAL_TRACK_EVENT_WITH_METHOD(
+      TraceForCategory, "foo", dejaview::DynamicString{std::string("Event5")},
+      ::dejaview::protos::pbzero::TrackEvent::TYPE_SLICE_END);
+  DEJAVIEW_INTERNAL_TRACK_EVENT_WITH_METHOD(
+      TraceForCategory, "foo", dejaview::StaticString{"Event6"},
+      ::dejaview::protos::pbzero::TrackEvent::TYPE_SLICE_END);
 
   auto slices = StopSessionAndReadSlicesFromTrace(tracing_session);
   ASSERT_EQ(6u, slices.size());
@@ -3535,7 +3535,7 @@ TEST_P(PerfettoApiTest, TrackEventEventNameDynamicString) {
   EXPECT_EQ("E", slices[5]);
 }
 
-TEST_P(PerfettoApiTest, TrackEventDynamicStringInDebugArgs) {
+TEST_P(DejaViewApiTest, TrackEventDynamicStringInDebugArgs) {
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
@@ -3545,17 +3545,17 @@ TEST_P(PerfettoApiTest, TrackEventDynamicStringInDebugArgs) {
   TRACE_EVENT1("foo", "Event2", "arg1", value2);
   const char* value4 = "arg1_value4";
   TRACE_EVENT1("foo", "Event3", "arg1",
-               perfetto::DynamicString(std::string("arg1_value3")));
-  TRACE_EVENT1("foo", "Event4", "arg1", perfetto::StaticString(value4));
+               dejaview::DynamicString(std::string("arg1_value3")));
+  TRACE_EVENT1("foo", "Event4", "arg1", dejaview::StaticString(value4));
 
   TRACE_EVENT_BEGIN("foo", "Event5", "arg1",
                     TRACE_STR_COPY(std::string("arg1_value5")));
   TRACE_EVENT_BEGIN("foo", "Event6", "arg1",
-                    perfetto::DynamicString(std::string("arg1_value6")));
+                    dejaview::DynamicString(std::string("arg1_value6")));
   const char* value7 = "arg1_value7";
-  TRACE_EVENT_BEGIN("foo", "Event7", "arg1", perfetto::StaticString(value7));
+  TRACE_EVENT_BEGIN("foo", "Event7", "arg1", dejaview::StaticString(value7));
   const char* arg_name = "new_arg1";
-  TRACE_EVENT_BEGIN("foo", "Event8", perfetto::DynamicString{arg_name}, 5);
+  TRACE_EVENT_BEGIN("foo", "Event8", dejaview::DynamicString{arg_name}, 5);
 
   auto slices = StopSessionAndReadSlicesFromTrace(tracing_session);
   ASSERT_EQ(8u, slices.size());
@@ -3569,7 +3569,7 @@ TEST_P(PerfettoApiTest, TrackEventDynamicStringInDebugArgs) {
   EXPECT_EQ("B:foo.Event8(new_arg1=(int)5)", slices[7]);
 }
 
-TEST_P(PerfettoApiTest, TrackEventLegacyNullStringInArgs) {
+TEST_P(DejaViewApiTest, TrackEventLegacyNullStringInArgs) {
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
@@ -3584,18 +3584,18 @@ TEST_P(PerfettoApiTest, TrackEventLegacyNullStringInArgs) {
   EXPECT_EQ("B:foo.Event2(arg1=(string)NULL)", slices[1]);
 }
 
-TEST_P(PerfettoApiTest, FilterDynamicEventName) {
+TEST_P(DejaViewApiTest, FilterDynamicEventName) {
   for (auto filter_dynamic_names : {false, true}) {
     // Create a new trace session.
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.set_filter_dynamic_event_names(filter_dynamic_names);
     auto* tracing_session = NewTraceWithCategories({"test"}, te_cfg);
     tracing_session->get()->StartBlocking();
 
     TRACE_EVENT_BEGIN("test", "Event1");
-    TRACE_EVENT_BEGIN("test", perfetto::DynamicString("Event2"));
+    TRACE_EVENT_BEGIN("test", dejaview::DynamicString("Event2"));
     const char* event3 = "Event3";
-    TRACE_EVENT_BEGIN("test", perfetto::StaticString(event3));
+    TRACE_EVENT_BEGIN("test", dejaview::StaticString(event3));
     auto slices = StopSessionAndReadSlicesFromTrace(tracing_session);
     ASSERT_EQ(3u, slices.size());
     EXPECT_EQ("B:test.Event1", slices[0]);
@@ -3605,7 +3605,7 @@ TEST_P(PerfettoApiTest, FilterDynamicEventName) {
   }
 }
 
-TEST_P(PerfettoApiTest, TrackEventArgumentsNotEvaluatedWhenDisabled) {
+TEST_P(DejaViewApiTest, TrackEventArgumentsNotEvaluatedWhenDisabled) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
@@ -3618,7 +3618,7 @@ TEST_P(PerfettoApiTest, TrackEventArgumentsNotEvaluatedWhenDisabled) {
 
   TRACE_EVENT_BEGIN("test", "DisabledEvent", "arg", ArgumentFunction());
   { TRACE_EVENT("test", "DisabledScopedEvent", "arg", ArgumentFunction()); }
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
 
   tracing_session->get()->StopBlocking();
   EXPECT_FALSE(called);
@@ -3627,9 +3627,9 @@ TEST_P(PerfettoApiTest, TrackEventArgumentsNotEvaluatedWhenDisabled) {
   EXPECT_TRUE(called);
 }
 
-TEST_P(PerfettoApiTest, TrackEventConfig) {
-  auto check_config = [&](perfetto::protos::gen::TrackEventConfig te_cfg) {
-    perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, TrackEventConfig) {
+  auto check_config = [&](dejaview::protos::gen::TrackEventConfig te_cfg) {
+    dejaview::TraceConfig cfg;
     cfg.set_duration_ms(500);
     cfg.add_buffers()->set_size_kb(1024);
     auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -3650,7 +3650,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
     TRACE_EVENT_BEGIN("test", "TagEvent");
     TRACE_EVENT_BEGIN(TRACE_DISABLED_BY_DEFAULT("cat"), "SlowDisabledEvent");
     TRACE_EVENT_BEGIN("dynamic,foo", "DynamicGroupFooEvent");
-    perfetto::DynamicCategory dyn{"dynamic,bar"};
+    dejaview::DynamicCategory dyn{"dynamic,bar"};
     TRACE_EVENT_BEGIN(dyn, "DynamicGroupBarEvent");
 
     auto slices = StopSessionAndReadSlicesFromTrace(tracing_session);
@@ -3660,7 +3660,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Empty config should enable all categories except slow ones.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     auto slices = check_config(te_cfg);
     EXPECT_THAT(
         slices,
@@ -3673,7 +3673,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable exactly one category.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_categories("foo");
     auto slices = check_config(te_cfg);
@@ -3684,7 +3684,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable exactly one dynamic category.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_categories("dynamic");
     auto slices = check_config(te_cfg);
@@ -3694,7 +3694,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable two categories.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_categories("foo");
     te_cfg.add_enabled_categories("baz");
@@ -3710,7 +3710,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enabling all categories with a pattern doesn't enable slow ones.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_enabled_categories("*");
     auto slices = check_config(te_cfg);
     EXPECT_THAT(
@@ -3724,7 +3724,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable with a pattern.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_categories("fo*");
     auto slices = check_config(te_cfg);
@@ -3735,7 +3735,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable with a tag.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_tags("tag");
     auto slices = check_config(te_cfg);
@@ -3744,7 +3744,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable just slow categories.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_tags("slow");
     auto slices = check_config(te_cfg);
@@ -3755,7 +3755,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable all legacy disabled-by-default categories by a pattern
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_categories("disabled-by-default-*");
     auto slices = check_config(te_cfg);
@@ -3765,7 +3765,7 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
 
   // Enable everything including slow/debug categories.
   {
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_enabled_categories("*");
     te_cfg.add_enabled_tags("slow");
     te_cfg.add_enabled_tags("debug");
@@ -3782,11 +3782,11 @@ TEST_P(PerfettoApiTest, TrackEventConfig) {
   }
 }
 
-TEST_P(PerfettoApiTest, OneDataSourceOneEvent) {
+TEST_P(DejaViewApiTest, OneDataSourceOneEvent) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -3844,7 +3844,7 @@ TEST_P(PerfettoApiTest, OneDataSourceOneEvent) {
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
   ASSERT_GE(raw_trace.size(), 0u);
 
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
   bool test_packet_found = false;
   for (const auto& packet : trace.packet()) {
@@ -3858,11 +3858,11 @@ TEST_P(PerfettoApiTest, OneDataSourceOneEvent) {
   EXPECT_TRUE(test_packet_found);
 }
 
-TEST_P(PerfettoApiTest, ReentrantTracing) {
+TEST_P(DejaViewApiTest, ReentrantTracing) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -3886,11 +3886,11 @@ TEST_P(PerfettoApiTest, ReentrantTracing) {
   EXPECT_EQ(trace_lambda_calls, 1);
 }
 
-TEST_P(PerfettoApiTest, ConsumerFlush) {
+TEST_P(DejaViewApiTest, ConsumerFlush) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("my_data_source");
@@ -3928,11 +3928,11 @@ TEST_P(PerfettoApiTest, ConsumerFlush) {
   EXPECT_TRUE(test_packet_found);
 }
 
-TEST_P(PerfettoApiTest, WithBatching) {
+TEST_P(DejaViewApiTest, WithBatching) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -3964,8 +3964,8 @@ TEST_P(PerfettoApiTest, WithBatching) {
   // to a very large value and then force-flushing when we are done writing
   // data.
   ASSERT_TRUE(
-      perfetto::test::EnableDirectSMBPatching(/*BackendType=*/GetParam()));
-  perfetto::test::SetBatchCommitsDuration(UINT32_MAX,
+      dejaview::test::EnableDirectSMBPatching(/*BackendType=*/GetParam()));
+  dejaview::test::SetBatchCommitsDuration(UINT32_MAX,
                                           /*BackendType=*/GetParam());
 
   std::stringstream second_large_message;
@@ -3991,7 +3991,7 @@ TEST_P(PerfettoApiTest, WithBatching) {
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
   ASSERT_GE(raw_trace.size(), 0u);
 
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
   bool test_packet_1_found = false;
   bool test_packet_2_found = false;
@@ -4012,17 +4012,17 @@ TEST_P(PerfettoApiTest, WithBatching) {
   EXPECT_TRUE(test_packet_1_found && test_packet_2_found);
 }
 
-TEST_P(PerfettoApiTest, BlockingStartAndStop) {
+TEST_P(DejaViewApiTest, BlockingStartAndStop) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Register a second data source to get a bit more coverage.
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("my_data_source2");
   MockDataSource2::Register(dsd, kTestDataSourceArg);
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4040,13 +4040,13 @@ TEST_P(PerfettoApiTest, BlockingStartAndStop) {
   tracing_session->get()->StopBlocking();
   EXPECT_TRUE(data_source->on_stop.notified());
   EXPECT_TRUE(tracing_session->on_stop.notified());
-  perfetto::test::TracingMuxerImplInternalsForTest::
+  dejaview::test::TracingMuxerImplInternalsForTest::
       ClearDataSourceTlsStateOnReset<MockDataSource2>();
 }
 
-TEST_P(PerfettoApiTest, BlockingStartAndStopOnEmptySession) {
+TEST_P(DejaViewApiTest, BlockingStartAndStopOnEmptySession) {
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4059,12 +4059,12 @@ TEST_P(PerfettoApiTest, BlockingStartAndStopOnEmptySession) {
   EXPECT_TRUE(tracing_session->on_stop.notified());
 }
 
-TEST_P(PerfettoApiTest, WriteEventsAfterDeferredStop) {
+TEST_P(DejaViewApiTest, WriteEventsAfterDeferredStop) {
   auto* data_source = &data_sources_["my_data_source"];
   data_source->handle_stop_asynchronously = true;
 
   // Setup the trace config and start the tracing session.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4112,7 +4112,7 @@ TEST_P(PerfettoApiTest, WriteEventsAfterDeferredStop) {
   // Check the contents of the trace.
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
   ASSERT_GE(raw_trace.size(), 0u);
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
   int test_packet_found = 0;
   for (const auto& packet : trace.packet()) {
@@ -4124,8 +4124,8 @@ TEST_P(PerfettoApiTest, WriteEventsAfterDeferredStop) {
   EXPECT_EQ(test_packet_found, 1);
 }
 
-TEST_P(PerfettoApiTest, RepeatedStartAndStop) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, RepeatedStartAndStop) {
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4142,13 +4142,13 @@ TEST_P(PerfettoApiTest, RepeatedStartAndStop) {
   }
 }
 
-TEST_P(PerfettoApiTest, SetupWithFile) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-  if (GetParam() == perfetto::kSystemBackend)
+TEST_P(DejaViewApiTest, SetupWithFile) {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+  if (GetParam() == dejaview::kSystemBackend)
     GTEST_SKIP() << "write_into_file + system mode is not supported on Windows";
 #endif
-  auto temp_file = perfetto::test::CreateTempFile();
-  perfetto::TraceConfig cfg;
+  auto temp_file = dejaview::test::CreateTempFile();
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4157,7 +4157,7 @@ TEST_P(PerfettoApiTest, SetupWithFile) {
   auto* tracing_session = NewTrace(cfg, temp_file.fd);
   tracing_session->get()->StartBlocking();
   tracing_session->get()->StopBlocking();
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // Check that |fd| didn't get closed.
   EXPECT_EQ(0, fcntl(temp_file.fd, F_GETFD, 0));
 #endif
@@ -4168,15 +4168,15 @@ TEST_P(PerfettoApiTest, SetupWithFile) {
   EXPECT_EQ(0, remove(temp_file.path.c_str()));
 }
 
-TEST_P(PerfettoApiTest, MultipleRegistrations) {
+TEST_P(DejaViewApiTest, MultipleRegistrations) {
   // Attempt to register the same data source again.
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("my_data_source");
   EXPECT_TRUE(MockDataSource::Register(dsd));
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4197,14 +4197,14 @@ TEST_P(PerfettoApiTest, MultipleRegistrations) {
   EXPECT_EQ(trace_lambda_calls, 1);
 }
 
-TEST_P(PerfettoApiTest, CustomIncrementalState) {
-  perfetto::DataSourceDescriptor dsd;
+TEST_P(DejaViewApiTest, CustomIncrementalState) {
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("incr_data_source");
   TestIncrementalDataSource::Register(dsd);
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4247,29 +4247,29 @@ TEST_P(PerfettoApiTest, CustomIncrementalState) {
         EXPECT_EQ(100, state->count);
       });
   tracing_session->get()->StopBlocking();
-  perfetto::test::TracingMuxerImplInternalsForTest::
+  dejaview::test::TracingMuxerImplInternalsForTest::
       ClearDataSourceTlsStateOnReset<TestIncrementalDataSource>();
 }
 
 const void* const kKey1 = &kKey1;
 const void* const kKey2 = &kKey2;
 
-TEST_P(PerfettoApiTest, TrackEventUserData) {
+TEST_P(DejaViewApiTest, TrackEventUserData) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
-  perfetto::TrackEventTlsStateUserData* data_1_ptr = nullptr;
-  perfetto::TrackEventTlsStateUserData* data_2_ptr = nullptr;
+  dejaview::TrackEventTlsStateUserData* data_1_ptr = nullptr;
+  dejaview::TrackEventTlsStateUserData* data_2_ptr = nullptr;
 
   TRACE_EVENT_BEGIN(
-      "foo", "E", [&data_1_ptr, &data_2_ptr](perfetto::EventContext& ctx) {
+      "foo", "E", [&data_1_ptr, &data_2_ptr](dejaview::EventContext& ctx) {
         EXPECT_EQ(nullptr, ctx.GetTlsUserData(kKey1));
         EXPECT_EQ(nullptr, ctx.GetTlsUserData(kKey2));
-        std::unique_ptr<perfetto::TrackEventTlsStateUserData> data_1 =
-            std::make_unique<perfetto::TrackEventTlsStateUserData>();
+        std::unique_ptr<dejaview::TrackEventTlsStateUserData> data_1 =
+            std::make_unique<dejaview::TrackEventTlsStateUserData>();
         data_1_ptr = data_1.get();
-        std::unique_ptr<perfetto::TrackEventTlsStateUserData> data_2 =
-            std::make_unique<perfetto::TrackEventTlsStateUserData>();
+        std::unique_ptr<dejaview::TrackEventTlsStateUserData> data_2 =
+            std::make_unique<dejaview::TrackEventTlsStateUserData>();
         data_2_ptr = data_2.get();
         ctx.SetTlsUserData(kKey1, std::move(data_1));
         ctx.SetTlsUserData(kKey2, std::move(data_2));
@@ -4278,7 +4278,7 @@ TEST_P(PerfettoApiTest, TrackEventUserData) {
       });
   TRACE_EVENT_END("foo");
   TRACE_EVENT_BEGIN("foo", "F",
-                    [&data_1_ptr, &data_2_ptr](perfetto::EventContext& ctx) {
+                    [&data_1_ptr, &data_2_ptr](dejaview::EventContext& ctx) {
                       EXPECT_EQ(data_1_ptr, ctx.GetTlsUserData(kKey1));
                       EXPECT_EQ(data_2_ptr, ctx.GetTlsUserData(kKey2));
                     });
@@ -4293,7 +4293,7 @@ TEST_P(PerfettoApiTest, TrackEventUserData) {
   tracing_session = NewTraceWithCategories({"foo"});
   tracing_session->get()->StartBlocking();
 
-  TRACE_EVENT_BEGIN("foo", "E", [](perfetto::EventContext& ctx) {
+  TRACE_EVENT_BEGIN("foo", "E", [](dejaview::EventContext& ctx) {
     EXPECT_EQ(nullptr, ctx.GetTlsUserData(kKey1));
     EXPECT_EQ(nullptr, ctx.GetTlsUserData(kKey2));
   });
@@ -4303,11 +4303,11 @@ TEST_P(PerfettoApiTest, TrackEventUserData) {
   EXPECT_THAT(ReadSlicesFromTrace(raw_trace), ElementsAre("B:foo.E", "E"));
 }
 
-TEST_P(PerfettoApiTest, OnFlush) {
+TEST_P(DejaViewApiTest, OnFlush) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("my_data_source");
@@ -4320,11 +4320,11 @@ TEST_P(PerfettoApiTest, OnFlush) {
   WaitableTestEvent producer_on_flush;
   WaitableTestEvent consumer_flush_done;
 
-  data_source->on_flush_callback = [&](perfetto::FlushFlags flush_flags) {
+  data_source->on_flush_callback = [&](dejaview::FlushFlags flush_flags) {
     EXPECT_FALSE(consumer_flush_done.notified());
     EXPECT_EQ(flush_flags.initiator(),
-              perfetto::FlushFlags::Initiator::kConsumerSdk);
-    EXPECT_EQ(flush_flags.reason(), perfetto::FlushFlags::Reason::kExplicit);
+              dejaview::FlushFlags::Initiator::kConsumerSdk);
+    EXPECT_EQ(flush_flags.reason(), dejaview::FlushFlags::Reason::kExplicit);
     producer_on_flush.Notify();
     MockDataSource::Trace([](MockDataSource::TraceContext ctx) {
       ctx.NewTracePacket()->set_for_testing()->set_str("on-flush");
@@ -4348,20 +4348,20 @@ TEST_P(PerfettoApiTest, OnFlush) {
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
   ASSERT_GE(raw_trace.size(), 0u);
 
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
   EXPECT_THAT(
       trace.packet(),
       Contains(Property(
-          &perfetto::protos::gen::TracePacket::for_testing,
-          Property(&perfetto::protos::gen::TestEvent::str, "on-flush"))));
+          &dejaview::protos::gen::TracePacket::for_testing,
+          Property(&dejaview::protos::gen::TestEvent::str, "on-flush"))));
 }
 
-TEST_P(PerfettoApiTest, OnFlushAsync) {
+TEST_P(DejaViewApiTest, OnFlushAsync) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("my_data_source");
@@ -4374,7 +4374,7 @@ TEST_P(PerfettoApiTest, OnFlushAsync) {
   WaitableTestEvent consumer_flush_done;
 
   data_source->handle_flush_asynchronously = true;
-  data_source->on_flush_callback = [&](perfetto::FlushFlags) {
+  data_source->on_flush_callback = [&](dejaview::FlushFlags) {
     EXPECT_FALSE(consumer_flush_done.notified());
   };
 
@@ -4384,7 +4384,7 @@ TEST_P(PerfettoApiTest, OnFlushAsync) {
   });
 
   data_source->on_flush.Wait();
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
   EXPECT_FALSE(consumer_flush_done.notified());
 
   // Finish the flush asynchronously
@@ -4403,22 +4403,22 @@ TEST_P(PerfettoApiTest, OnFlushAsync) {
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
   ASSERT_GE(raw_trace.size(), 0u);
 
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
   EXPECT_THAT(
       trace.packet(),
       Contains(Property(
-          &perfetto::protos::gen::TracePacket::for_testing,
-          Property(&perfetto::protos::gen::TestEvent::str, "on-flush"))));
+          &dejaview::protos::gen::TracePacket::for_testing,
+          Property(&dejaview::protos::gen::TestEvent::str, "on-flush"))));
 }
 
 // Regression test for b/139110180. Checks that GetDataSourceLocked() can be
 // called from OnStart() and OnStop() callbacks without deadlocking.
-TEST_P(PerfettoApiTest, GetDataSourceLockedFromCallbacks) {
+TEST_P(DejaViewApiTest, GetDataSourceLockedFromCallbacks) {
   auto* data_source = &data_sources_["my_data_source"];
 
   // Setup the trace config.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(1);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4453,7 +4453,7 @@ TEST_P(PerfettoApiTest, GetDataSourceLockedFromCallbacks) {
   std::vector<char> raw_trace = tracing_session->get()->ReadTraceBlocking();
   ASSERT_GE(raw_trace.size(), 0u);
 
-  perfetto::protos::gen::Trace trace;
+  dejaview::protos::gen::Trace trace;
   ASSERT_TRUE(trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
   int packets_found = 0;
   for (const auto& packet : trace.packet()) {
@@ -4467,8 +4467,8 @@ TEST_P(PerfettoApiTest, GetDataSourceLockedFromCallbacks) {
   EXPECT_EQ(packets_found, 1 | 2 | 4 | 8);
 }
 
-TEST_P(PerfettoApiTest, OnStartCallback) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, OnStartCallback) {
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(60000);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4483,8 +4483,8 @@ TEST_P(PerfettoApiTest, OnStartCallback) {
   tracing_session->get()->StopBlocking();
 }
 
-TEST_P(PerfettoApiTest, OnErrorCallback) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, OnErrorCallback) {
+  dejaview::TraceConfig cfg;
 
   // Requesting too long |duration_ms| will cause EnableTracing() to fail.
   cfg.set_duration_ms(static_cast<uint32_t>(-1));
@@ -4494,8 +4494,8 @@ TEST_P(PerfettoApiTest, OnErrorCallback) {
   auto* tracing_session = NewTrace(cfg);
 
   WaitableTestEvent got_error;
-  tracing_session->get()->SetOnErrorCallback([&](perfetto::TracingError error) {
-    EXPECT_EQ(perfetto::TracingError::kTracingFailed, error.code);
+  tracing_session->get()->SetOnErrorCallback([&](dejaview::TracingError error) {
+    EXPECT_EQ(dejaview::TracingError::kTracingFailed, error.code);
     EXPECT_FALSE(error.message.empty());
     got_error.Notify();
   });
@@ -4511,17 +4511,17 @@ TEST_P(PerfettoApiTest, OnErrorCallback) {
   tracing_session->get()->StopBlocking();
 }
 
-TEST_P(PerfettoApiTest, UnsupportedBackend) {
+TEST_P(DejaViewApiTest, UnsupportedBackend) {
   // Create a new trace session with an invalid backend type specified.
   // Specifically, the custom backend isn't initialized for these tests.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
-  auto* tracing_session = NewTrace(cfg, perfetto::BackendType::kCustomBackend);
+  auto* tracing_session = NewTrace(cfg, dejaview::BackendType::kCustomBackend);
 
   // Creating the consumer should cause an asynchronous disconnect error.
   WaitableTestEvent got_error;
-  tracing_session->get()->SetOnErrorCallback([&](perfetto::TracingError error) {
-    EXPECT_EQ(perfetto::TracingError::kDisconnected, error.code);
+  tracing_session->get()->SetOnErrorCallback([&](dejaview::TracingError error) {
+    EXPECT_EQ(dejaview::TracingError::kDisconnected, error.code);
     EXPECT_FALSE(error.message.empty());
     got_error.Notify();
   });
@@ -4533,18 +4533,18 @@ TEST_P(PerfettoApiTest, UnsupportedBackend) {
   tracing_session->get()->StopBlocking();
 }
 
-TEST_P(PerfettoApiTest, ForbiddenConsumer) {
+TEST_P(DejaViewApiTest, ForbiddenConsumer) {
   g_test_tracing_policy->should_allow_consumer_connection = false;
 
   // Create a new trace session while consumer connections are forbidden.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* tracing_session = NewTrace(cfg);
 
   // Creating the consumer should cause an asynchronous disconnect error.
   WaitableTestEvent got_error;
-  tracing_session->get()->SetOnErrorCallback([&](perfetto::TracingError error) {
-    EXPECT_EQ(perfetto::TracingError::kDisconnected, error.code);
+  tracing_session->get()->SetOnErrorCallback([&](dejaview::TracingError error) {
+    EXPECT_EQ(dejaview::TracingError::kDisconnected, error.code);
     EXPECT_FALSE(error.message.empty());
     got_error.Notify();
   });
@@ -4558,8 +4558,8 @@ TEST_P(PerfettoApiTest, ForbiddenConsumer) {
   g_test_tracing_policy->should_allow_consumer_connection = true;
 }
 
-TEST_P(PerfettoApiTest, GetTraceStats) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, GetTraceStats) {
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -4570,8 +4570,8 @@ TEST_P(PerfettoApiTest, GetTraceStats) {
   // Asynchronous read.
   WaitableTestEvent got_stats;
   tracing_session->get()->GetTraceStats(
-      [&got_stats](perfetto::TracingSession::GetTraceStatsCallbackArgs args) {
-        perfetto::protos::gen::TraceStats trace_stats;
+      [&got_stats](dejaview::TracingSession::GetTraceStatsCallbackArgs args) {
+        dejaview::protos::gen::TraceStats trace_stats;
         EXPECT_TRUE(args.success);
         EXPECT_TRUE(trace_stats.ParseFromArray(args.trace_stats_data.data(),
                                                args.trace_stats_data.size()));
@@ -4582,7 +4582,7 @@ TEST_P(PerfettoApiTest, GetTraceStats) {
 
   // Blocking read.
   auto stats = tracing_session->get()->GetTraceStatsBlocking();
-  perfetto::protos::gen::TraceStats trace_stats;
+  dejaview::protos::gen::TraceStats trace_stats;
   EXPECT_TRUE(stats.success);
   EXPECT_TRUE(trace_stats.ParseFromArray(stats.trace_stats_data.data(),
                                          stats.trace_stats_data.size()));
@@ -4591,8 +4591,8 @@ TEST_P(PerfettoApiTest, GetTraceStats) {
   tracing_session->get()->StopBlocking();
 }
 
-TEST_P(PerfettoApiTest, CustomDataSource) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, CustomDataSource) {
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("CustomDataSource");
@@ -4608,7 +4608,7 @@ TEST_P(PerfettoApiTest, CustomDataSource) {
 
   tracing_session->get()->StopBlocking();
   auto bytes = tracing_session->get()->ReadTraceBlocking();
-  perfetto::protos::gen::Trace parsed_trace;
+  dejaview::protos::gen::Trace parsed_trace;
   EXPECT_TRUE(parsed_trace.ParseFromArray(bytes.data(), bytes.size()));
   bool found_for_testing = false;
   for (auto& packet : parsed_trace.packet()) {
@@ -4622,20 +4622,20 @@ TEST_P(PerfettoApiTest, CustomDataSource) {
   EXPECT_TRUE(found_for_testing);
 }
 
-TEST_P(PerfettoApiTest, QueryServiceState) {
-  class QueryTestDataSource : public perfetto::DataSource<QueryTestDataSource> {
+TEST_P(DejaViewApiTest, QueryServiceState) {
+  class QueryTestDataSource : public dejaview::DataSource<QueryTestDataSource> {
   };
   RegisterDataSource<QueryTestDataSource>("query_test_data_source");
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   auto tracing_session =
-      perfetto::Tracing::NewTrace(/*BackendType=*/GetParam());
+      dejaview::Tracing::NewTrace(/*BackendType=*/GetParam());
   // Asynchronous read.
   WaitableTestEvent got_state;
   tracing_session->QueryServiceState(
       [&got_state](
-          perfetto::TracingSession::QueryServiceStateCallbackArgs result) {
-        perfetto::protos::gen::TracingServiceState state;
+          dejaview::TracingSession::QueryServiceStateCallbackArgs result) {
+        dejaview::protos::gen::TracingServiceState state;
         EXPECT_TRUE(result.success);
         EXPECT_TRUE(state.ParseFromArray(result.service_state_data.data(),
                                          result.service_state_data.size()));
@@ -4652,7 +4652,7 @@ TEST_P(PerfettoApiTest, QueryServiceState) {
 
   // Blocking read.
   auto result = tracing_session->QueryServiceStateBlocking();
-  perfetto::protos::gen::TracingServiceState state;
+  dejaview::protos::gen::TracingServiceState state;
   EXPECT_TRUE(result.success);
   EXPECT_TRUE(state.ParseFromArray(result.service_state_data.data(),
                                    result.service_state_data.size()));
@@ -4663,21 +4663,21 @@ TEST_P(PerfettoApiTest, QueryServiceState) {
   for (const auto& ds : state.data_sources())
     found_ds |= ds.ds_descriptor().name() == "query_test_data_source";
   EXPECT_TRUE(found_ds);
-  perfetto::test::TracingMuxerImplInternalsForTest::
+  dejaview::test::TracingMuxerImplInternalsForTest::
       ClearDataSourceTlsStateOnReset<QueryTestDataSource>();
 }
 
-TEST_P(PerfettoApiTest, UpdateDataSource) {
+TEST_P(DejaViewApiTest, UpdateDataSource) {
   class UpdateTestDataSource
-      : public perfetto::DataSource<UpdateTestDataSource> {};
+      : public dejaview::DataSource<UpdateTestDataSource> {};
 
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("update_test_data_source");
 
   RegisterDataSource<UpdateTestDataSource>(dsd);
 
   {
-    protozero::HeapBuffered<perfetto::protos::pbzero::TrackEventDescriptor> ted;
+    protozero::HeapBuffered<dejaview::protos::pbzero::TrackEventDescriptor> ted;
     auto cat = ted->add_available_categories();
     cat->set_name("new_cat");
     dsd.set_track_event_descriptor_raw(ted.SerializeAsString());
@@ -4685,13 +4685,13 @@ TEST_P(PerfettoApiTest, UpdateDataSource) {
 
   UpdateDataSource<UpdateTestDataSource>(dsd);
 
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   auto tracing_session =
-      perfetto::Tracing::NewTrace(/*BackendType=*/GetParam());
+      dejaview::Tracing::NewTrace(/*BackendType=*/GetParam());
   // Blocking read.
   auto result = tracing_session->QueryServiceStateBlocking();
-  perfetto::protos::gen::TracingServiceState state;
+  dejaview::protos::gen::TracingServiceState state;
   EXPECT_TRUE(result.success);
   EXPECT_TRUE(state.ParseFromArray(result.service_state_data.data(),
                                    result.service_state_data.size()));
@@ -4702,7 +4702,7 @@ TEST_P(PerfettoApiTest, UpdateDataSource) {
   for (const auto& ds : state.data_sources()) {
     if (ds.ds_descriptor().name() == "update_test_data_source") {
       found_ds = true;
-      perfetto::protos::gen::TrackEventDescriptor ted;
+      dejaview::protos::gen::TrackEventDescriptor ted;
       auto desc_raw = ds.ds_descriptor().track_event_descriptor_raw();
       EXPECT_TRUE(ted.ParseFromArray(desc_raw.data(), desc_raw.size()));
       EXPECT_EQ(ted.available_categories_size(), 1);
@@ -4710,39 +4710,39 @@ TEST_P(PerfettoApiTest, UpdateDataSource) {
     }
   }
   EXPECT_TRUE(found_ds);
-  perfetto::test::TracingMuxerImplInternalsForTest::
+  dejaview::test::TracingMuxerImplInternalsForTest::
       ClearDataSourceTlsStateOnReset<UpdateTestDataSource>();
 }
 
-TEST_P(PerfettoApiTest, NoFlushFlag) {
-  class NoFlushDataSource : public perfetto::DataSource<NoFlushDataSource> {};
+TEST_P(DejaViewApiTest, NoFlushFlag) {
+  class NoFlushDataSource : public dejaview::DataSource<NoFlushDataSource> {};
 
-  class FlushDataSource : public perfetto::DataSource<FlushDataSource> {
+  class FlushDataSource : public dejaview::DataSource<FlushDataSource> {
    public:
     void OnFlush(const FlushArgs&) override {}
   };
 
-  perfetto::DataSourceDescriptor dsd_no_flush;
+  dejaview::DataSourceDescriptor dsd_no_flush;
   dsd_no_flush.set_name("no_flush_data_source");
   RegisterDataSource<NoFlushDataSource>(dsd_no_flush);
 
-  perfetto::DataSourceDescriptor dsd_flush;
+  dejaview::DataSourceDescriptor dsd_flush;
   dsd_flush.set_name("flush_data_source");
   RegisterDataSource<FlushDataSource>(dsd_flush);
 
   auto cleanup = MakeCleanup([&] {
-    perfetto::test::TracingMuxerImplInternalsForTest::
+    dejaview::test::TracingMuxerImplInternalsForTest::
         ClearDataSourceTlsStateOnReset<FlushDataSource>();
-    perfetto::test::TracingMuxerImplInternalsForTest::
+    dejaview::test::TracingMuxerImplInternalsForTest::
         ClearDataSourceTlsStateOnReset<NoFlushDataSource>();
   });
 
-  auto tracing_session = perfetto::Tracing::NewTrace(/*backend=*/GetParam());
+  auto tracing_session = dejaview::Tracing::NewTrace(/*backend=*/GetParam());
 
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   auto result = tracing_session->QueryServiceStateBlocking();
-  perfetto::protos::gen::TracingServiceState state;
+  dejaview::protos::gen::TracingServiceState state;
   ASSERT_TRUE(result.success);
   ASSERT_TRUE(state.ParseFromArray(result.service_state_data.data(),
                                    result.service_state_data.size()));
@@ -4791,7 +4791,7 @@ TEST_P(PerfettoApiTest, NoFlushFlag) {
   EXPECT_EQ(ds_count_flush, 1u);
 }
 
-TEST_P(PerfettoApiTest, LegacyTraceEventsCopyDynamicString) {
+TEST_P(DejaViewApiTest, LegacyTraceEventsCopyDynamicString) {
   char ptr1[] = "A1";
   char ptr2[] = "B1";
   char arg_name1[] = "C1";
@@ -4804,7 +4804,7 @@ TEST_P(PerfettoApiTest, LegacyTraceEventsCopyDynamicString) {
     // Old value of event name ("A1") is recorded here in trace.
     // The reason being, in legacy macros, event name was expected to be static
     // by default unless `_COPY` version of these macro is used.
-    // Perfetto is caching pointer values and if a event-name-pointer matches an
+    // DejaView is caching pointer values and if a event-name-pointer matches an
     // existing pointer, it ASSUMES the string-value of new pointer is same as
     // string-value of the cached pointer when it was cached.
     // and hence it assign the same intern-id to second event.
@@ -4842,7 +4842,7 @@ TEST_P(PerfettoApiTest, LegacyTraceEventsCopyDynamicString) {
                   "[track=0]I:cat.event_name(D6=(int)5)"));
 }
 
-TEST_P(PerfettoApiTest, LegacyTraceEvents) {
+TEST_P(DejaViewApiTest, LegacyTraceEvents) {
   auto is_new_session = [] {
     bool result;
     TRACE_EVENT_IS_NEW_TRACE(&result);
@@ -4917,21 +4917,21 @@ TEST_P(PerfettoApiTest, LegacyTraceEvents) {
           "[track=0]Legacy_e(unscoped_id=9001):cat.LegacyAsync3"));
 }
 
-TEST_P(PerfettoApiTest, LegacyTraceEventsAndClockSnapshots) {
+TEST_P(DejaViewApiTest, LegacyTraceEventsAndClockSnapshots) {
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
 
   {
     TRACE_EVENT_NESTABLE_ASYNC_BEGIN0("cat", "LegacyAsync", 5678);
 
-    perfetto::test::TracingMuxerImplInternalsForTest::ClearIncrementalState();
+    dejaview::test::TracingMuxerImplInternalsForTest::ClearIncrementalState();
 
     TRACE_EVENT_NESTABLE_ASYNC_BEGIN_WITH_TIMESTAMP0(
         "cat", "LegacyAsyncWithTimestamp", 5678, MyTimestamp{1});
     TRACE_EVENT_NESTABLE_ASYNC_END_WITH_TIMESTAMP0(
         "cat", "LegacyAsyncWithTimestamp", 5678, MyTimestamp{2});
 
-    perfetto::test::TracingMuxerImplInternalsForTest::ClearIncrementalState();
+    dejaview::test::TracingMuxerImplInternalsForTest::ClearIncrementalState();
 
     TRACE_EVENT_NESTABLE_ASYNC_END0("cat", "LegacyAsync", 5678);
   }
@@ -4976,7 +4976,7 @@ TEST_P(PerfettoApiTest, LegacyTraceEventsAndClockSnapshots) {
   }
 }
 
-TEST_P(PerfettoApiTest, LegacyTraceEventsWithCustomAnnotation) {
+TEST_P(DejaViewApiTest, LegacyTraceEventsWithCustomAnnotation) {
   // Create a new trace session.
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
@@ -4993,7 +4993,7 @@ TEST_P(PerfettoApiTest, LegacyTraceEventsWithCustomAnnotation) {
                           "B:cat.LegacyEvent(arg=(json){\"key\": 123})"));
 }
 
-TEST_P(PerfettoApiTest, LegacyTraceEventsWithConcurrentSessions) {
+TEST_P(DejaViewApiTest, LegacyTraceEventsWithConcurrentSessions) {
   // Make sure that a uniquely owned debug annotation can be written into
   // multiple concurrent tracing sessions.
 
@@ -5015,7 +5015,7 @@ TEST_P(PerfettoApiTest, LegacyTraceEventsWithConcurrentSessions) {
               ElementsAre("B:cat.LegacyEvent(arg=(json){\"key\": 123})"));
 }
 
-TEST_P(PerfettoApiTest, LegacyTraceEventsWithId) {
+TEST_P(DejaViewApiTest, LegacyTraceEventsWithId) {
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
 
@@ -5035,7 +5035,7 @@ TEST_P(PerfettoApiTest, LegacyTraceEventsWithId) {
                           "string\"):cat.WithScope"));
 }
 
-TEST_P(PerfettoApiTest, NestableAsyncTraceEvent) {
+TEST_P(DejaViewApiTest, NestableAsyncTraceEvent) {
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
   TRACE_EVENT_NESTABLE_ASYNC_BEGIN0("cat", "foo",
@@ -5051,7 +5051,7 @@ TEST_P(PerfettoApiTest, NestableAsyncTraceEvent) {
   TRACE_EVENT_NESTABLE_ASYNC_END0("cat", "bar", TRACE_ID_WITH_SCOPE("bar", 1));
   TRACE_EVENT_NESTABLE_ASYNC_END0("cat", "foo", TRACE_ID_WITH_SCOPE("foo", 1));
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
-  using LegacyEvent = perfetto::protos::gen::TrackEvent::LegacyEvent;
+  using LegacyEvent = dejaview::protos::gen::TrackEvent::LegacyEvent;
   std::vector<const LegacyEvent*> legacy_events;
   for (const auto& packet : trace.packet()) {
     if (packet.has_track_event() && packet.track_event().has_legacy_event()) {
@@ -5075,7 +5075,7 @@ TEST_P(PerfettoApiTest, NestableAsyncTraceEvent) {
   EXPECT_NE(legacy_events[2]->unscoped_id(), legacy_events[0]->unscoped_id());
 }
 
-TEST_P(PerfettoApiTest, LegacyTraceEventsWithFlow) {
+TEST_P(DejaViewApiTest, LegacyTraceEventsWithFlow) {
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
 
@@ -5109,7 +5109,7 @@ TEST_P(PerfettoApiTest, LegacyTraceEventsWithFlow) {
                           "E"));
 }
 
-TEST_P(PerfettoApiTest, LegacyCategoryGroupEnabledState) {
+TEST_P(DejaViewApiTest, LegacyCategoryGroupEnabledState) {
   bool foo_status;
   bool bar_status;
   bool dynamic_status;
@@ -5164,8 +5164,8 @@ TEST_P(PerfettoApiTest, LegacyCategoryGroupEnabledState) {
   EXPECT_FALSE(*computed_enabled);
 }
 
-TEST_P(PerfettoApiTest, CategoryEnabledState) {
-  perfetto::DynamicCategory dynamic{"dynamic"};
+TEST_P(DejaViewApiTest, CategoryEnabledState) {
+  dejaview::DynamicCategory dynamic{"dynamic"};
   EXPECT_FALSE(TRACE_EVENT_CATEGORY_ENABLED("foo"));
   EXPECT_FALSE(TRACE_EVENT_CATEGORY_ENABLED("bar"));
   EXPECT_FALSE(TRACE_EVENT_CATEGORY_ENABLED("red,green,blue,foo"));
@@ -5191,11 +5191,11 @@ TEST_P(PerfettoApiTest, CategoryEnabledState) {
   EXPECT_FALSE(TRACE_EVENT_CATEGORY_ENABLED(dynamic));
 }
 
-class TestInterceptor : public perfetto::Interceptor<TestInterceptor> {
+class TestInterceptor : public dejaview::Interceptor<TestInterceptor> {
  public:
   static TestInterceptor* instance;
 
-  struct ThreadLocalState : public perfetto::InterceptorBase::ThreadLocalState {
+  struct ThreadLocalState : public dejaview::InterceptorBase::ThreadLocalState {
     ThreadLocalState(ThreadLocalStateArgs& args) {
       // Test accessing instance state from the TLS constructor.
       if (auto self = args.GetInterceptorLocked()) {
@@ -5246,7 +5246,7 @@ class TestInterceptor : public perfetto::Interceptor<TestInterceptor> {
   }
 
   static void OnTracePacket(InterceptorContext context) {
-    perfetto::protos::pbzero::TracePacket::Decoder packet(
+    dejaview::protos::pbzero::TracePacket::Decoder packet(
         context.packet_data.data, context.packet_data.size);
     EXPECT_TRUE(packet.trusted_packet_sequence_id() > 0);
     {
@@ -5260,19 +5260,19 @@ class TestInterceptor : public perfetto::Interceptor<TestInterceptor> {
 
     auto& tls = context.GetThreadLocalState();
     if (packet.sequence_flags() &
-        perfetto::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
+        dejaview::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
       tls.event_names.clear();
     }
     if (packet.has_interned_data()) {
-      perfetto::protos::pbzero::InternedData::Decoder interned_data(
+      dejaview::protos::pbzero::InternedData::Decoder interned_data(
           packet.interned_data());
       for (auto it = interned_data.event_names(); it; it++) {
-        perfetto::protos::pbzero::EventName::Decoder entry(*it);
+        dejaview::protos::pbzero::EventName::Decoder entry(*it);
         tls.event_names[entry.iid()] = entry.name().ToStdString();
       }
     }
     if (packet.has_track_event()) {
-      perfetto::protos::pbzero::TrackEvent::Decoder track_event(
+      dejaview::protos::pbzero::TrackEvent::Decoder track_event(
           packet.track_event());
       uint64_t name_iid = track_event.name_iid();
       auto self = context.GetInterceptorLocked();
@@ -5289,12 +5289,12 @@ class TestInterceptor : public perfetto::Interceptor<TestInterceptor> {
 
 TestInterceptor* TestInterceptor::instance;
 
-TEST_P(PerfettoApiTest, TracePacketInterception) {
-  perfetto::InterceptorDescriptor desc;
+TEST_P(DejaViewApiTest, TracePacketInterception) {
+  dejaview::InterceptorDescriptor desc;
   desc.set_name("test_interceptor");
   TestInterceptor::Register(desc, std::string("Constructor argument"));
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -5340,10 +5340,10 @@ void EmitConsoleEvents() {
   TRACE_EVENT_INSTANT("foo", "Annotated event", "foo", 1, "bar", "hello");
   TRACE_EVENT_END("foo");
   uint64_t async_id = 4004;
-  auto track = perfetto::Track(async_id, perfetto::ThreadTrack::Current());
+  auto track = dejaview::Track(async_id, dejaview::ThreadTrack::Current());
   auto desc = track.Serialize();
   desc.set_name("AsyncTrack");
-  perfetto::TrackEvent::SetTrackDescriptor(track, std::move(desc));
+  dejaview::TrackEvent::SetTrackDescriptor(track, std::move(desc));
   TRACE_EVENT_BEGIN("test", "AsyncEvent", track);
 
   std::thread thread([&] {
@@ -5355,22 +5355,22 @@ void EmitConsoleEvents() {
 
   TRACE_EVENT_INSTANT(
       "foo", "More annotations", "dict",
-      [](perfetto::TracedValue context) {
+      [](dejaview::TracedValue context) {
         auto dict = std::move(context).WriteDictionary();
         dict.Add("key", 123);
       },
       "array",
-      [](perfetto::TracedValue context) {
+      [](dejaview::TracedValue context) {
         auto array = std::move(context).WriteArray();
         array.Append("first");
         array.Append("second");
       });
 }
 
-TEST_P(PerfettoApiTest, ConsoleInterceptorPrint) {
-  perfetto::ConsoleInterceptor::Register();
+TEST_P(DejaViewApiTest, ConsoleInterceptorPrint) {
+  dejaview::ConsoleInterceptor::Register();
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -5383,12 +5383,12 @@ TEST_P(PerfettoApiTest, ConsoleInterceptorPrint) {
   tracing_session->get()->StopBlocking();
 }
 
-TEST_P(PerfettoApiTest, ConsoleInterceptorVerify) {
-  perfetto::ConsoleInterceptor::Register();
-  auto temp_file = perfetto::test::CreateTempFile();
-  perfetto::ConsoleInterceptor::SetOutputFdForTesting(temp_file.fd);
+TEST_P(DejaViewApiTest, ConsoleInterceptorVerify) {
+  dejaview::ConsoleInterceptor::Register();
+  auto temp_file = dejaview::test::CreateTempFile();
+  dejaview::ConsoleInterceptor::SetOutputFdForTesting(temp_file.fd);
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -5399,7 +5399,7 @@ TEST_P(PerfettoApiTest, ConsoleInterceptorVerify) {
   tracing_session->get()->StartBlocking();
   EmitConsoleEvents();
   tracing_session->get()->StopBlocking();
-  perfetto::ConsoleInterceptor::SetOutputFdForTesting(0);
+  dejaview::ConsoleInterceptor::SetOutputFdForTesting(0);
 
   std::vector<std::string> lines;
   FILE* f = fdopen(temp_file.fd, "r");
@@ -5435,45 +5435,45 @@ TEST_P(PerfettoApiTest, ConsoleInterceptorVerify) {
   EXPECT_THAT(lines, ContainerEq(golden_lines));
 }
 
-TEST_P(PerfettoApiTest, TrackEventObserver) {
-  class Observer : public perfetto::TrackEventSessionObserver {
+TEST_P(DejaViewApiTest, TrackEventObserver) {
+  class Observer : public dejaview::TrackEventSessionObserver {
    public:
     ~Observer() override = default;
 
-    void OnSetup(const perfetto::DataSourceBase::SetupArgs&) {
+    void OnSetup(const dejaview::DataSourceBase::SetupArgs&) {
       // Since other tests here register multiple track event data sources,
       // ignore all but the first notifications.
       if (setup_called)
         return;
       setup_called = true;
       if (unsubscribe_at_setup)
-        perfetto::TrackEvent::RemoveSessionObserver(this);
+        dejaview::TrackEvent::RemoveSessionObserver(this);
       // This event isn't recorded in the trace because tracing isn't active yet
       // when OnSetup is called.
       TRACE_EVENT_INSTANT("foo", "OnSetup");
       // However the active tracing categories have already been updated at this
       // point.
-      EXPECT_TRUE(perfetto::TrackEvent::IsEnabled());
+      EXPECT_TRUE(dejaview::TrackEvent::IsEnabled());
       EXPECT_TRUE(TRACE_EVENT_CATEGORY_ENABLED("foo"));
     }
 
-    void OnStart(const perfetto::DataSourceBase::StartArgs&) {
+    void OnStart(const dejaview::DataSourceBase::StartArgs&) {
       if (start_called)
         return;
       start_called = true;
-      EXPECT_TRUE(perfetto::TrackEvent::IsEnabled());
+      EXPECT_TRUE(dejaview::TrackEvent::IsEnabled());
       EXPECT_TRUE(TRACE_EVENT_CATEGORY_ENABLED("foo"));
       TRACE_EVENT_INSTANT("foo", "OnStart");
     }
 
-    void OnStop(const perfetto::DataSourceBase::StopArgs&) {
+    void OnStop(const dejaview::DataSourceBase::StopArgs&) {
       if (stop_called)
         return;
       stop_called = true;
-      EXPECT_TRUE(perfetto::TrackEvent::IsEnabled());
+      EXPECT_TRUE(dejaview::TrackEvent::IsEnabled());
       EXPECT_TRUE(TRACE_EVENT_CATEGORY_ENABLED("foo"));
       TRACE_EVENT_INSTANT("foo", "OnStop");
-      perfetto::TrackEvent::Flush();
+      dejaview::TrackEvent::Flush();
     }
 
     bool setup_called{};
@@ -5482,10 +5482,10 @@ TEST_P(PerfettoApiTest, TrackEventObserver) {
     bool unsubscribe_at_setup{};
   };
 
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
   {
     Observer observer;
-    perfetto::TrackEvent::AddSessionObserver(&observer);
+    dejaview::TrackEvent::AddSessionObserver(&observer);
 
     auto* tracing_session = NewTraceWithCategories({"foo"});
     tracing_session->get()->StartBlocking();
@@ -5493,7 +5493,7 @@ TEST_P(PerfettoApiTest, TrackEventObserver) {
     EXPECT_TRUE(observer.start_called);
     tracing_session->get()->StopBlocking();
     EXPECT_TRUE(observer.stop_called);
-    perfetto::TrackEvent::RemoveSessionObserver(&observer);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer);
     auto slices = ReadSlicesFromTraceSession(tracing_session->get());
     EXPECT_THAT(slices, ElementsAre("I:foo.OnStart", "I:foo.OnStop"));
   }
@@ -5501,8 +5501,8 @@ TEST_P(PerfettoApiTest, TrackEventObserver) {
   // No notifications after removing observer.
   {
     Observer observer;
-    perfetto::TrackEvent::AddSessionObserver(&observer);
-    perfetto::TrackEvent::RemoveSessionObserver(&observer);
+    dejaview::TrackEvent::AddSessionObserver(&observer);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer);
     auto* tracing_session = NewTraceWithCategories({"foo"});
     tracing_session->get()->StartBlocking();
     EXPECT_FALSE(observer.setup_called);
@@ -5515,27 +5515,27 @@ TEST_P(PerfettoApiTest, TrackEventObserver) {
   {
     Observer observer;
     observer.unsubscribe_at_setup = true;
-    perfetto::TrackEvent::AddSessionObserver(&observer);
+    dejaview::TrackEvent::AddSessionObserver(&observer);
     auto* tracing_session = NewTraceWithCategories({"foo"});
     tracing_session->get()->StartBlocking();
     EXPECT_TRUE(observer.setup_called);
     EXPECT_FALSE(observer.start_called);
     tracing_session->get()->StopBlocking();
     EXPECT_FALSE(observer.stop_called);
-    perfetto::TrackEvent::RemoveSessionObserver(&observer);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer);
   }
 
   // Multiple observers.
   {
     Observer observer1;
     Observer observer2;
-    perfetto::TrackEvent::AddSessionObserver(&observer1);
-    perfetto::TrackEvent::AddSessionObserver(&observer2);
+    dejaview::TrackEvent::AddSessionObserver(&observer1);
+    dejaview::TrackEvent::AddSessionObserver(&observer2);
     auto* tracing_session = NewTraceWithCategories({"foo"});
     tracing_session->get()->StartBlocking();
     tracing_session->get()->StopBlocking();
-    perfetto::TrackEvent::RemoveSessionObserver(&observer1);
-    perfetto::TrackEvent::RemoveSessionObserver(&observer2);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer1);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer2);
     auto slices = ReadSlicesFromTraceSession(tracing_session->get());
     EXPECT_THAT(slices, ElementsAre("I:foo.OnStart", "I:foo.OnStart",
                                     "I:foo.OnStop", "I:foo.OnStop"));
@@ -5545,51 +5545,51 @@ TEST_P(PerfettoApiTest, TrackEventObserver) {
   {
     Observer observer1;
     Observer observer2;
-    perfetto::TrackEvent::AddSessionObserver(&observer1);
-    perfetto::TrackEvent::AddSessionObserver(&observer2);
+    dejaview::TrackEvent::AddSessionObserver(&observer1);
+    dejaview::TrackEvent::AddSessionObserver(&observer2);
     auto* tracing_session = NewTraceWithCategories({"foo"});
     tracing_session->get()->StartBlocking();
-    perfetto::TrackEvent::RemoveSessionObserver(&observer1);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer1);
     tracing_session->get()->StopBlocking();
-    perfetto::TrackEvent::RemoveSessionObserver(&observer2);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer2);
     auto slices = ReadSlicesFromTraceSession(tracing_session->get());
     EXPECT_THAT(slices,
                 ElementsAre("I:foo.OnStart", "I:foo.OnStart", "I:foo.OnStop"));
   }
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
 }
 
-TEST_P(PerfettoApiTest, TrackEventObserver_ClearIncrementalState) {
-  class Observer : public perfetto::TrackEventSessionObserver {
+TEST_P(DejaViewApiTest, TrackEventObserver_ClearIncrementalState) {
+  class Observer : public dejaview::TrackEventSessionObserver {
    public:
     ~Observer() override = default;
 
-    void OnStart(const perfetto::DataSourceBase::StartArgs&) {
-      EXPECT_TRUE(perfetto::TrackEvent::IsEnabled());
+    void OnStart(const dejaview::DataSourceBase::StartArgs&) {
+      EXPECT_TRUE(dejaview::TrackEvent::IsEnabled());
       EXPECT_TRUE(TRACE_EVENT_CATEGORY_ENABLED("foo"));
       TRACE_EVENT_INSTANT("foo", "OnStart");
     }
 
     void WillClearIncrementalState(
-        const perfetto::DataSourceBase::ClearIncrementalStateArgs&) {
+        const dejaview::DataSourceBase::ClearIncrementalStateArgs&) {
       if (clear_incremental_state_called)
         return;
       clear_incremental_state_called = true;
-      EXPECT_TRUE(perfetto::TrackEvent::IsEnabled());
+      EXPECT_TRUE(dejaview::TrackEvent::IsEnabled());
       EXPECT_TRUE(TRACE_EVENT_CATEGORY_ENABLED("foo"));
       TRACE_EVENT_INSTANT("foo", "WillClearIncrementalState");
-      perfetto::TrackEvent::Flush();
+      dejaview::TrackEvent::Flush();
     }
 
     bool clear_incremental_state_called{};
   };
 
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
   {
     Observer observer;
-    perfetto::TrackEvent::AddSessionObserver(&observer);
+    dejaview::TrackEvent::AddSessionObserver(&observer);
 
-    perfetto::TraceConfig cfg;
+    dejaview::TraceConfig cfg;
     cfg.mutable_incremental_state_config()->set_clear_period_ms(100);
     auto* tracing_session = NewTraceWithCategories({"foo"}, {}, cfg);
 
@@ -5597,20 +5597,20 @@ TEST_P(PerfettoApiTest, TrackEventObserver_ClearIncrementalState) {
     tracing_session->on_stop.Wait();
 
     EXPECT_TRUE(observer.clear_incremental_state_called);
-    perfetto::TrackEvent::RemoveSessionObserver(&observer);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer);
     auto slices = ReadSlicesFromTraceSession(tracing_session->get());
     EXPECT_THAT(slices, ElementsAre("I:foo.OnStart",
                                     "I:foo.WillClearIncrementalState"));
   }
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
 }
 
-TEST_P(PerfettoApiTest, TrackEventObserver_TwoDataSources) {
-  class Observer : public perfetto::TrackEventSessionObserver {
+TEST_P(DejaViewApiTest, TrackEventObserver_TwoDataSources) {
+  class Observer : public dejaview::TrackEventSessionObserver {
    public:
     ~Observer() override = default;
 
-    void OnStart(const perfetto::DataSourceBase::StartArgs&) {
+    void OnStart(const dejaview::DataSourceBase::StartArgs&) {
       EXPECT_FALSE(start_called);
       start_called = true;
     }
@@ -5618,15 +5618,15 @@ TEST_P(PerfettoApiTest, TrackEventObserver_TwoDataSources) {
     bool start_called{};
   };
 
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
   EXPECT_FALSE(tracing_module::IsEnabled());
 
   {
     Observer observer1, observer2;
-    perfetto::TrackEvent::AddSessionObserver(&observer1);
+    dejaview::TrackEvent::AddSessionObserver(&observer1);
     tracing_module::AddSessionObserver(&observer2);
 
-    perfetto::TraceConfig cfg;
+    dejaview::TraceConfig cfg;
     auto* tracing_session = NewTraceWithCategories({"foo"}, {}, cfg);
 
     tracing_session->get()->StartBlocking();
@@ -5636,7 +5636,7 @@ TEST_P(PerfettoApiTest, TrackEventObserver_TwoDataSources) {
     // should not be notified.
     EXPECT_TRUE(observer1.start_called);
     EXPECT_FALSE(observer2.start_called);
-    perfetto::TrackEvent::RemoveSessionObserver(&observer1);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer1);
     tracing_module::RemoveSessionObserver(&observer2);
   }
 
@@ -5644,10 +5644,10 @@ TEST_P(PerfettoApiTest, TrackEventObserver_TwoDataSources) {
 
   {
     Observer observer1, observer2;
-    perfetto::TrackEvent::AddSessionObserver(&observer1);
+    dejaview::TrackEvent::AddSessionObserver(&observer1);
     tracing_module::AddSessionObserver(&observer2);
 
-    perfetto::TraceConfig cfg;
+    dejaview::TraceConfig cfg;
     auto* tracing_session = NewTraceWithCategories({"foo"}, {}, cfg);
 
     tracing_session->get()->StartBlocking();
@@ -5656,28 +5656,28 @@ TEST_P(PerfettoApiTest, TrackEventObserver_TwoDataSources) {
     // Each observer should be notified exactly once.
     EXPECT_TRUE(observer1.start_called);
     EXPECT_TRUE(observer2.start_called);
-    perfetto::TrackEvent::RemoveSessionObserver(&observer1);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer1);
     tracing_module::RemoveSessionObserver(&observer2);
   }
 
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
   EXPECT_FALSE(tracing_module::IsEnabled());
 }
 
-TEST_P(PerfettoApiTest, TrackEventObserver_AsyncStop) {
-  class Observer : public perfetto::TrackEventSessionObserver {
+TEST_P(DejaViewApiTest, TrackEventObserver_AsyncStop) {
+  class Observer : public dejaview::TrackEventSessionObserver {
    public:
     ~Observer() override = default;
 
-    void OnStop(const perfetto::DataSourceBase::StopArgs& args) {
+    void OnStop(const dejaview::DataSourceBase::StopArgs& args) {
       async_stop_closure_ = args.HandleStopAsynchronously();
     }
 
     void EmitFinalEvents() {
-      EXPECT_TRUE(perfetto::TrackEvent::IsEnabled());
+      EXPECT_TRUE(dejaview::TrackEvent::IsEnabled());
       EXPECT_TRUE(TRACE_EVENT_CATEGORY_ENABLED("foo"));
       TRACE_EVENT_INSTANT("foo", "FinalEvent");
-      perfetto::TrackEvent::Flush();
+      dejaview::TrackEvent::Flush();
       async_stop_closure_();
     }
 
@@ -5685,10 +5685,10 @@ TEST_P(PerfettoApiTest, TrackEventObserver_AsyncStop) {
     std::function<void()> async_stop_closure_;
   };
 
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
   {
     Observer observer;
-    perfetto::TrackEvent::AddSessionObserver(&observer);
+    dejaview::TrackEvent::AddSessionObserver(&observer);
 
     auto* tracing_session = NewTraceWithCategories({"foo"});
     WaitableTestEvent consumer_stop_signal;
@@ -5710,14 +5710,14 @@ TEST_P(PerfettoApiTest, TrackEventObserver_AsyncStop) {
     // Wait that the stop is propagated to the consumer.
     consumer_stop_signal.Wait();
 
-    perfetto::TrackEvent::RemoveSessionObserver(&observer);
+    dejaview::TrackEvent::RemoveSessionObserver(&observer);
     auto slices = ReadSlicesFromTraceSession(tracing_session->get());
     EXPECT_THAT(slices, ElementsAre("I:foo.FinalEvent"));
   }
-  EXPECT_FALSE(perfetto::TrackEvent::IsEnabled());
+  EXPECT_FALSE(dejaview::TrackEvent::IsEnabled());
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_COMPILER_CLANG)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_COMPILER_CLANG)
 struct __attribute__((capability("mutex"))) MockMutex {
   void Lock() __attribute__((acquire_capability())) {}
   void Unlock() __attribute__((release_capability())) {}
@@ -5728,7 +5728,7 @@ struct AnnotatedObject {
   int value __attribute__((guarded_by(mutex))) = {};
 };
 
-TEST_P(PerfettoApiTest, ThreadSafetyAnnotation) {
+TEST_P(DejaViewApiTest, ThreadSafetyAnnotation) {
   AnnotatedObject obj;
 
   // Access to the locked field is only allowed while holding the mutex.
@@ -5753,20 +5753,20 @@ TEST_P(PerfettoApiTest, ThreadSafetyAnnotation) {
                                   "B:cat.Scoped(value=(int)1)", "E",
                                   "B:cat.ScopedLegacy(value=(int)1)", "E"));
 }
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_COMPILER_CLANG)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_COMPILER_CLANG)
 
-TEST_P(PerfettoApiTest, CountersDeltaEncoding) {
+TEST_P(DejaViewApiTest, CountersDeltaEncoding) {
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
 
   // Describe a counter track.
-  perfetto::CounterTrack track1 =
-      perfetto::CounterTrack("Framerate1", "fps1").set_is_incremental(true);
+  dejaview::CounterTrack track1 =
+      dejaview::CounterTrack("Framerate1", "fps1").set_is_incremental(true);
   // Global tracks can be constructed at build time.
-  constexpr perfetto::CounterTrack track2 =
-      perfetto::CounterTrack::Global("Framerate2", "fps2")
+  constexpr dejaview::CounterTrack track2 =
+      dejaview::CounterTrack::Global("Framerate2", "fps2")
           .set_is_incremental(true);
-  perfetto::CounterTrack track3 = perfetto::CounterTrack("Framerate3", "fps3");
+  dejaview::CounterTrack track3 = dejaview::CounterTrack("Framerate3", "fps3");
 
   TRACE_COUNTER("cat", track1, 120);
   TRACE_COUNTER("cat", track2, 1000);
@@ -5803,7 +5803,7 @@ TEST_P(PerfettoApiTest, CountersDeltaEncoding) {
     }
     if (packet.has_track_event()) {
       auto event = packet.track_event();
-      EXPECT_EQ(perfetto::protos::gen::TrackEvent_Type_TYPE_COUNTER,
+      EXPECT_EQ(dejaview::protos::gen::TrackEvent_Type_TYPE_COUNTER,
                 event.type());
       auto& counter_name = counter_names.at(event.track_uuid());
       values[counter_name].push_back(event.counter_value());
@@ -5816,19 +5816,19 @@ TEST_P(PerfettoApiTest, CountersDeltaEncoding) {
   EXPECT_EQ((IntVector{10009, 975, 1091, 110, 1081}), values.at("Framerate3"));
 }
 
-TEST_P(PerfettoApiTest, Counters) {
+TEST_P(DejaViewApiTest, Counters) {
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
 
   // Describe a counter track.
-  perfetto::CounterTrack fps_track = perfetto::CounterTrack("Framerate", "fps");
+  dejaview::CounterTrack fps_track = dejaview::CounterTrack("Framerate", "fps");
 
   // Emit an integer sample.
   TRACE_COUNTER("cat", fps_track, 120);
 
   // Global tracks can be constructed at build time.
   constexpr auto goats_track =
-      perfetto::CounterTrack::Global("Goats teleported", "goats x 1000")
+      dejaview::CounterTrack::Global("Goats teleported", "goats x 1000")
           .set_unit_multiplier(1000);
   static_assert(goats_track.uuid == 0x6072fc234f82df11,
                 "Counter track uuid mismatch");
@@ -5843,7 +5843,7 @@ TEST_P(PerfettoApiTest, Counters) {
 
   // Emit sample with a custom timestamp.
   TRACE_COUNTER("cat",
-                perfetto::CounterTrack("Power", "GW").set_category("dmc"),
+                dejaview::CounterTrack("Power", "GW").set_category("dmc"),
                 MyTimestamp(1985u), 1.21f);
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
   std::map<uint64_t, std::string> counter_names;
@@ -5851,7 +5851,7 @@ TEST_P(PerfettoApiTest, Counters) {
   for (const auto& packet : trace.packet()) {
     if (packet.has_track_event()) {
       auto event = packet.track_event();
-      EXPECT_EQ(perfetto::protos::gen::TrackEvent_Type_TYPE_COUNTER,
+      EXPECT_EQ(dejaview::protos::gen::TrackEvent_Type_TYPE_COUNTER,
                 event.type());
       std::stringstream sample;
       std::string counter_name = counter_names[event.track_uuid()];
@@ -5891,7 +5891,7 @@ TEST_P(PerfettoApiTest, Counters) {
                           "Voltage = 220", "Power = 1.21"));
 }
 
-TEST_P(PerfettoApiTest, ScrapingTrackEventBegin) {
+TEST_P(DejaViewApiTest, ScrapingTrackEventBegin) {
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
@@ -5905,7 +5905,7 @@ TEST_P(PerfettoApiTest, ScrapingTrackEventBegin) {
   EXPECT_THAT(slices, ElementsAre("B:test.MainEvent"));
 }
 
-TEST_P(PerfettoApiTest, ScrapingTrackEventEnd) {
+TEST_P(DejaViewApiTest, ScrapingTrackEventEnd) {
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
@@ -5920,14 +5920,14 @@ TEST_P(PerfettoApiTest, ScrapingTrackEventEnd) {
   EXPECT_THAT(slices, ElementsAre("B:test.MainEvent", "E"));
 }
 
-TEST_P(PerfettoApiTest, EmptyEvent) {
+TEST_P(DejaViewApiTest, EmptyEvent) {
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("test", "MainEvent");
 
   // An empty event will allow the previous track packet to be scraped.
-  PERFETTO_INTERNAL_ADD_EMPTY_EVENT();
+  DEJAVIEW_INTERNAL_ADD_EMPTY_EVENT();
 
   // Stop tracing but don't flush. Rely on scraping to get the chunk contents.
   tracing_session->get()->StopBlocking();
@@ -5937,7 +5937,7 @@ TEST_P(PerfettoApiTest, EmptyEvent) {
   EXPECT_THAT(slices, ElementsAre("B:test.MainEvent"));
 }
 
-TEST_P(PerfettoApiTest, ConsecutiveEmptyEventsSkipped) {
+TEST_P(DejaViewApiTest, ConsecutiveEmptyEventsSkipped) {
   auto* tracing_session = NewTraceWithCategories({"test"});
   tracing_session->get()->StartBlocking();
 
@@ -5946,11 +5946,11 @@ TEST_P(PerfettoApiTest, ConsecutiveEmptyEventsSkipped) {
   // Emit many empty events that wouldn't fit into one chunk.
   constexpr int kNumEvents = 10000;
   for (int i = 0; i < kNumEvents; ++i) {
-    PERFETTO_INTERNAL_ADD_EMPTY_EVENT();
+    DEJAVIEW_INTERNAL_ADD_EMPTY_EVENT();
   }
   auto trace = StopSessionAndReturnParsedTrace(tracing_session);
   auto it = std::find_if(trace.packet().begin(), trace.packet().end(),
-                         [](const perfetto::protos::gen::TracePacket& packet) {
+                         [](const dejaview::protos::gen::TracePacket& packet) {
                            return packet.has_trace_stats();
                          });
   EXPECT_NE(it, trace.packet().end());
@@ -5963,7 +5963,7 @@ TEST_P(PerfettoApiTest, ConsecutiveEmptyEventsSkipped) {
 // For such events we set fields of `track_event.legacy_event` and
 // we set `track_event.track_uuid` to zero to dissociate it with
 // default track.
-TEST_P(PerfettoApiTest, CorrectTrackUUIDForLegacyEvents) {
+TEST_P(DejaViewApiTest, CorrectTrackUUIDForLegacyEvents) {
   auto* tracing_session = NewTraceWithCategories({"cat"});
   tracing_session->get()->StartBlocking();
   TRACE_EVENT_NESTABLE_ASYNC_BEGIN0("cat", "foo",
@@ -5975,36 +5975,36 @@ TEST_P(PerfettoApiTest, CorrectTrackUUIDForLegacyEvents) {
                           "id_scope=\"foo\"):cat.foo"));
 }
 
-TEST_P(PerfettoApiTest, ActivateTriggers) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, ActivateTriggers) {
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
-  perfetto::TraceConfig::TriggerConfig* tr_cfg = cfg.mutable_trigger_config();
-  tr_cfg->set_trigger_mode(perfetto::TraceConfig::TriggerConfig::STOP_TRACING);
+  dejaview::TraceConfig::TriggerConfig* tr_cfg = cfg.mutable_trigger_config();
+  tr_cfg->set_trigger_mode(dejaview::TraceConfig::TriggerConfig::STOP_TRACING);
   tr_cfg->set_trigger_timeout_ms(5000);
-  perfetto::TraceConfig::TriggerConfig::Trigger* trigger =
+  dejaview::TraceConfig::TriggerConfig::Trigger* trigger =
       tr_cfg->add_triggers();
   trigger->set_name("trigger1");
   auto* tracing_session = NewTrace(cfg);
   tracing_session->get()->StartBlocking();
 
-  perfetto::Tracing::ActivateTriggers({"trigger2", "trigger1"}, 10000);
+  dejaview::Tracing::ActivateTriggers({"trigger2", "trigger1"}, 10000);
 
   tracing_session->on_stop.Wait();
 
   std::vector<char> bytes = tracing_session->get()->ReadTraceBlocking();
-  perfetto::protos::gen::Trace parsed_trace;
+  dejaview::protos::gen::Trace parsed_trace;
   ASSERT_TRUE(parsed_trace.ParseFromArray(bytes.data(), bytes.size()));
   EXPECT_THAT(
       parsed_trace,
-      Property(&perfetto::protos::gen::Trace::packet,
+      Property(&dejaview::protos::gen::Trace::packet,
                Contains(Property(
-                   &perfetto::protos::gen::TracePacket::trigger,
-                   Property(&perfetto::protos::gen::Trigger::trigger_name,
+                   &dejaview::protos::gen::TracePacket::trigger,
+                   Property(&dejaview::protos::gen::Trigger::trigger_name,
                             "trigger1")))));
 }
 
-TEST_P(PerfettoApiTest, StartTracingWhileExecutingTracepoint) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewApiTest, StartTracingWhileExecutingTracepoint) {
+  dejaview::TraceConfig cfg;
   auto* buffer = cfg.add_buffers();
   buffer->set_size_kb(64);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -6051,14 +6051,14 @@ TEST_P(PerfettoApiTest, StartTracingWhileExecutingTracepoint) {
   EXPECT_THAT(test_strings, AllOf(Not(IsEmpty()), Each("My String")));
 }
 
-TEST_P(PerfettoApiTest, SystemDisconnect) {
-  if (GetParam() != perfetto::kSystemBackend) {
+TEST_P(DejaViewApiTest, SystemDisconnect) {
+  if (GetParam() != dejaview::kSystemBackend) {
     GTEST_SKIP();
   }
   auto* data_source = &data_sources_["my_data_source"];
   data_source->handle_stop_asynchronously = true;
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   auto* buffer = cfg.add_buffers();
   buffer->set_size_kb(64);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -6118,8 +6118,8 @@ TEST_P(PerfettoApiTest, SystemDisconnect) {
 
   tracing_session->on_stop.Wait();
 
-  std::unique_ptr<perfetto::TracingSession> new_session =
-      perfetto::Tracing::NewTrace(/*backend=*/GetParam());
+  std::unique_ptr<dejaview::TracingSession> new_session =
+      dejaview::Tracing::NewTrace(/*backend=*/GetParam());
   // Wait for reconnection
   ASSERT_TRUE(WaitForOneProducerConnected(new_session.get()));
 
@@ -6143,14 +6143,14 @@ TEST_P(PerfettoApiTest, SystemDisconnect) {
   EXPECT_THAT(test_strings, AllOf(Not(IsEmpty()), Each("New session")));
 }
 
-TEST_P(PerfettoApiTest, SystemDisconnectAsyncOnStopNoTracing) {
-  if (GetParam() != perfetto::kSystemBackend) {
+TEST_P(DejaViewApiTest, SystemDisconnectAsyncOnStopNoTracing) {
+  if (GetParam() != dejaview::kSystemBackend) {
     GTEST_SKIP();
   }
   auto* data_source = &data_sources_["my_data_source"];
   data_source->handle_stop_asynchronously = true;
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   auto* buffer = cfg.add_buffers();
   buffer->set_size_kb(64);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -6184,8 +6184,8 @@ TEST_P(PerfettoApiTest, SystemDisconnectAsyncOnStopNoTracing) {
 
   tracing_session->on_stop.Wait();
 
-  std::unique_ptr<perfetto::TracingSession> new_session =
-      perfetto::Tracing::NewTrace(/*backend=*/GetParam());
+  std::unique_ptr<dejaview::TracingSession> new_session =
+      dejaview::Tracing::NewTrace(/*backend=*/GetParam());
   // Wait for reconnection
   ASSERT_TRUE(WaitForOneProducerConnected(new_session.get()));
 
@@ -6194,14 +6194,14 @@ TEST_P(PerfettoApiTest, SystemDisconnectAsyncOnStopNoTracing) {
   data_source->handle_stop_asynchronously = false;
 }
 
-TEST_P(PerfettoApiTest, SystemDisconnectAsyncOnStopRestartTracing) {
-  if (GetParam() != perfetto::kSystemBackend) {
+TEST_P(DejaViewApiTest, SystemDisconnectAsyncOnStopRestartTracing) {
+  if (GetParam() != dejaview::kSystemBackend) {
     GTEST_SKIP();
   }
   auto* data_source = &data_sources_["my_data_source"];
   data_source->handle_stop_asynchronously = true;
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   auto* buffer = cfg.add_buffers();
   buffer->set_size_kb(64);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -6249,8 +6249,8 @@ TEST_P(PerfettoApiTest, SystemDisconnectAsyncOnStopRestartTracing) {
 
   tracing_session->on_stop.Wait();
 
-  std::unique_ptr<perfetto::TracingSession> new_session =
-      perfetto::Tracing::NewTrace(/*backend=*/GetParam());
+  std::unique_ptr<dejaview::TracingSession> new_session =
+      dejaview::Tracing::NewTrace(/*backend=*/GetParam());
   // Wait for reconnection
   ASSERT_TRUE(WaitForOneProducerConnected(new_session.get()));
 
@@ -6276,14 +6276,14 @@ TEST_P(PerfettoApiTest, SystemDisconnectAsyncOnStopRestartTracing) {
   EXPECT_THAT(test_strings, AllOf(Not(IsEmpty()), Each("New session")));
 }
 
-TEST_P(PerfettoApiTest, SystemDisconnectWhileStopping) {
-  if (GetParam() != perfetto::kSystemBackend) {
+TEST_P(DejaViewApiTest, SystemDisconnectWhileStopping) {
+  if (GetParam() != dejaview::kSystemBackend) {
     GTEST_SKIP();
   }
   auto* data_source = &data_sources_["my_data_source"];
   data_source->handle_stop_asynchronously = true;
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   auto* buffer = cfg.add_buffers();
   buffer->set_size_kb(64);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
@@ -6306,10 +6306,10 @@ TEST_P(PerfettoApiTest, SystemDisconnectWhileStopping) {
   data_source->handle_stop_asynchronously = false;
 }
 
-class PerfettoStartupTracingApiTest : public PerfettoApiTest {
+class DejaViewStartupTracingApiTest : public DejaViewApiTest {
  public:
-  using SetupStartupTracingOpts = perfetto::Tracing::SetupStartupTracingOpts;
-  void SetupStartupTracing(perfetto::TraceConfig cfg = {},
+  using SetupStartupTracingOpts = dejaview::Tracing::SetupStartupTracingOpts;
+  void SetupStartupTracing(dejaview::TraceConfig cfg = {},
                            SetupStartupTracingOpts opts = {}) {
     // Setup startup tracing in the current process.
     cfg.set_duration_ms(500);
@@ -6317,14 +6317,14 @@ class PerfettoStartupTracingApiTest : public PerfettoApiTest {
     auto* ds_cfg = cfg.add_data_sources()->mutable_config();
     ds_cfg->set_name("track_event");
 
-    perfetto::protos::gen::TrackEventConfig te_cfg;
+    dejaview::protos::gen::TrackEventConfig te_cfg;
     te_cfg.add_disabled_categories("*");
     te_cfg.add_enabled_categories("test");
     ds_cfg->set_track_event_config_raw(te_cfg.SerializeAsString());
 
     opts.backend = GetParam();
     session_ =
-        perfetto::Tracing::SetupStartupTracingBlocking(cfg, std::move(opts));
+        dejaview::Tracing::SetupStartupTracingBlocking(cfg, std::move(opts));
     EXPECT_EQ(TRACE_EVENT_CATEGORY_ENABLED("test"), true);
   }
 
@@ -6346,34 +6346,34 @@ class PerfettoStartupTracingApiTest : public PerfettoApiTest {
     // producer if it find it is not connected to service. Which is problematic
     // because when reconnection happens (via service transport), it will be
     // referencing a deleted producer, which will lead to crash.
-    perfetto::test::SyncProducers();
-    this->PerfettoApiTest::TearDown();
+    dejaview::test::SyncProducers();
+    this->DejaViewApiTest::TearDown();
   }
 
  protected:
-  std::unique_ptr<perfetto::StartupTracingSession> session_;
+  std::unique_ptr<dejaview::StartupTracingSession> session_;
 };
 
 // Test `SetupStartupTracing` API (non block version).
-TEST_P(PerfettoStartupTracingApiTest, NonBlockingAPI) {
+TEST_P(DejaViewStartupTracingApiTest, NonBlockingAPI) {
   // Setup startup tracing in the current process.
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("track_event");
 
-  perfetto::protos::gen::TrackEventConfig te_cfg;
+  dejaview::protos::gen::TrackEventConfig te_cfg;
   te_cfg.add_disabled_categories("*");
   te_cfg.add_enabled_categories("test");
   ds_cfg->set_track_event_config_raw(te_cfg.SerializeAsString());
 
   SetupStartupTracingOpts opts;
   opts.backend = GetParam();
-  session_ = perfetto::Tracing::SetupStartupTracing(cfg, std::move(opts));
-  // We need perfetto::test::SyncProducers() to Round-trip to ensure that the
+  session_ = dejaview::Tracing::SetupStartupTracing(cfg, std::move(opts));
+  // We need dejaview::test::SyncProducers() to Round-trip to ensure that the
   // muxer has enabled startup tracing.
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
   EXPECT_EQ(TRACE_EVENT_CATEGORY_ENABLED("test"), true);
 
   TRACE_EVENT_BEGIN("test", "Event");
@@ -6391,14 +6391,14 @@ TEST_P(PerfettoStartupTracingApiTest, NonBlockingAPI) {
 
 // Test that a startup tracing session will be adopted even when the config
 // is not exactly identical (but still compatible).
-TEST_P(PerfettoStartupTracingApiTest, CompatibleConfig) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewStartupTracingApiTest, CompatibleConfig) {
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("track_event");
 
-  perfetto::protos::gen::TrackEventConfig te_cfg;
+  dejaview::protos::gen::TrackEventConfig te_cfg;
   te_cfg.add_disabled_categories("*");
   te_cfg.add_enabled_categories("foo");
   te_cfg.add_enabled_categories("bar");
@@ -6406,10 +6406,10 @@ TEST_P(PerfettoStartupTracingApiTest, CompatibleConfig) {
 
   SetupStartupTracingOpts opts;
   opts.backend = GetParam();
-  session_ = perfetto::Tracing::SetupStartupTracing(cfg, std::move(opts));
-  // We need perfetto::test::SyncProducers() to Round-trip to ensure that the
+  session_ = dejaview::Tracing::SetupStartupTracing(cfg, std::move(opts));
+  // We need dejaview::test::SyncProducers() to Round-trip to ensure that the
   // muxer has enabled startup tracing.
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   TRACE_EVENT_BEGIN("foo", "Event");
 
@@ -6428,14 +6428,14 @@ TEST_P(PerfettoStartupTracingApiTest, CompatibleConfig) {
 
 // Test that a startup tracing session won't be adopted when the config is not
 // compatible (in this case, the privacy setting is different).
-TEST_P(PerfettoStartupTracingApiTest, IncompatibleConfig) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewStartupTracingApiTest, IncompatibleConfig) {
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("track_event");
 
-  perfetto::protos::gen::TrackEventConfig te_cfg;
+  dejaview::protos::gen::TrackEventConfig te_cfg;
   te_cfg.add_disabled_categories("*");
   te_cfg.add_enabled_categories("foo");
   te_cfg.set_filter_debug_annotations(true);
@@ -6443,10 +6443,10 @@ TEST_P(PerfettoStartupTracingApiTest, IncompatibleConfig) {
 
   SetupStartupTracingOpts opts;
   opts.backend = GetParam();
-  session_ = perfetto::Tracing::SetupStartupTracing(cfg, std::move(opts));
-  // We need perfetto::test::SyncProducers() to Round-trip to ensure that the
+  session_ = dejaview::Tracing::SetupStartupTracing(cfg, std::move(opts));
+  // We need dejaview::test::SyncProducers() to Round-trip to ensure that the
   // muxer has enabled startup tracing.
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   TRACE_EVENT_BEGIN("foo", "Event");
 
@@ -6463,7 +6463,7 @@ TEST_P(PerfettoStartupTracingApiTest, IncompatibleConfig) {
   EXPECT_THAT(slices, ElementsAre("E"));
 }
 
-TEST_P(PerfettoStartupTracingApiTest, WithExistingSmb) {
+TEST_P(DejaViewStartupTracingApiTest, WithExistingSmb) {
   {
     // Start and tear down a first session, just to set up the SMB.
     auto* tracing_session = NewTraceWithCategories({"foo"});
@@ -6487,8 +6487,8 @@ TEST_P(PerfettoStartupTracingApiTest, WithExistingSmb) {
   EXPECT_THAT(slices, ElementsAre("B:test.Event", "E"));
 }
 
-TEST_P(PerfettoStartupTracingApiTest, WithProducerProvidedSmb) {
-  ASSERT_FALSE(perfetto::test::TracingMuxerImplInternalsForTest::
+TEST_P(DejaViewStartupTracingApiTest, WithProducerProvidedSmb) {
+  ASSERT_FALSE(dejaview::test::TracingMuxerImplInternalsForTest::
                    DoesSystemBackendHaveSMB());
   // The backend has no SMB set up yet. Instead, the SDK will
   // reconnect to the backend with a producer-provided SMB.
@@ -6508,7 +6508,7 @@ TEST_P(PerfettoStartupTracingApiTest, WithProducerProvidedSmb) {
   EXPECT_THAT(slices, ElementsAre("B:test.Event", "E"));
 }
 
-TEST_P(PerfettoStartupTracingApiTest, DontTraceBeforeStartupSetup) {
+TEST_P(DejaViewStartupTracingApiTest, DontTraceBeforeStartupSetup) {
   // This event should not be recorded.
   TRACE_EVENT_BEGIN("test", "EventBeforeStartupTrace");
   SetupStartupTracing();
@@ -6528,8 +6528,8 @@ TEST_P(PerfettoStartupTracingApiTest, DontTraceBeforeStartupSetup) {
 // Test the StartupTracing when there are multiple data sources registered
 // (2 data sources in this test) but only a few of them contribute in startup
 // tracing.
-TEST_P(PerfettoStartupTracingApiTest, MultipleDataSourceFewContributing) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewStartupTracingApiTest, MultipleDataSourceFewContributing) {
+  dejaview::TraceConfig cfg;
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("CustomDataSource");
   SetupStartupTracing(cfg);
@@ -6540,7 +6540,7 @@ TEST_P(PerfettoStartupTracingApiTest, MultipleDataSourceFewContributing) {
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("test", "TrackEvent.Main");
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
   CustomDataSource::Trace([](CustomDataSource::TraceContext ctx) {
     {
       auto packet = ctx.NewTracePacket();
@@ -6565,8 +6565,8 @@ TEST_P(PerfettoStartupTracingApiTest, MultipleDataSourceFewContributing) {
 // Test the StartupTracing when there are multiple data sources registered
 // (2 data sources in this test) and all of them are contributing in startup
 // tracing.
-TEST_P(PerfettoStartupTracingApiTest, MultipleDataSourceAllContributing) {
-  perfetto::TraceConfig cfg;
+TEST_P(DejaViewStartupTracingApiTest, MultipleDataSourceAllContributing) {
+  dejaview::TraceConfig cfg;
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("CustomDataSource");
   SetupStartupTracing(cfg);
@@ -6581,7 +6581,7 @@ TEST_P(PerfettoStartupTracingApiTest, MultipleDataSourceAllContributing) {
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("test", "TrackEvent.Main");
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
   CustomDataSource::Trace([](CustomDataSource::TraceContext ctx) {
     {
       auto packet = ctx.NewTracePacket();
@@ -6607,7 +6607,7 @@ TEST_P(PerfettoStartupTracingApiTest, MultipleDataSourceAllContributing) {
 // Startup tracing requires BufferExhaustedPolicy::kDrop, i.e. once the SMB is
 // filled with startup events, any further events should be dropped.
 // TODO(b/261493947): fix or remove. go/aosp_ci_failure23
-TEST_P(PerfettoStartupTracingApiTest, DISABLED_DropPolicy) {
+TEST_P(DejaViewStartupTracingApiTest, DISABLED_DropPolicy) {
   SetupStartupTracing();
   constexpr int kNumEvents = 100000;
   for (int i = 0; i < kNumEvents; i++) {
@@ -6627,7 +6627,7 @@ TEST_P(PerfettoStartupTracingApiTest, DISABLED_DropPolicy) {
 }
 
 // TODO(b/261493947): fix or remove.
-TEST_P(PerfettoStartupTracingApiTest, DISABLED_Abort) {
+TEST_P(DejaViewStartupTracingApiTest, DISABLED_Abort) {
   SetupStartupTracing();
   TRACE_EVENT_BEGIN("test", "StartupEvent");
   AbortStartupTracing();
@@ -6642,7 +6642,7 @@ TEST_P(PerfettoStartupTracingApiTest, DISABLED_Abort) {
   EXPECT_THAT(slices, ElementsAre("B:test.MainEvent"));
 }
 
-TEST_P(PerfettoStartupTracingApiTest, AbortAndRestart) {
+TEST_P(DejaViewStartupTracingApiTest, AbortAndRestart) {
   SetupStartupTracing();
   TRACE_EVENT_BEGIN("test", "StartupEvent1");
   AbortStartupTracing();
@@ -6654,7 +6654,7 @@ TEST_P(PerfettoStartupTracingApiTest, AbortAndRestart) {
   tracing_session->get()->StartBlocking();
 
   TRACE_EVENT_BEGIN("test", "MainEvent");
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
 
   tracing_session->get()->StopBlocking();
 
@@ -6663,7 +6663,7 @@ TEST_P(PerfettoStartupTracingApiTest, AbortAndRestart) {
   EXPECT_THAT(slices, ElementsAre("B:test.StartupEvent2", "B:test.MainEvent"));
 }
 
-TEST_P(PerfettoStartupTracingApiTest, Timeout) {
+TEST_P(DejaViewStartupTracingApiTest, Timeout) {
   SetupStartupTracingOpts args;
   args.timeout_ms = 2000;
   SetupStartupTracing({}, args);
@@ -6676,7 +6676,7 @@ TEST_P(PerfettoStartupTracingApiTest, Timeout) {
   tracing_session->get()->StartBlocking();
   TRACE_EVENT_BEGIN("test", "MainEvent");
 
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
 
   tracing_session->get()->StopBlocking();
 
@@ -6685,11 +6685,11 @@ TEST_P(PerfettoStartupTracingApiTest, Timeout) {
 }
 
 // TODO(b/261493947): fix or remove.
-TEST_P(PerfettoStartupTracingApiTest, DISABLED_Callbacks) {
+TEST_P(DejaViewStartupTracingApiTest, DISABLED_Callbacks) {
   for (bool abort : {true, false}) {
     SetupStartupTracingOpts args;
     std::vector<std::string> callback_events;
-    using CallbackArgs = perfetto::Tracing::OnStartupTracingSetupCallbackArgs;
+    using CallbackArgs = dejaview::Tracing::OnStartupTracingSetupCallbackArgs;
     args.on_setup = [&](CallbackArgs callback_arg) {
       callback_events.push_back(
           "OnSetup(num_data_sources_started=" +
@@ -6706,7 +6706,7 @@ TEST_P(PerfettoStartupTracingApiTest, DISABLED_Callbacks) {
     tracing_session->get()->StartBlocking();
 
     TRACE_EVENT_BEGIN("test", "MainEvent");
-    perfetto::TrackEvent::Flush();
+    dejaview::TrackEvent::Flush();
 
     tracing_session->get()->StopBlocking();
 
@@ -6727,14 +6727,14 @@ TEST_P(PerfettoStartupTracingApiTest, DISABLED_Callbacks) {
 
 // Test that it's ok if main tracing is never started.
 // TODO(b/261493947): fix or remove.
-TEST_P(PerfettoStartupTracingApiTest, DISABLED_MainTracingNeverStarted) {
+TEST_P(DejaViewStartupTracingApiTest, DISABLED_MainTracingNeverStarted) {
   SetupStartupTracing();
   TRACE_EVENT_BEGIN("test", "StartupEvent");
 }
 
 // Validates that Startup Trace works fine if we dont emit any event
 // during startup tracing session.
-TEST_P(PerfettoStartupTracingApiTest, NoEventInStartupTracing) {
+TEST_P(DejaViewStartupTracingApiTest, NoEventInStartupTracing) {
   SetupStartupTracing();
 
   auto* tracing_session = NewTraceWithCategories({"test"});
@@ -6743,7 +6743,7 @@ TEST_P(PerfettoStartupTracingApiTest, NoEventInStartupTracing) {
   // Emit an event now that the session was fully started. This should go
   // strait to the SMB.
   TRACE_EVENT_BEGIN("test", "MainEvent");
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
   tracing_session->get()->StopBlocking();
   auto slices = ReadSlicesFromTraceSession(tracing_session->get());
   EXPECT_THAT(slices, ElementsAre("B:test.MainEvent"));
@@ -6752,63 +6752,63 @@ TEST_P(PerfettoStartupTracingApiTest, NoEventInStartupTracing) {
 class ConcurrentSessionTest : public ::testing::Test {
  public:
   void SetUp() override {
-    system_service_ = perfetto::test::SystemService::Start();
+    system_service_ = dejaview::test::SystemService::Start();
     if (!system_service_.valid()) {
       GTEST_SKIP();
     }
-    ASSERT_FALSE(perfetto::Tracing::IsInitialized());
+    ASSERT_FALSE(dejaview::Tracing::IsInitialized());
   }
 
-  void InitPerfetto(bool supports_multiple_data_source_instances = true) {
+  void InitDejaView(bool supports_multiple_data_source_instances = true) {
     TracingInitArgs args;
-    args.backends = perfetto::kInProcessBackend | perfetto::kSystemBackend;
+    args.backends = dejaview::kInProcessBackend | dejaview::kSystemBackend;
     args.supports_multiple_data_source_instances =
         supports_multiple_data_source_instances;
     g_test_tracing_policy->should_allow_consumer_connection = true;
     args.tracing_policy = g_test_tracing_policy;
-    perfetto::Tracing::Initialize(args);
-    perfetto::TrackEvent::Register();
-    perfetto::test::SyncProducers();
-    perfetto::test::DisableReconnectLimit();
+    dejaview::Tracing::Initialize(args);
+    dejaview::TrackEvent::Register();
+    dejaview::test::SyncProducers();
+    dejaview::test::DisableReconnectLimit();
   }
 
-  void TearDown() override { perfetto::Tracing::ResetForTesting(); }
+  void TearDown() override { dejaview::Tracing::ResetForTesting(); }
 
-  static std::unique_ptr<perfetto::TracingSession> StartTracing(
-      perfetto::BackendType backend_type,
+  static std::unique_ptr<dejaview::TracingSession> StartTracing(
+      dejaview::BackendType backend_type,
       bool short_stop_timeout = false) {
-    perfetto::TraceConfig cfg;
+    dejaview::TraceConfig cfg;
     if (short_stop_timeout) {
       cfg.set_data_source_stop_timeout_ms(500);
     }
     cfg.add_buffers()->set_size_kb(1024);
     auto* ds_cfg = cfg.add_data_sources()->mutable_config();
     ds_cfg->set_name("track_event");
-    auto tracing_session = perfetto::Tracing::NewTrace(backend_type);
+    auto tracing_session = dejaview::Tracing::NewTrace(backend_type);
     tracing_session->Setup(cfg);
     tracing_session->StartBlocking();
     return tracing_session;
   }
   std::vector<std::string> StopTracing(
-      std::unique_ptr<perfetto::TracingSession> tracing_session,
+      std::unique_ptr<dejaview::TracingSession> tracing_session,
       bool expect_incremental_state_cleared = true) {
-    perfetto::TrackEvent::Flush();
+    dejaview::TrackEvent::Flush();
     tracing_session->StopBlocking();
     std::vector<char> trace_data(tracing_session->ReadTraceBlocking());
     return ReadSlicesFromTrace(trace_data, expect_incremental_state_cleared);
   }
 
-  perfetto::test::SystemService system_service_;
+  dejaview::test::SystemService system_service_;
 };
 
 // Verify that concurrent sessions works well by default.
 // (i.e. when `disallow_concurrent_sessions` param is not set)
 TEST_F(ConcurrentSessionTest, ConcurrentBackends) {
-  InitPerfetto();
-  auto tracing_session1 = StartTracing(perfetto::kSystemBackend);
+  InitDejaView();
+  auto tracing_session1 = StartTracing(dejaview::kSystemBackend);
   TRACE_EVENT_BEGIN("test", "DrawGame1");
 
-  auto tracing_session2 = StartTracing(perfetto::kInProcessBackend);
+  auto tracing_session2 = StartTracing(dejaview::kInProcessBackend);
   // Should be recorded by both sessions.
   TRACE_EVENT_BEGIN("test", "DrawGame2");
 
@@ -6818,7 +6818,7 @@ TEST_F(ConcurrentSessionTest, ConcurrentBackends) {
   auto slices2 = StopTracing(std::move(tracing_session2));
   EXPECT_THAT(slices2, ElementsAre("B:test.DrawGame2"));
 
-  auto tracing_session3 = StartTracing(perfetto::kInProcessBackend);
+  auto tracing_session3 = StartTracing(dejaview::kInProcessBackend);
   TRACE_EVENT_BEGIN("test", "DrawGame3");
 
   auto slices3 = StopTracing(std::move(tracing_session3));
@@ -6828,12 +6828,12 @@ TEST_F(ConcurrentSessionTest, ConcurrentBackends) {
 // When `supports_multiple_data_source_instances = false`, second session
 // should not be started.
 TEST_F(ConcurrentSessionTest, DisallowMultipleSessionBasic) {
-  InitPerfetto(/* supports_multiple_data_source_instances = */ false);
-  auto tracing_session1 = StartTracing(perfetto::kInProcessBackend);
+  InitDejaView(/* supports_multiple_data_source_instances = */ false);
+  auto tracing_session1 = StartTracing(dejaview::kInProcessBackend);
   TRACE_EVENT_BEGIN("test", "DrawGame1");
 
   auto tracing_session2 =
-      StartTracing(perfetto::kInProcessBackend, /*short_stop_timeout=*/true);
+      StartTracing(dejaview::kInProcessBackend, /*short_stop_timeout=*/true);
   TRACE_EVENT_BEGIN("test", "DrawGame2");
 
   auto slices1 = StopTracing(std::move(tracing_session1));
@@ -6844,46 +6844,46 @@ TEST_F(ConcurrentSessionTest, DisallowMultipleSessionBasic) {
   // Because `tracing_session2` was not really started.
   EXPECT_THAT(slices2, ElementsAre());
 
-  auto tracing_session3 = StartTracing(perfetto::kInProcessBackend);
+  auto tracing_session3 = StartTracing(dejaview::kInProcessBackend);
   TRACE_EVENT_BEGIN("test", "DrawGame3");
 
   auto slices3 = StopTracing(std::move(tracing_session3));
   EXPECT_THAT(slices3, ElementsAre("B:test.DrawGame3"));
 }
 
-TEST(PerfettoApiInitTest, DisableSystemConsumer) {
+TEST(DejaViewApiInitTest, DisableSystemConsumer) {
   g_test_tracing_policy->should_allow_consumer_connection = true;
 
-  auto system_service = perfetto::test::SystemService::Start();
+  auto system_service = dejaview::test::SystemService::Start();
   // If the system backend isn't supported, skip
   if (!system_service.valid()) {
     GTEST_SKIP();
   }
 
-  EXPECT_FALSE(perfetto::Tracing::IsInitialized());
+  EXPECT_FALSE(dejaview::Tracing::IsInitialized());
   TracingInitArgs args;
-  args.backends = perfetto::kSystemBackend;
+  args.backends = dejaview::kSystemBackend;
   args.tracing_policy = g_test_tracing_policy;
   args.enable_system_consumer = false;
-  perfetto::Tracing::Initialize(args);
+  dejaview::Tracing::Initialize(args);
 
   // If this wasn't the first test to run in this process, any producers
   // connected to the old system service will have been disconnected by the
   // service restarting above. Wait for all producers to connect again before
   // proceeding with the test.
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
-  perfetto::test::DisableReconnectLimit();
+  dejaview::test::DisableReconnectLimit();
 
   // Creating the consumer with kUnspecifiedBackend should cause a connection
   // error: there's no consumer backend.
   {
-    std::unique_ptr<perfetto::TracingSession> ts =
-        perfetto::Tracing::NewTrace(perfetto::kUnspecifiedBackend);
+    std::unique_ptr<dejaview::TracingSession> ts =
+        dejaview::Tracing::NewTrace(dejaview::kUnspecifiedBackend);
 
     WaitableTestEvent got_error;
-    ts->SetOnErrorCallback([&](perfetto::TracingError error) {
-      EXPECT_EQ(perfetto::TracingError::kDisconnected, error.code);
+    ts->SetOnErrorCallback([&](dejaview::TracingError error) {
+      EXPECT_EQ(dejaview::TracingError::kDisconnected, error.code);
       EXPECT_FALSE(error.message.empty());
       got_error.Notify();
     });
@@ -6892,99 +6892,99 @@ TEST(PerfettoApiInitTest, DisableSystemConsumer) {
 
   // Creating the consumer with kSystemBackend should create a system consumer
   // backend on the spot.
-  EXPECT_TRUE(perfetto::Tracing::NewTrace(perfetto::kSystemBackend)
+  EXPECT_TRUE(dejaview::Tracing::NewTrace(dejaview::kSystemBackend)
                   ->QueryServiceStateBlocking()
                   .success);
 
   // Now even a consumer with kUnspecifiedBackend should succeed, because the
   // backend has been created.
-  EXPECT_TRUE(perfetto::Tracing::NewTrace(perfetto::kUnspecifiedBackend)
+  EXPECT_TRUE(dejaview::Tracing::NewTrace(dejaview::kUnspecifiedBackend)
                   ->QueryServiceStateBlocking()
                   .success);
 
-  perfetto::Tracing::ResetForTesting();
+  dejaview::Tracing::ResetForTesting();
 }
 
-TEST(PerfettoApiInitTest, SeparateInitializations) {
-  auto system_service = perfetto::test::SystemService::Start();
+TEST(DejaViewApiInitTest, SeparateInitializations) {
+  auto system_service = dejaview::test::SystemService::Start();
   // If the system backend isn't supported, skip
   if (!system_service.valid()) {
     GTEST_SKIP();
   }
 
   {
-    EXPECT_FALSE(perfetto::Tracing::IsInitialized());
+    EXPECT_FALSE(dejaview::Tracing::IsInitialized());
     TracingInitArgs args;
-    args.backends = perfetto::kInProcessBackend;
-    perfetto::Tracing::Initialize(args);
+    args.backends = dejaview::kInProcessBackend;
+    dejaview::Tracing::Initialize(args);
   }
 
   // If this wasn't the first test to run in this process, any producers
   // connected to the old system service will have been disconnected by the
   // service restarting above. Wait for all producers to connect again before
   // proceeding with the test.
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
-  perfetto::test::DisableReconnectLimit();
+  dejaview::test::DisableReconnectLimit();
 
   {
-    perfetto::DataSourceDescriptor dsd;
+    dejaview::DataSourceDescriptor dsd;
     dsd.set_name("CustomDataSource");
     CustomDataSource::Register(dsd);
   }
 
   {
-    std::unique_ptr<perfetto::TracingSession> tracing_session =
-        perfetto::Tracing::NewTrace(perfetto::kInProcessBackend);
+    std::unique_ptr<dejaview::TracingSession> tracing_session =
+        dejaview::Tracing::NewTrace(dejaview::kInProcessBackend);
     auto result = tracing_session->QueryServiceStateBlocking();
-    perfetto::protos::gen::TracingServiceState state;
+    dejaview::protos::gen::TracingServiceState state;
     ASSERT_TRUE(result.success);
     ASSERT_TRUE(state.ParseFromArray(result.service_state_data.data(),
                                      result.service_state_data.size()));
     EXPECT_THAT(state.data_sources(),
                 Contains(Property(
-                    &perfetto::protos::gen::TracingServiceState::DataSource::
+                    &dejaview::protos::gen::TracingServiceState::DataSource::
                         ds_descriptor,
-                    Property(&perfetto::protos::gen::DataSourceDescriptor::name,
+                    Property(&dejaview::protos::gen::DataSourceDescriptor::name,
                              "CustomDataSource"))));
   }
 
   {
-    EXPECT_TRUE(perfetto::Tracing::IsInitialized());
+    EXPECT_TRUE(dejaview::Tracing::IsInitialized());
     TracingInitArgs args;
-    args.backends = perfetto::kSystemBackend;
+    args.backends = dejaview::kSystemBackend;
     args.enable_system_consumer = false;
-    perfetto::Tracing::Initialize(args);
+    dejaview::Tracing::Initialize(args);
   }
 
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
   {
-    std::unique_ptr<perfetto::TracingSession> tracing_session =
-        perfetto::Tracing::NewTrace(perfetto::kSystemBackend);
+    std::unique_ptr<dejaview::TracingSession> tracing_session =
+        dejaview::Tracing::NewTrace(dejaview::kSystemBackend);
     auto result = tracing_session->QueryServiceStateBlocking();
-    perfetto::protos::gen::TracingServiceState state;
+    dejaview::protos::gen::TracingServiceState state;
     ASSERT_TRUE(result.success);
     ASSERT_TRUE(state.ParseFromArray(result.service_state_data.data(),
                                      result.service_state_data.size()));
     EXPECT_THAT(state.data_sources(),
                 Contains(Property(
-                    &perfetto::protos::gen::TracingServiceState::DataSource::
+                    &dejaview::protos::gen::TracingServiceState::DataSource::
                         ds_descriptor,
-                    Property(&perfetto::protos::gen::DataSourceDescriptor::name,
+                    Property(&dejaview::protos::gen::DataSourceDescriptor::name,
                              "CustomDataSource"))));
   }
-  perfetto::test::TracingMuxerImplInternalsForTest::
+  dejaview::test::TracingMuxerImplInternalsForTest::
       ClearDataSourceTlsStateOnReset<CustomDataSource>();
 
-  perfetto::Tracing::ResetForTesting();
+  dejaview::Tracing::ResetForTesting();
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 namespace {
 
 int ConnectUnixSocket() {
-  std::string socket_name = perfetto::GetProducerSocket();
+  std::string socket_name = dejaview::GetProducerSocket();
   int fd = socket(AF_UNIX, SOCK_STREAM, 0);
   struct sockaddr_un saddr;
   memset(&saddr, 0, sizeof(saddr));
@@ -6997,7 +6997,7 @@ int ConnectUnixSocket() {
 }
 
 using CreateSocketFunction =
-    std::function<void(perfetto::CreateSocketCallback)>;
+    std::function<void(dejaview::CreateSocketCallback)>;
 
 CreateSocketFunction* g_std_function = nullptr;
 
@@ -7009,88 +7009,88 @@ void ResetCreateSocketFunction() {
   delete g_std_function;
 }
 
-void CallCreateSocketFunction(perfetto::CreateSocketCallback cb) {
-  PERFETTO_DCHECK(g_std_function);
+void CallCreateSocketFunction(dejaview::CreateSocketCallback cb) {
+  DEJAVIEW_DCHECK(g_std_function);
   (*g_std_function)(cb);
 }
 
 }  // namespace
 
-TEST(PerfettoApiInitTest, AsyncSocket) {
-  auto system_service = perfetto::test::SystemService::Start();
+TEST(DejaViewApiInitTest, AsyncSocket) {
+  auto system_service = dejaview::test::SystemService::Start();
   // If the system backend isn't supported, skip
   if (!system_service.valid()) {
     GTEST_SKIP();
   }
 
-  EXPECT_FALSE(perfetto::Tracing::IsInitialized());
+  EXPECT_FALSE(dejaview::Tracing::IsInitialized());
 
-  perfetto::CreateSocketCallback socket_callback;
+  dejaview::CreateSocketCallback socket_callback;
   WaitableTestEvent create_socket_called;
 
   TracingInitArgs args;
-  args.backends = perfetto::kSystemBackend;
+  args.backends = dejaview::kSystemBackend;
   args.tracing_policy = g_test_tracing_policy;
   args.create_socket_async = &CallCreateSocketFunction;
   SetCreateSocketFunction([&socket_callback, &create_socket_called](
-                              perfetto::CreateSocketCallback cb) {
+                              dejaview::CreateSocketCallback cb) {
     socket_callback = cb;
     create_socket_called.Notify();
   });
 
-  perfetto::Tracing::Initialize(args);
+  dejaview::Tracing::Initialize(args);
   create_socket_called.Wait();
 
   int fd = ConnectUnixSocket();
   socket_callback(fd);
 
-  perfetto::test::SyncProducers();
-  EXPECT_TRUE(perfetto::Tracing::NewTrace(perfetto::kSystemBackend)
+  dejaview::test::SyncProducers();
+  EXPECT_TRUE(dejaview::Tracing::NewTrace(dejaview::kSystemBackend)
                   ->QueryServiceStateBlocking()
                   .success);
 
-  perfetto::Tracing::ResetForTesting();
+  dejaview::Tracing::ResetForTesting();
   ResetCreateSocketFunction();
 }
 
-TEST(PerfettoApiInitTest, AsyncSocketDisconnect) {
-  auto system_service = perfetto::test::SystemService::Start();
+TEST(DejaViewApiInitTest, AsyncSocketDisconnect) {
+  auto system_service = dejaview::test::SystemService::Start();
   // If the system backend isn't supported, skip
   if (!system_service.valid()) {
     GTEST_SKIP();
   }
 
-  EXPECT_FALSE(perfetto::Tracing::IsInitialized());
+  EXPECT_FALSE(dejaview::Tracing::IsInitialized());
 
-  perfetto::CreateSocketCallback socket_callback;
+  dejaview::CreateSocketCallback socket_callback;
   testing::MockFunction<CreateSocketFunction> mock_create_socket;
   WaitableTestEvent create_socket_called1, create_socket_called2;
 
   TracingInitArgs args;
-  args.backends = perfetto::kSystemBackend;
+  args.backends = dejaview::kSystemBackend;
   args.tracing_policy = g_test_tracing_policy;
   args.create_socket_async = &CallCreateSocketFunction;
   SetCreateSocketFunction(mock_create_socket.AsStdFunction());
 
   EXPECT_CALL(mock_create_socket, Call)
       .WillOnce(Invoke([&socket_callback, &create_socket_called1](
-                           perfetto::CreateSocketCallback cb) {
+                           dejaview::CreateSocketCallback cb) {
         socket_callback = cb;
         create_socket_called1.Notify();
       }))
       .WillOnce(Invoke([&socket_callback, &create_socket_called2](
-                           perfetto::CreateSocketCallback cb) {
+                           dejaview::CreateSocketCallback cb) {
         socket_callback = cb;
         create_socket_called2.Notify();
       }));
 
-  perfetto::Tracing::Initialize(args);
+  dejaview::Tracing::Initialize(args);
   create_socket_called1.Wait();
   int fd = ConnectUnixSocket();
   socket_callback(fd);
 
-  perfetto::test::SyncProducers();
-  EXPECT_TRUE(perfetto::Tracing::NewTrace(perfetto::kSystemBackend)
+  dejaview::test::SyncProducers();
+  EXPECT_TRUE(dejaview::Tracing::NewTrace(dejaview::kSystemBackend)
                   ->QueryServiceStateBlocking()
                   .success);
 
@@ -7102,55 +7102,55 @@ TEST(PerfettoApiInitTest, AsyncSocketDisconnect) {
   fd = ConnectUnixSocket();
   socket_callback(fd);
 
-  perfetto::test::SyncProducers();
-  EXPECT_TRUE(perfetto::Tracing::NewTrace(perfetto::kSystemBackend)
+  dejaview::test::SyncProducers();
+  EXPECT_TRUE(dejaview::Tracing::NewTrace(dejaview::kSystemBackend)
                   ->QueryServiceStateBlocking()
                   .success);
 
-  perfetto::Tracing::ResetForTesting();
+  dejaview::Tracing::ResetForTesting();
   ResetCreateSocketFunction();
 }
 
-TEST(PerfettoApiInitTest, AsyncSocketStartupTracing) {
-  auto system_service = perfetto::test::SystemService::Start();
+TEST(DejaViewApiInitTest, AsyncSocketStartupTracing) {
+  auto system_service = dejaview::test::SystemService::Start();
   // If the system backend isn't supported, skip
   if (!system_service.valid()) {
     GTEST_SKIP();
   }
 
-  EXPECT_FALSE(perfetto::Tracing::IsInitialized());
+  EXPECT_FALSE(dejaview::Tracing::IsInitialized());
 
-  perfetto::CreateSocketCallback socket_callback;
+  dejaview::CreateSocketCallback socket_callback;
   WaitableTestEvent create_socket_called;
 
   TracingInitArgs args;
-  args.backends = perfetto::kSystemBackend;
+  args.backends = dejaview::kSystemBackend;
   args.tracing_policy = g_test_tracing_policy;
   args.create_socket_async = &CallCreateSocketFunction;
   SetCreateSocketFunction([&socket_callback, &create_socket_called](
-                              perfetto::CreateSocketCallback cb) {
+                              dejaview::CreateSocketCallback cb) {
     socket_callback = cb;
     create_socket_called.Notify();
   });
 
-  perfetto::Tracing::Initialize(args);
-  perfetto::TrackEvent::Register();
+  dejaview::Tracing::Initialize(args);
+  dejaview::TrackEvent::Register();
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.set_duration_ms(500);
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("track_event");
 
-  perfetto::protos::gen::TrackEventConfig te_cfg;
+  dejaview::protos::gen::TrackEventConfig te_cfg;
   te_cfg.add_disabled_categories("*");
   te_cfg.add_enabled_categories("test");
   ds_cfg->set_track_event_config_raw(te_cfg.SerializeAsString());
 
-  perfetto::Tracing::SetupStartupTracingOpts opts;
-  opts.backend = perfetto::kSystemBackend;
+  dejaview::Tracing::SetupStartupTracingOpts opts;
+  opts.backend = dejaview::kSystemBackend;
   auto startup_session =
-      perfetto::Tracing::SetupStartupTracingBlocking(cfg, std::move(opts));
+      dejaview::Tracing::SetupStartupTracingBlocking(cfg, std::move(opts));
 
   // Emit a significant number of events to write >1 chunk of data.
   constexpr size_t kNumEvents = 1000;
@@ -7161,9 +7161,9 @@ TEST(PerfettoApiInitTest, AsyncSocketStartupTracing) {
   // Now proceed with the connection to the service and wait until it completes.
   int fd = ConnectUnixSocket();
   socket_callback(fd);
-  perfetto::test::SyncProducers();
+  dejaview::test::SyncProducers();
 
-  auto session = perfetto::Tracing::NewTrace(perfetto::kSystemBackend);
+  auto session = dejaview::Tracing::NewTrace(dejaview::kSystemBackend);
   session->Setup(cfg);
   session->StartBlocking();
 
@@ -7172,11 +7172,11 @@ TEST(PerfettoApiInitTest, AsyncSocketStartupTracing) {
     TRACE_EVENT_INSTANT("test", "TraceEvent");
   }
 
-  perfetto::TrackEvent::Flush();
+  dejaview::TrackEvent::Flush();
   session->StopBlocking();
 
   auto raw_trace = session->ReadTraceBlocking();
-  perfetto::protos::gen::Trace parsed_trace;
+  dejaview::protos::gen::Trace parsed_trace;
   EXPECT_TRUE(parsed_trace.ParseFromArray(raw_trace.data(), raw_trace.size()));
 
   size_t n_track_events = 0;
@@ -7191,72 +7191,72 @@ TEST(PerfettoApiInitTest, AsyncSocketStartupTracing) {
 
   startup_session.reset();
   session.reset();
-  perfetto::Tracing::ResetForTesting();
+  dejaview::Tracing::ResetForTesting();
   ResetCreateSocketFunction();
 }
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 struct BackendTypeAsString {
   std::string operator()(
-      const ::testing::TestParamInfo<perfetto::BackendType>& info) const {
+      const ::testing::TestParamInfo<dejaview::BackendType>& info) const {
     switch (info.param) {
-      case perfetto::kInProcessBackend:
+      case dejaview::kInProcessBackend:
         return "InProc";
-      case perfetto::kSystemBackend:
+      case dejaview::kSystemBackend:
         return "System";
-      case perfetto::kCustomBackend:
+      case dejaview::kCustomBackend:
         return "Custom";
-      case perfetto::kUnspecifiedBackend:
+      case dejaview::kUnspecifiedBackend:
         return "Unspec";
     }
     return nullptr;
   }
 };
 
-INSTANTIATE_TEST_SUITE_P(PerfettoApiTest,
-                         PerfettoApiTest,
-                         ::testing::Values(perfetto::kInProcessBackend,
-                                           perfetto::kSystemBackend),
+INSTANTIATE_TEST_SUITE_P(DejaViewApiTest,
+                         DejaViewApiTest,
+                         ::testing::Values(dejaview::kInProcessBackend,
+                                           dejaview::kSystemBackend),
                          BackendTypeAsString());
 
 // In-process backend doesn't support startup tracing.
-INSTANTIATE_TEST_SUITE_P(PerfettoStartupTracingApiTest,
-                         PerfettoStartupTracingApiTest,
-                         ::testing::Values(perfetto::kSystemBackend),
+INSTANTIATE_TEST_SUITE_P(DejaViewStartupTracingApiTest,
+                         DejaViewStartupTracingApiTest,
+                         ::testing::Values(dejaview::kSystemBackend),
                          BackendTypeAsString());
 
-class PerfettoApiEnvironment : public ::testing::Environment {
+class DejaViewApiEnvironment : public ::testing::Environment {
  public:
   void TearDown() override {
-    // Test shutting down Perfetto only when all other tests have been run and
+    // Test shutting down DejaView only when all other tests have been run and
     // no more tracing code will be executed.
-    PERFETTO_CHECK(!perfetto::Tracing::IsInitialized());
-    perfetto::TracingInitArgs args;
-    args.backends = perfetto::kInProcessBackend;
-    perfetto::Tracing::Initialize(args);
-    perfetto::Tracing::Shutdown();
-    PERFETTO_CHECK(!perfetto::Tracing::IsInitialized());
+    DEJAVIEW_CHECK(!dejaview::Tracing::IsInitialized());
+    dejaview::TracingInitArgs args;
+    args.backends = dejaview::kInProcessBackend;
+    dejaview::Tracing::Initialize(args);
+    dejaview::Tracing::Shutdown();
+    DEJAVIEW_CHECK(!dejaview::Tracing::IsInitialized());
     // Shutting down again is a no-op.
-    perfetto::Tracing::Shutdown();
-    PERFETTO_CHECK(!perfetto::Tracing::IsInitialized());
+    dejaview::Tracing::Shutdown();
+    DEJAVIEW_CHECK(!dejaview::Tracing::IsInitialized());
   }
 };
 
-int PERFETTO_UNUSED initializer =
-    perfetto::integration_tests::RegisterApiIntegrationTestInitializer([] {
-      ::testing::AddGlobalTestEnvironment(new PerfettoApiEnvironment);
+int DEJAVIEW_UNUSED initializer =
+    dejaview::integration_tests::RegisterApiIntegrationTestInitializer([] {
+      ::testing::AddGlobalTestEnvironment(new DejaViewApiEnvironment);
     });
 
 }  // namespace
 
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource);
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource2);
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(TestIncrementalDataSource,
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource2);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(TestIncrementalDataSource,
                                             TestIncrementalDataSourceTraits);
 
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource);
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource2);
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(TestIncrementalDataSource,
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(CustomDataSource);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(MockDataSource2);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(TestIncrementalDataSource,
                                            TestIncrementalDataSourceTraits);

@@ -21,16 +21,16 @@
 #include <fstream>
 #include <sstream>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
 
-namespace perfetto {
+namespace dejaview {
 
 std::multimap<BlockDeviceID, std::string> ParseMounts(const char* path) {
   std::string data;
   if (!base::ReadFile(path, &data)) {
-    PERFETTO_ELOG("Failed to read %s", path);
+    DEJAVIEW_ELOG("Failed to read %s", path);
     return {};
   }
   std::multimap<BlockDeviceID, std::string> device_to_mountpoints;
@@ -38,13 +38,13 @@ std::multimap<BlockDeviceID, std::string> ParseMounts(const char* path) {
   for (base::StringSplitter lines(std::move(data), '\n'); lines.Next();) {
     base::StringSplitter words(&lines, ' ');
     if (!words.Next() || !words.Next()) {
-      PERFETTO_DLOG("Invalid mount point: %s.", lines.cur_token());
+      DEJAVIEW_DLOG("Invalid mount point: %s.", lines.cur_token());
       continue;
     }
     const char* mountpoint = words.cur_token();
     struct stat buf {};
     if (stat(mountpoint, &buf) == -1) {
-      PERFETTO_PLOG("stat %s", mountpoint);
+      DEJAVIEW_PLOG("stat %s", mountpoint);
       continue;
     }
     device_to_mountpoints.emplace(buf.st_dev, mountpoint);
@@ -52,4 +52,4 @@ std::multimap<BlockDeviceID, std::string> ParseMounts(const char* path) {
   return device_to_mountpoints;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -13,14 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "perfetto/ext/base/http/sha1.h"
+#include "dejaview/ext/base/http/sha1.h"
 
 #include <stddef.h>
 #include <string.h>
 
 // From chrome_elf/sha1/sha1.cc.
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -238,4 +238,4 @@ SHA1Digest SHA1Hash(const std::string& str) {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

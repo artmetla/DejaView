@@ -106,14 +106,14 @@ export class UiMainPerTrace implements m.ClassComponent {
     // loaded).
     const globalCmds: Command[] = [
       {
-        id: 'perfetto.OpenCommandPalette',
+        id: 'dejaview.OpenCommandPalette',
         name: 'Open command palette',
         callback: () => AppImpl.instance.omnibox.setMode(OmniboxMode.Command),
         defaultHotkey: '!Mod+Shift+P',
       },
 
       {
-        id: 'perfetto.ShowHelp',
+        id: 'dejaview.ShowHelp',
         name: 'Show help',
         callback: () => toggleHelp(),
         defaultHotkey: '?',
@@ -129,7 +129,7 @@ export class UiMainPerTrace implements m.ClassComponent {
     if (trace === undefined) return;
     assertTrue(trace instanceof TraceImpl);
     this.trace = trace;
-    document.title = `${trace.traceInfo.traceTitle || 'Trace'} - Perfetto UI`;
+    document.title = `${trace.traceInfo.traceTitle || 'Trace'} - DejaView UI`;
     this.maybeShowJsonWarning();
 
     // Register the aggregation tabs.
@@ -151,7 +151,7 @@ export class UiMainPerTrace implements m.ClassComponent {
 
     const cmds: Command[] = [
       {
-        id: 'perfetto.SetTimestampFormat',
+        id: 'dejaview.SetTimestampFormat',
         name: 'Set timestamp and duration format',
         callback: async () => {
           const options: PromptOption[] = [
@@ -183,7 +183,7 @@ export class UiMainPerTrace implements m.ClassComponent {
         },
       },
       {
-        id: 'perfetto.SetDurationPrecision',
+        id: 'dejaview.SetDurationPrecision',
         name: 'Set duration precision',
         callback: async () => {
           const options: PromptOption[] = [
@@ -205,19 +205,19 @@ export class UiMainPerTrace implements m.ClassComponent {
         },
       },
       {
-        id: 'perfetto.TogglePerformanceMetrics',
+        id: 'dejaview.TogglePerformanceMetrics',
         name: 'Toggle performance metrics',
         callback: () => {
           globals.dispatch(Actions.togglePerfDebug({}));
         },
       },
       {
-        id: 'perfetto.ShareTrace',
+        id: 'dejaview.ShareTrace',
         name: 'Share trace',
         callback: shareTrace,
       },
       {
-        id: 'perfetto.SearchNext',
+        id: 'dejaview.SearchNext',
         name: 'Go to next search result',
         callback: () => {
           trace.search.stepForward();
@@ -225,7 +225,7 @@ export class UiMainPerTrace implements m.ClassComponent {
         defaultHotkey: 'Enter',
       },
       {
-        id: 'perfetto.SearchPrev',
+        id: 'dejaview.SearchPrev',
         name: 'Go to previous search result',
         callback: () => {
           trace.search.stepBackwards();
@@ -233,18 +233,18 @@ export class UiMainPerTrace implements m.ClassComponent {
         defaultHotkey: 'Shift+Enter',
       },
       {
-        id: 'perfetto.RunQuery',
+        id: 'dejaview.RunQuery',
         name: 'Run query',
         callback: () => trace.omnibox.setMode(OmniboxMode.Query),
       },
       {
-        id: 'perfetto.Search',
+        id: 'dejaview.Search',
         name: 'Search',
         callback: () => trace.omnibox.setMode(OmniboxMode.Search),
         defaultHotkey: '/',
       },
       {
-        id: 'perfetto.CopyTimeWindow',
+        id: 'dejaview.CopyTimeWindow',
         name: `Copy selected time window to clipboard`,
         callback: async () => {
           const window = await getTimeSpanOfSelectionOrVisibleWindow(trace);
@@ -253,13 +253,13 @@ export class UiMainPerTrace implements m.ClassComponent {
         },
       },
       {
-        id: 'perfetto.FocusSelection',
+        id: 'dejaview.FocusSelection',
         name: 'Focus current selection',
         callback: () => trace.selection.scrollToCurrentSelection(),
         defaultHotkey: 'F',
       },
       {
-        id: 'perfetto.Deselect',
+        id: 'dejaview.Deselect',
         name: 'Deselect',
         callback: () => {
           trace.selection.clear();
@@ -267,7 +267,7 @@ export class UiMainPerTrace implements m.ClassComponent {
         defaultHotkey: 'Escape',
       },
       {
-        id: 'perfetto.SetTemporarySpanNote',
+        id: 'dejaview.SetTemporarySpanNote',
         name: 'Set the temporary span note based on the current selection',
         callback: () => {
           const range = trace.selection.findTimeRangeOfSelection();
@@ -282,7 +282,7 @@ export class UiMainPerTrace implements m.ClassComponent {
         defaultHotkey: 'M',
       },
       {
-        id: 'perfetto.AddSpanNote',
+        id: 'dejaview.AddSpanNote',
         name: 'Add a new span note based on the current selection',
         callback: () => {
           const range = trace.selection.findTimeRangeOfSelection();
@@ -296,7 +296,7 @@ export class UiMainPerTrace implements m.ClassComponent {
         defaultHotkey: 'Shift+M',
       },
       {
-        id: 'perfetto.RemoveSelectedNote',
+        id: 'dejaview.RemoveSelectedNote',
         name: 'Remove selected note',
         callback: () => {
           const selection = trace.selection.selection;
@@ -307,31 +307,31 @@ export class UiMainPerTrace implements m.ClassComponent {
         defaultHotkey: 'Delete',
       },
       {
-        id: 'perfetto.NextFlow',
+        id: 'dejaview.NextFlow',
         name: 'Next flow',
         callback: () => trace.flows.focusOtherFlow('Forward'),
         defaultHotkey: 'Mod+]',
       },
       {
-        id: 'perfetto.PrevFlow',
+        id: 'dejaview.PrevFlow',
         name: 'Prev flow',
         callback: () => trace.flows.focusOtherFlow('Backward'),
         defaultHotkey: 'Mod+[',
       },
       {
-        id: 'perfetto.MoveNextFlow',
+        id: 'dejaview.MoveNextFlow',
         name: 'Move next flow',
         callback: () => trace.flows.moveByFocusedFlow('Forward'),
         defaultHotkey: ']',
       },
       {
-        id: 'perfetto.MovePrevFlow',
+        id: 'dejaview.MovePrevFlow',
         name: 'Move prev flow',
         callback: () => trace.flows.moveByFocusedFlow('Backward'),
         defaultHotkey: '[',
       },
       {
-        id: 'perfetto.SelectAll',
+        id: 'dejaview.SelectAll',
         name: 'Select all',
         callback: () => {
           // This is a dual state command:
@@ -730,7 +730,7 @@ export class UiMainPerTrace implements m.ClassComponent {
       globals.embeddedMode
     ) {
       // When in embedded mode, the host app will control which trace format
-      // it passes to Perfetto, so we don't need to show this warning.
+      // it passes to DejaView, so we don't need to show this warning.
       return;
     }
 
@@ -744,7 +744,7 @@ export class UiMainPerTrace implements m.ClassComponent {
         'div',
         m(
           'span',
-          'Perfetto UI features are limited for JSON traces. ',
+          'DejaView UI features are limited for JSON traces. ',
           'We recommend recording ',
           m(
             'a',

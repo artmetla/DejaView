@@ -40,7 +40,7 @@ export class ThreadStateSelectionAggregator implements AreaSelectionAggregator {
     if (this.utids === undefined || this.utids.length === 0) return false;
 
     await engine.query(`
-      create or replace perfetto table ${this.id} as
+      create or replace dejaview table ${this.id} as
       select
         process.name as process_name,
         process.pid,

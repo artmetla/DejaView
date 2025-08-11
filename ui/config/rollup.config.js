@@ -112,8 +112,8 @@ const maybeBigtrace = process.env['ENABLE_BIGTRACE']
   ? [defBundle('tsc/bigtrace', 'bigtrace', 'dist_version/bigtrace')]
   : [];
 
-const maybeOpenPerfettoTrace = process.env['ENABLE_OPEN_PERFETTO_TRACE']
-  ? [defBundle('tsc', 'open_perfetto_trace', 'dist/open_perfetto_trace')]
+const maybeOpenDejaViewTrace = process.env['ENABLE_OPEN_DEJAVIEW_TRACE']
+  ? [defBundle('tsc', 'open_dejaview_trace', 'dist/open_dejaview_trace')]
   : [];
 
 module.exports = [
@@ -124,4 +124,4 @@ module.exports = [
   defServiceWorkerBundle(),
 ]
   .concat(maybeBigtrace)
-  .concat(maybeOpenPerfettoTrace);
+  .concat(maybeOpenDejaViewTrace);

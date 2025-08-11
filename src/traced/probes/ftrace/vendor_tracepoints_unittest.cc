@@ -33,7 +33,7 @@ using testing::Pair;
 using testing::Return;
 using testing::Sequence;
 
-namespace perfetto {
+namespace dejaview {
 namespace vendor_tracepoints {
 namespace {
 
@@ -281,4 +281,4 @@ TEST(DiscoverVendorTracepointsTest,
 
 }  // namespace
 }  // namespace vendor_tracepoints
-}  // namespace perfetto
+}  // namespace dejaview

@@ -20,9 +20,9 @@ source_set("metatrace") {
   deps = [
     "..:data_source",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/perfetto:zero",
+    "../../../../include/dejaview/ext/traced",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/dejaview:zero",
     "../../../base",
     "../../../tracing/core",
   ]

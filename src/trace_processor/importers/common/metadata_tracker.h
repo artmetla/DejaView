@@ -22,11 +22,11 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/storage/metadata.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Tracks information in the metadata table.
 class MetadataTracker {
@@ -73,6 +73,6 @@ class MetadataTracker {
   TraceStorage* storage_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_METADATA_TRACKER_H_

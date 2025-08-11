@@ -62,7 +62,7 @@ export class ChromeTracedTracingSession implements TracingSession {
 
   // Port through which we communicate with the extension.
   private chromePort: chrome.runtime.Port;
-  // True when Perfetto is connected via the port to the tracing session.
+  // True when DejaView is connected via the port to the tracing session.
   private isPortConnected: boolean;
 
   constructor(private tracingSessionListener: TracingSessionListener) {

@@ -17,20 +17,20 @@
 #include <algorithm>
 #include <vector>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/importers/proto/trace.descriptor.h"
 #include "src/trace_processor/util/proto_profiler.h"
 
 #include "protos/third_party/pprof/profile.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace protoprofile {
 namespace {
 
@@ -79,7 +79,7 @@ std::string PprofProfileComputer::Compute(
     size_t size,
     const std::string& message_type,
     trace_processor::DescriptorPool* pool) {
-  PERFETTO_CHECK(InternString("") == 0);
+  DEJAVIEW_CHECK(InternString("") == 0);
 
   trace_processor::util::SizeProfileComputer computer(pool, message_type);
   computer.Reset(ptr, size);
@@ -189,7 +189,7 @@ int Main(int argc, const char** argv) {
 
   base::ScopedFile proto_fd = base::OpenFile(input_path, O_RDONLY);
   if (!proto_fd) {
-    PERFETTO_ELOG("Could not open input path (%s)", input_path);
+    DEJAVIEW_ELOG("Could not open input path (%s)", input_path);
     return 1;
   }
 
@@ -200,7 +200,7 @@ int Main(int argc, const char** argv) {
   base::Status status = pool.AddFromFileDescriptorSet(kTraceDescriptor.data(),
                                                       kTraceDescriptor.size());
   if (!status.ok()) {
-    PERFETTO_ELOG("Could not add Trace proto descriptor: %s",
+    DEJAVIEW_ELOG("Could not add Trace proto descriptor: %s",
                   status.c_message());
     return 1;
   }
@@ -211,12 +211,12 @@ int Main(int argc, const char** argv) {
   base::ScopedFile output_fd =
       base::OpenFile(output_path, O_WRONLY | O_TRUNC | O_CREAT, 0600);
   if (!output_fd) {
-    PERFETTO_ELOG("Could not open output path (%s)", output_path);
+    DEJAVIEW_ELOG("Could not open output path (%s)", output_path);
     return 1;
   }
   PprofProfileComputer computer;
   std::string out =
-      computer.Compute(start, size, ".perfetto.protos.Trace", &pool);
+      computer.Compute(start, size, ".dejaview.protos.Trace", &pool);
   base::WriteAll(output_fd.get(), out.data(), out.size());
   base::FlushFile(output_fd.get());
 
@@ -225,8 +225,8 @@ int Main(int argc, const char** argv) {
 
 }  // namespace
 }  // namespace protoprofile
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, const char** argv) {
-  return perfetto::protoprofile::Main(argc, argv);
+  return dejaview::protoprofile::Main(argc, argv);
 }

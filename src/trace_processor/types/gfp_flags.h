@@ -19,10 +19,10 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/string_writer.h"
+#include "dejaview/ext/base/string_writer.h"
 #include "src/trace_processor/types/version_number.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // GFP flags in ftrace events should be parsed and read differently depending
@@ -33,6 +33,6 @@ void WriteGfpFlag(uint64_t value,
                   base::StringWriter* writer);
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_GFP_FLAGS_H_

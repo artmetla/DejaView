@@ -16,36 +16,36 @@
 
 #include <string>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/null_consumer_endpoint_for_testing.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/tracing_service_state.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/null_consumer_endpoint_for_testing.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/tracing_service_state.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/utils.h"
 #include "src/protozero/filtering/filter_bytecode_generator.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/config/trace_config.gen.h"
-#include "protos/perfetto/trace/perfetto/tracing_service_event.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/config/trace_config.gen.h"
+#include "protos/dejaview/trace/dejaview/tracing_service_event.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -58,12 +58,12 @@ using ::testing::SizeIs;
 
 }  // namespace
 
-TEST(PerfettoTracedIntegrationTest, NullConsumerEndpointBuilds) {
+TEST(DejaViewTracedIntegrationTest, NullConsumerEndpointBuilds) {
   NullConsumerEndpointForTesting npe;
   npe.StartTracing();
 }
 
-TEST(PerfettoTracedIntegrationTest, TestFakeProducer) {
+TEST(DejaViewTracedIntegrationTest, TestFakeProducer) {
   base::TestTaskRunner task_runner;
 
   TestHelper helper(&task_runner);
@@ -77,7 +77,7 @@ TEST(PerfettoTracedIntegrationTest, TestFakeProducer) {
   trace_config.set_duration_ms(200);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
 
   static constexpr size_t kNumPackets = 12;
@@ -104,7 +104,7 @@ TEST(PerfettoTracedIntegrationTest, TestFakeProducer) {
   }
 }
 
-TEST(PerfettoTracedIntegrationTest, VeryLargePackets) {
+TEST(DejaViewTracedIntegrationTest, VeryLargePackets) {
   base::TestTaskRunner task_runner;
 
   TestHelper helper(&task_runner);
@@ -118,7 +118,7 @@ TEST(PerfettoTracedIntegrationTest, VeryLargePackets) {
   trace_config.set_duration_ms(500);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
 
   static constexpr size_t kNumPackets = 7;
@@ -155,7 +155,7 @@ TEST(PerfettoTracedIntegrationTest, VeryLargePackets) {
 // responding or draining the socket (i.e. after we fill up the IPC buffer
 // traced doesn't block on trying to write to the IPC buffer and watchdog
 // doesn't kill it).
-TEST(PerfettoTracedIntegrationTest, UnresponsiveProducer) {
+TEST(DejaViewTracedIntegrationTest, UnresponsiveProducer) {
   base::TestTaskRunner task_runner;
 
   TestHelper helper(&task_runner);
@@ -171,7 +171,7 @@ TEST(PerfettoTracedIntegrationTest, UnresponsiveProducer) {
   trace_config.set_data_source_stop_timeout_ms(1);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
 
   static constexpr size_t kNumPackets = 1;
   static constexpr uint32_t kRandomSeed = 42;
@@ -218,14 +218,14 @@ TEST(PerfettoTracedIntegrationTest, UnresponsiveProducer) {
       producer->unix_socket_fd(), []() {});
 }
 
-TEST(PerfettoTracedIntegrationTest, DetachAndReattach) {
+TEST(DejaViewTracedIntegrationTest, DetachAndReattach) {
   base::TestTaskRunner task_runner;
 
   TraceConfig trace_config;
   trace_config.add_buffers()->set_size_kb(1024);
   trace_config.set_duration_ms(10000);  // Max timeout, session is ended before.
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   static constexpr size_t kNumPackets = 11;
   ds_config->mutable_for_testing()->set_message_count(kNumPackets);
   ds_config->mutable_for_testing()->set_message_size(32);
@@ -263,7 +263,7 @@ TEST(PerfettoTracedIntegrationTest, DetachAndReattach) {
 
 // Tests that a detached trace session is automatically cleaned up if the
 // consumer doesn't re-attach before its expiration time.
-TEST(PerfettoTracedIntegrationTest, ReattachFailsAfterTimeout) {
+TEST(DejaViewTracedIntegrationTest, ReattachFailsAfterTimeout) {
   base::TestTaskRunner task_runner;
 
   TraceConfig trace_config;
@@ -272,7 +272,7 @@ TEST(PerfettoTracedIntegrationTest, ReattachFailsAfterTimeout) {
   trace_config.set_write_into_file(true);
   trace_config.set_file_write_period_ms(100000);
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->mutable_for_testing()->set_message_count(1);
   ds_config->mutable_for_testing()->set_message_size(32);
   ds_config->mutable_for_testing()->set_send_batch_on_register(true);
@@ -293,7 +293,7 @@ TEST(PerfettoTracedIntegrationTest, ReattachFailsAfterTimeout) {
   // Use the file EOF (write end closed) as a way to detect when the trace
   // session is ended.
   char buf[1024];
-  while (PERFETTO_EINTR(read(*pipe_pair.rd, buf, sizeof(buf))) > 0) {
+  while (DEJAVIEW_EINTR(read(*pipe_pair.rd, buf, sizeof(buf))) > 0) {
   }
 
   // Give some margin for the tracing service to destroy the session.
@@ -305,7 +305,7 @@ TEST(PerfettoTracedIntegrationTest, ReattachFailsAfterTimeout) {
   EXPECT_FALSE(helper.AttachConsumer("key"));
 }
 
-TEST(PerfettoTracedIntegrationTest, TestProducerProvidedSMB) {
+TEST(DejaViewTracedIntegrationTest, TestProducerProvidedSMB) {
   base::TestTaskRunner task_runner;
 
   TestHelper helper(&task_runner);
@@ -330,7 +330,7 @@ TEST(PerfettoTracedIntegrationTest, TestProducerProvidedSMB) {
   trace_config.set_duration_ms(200);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
   *ds_config->mutable_for_testing() = test_config;
 
@@ -353,7 +353,7 @@ TEST(PerfettoTracedIntegrationTest, TestProducerProvidedSMB) {
 }
 
 // Regression test for b/153142114.
-TEST(PerfettoTracedIntegrationTest, QueryServiceStateLargeResponse) {
+TEST(DejaViewTracedIntegrationTest, QueryServiceStateLargeResponse) {
   base::TestTaskRunner task_runner;
 
   TestHelper helper(&task_runner);
@@ -404,7 +404,7 @@ TEST(PerfettoTracedIntegrationTest, QueryServiceStateLargeResponse) {
 // packet size exceeds the IPC limit. This tests that the tracing service, when
 // reassembling packets after filtering, doesn't "overglue" them. They still
 // need to be slice-able to fit into the ReadBuffers ipc.
-TEST(PerfettoTracedIntegrationTest, TraceFilterLargePackets) {
+TEST(DejaViewTracedIntegrationTest, TraceFilterLargePackets) {
   base::TestTaskRunner task_runner;
   TestHelper helper(&task_runner);
 
@@ -417,7 +417,7 @@ TEST(PerfettoTracedIntegrationTest, TraceFilterLargePackets) {
   trace_config.add_buffers()->set_size_kb(1024 * 16);
   trace_config.set_duration_ms(500);
   auto* prod_config = trace_config.add_producers();
-  prod_config->set_producer_name("android.perfetto.FakeProducer");
+  prod_config->set_producer_name("android.dejaview.FakeProducer");
   prod_config->set_shm_size_kb(1024 * 16);
   prod_config->set_page_size_kb(32);
 
@@ -425,7 +425,7 @@ TEST(PerfettoTracedIntegrationTest, TraceFilterLargePackets) {
   static constexpr uint32_t kRandomSeed = 42;
   static constexpr uint32_t kMsgSize = 8 * ipc::kIPCBufferSize;
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   auto* test_config = ds_config->mutable_for_testing();
   test_config->set_seed(kRandomSeed);
   test_config->set_message_count(kNumPackets);
@@ -461,10 +461,10 @@ TEST(PerfettoTracedIntegrationTest, TraceFilterLargePackets) {
                     Property(&protos::gen::TestEvent::str, SizeIs(kMsgSize)))));
 }
 
-#if (PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS) && \
-     PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX)
-TEST(PerfettoTracedIntegrationTest, TestMultipleProducerSockets) {
+#if (DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS) && \
+     DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+TEST(DejaViewTracedIntegrationTest, TestMultipleProducerSockets) {
   base::TestTaskRunner task_runner;
   auto temp_dir = base::TempDir::Create();
 
@@ -492,14 +492,14 @@ TEST(PerfettoTracedIntegrationTest, TestMultipleProducerSockets) {
   static constexpr uint32_t kMsgSize = 1024;
   // Enable the 1st producer.
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
   ds_config->mutable_for_testing()->set_message_count(12);
   ds_config->mutable_for_testing()->set_message_size(kMsgSize);
   ds_config->mutable_for_testing()->set_send_batch_on_register(true);
   // Enable the 2nd producer.
   ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer.1");
+  ds_config->set_name("android.dejaview.FakeProducer.1");
   ds_config->set_target_buffer(0);
   ds_config->mutable_for_testing()->set_message_count(24);
   ds_config->mutable_for_testing()->set_message_size(kMsgSize);
@@ -522,7 +522,7 @@ TEST(PerfettoTracedIntegrationTest, TestMultipleProducerSockets) {
     remove(sock_name.c_str());
 }
 
-TEST(PerfettoTracedIntegrationTest, TestShmemEmulation) {
+TEST(DejaViewTracedIntegrationTest, TestShmemEmulation) {
   base::TestTaskRunner task_runner;
   auto temp_dir = base::TempDir::Create();
 
@@ -556,7 +556,7 @@ TEST(PerfettoTracedIntegrationTest, TestShmemEmulation) {
   static constexpr uint32_t kRandomSeed = 42;
   // Enable the producer.
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
   ds_config->mutable_for_testing()->set_seed(kRandomSeed);
   ds_config->mutable_for_testing()->set_message_count(12);
@@ -580,4 +580,4 @@ TEST(PerfettoTracedIntegrationTest, TestShmemEmulation) {
 }
 #endif
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -1,5 +1,5 @@
 ## Syscalls
-The enter and exit of all syscalls can be tracked in Perfetto traces.
+The enter and exit of all syscalls can be tracked in DejaView traces.
 
 
 The following ftrace events need to added to the trace config to collect syscalls.
@@ -17,8 +17,8 @@ data_sources: {
 ```
 
 ## Linux kernel tracing
-Perfetto integrates with [Linux kernel event tracing](https://www.kernel.org/doc/Documentation/trace/ftrace.txt).
-While Perfetto has special support for some events (for example see [CPU Scheduling](#cpu-scheduling)) Perfetto can collect arbitrary events.
+DejaView integrates with [Linux kernel event tracing](https://www.kernel.org/doc/Documentation/trace/ftrace.txt).
+While DejaView has special support for some events (for example see [CPU Scheduling](#cpu-scheduling)) DejaView can collect arbitrary events.
 This config collects four Linux kernel events: 
 
 ```protobuf
@@ -35,7 +35,7 @@ data_sources {
 }
 ```
 
-The full configuration options for ftrace can be seen in [ftrace_config.proto](/protos/perfetto/config/ftrace/ftrace_config.proto).
+The full configuration options for ftrace can be seen in [ftrace_config.proto](/protos/dejaview/config/ftrace/ftrace_config.proto).
 
 ## Android system logs
 
@@ -60,18 +60,18 @@ data_sources: {
 ```
 
 You may also want to add filtering on a tags using the `filter_tags` parameter or set a min priority to be included in the trace using `min_prio`.
-For details about configuration options, see [android\_log\_config.proto](/protos/perfetto/config/android/android_log_config.proto). 
+For details about configuration options, see [android\_log\_config.proto](/protos/dejaview/config/android/android_log_config.proto). 
 
-The logs can be investigated along with other information in the trace using the [Perfetto UI](https://ui.perfetto.dev) as shown in the screenshot above.
+The logs can be investigated along with other information in the trace using the [DejaView UI](https://ui.perfetto.dev) as shown in the screenshot above.
 
-If using the `trace_processor`, these logs will be in the [android\_logs](/docs/analysis/sql-tables.autogen#android_logs) table. To look at the logs with the tag ‘perfetto’ you would use the following query:
+If using the `trace_processor`, these logs will be in the [android\_logs](/docs/analysis/sql-tables.autogen#android_logs) table. To look at the logs with the tag ‘dejaview’ you would use the following query:
 
 ```sql
-select * from android_logs where tag = "perfetto" order by ts
+select * from android_logs where tag = "dejaview" order by ts
 ```
 
 ### Android application tracing
-You can enable atrace through Perfetto. 
+You can enable atrace through DejaView. 
 
 ![](/docs/images/userspace.png)
 

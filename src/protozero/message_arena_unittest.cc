@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/message_arena.h"
+#include "dejaview/protozero/message_arena.h"
 
 #include <array>
 

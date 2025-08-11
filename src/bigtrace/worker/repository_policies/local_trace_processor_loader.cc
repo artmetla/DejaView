@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 #include "src/bigtrace/worker/repository_policies/local_trace_processor_loader.h"
-#include "perfetto/trace_processor/read_trace.h"
+#include "dejaview/trace_processor/read_trace.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 base::StatusOr<std::unique_ptr<trace_processor::TraceProcessor>>
 LocalTraceProcessorLoader::LoadTraceProcessor(const std::string& path) {
@@ -30,4 +30,4 @@ LocalTraceProcessorLoader::LoadTraceProcessor(const std::string& path) {
   return tp;
 }
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace

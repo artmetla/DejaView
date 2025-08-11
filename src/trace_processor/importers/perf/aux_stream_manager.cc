@@ -22,9 +22,9 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/aux_data_tokenizer.h"
 #include "src/trace_processor/importers/perf/auxtrace_info_record.h"
 #include "src/trace_processor/importers/perf/auxtrace_record.h"
@@ -36,7 +36,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 base::StatusOr<std::reference_wrapper<AuxStream>>
 AuxStreamManager::GetOrCreateStreamForSampleId(
@@ -117,7 +117,7 @@ base::Status AuxStreamManager::FinalizeStreams() {
 
 base::StatusOr<std::reference_wrapper<AuxStream>>
 AuxStreamManager::GetOrCreateStreamForCpu(uint32_t cpu) {
-  PERFETTO_CHECK(tokenizer_factory_);
+  DEJAVIEW_CHECK(tokenizer_factory_);
   std::unique_ptr<AuxStream>* stream_ptr = auxdata_streams_by_cpu_.Find(cpu);
   if (!stream_ptr) {
     std::unique_ptr<AuxStream> stream(new AuxStream(this));
@@ -159,7 +159,7 @@ base::Status AuxStream::OnAuxRecord(AuxRecord aux) {
 
 base::Status AuxStream::OnAuxtraceRecord(AuxtraceRecord auxtrace,
                                          TraceBlobView data) {
-  PERFETTO_CHECK(auxtrace.size == data.size());
+  DEJAVIEW_CHECK(auxtrace.size == data.size());
   if (auxtrace.offset < auxtrace_end_) {
     return base::ErrStatus("Overlapping AuxtraceData");
   }
@@ -203,8 +203,8 @@ base::Status AuxStream::MaybeParse() {
     const uint64_t end_offset = std::min(aux_record.end(), auxtrace_data.end());
     const uint64_t size = end_offset - start_offset;
 
-    PERFETTO_CHECK(tokenizer_offset_ == start_offset);
-    PERFETTO_CHECK(start_offset != end_offset);
+    DEJAVIEW_CHECK(tokenizer_offset_ == start_offset);
+    DEJAVIEW_CHECK(start_offset != end_offset);
 
     auxtrace_data.DropUntil(start_offset);
     TraceBlobView data = auxtrace_data.ConsumeFront(size);
@@ -240,7 +240,7 @@ base::Status AuxStream::NotifyEndOfStream() {
 }
 
 void AuxStream::AuxtraceDataChunk::DropUntil(uint64_t offset) {
-  PERFETTO_CHECK(offset >= this->offset() && offset <= end());
+  DEJAVIEW_CHECK(offset >= this->offset() && offset <= end());
   const uint64_t size = offset - this->offset();
 
   data_ = data_.slice_off(size, data_.size() - size);
@@ -249,7 +249,7 @@ void AuxStream::AuxtraceDataChunk::DropUntil(uint64_t offset) {
 }
 
 TraceBlobView AuxStream::AuxtraceDataChunk::ConsumeFront(uint64_t size) {
-  PERFETTO_CHECK(size <= data_.size());
+  DEJAVIEW_CHECK(size <= data_.size());
   TraceBlobView res = data_.slice_off(0, size);
   data_ = data_.slice_off(size, data_.size() - size);
   auxtrace_.size -= size;
@@ -257,4 +257,4 @@ TraceBlobView AuxStream::AuxtraceDataChunk::ConsumeFront(uint64_t size) {
   return res;
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

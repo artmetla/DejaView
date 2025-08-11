@@ -22,18 +22,18 @@
 #include <cstring>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 using base::StringSplitter;
 
@@ -82,7 +82,7 @@ base::Status NinjaLogParser::Parse(TraceBlobView blob) {
     //   the build system viewpoint, that was the same compiler/tool invocation.
     // - A subtle script that generates different outputs without taking a
     //   --output=filename argument (e.g. via env vars or similar). Note that
-    //   this happens in the perfetto codebase itself (goto.google.com/nigew).
+    //   this happens in the dejaview codebase itself (goto.google.com/nigew).
     //   In this case we want to treat the two entries as two distinct jobs.
     //
     // In summary the deduping logic here is: if both the hash and the
@@ -186,4 +186,4 @@ base::Status NinjaLogParser::NotifyEndOfFile() {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

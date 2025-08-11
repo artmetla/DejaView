@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
 #include <locale.h>
 #include <stdarg.h>
@@ -22,25 +22,25 @@
 
 #include <algorithm>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <xlocale.h>
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #endif
 
 #include <cinttypes>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 // Locale-independant as possible version of strtod.
 double StrToD(const char* nptr, char** endptr) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   static auto c_locale = newlocale(LC_ALL, "C", nullptr);
   return strtod_l(nptr, endptr, c_locale);
 #else
@@ -106,7 +106,7 @@ std::string Join(const std::vector<std::string>& parts,
 
 std::vector<std::string> SplitString(const std::string& text,
                                      const std::string& delimiter) {
-  PERFETTO_CHECK(!delimiter.empty());
+  DEJAVIEW_CHECK(!delimiter.empty());
 
   std::vector<std::string> output;
   size_t start = 0;
@@ -210,7 +210,7 @@ std::string StripChars(const std::string& str,
 std::string ReplaceAll(std::string str,
                        const std::string& to_replace,
                        const std::string& replacement) {
-  PERFETTO_CHECK(!to_replace.empty());
+  DEJAVIEW_CHECK(!to_replace.empty());
   size_t pos = 0;
   while ((pos = str.find(to_replace, pos)) != std::string::npos) {
     str.replace(pos, to_replace.length(), replacement);
@@ -219,7 +219,7 @@ std::string ReplaceAll(std::string str,
   return str;
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 bool WideToUTF8(const std::wstring& source, std::string& output) {
   if (source.empty() ||
       source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
@@ -236,9 +236,9 @@ bool WideToUTF8(const std::wstring& source, std::string& output) {
   }
   return true;
 }
-#endif // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 bool UTF8ToWide(const std::string& source, std::wstring& output) {
   if (source.empty() ||
       source.size() > static_cast<size_t>(std::numeric_limits<int>::max())) {
@@ -254,10 +254,10 @@ bool UTF8ToWide(const std::string& source, std::wstring& output) {
   }
   return true;
 }
-#endif // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 size_t SprintfTrunc(char* dst, size_t dst_size, const char* fmt, ...) {
-  if (PERFETTO_UNLIKELY(dst_size) == 0)
+  if (DEJAVIEW_UNLIKELY(dst_size) == 0)
     return 0;
 
   va_list args;
@@ -265,13 +265,13 @@ size_t SprintfTrunc(char* dst, size_t dst_size, const char* fmt, ...) {
   int src_size = vsnprintf(dst, dst_size, fmt, args);
   va_end(args);
 
-  if (PERFETTO_UNLIKELY(src_size) <= 0) {
+  if (DEJAVIEW_UNLIKELY(src_size) <= 0) {
     dst[0] = '\0';
     return 0;
   }
 
   size_t res;
-  if (PERFETTO_LIKELY(src_size < static_cast<int>(dst_size))) {
+  if (DEJAVIEW_LIKELY(src_size < static_cast<int>(dst_size))) {
     // Most common case.
     res = static_cast<size_t>(src_size);
   } else {
@@ -279,8 +279,8 @@ size_t SprintfTrunc(char* dst, size_t dst_size, const char* fmt, ...) {
     res = dst_size - 1;
   }
 
-  PERFETTO_DCHECK(res < dst_size);
-  PERFETTO_DCHECK(dst[res] == '\0');
+  DEJAVIEW_DCHECK(res < dst_size);
+  DEJAVIEW_DCHECK(dst[res] == '\0');
   return res;
 }
 
@@ -308,4 +308,4 @@ std::optional<LineWithOffset> FindLineWithOffset(base::StringView str,
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

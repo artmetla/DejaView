@@ -15,7 +15,7 @@
 --
 
 DROP TABLE IF EXISTS {{table_name}}_delta;
-CREATE PERFETTO TABLE {{table_name}}_delta AS
+CREATE DEJAVIEW TABLE {{table_name}}_delta AS
 WITH rolling_delta AS (
   -- emits one row per ts point
   SELECT
@@ -36,7 +36,7 @@ FROM rolling_delta
 GROUP BY 1;
 
 DROP TABLE IF EXISTS {{table_name}}_stats;
-CREATE PERFETTO TABLE {{table_name}}_stats AS
+CREATE DEJAVIEW TABLE {{table_name}}_stats AS
 SELECT
   process.name AS process_name,
   MIN(span.{{table_name}}_val) AS min_value,
@@ -51,7 +51,7 @@ GROUP BY 1
 ORDER BY 1;
 
 DROP VIEW IF EXISTS {{table_name}}_stats_proto;
-CREATE PERFETTO VIEW {{table_name}}_stats_proto AS
+CREATE DEJAVIEW VIEW {{table_name}}_stats_proto AS
 SELECT
   process_name,
   AndroidMemoryMetric_Counter(

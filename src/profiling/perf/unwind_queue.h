@@ -20,9 +20,9 @@
 #include <array>
 #include <atomic>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 struct WriteView {
@@ -61,7 +61,7 @@ class UnwindQueue {
     uint64_t rd = rd_pos_.load(std::memory_order_acquire);
     uint64_t wr = wr_pos_.load(std::memory_order_relaxed);
 
-    PERFETTO_DCHECK(wr >= rd);
+    DEJAVIEW_DCHECK(wr >= rd);
     if (wr - rd >= QueueSize)
       return WriteView{false, 0};  // buffer fully occupied
 
@@ -74,7 +74,7 @@ class UnwindQueue {
     uint64_t wr = wr_pos_.load(std::memory_order_acquire);
     uint64_t rd = rd_pos_.load(std::memory_order_relaxed);
 
-    PERFETTO_DCHECK(wr >= rd && wr - rd <= QueueSize);
+    DEJAVIEW_DCHECK(wr >= rd && wr - rd <= QueueSize);
     return ReadView{rd, wr};
   }
 
@@ -89,6 +89,6 @@ class UnwindQueue {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_UNWIND_QUEUE_H_

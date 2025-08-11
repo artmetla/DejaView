@@ -13,17 +13,17 @@
 // limitations under the License.
 
 import {test, Page} from '@playwright/test';
-import {PerfettoTestHelper} from './perfetto_ui_test_helper';
+import {DejaViewTestHelper} from './dejaview_ui_test_helper';
 
 test.describe.configure({mode: 'serial'});
 
-let pth: PerfettoTestHelper;
+let pth: DejaViewTestHelper;
 let page: Page;
 
 test.beforeAll(async ({browser}, _testInfo) => {
   page = await browser.newPage();
-  pth = new PerfettoTestHelper(page);
-  await pth.openTraceFile('api34_startup_cold.perfetto-trace');
+  pth = new DejaViewTestHelper(page);
+  await pth.openTraceFile('api34_startup_cold.dejaview-trace');
 });
 
 test('load trace', async () => {
@@ -41,7 +41,7 @@ test('omnibox search', async () => {
   await pth.searchSlice('composite 572441');
   await pth.resetFocus();
   await page.keyboard.press('f');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('search_slice.png');
 
   // Click on show process details in the details panel.
@@ -52,14 +52,14 @@ test('omnibox search', async () => {
 
 test('mark', async () => {
   await page.keyboard.press('/');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
 
   await page.keyboard.type('doFrame');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
 
   for (let i = 0; i < 4; i++) {
     await page.keyboard.press('Enter');
-    await pth.waitForPerfettoIdle();
+    await pth.waitForDejaViewIdle();
 
     if (i == 2) {
       await page.keyboard.press('Shift+M');
@@ -79,7 +79,7 @@ test('track expand and collapse', async () => {
   // Click 5 times in rapid succession.
   for (let i = 0; i < 5; i++) {
     await trackGroup.click();
-    await pth.waitForPerfettoIdle(50);
+    await pth.waitForDejaViewIdle(50);
   }
   await pth.waitForIdleAndScreenshot('traced_probes_compressed.png');
 });
@@ -89,11 +89,11 @@ test('pin tracks', async () => {
   await pth.toggleTrackGroup(trackGroup);
   let track = pth.locateTrack('traced 1055/mem.rss', trackGroup);
   await pth.pinTrackUsingShellBtn(track);
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('one_track_pinned.png');
 
   track = pth.locateTrack('traced 1055/traced 1055', trackGroup);
   await pth.pinTrackUsingShellBtn(track);
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('two_tracks_pinned.png');
 });

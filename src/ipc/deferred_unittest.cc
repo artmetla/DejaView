@@ -14,20 +14,20 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/ipc/deferred.h"
+#include "dejaview/ext/ipc/deferred.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "test/gtest_and_gmock.h"
 
 #include "src/ipc/test/deferred_unittest_messages.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 namespace {
 
-using ::perfetto::ipc::gen::TestMessage;
+using ::dejaview::ipc::gen::TestMessage;
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 #define EXPECT_DCHECK(x) EXPECT_DEATH_IF_SUPPORTED((x), ".*")
 #else
 #define EXPECT_DCHECK(x) x
@@ -280,4 +280,4 @@ TEST(DeferredTest, MoveAsBase) {
 
 }  // namespace
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

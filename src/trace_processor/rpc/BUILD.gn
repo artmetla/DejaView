@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
-import("../../../gn/perfetto_cc_proto_descriptor.gni")
+import("../../../gn/dejaview.gni")
+import("../../../gn/dejaview_cc_proto_descriptor.gni")
 import("../../../gn/test.gni")
 import("../../../gn/wasm.gni")
 
 # Prevent that this file is accidentally included in embedder builds.
-assert(enable_perfetto_trace_processor)
-assert(enable_perfetto_trace_processor_sqlite)
+assert(enable_dejaview_trace_processor)
+assert(enable_dejaview_trace_processor_sqlite)
 
 # This source_set is used both by WASM (for the function-call-based query
 # interface) and by the :httpd module for the HTTP interface.
@@ -33,8 +33,8 @@ source_set("rpc") {
     "..:lib",
     "..:metatrace",
     "../../../gn:default_deps",
-    "../../../include/perfetto/trace_processor",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../include/dejaview/trace_processor",
+    "../../../protos/dejaview/trace_processor:zero",
     "../../base",
     "../../base:version",
     "../../protozero",
@@ -42,11 +42,11 @@ source_set("rpc") {
     "../util",
   ]
   public_deps = [
-    "../../../include/perfetto/ext/trace_processor/rpc:query_result_serializer",
+    "../../../include/dejaview/ext/trace_processor/rpc:query_result_serializer",
   ]
 }
 
-if (is_perfetto_build_generator || perfetto_build_standalone) {
+if (is_dejaview_build_generator || dejaview_build_standalone) {
   # Static library target for RPC code. Needed for BigTrace in Google3.
   # TODO(b/278208757): remove this when we migrate to using rpc_shell.
   static_library("trace_processor_rpc") {
@@ -67,7 +67,7 @@ source_set("stdiod") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [ "query_result_serializer_unittest.cc" ]
   deps = [
@@ -75,13 +75,13 @@ perfetto_unittest_source_set("unittests") {
     "..:lib",
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../protos/dejaview/trace_processor:zero",
     "../../base",
     "../../protozero",
   ]
 }
 
-if (enable_perfetto_trace_processor_httpd) {
+if (enable_dejaview_trace_processor_httpd) {
   source_set("httpd") {
     sources = [
       "httpd.cc",
@@ -90,8 +90,8 @@ if (enable_perfetto_trace_processor_httpd) {
     deps = [
       ":rpc",
       "../../../gn:default_deps",
-      "../../../include/perfetto/trace_processor",
-      "../../../protos/perfetto/trace_processor:zero",
+      "../../../include/dejaview/trace_processor",
+      "../../../protos/dejaview/trace_processor:zero",
       "../../base",
       "../../base/http",
       "../../protozero",
@@ -99,19 +99,19 @@ if (enable_perfetto_trace_processor_httpd) {
   }
 }
 
-if (enable_perfetto_ui && is_wasm) {
+if (enable_dejaview_ui && is_wasm) {
   source_set("wasm_bridge") {
     sources = [ "wasm_bridge.cc" ]
     deps = [
       ":rpc",
       "../../../gn:default_deps",
-      "../../../include/perfetto/trace_processor",
+      "../../../include/dejaview/trace_processor",
       "../../base",
     ]
   }
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [

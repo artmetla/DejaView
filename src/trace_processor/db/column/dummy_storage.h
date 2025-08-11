@@ -21,19 +21,19 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/storage_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 // Dummy storage. Used for columns that are not supposed to have operations done
 // on them.
 class DummyStorage final : public StorageLayer {
  public:
-  StoragePtr GetStoragePtr() override { PERFETTO_FATAL("Shouldn't be called"); }
+  StoragePtr GetStoragePtr() override { DEJAVIEW_FATAL("Shouldn't be called"); }
 
   std::unique_ptr<DataLayerChain> MakeChain();
 
@@ -69,6 +69,6 @@ class DummyStorage final : public StorageLayer {
   };
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_DUMMY_STORAGE_H_

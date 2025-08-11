@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/raw_memory_graph_node.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/raw_memory_graph_node.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 const char RawMemoryGraphNode::kNameSize[] = "size";
@@ -69,4 +69,4 @@ RawMemoryGraphNode::RawMemoryGraphNode(
       flags_(Flags::kDefault) {}
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

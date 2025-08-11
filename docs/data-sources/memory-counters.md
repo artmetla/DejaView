@@ -1,6 +1,6 @@
 # Memory counters and events
 
-Perfetto allows to gather a number of memory events and counters on
+DejaView allows to gather a number of memory events and counters on
 Android and Linux. These events come from kernel interfaces, both ftrace and
 /proc interfaces, and are of two types: polled counters and events pushed by
 the kernel in the ftrace buffer.
@@ -264,7 +264,7 @@ See https://source.android.com/devices/tech/perf/lmkd for details.
 LMKs on Android, whether the old in-kernel `lowmemkiller` or the newer `lmkd`,
 use a completely different mechanism than the standard
 [Linux kernel's OOM Killer](https://linux-mm.org/OOM_Killer).
-Perfetto at the moment supports only Android LMK events (Both in-kernel and
+DejaView at the moment supports only Android LMK events (Both in-kernel and
 user-space) and does not support tracing of Linux kernel OOM Killer events.
 Linux OOMKiller events are still theoretically possible on Android but extremely
 unlikely to happen. If they happen, they are more likely the symptom of a

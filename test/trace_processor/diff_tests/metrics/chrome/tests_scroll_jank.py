@@ -361,7 +361,7 @@ class ChromeScrollJankMetrics(TestSuite):
         trace=DataPath('chrome_rendering_desktop.pftrace'),
         query=Metric('chrome_dropped_frames'),
         out=TextProto(r"""
-        [perfetto.protos.chrome_dropped_frames]: {
+        [dejaview.protos.chrome_dropped_frames]: {
           dropped_frame: {
             ts: 166479338462000
             process_name: "Renderer"
@@ -428,7 +428,7 @@ class ChromeScrollJankMetrics(TestSuite):
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query=Metric('chrome_scroll_jank_v3'),
         out=TextProto(r"""
-        [perfetto.protos.chrome_scroll_jank_v3] {
+        [dejaview.protos.chrome_scroll_jank_v3] {
           trace_num_frames: 364
           trace_num_janky_frames: 6
           trace_scroll_jank_percentage: 1.6483516483516483
@@ -489,7 +489,7 @@ class ChromeScrollJankMetrics(TestSuite):
         # reliable range is affected by their filtering.
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           HAS_DESCENDANT_SLICE_WITH_NAME(
@@ -507,7 +507,7 @@ class ChromeScrollJankMetrics(TestSuite):
         # reliable range is affected by their filtering.
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           HAS_DESCENDANT_SLICE_WITH_NAME(
@@ -525,7 +525,7 @@ class ChromeScrollJankMetrics(TestSuite):
         # reliable range is affected by their filtering.
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           _DESCENDANT_SLICE_END(
@@ -543,7 +543,7 @@ class ChromeScrollJankMetrics(TestSuite):
         # reliable range is affected by their filtering.
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           _DESCENDANT_SLICE_END(

@@ -14,7 +14,7 @@
 
 import {COUNTER_TRACK_KIND} from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {ThreadSliceTrack} from '../../frontend/thread_slice_track';
 import {NUM, NUM_NULL, STR, STR_NULL} from '../../trace_processor/query_result';
 import {TraceProcessorCounterTrack} from '../counter/trace_processor_counter_track';
@@ -22,7 +22,7 @@ import {SLICE_TRACK_KIND} from '../../public/track_kinds';
 import {TrackNode, type TrackNodeContainer} from '../../public/workspace';
 import {getOrCreateGroupForProcess} from '../../public/standard_groups';
 
-class AnnotationPlugin implements PerfettoPlugin {
+class AnnotationPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     await this.addAnnotationTracks(ctx);
     await this.addAnnotationCounterTracks(ctx);
@@ -151,6 +151,6 @@ class AnnotationPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.Annotation',
+  pluginId: 'dejaview.Annotation',
   plugin: AnnotationPlugin,
 };

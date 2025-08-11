@@ -23,7 +23,7 @@
 
 #include "src/base/test/tmp_dir_tree.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class CpuFreqInfoForTesting {
  public:
@@ -35,6 +35,6 @@ class CpuFreqInfoForTesting {
   base::TmpDirTree tmpdir_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_COMMON_CPU_FREQ_INFO_FOR_TESTING_H_

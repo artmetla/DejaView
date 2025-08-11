@@ -25,10 +25,10 @@
 #include <optional>
 #include <tuple>
 
-#include "perfetto/ext/base/circular_queue.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/circular_queue.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // A simple memory allocator which "bumps" a pointer to service allocations.
@@ -176,7 +176,7 @@ class BumpAllocator {
     return erased_front_chunks_count_ + index_in_chunks_vec;
   }
   uint64_t LastChunkIndex() const {
-    PERFETTO_DCHECK(!chunks_.empty());
+    DEJAVIEW_DCHECK(!chunks_.empty());
     return QueueIndexToChunkIndex(static_cast<uint64_t>(chunks_.size() - 1));
   }
 
@@ -185,6 +185,6 @@ class BumpAllocator {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_BUMP_ALLOCATOR_H_

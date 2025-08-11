@@ -13,19 +13,19 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<configuration description="Runs perfetto_integrationtests.">
+<configuration description="Runs dejaview_integrationtests.">
     <option name="test-suite-tag" value="apct" />
     <option name="test-suite-tag" value="apct-native" />
 
     <target_preparer class="com.android.tradefed.targetprep.PushFilePreparer">
         <option name="cleanup" value="true" />
         <option name="push"
-                value="perfetto_integrationtests->/data/local/tests/unrestricted/perfetto_integrationtests" />
+                value="dejaview_integrationtests->/data/local/tests/unrestricted/dejaview_integrationtests" />
     </target_preparer>
 
     <test class="com.android.tradefed.testtype.GTest" >
         <option name="native-test-device-path"
                 value="/data/local/tests/unrestricted" />
-        <option name="module-name" value="perfetto_integrationtests" />
+        <option name="module-name" value="dejaview_integrationtests" />
     </test>
 </configuration>

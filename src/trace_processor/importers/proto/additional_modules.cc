@@ -31,7 +31,7 @@
 #include "src/trace_processor/importers/proto/v8_module.h"
 #include "src/trace_processor/importers/proto/winscope/winscope_module.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 void RegisterAdditionalModules(TraceProcessorContext* context) {
@@ -63,4 +63,4 @@ void RegisterAdditionalModules(TraceProcessorContext* context) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

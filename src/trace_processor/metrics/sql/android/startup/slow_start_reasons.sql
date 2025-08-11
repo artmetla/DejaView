@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.startup.startups;
+INCLUDE DEJAVIEW MODULE android.startup.startups;
 
 SELECT RUN_METRIC('android/startup/thread_state_breakdown.sql');
 SELECT RUN_METRIC('android/startup/system_state.sql');
@@ -22,7 +22,7 @@ SELECT RUN_METRIC('android/startup/mcycles_per_launch.sql');
 -- Define helper functions related to slow start thresholds
 SELECT RUN_METRIC('android/startup/slow_start_thresholds.sql');
 
-CREATE OR REPLACE PERFETTO FUNCTION _is_spans_overlapping(
+CREATE OR REPLACE DEJAVIEW FUNCTION _is_spans_overlapping(
   ts1 LONG,
   ts_end1 LONG,
   ts2 LONG,
@@ -31,19 +31,19 @@ RETURNS BOOL AS
 SELECT (IIF($ts1 < $ts2, $ts2, $ts1)
       < IIF($ts_end1 < $ts_end2, $ts_end1, $ts_end2));
 
-CREATE OR REPLACE PERFETTO FUNCTION get_percent(num LONG, total LONG)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_percent(num LONG, total LONG)
 RETURNS STRING AS
   SELECT SUBSTRING(CAST(($num * 100 + 0.0) / $total AS STRING), 1, 5);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_ns_to_s(ns LONG)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_ns_to_s(ns LONG)
 RETURNS STRING AS
   SELECT CAST(($ns + 0.0) / 1e9 AS STRING);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_ns_to_ms(ns LONG)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_ns_to_ms(ns LONG)
 RETURNS STRING AS
   SELECT SUBSTRING(CAST(($ns + 0.0) / 1e6 AS STRING), 1, 6);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_main_thread_time_for_launch_in_runnable_state(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_main_thread_time_for_launch_in_runnable_state(
   startup_id LONG, num_threads INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceThreadSection(
@@ -57,7 +57,7 @@ RETURNS PROTO AS
     ORDER BY dur DESC
     LIMIT $num_threads);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_main_thread_time_for_launch_and_state(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_main_thread_time_for_launch_and_state(
   startup_id LONG, state STRING, num_threads INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceThreadSection(
@@ -71,7 +71,7 @@ RETURNS PROTO AS
     ORDER BY dur DESC
     LIMIT $num_threads);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_main_thread_time_for_launch_state_and_io_wait(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_main_thread_time_for_launch_state_and_io_wait(
   startup_id INT, state STRING, io_wait BOOL, num_threads INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceThreadSection(
@@ -86,7 +86,7 @@ RETURNS PROTO AS
     ORDER BY dur DESC
     LIMIT $num_threads);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_thread_time_for_launch_state_and_thread(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_thread_time_for_launch_state_and_thread(
   startup_id INT, state STRING, thread_name STRING, num_threads INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceThreadSection(
@@ -100,7 +100,7 @@ RETURNS PROTO AS
     ORDER BY dur DESC
     LIMIT $num_threads);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_missing_baseline_profile_for_launch(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_missing_baseline_profile_for_launch(
   startup_id LONG, pkg_name STRING)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
@@ -122,7 +122,7 @@ RETURNS PROTO AS
     ORDER BY slice_dur DESC
     LIMIT 1);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_run_from_apk(startup_id LONG)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_run_from_apk(startup_id LONG)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
     'start_timestamp', slice_ts,
@@ -140,7 +140,7 @@ RETURNS PROTO AS
     ORDER BY slice_dur DESC
     LIMIT 1);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_unlock_running_during_launch_slice(startup_id LONG)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_unlock_running_during_launch_slice(startup_id LONG)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
     'start_timestamp', slice_ts,
@@ -161,7 +161,7 @@ RETURNS PROTO AS
     AND (slice.ts + slice.dur) <= launches.ts_end
     LIMIT 1);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_gc_activity(startup_id LONG, num_slices INT)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_gc_activity(startup_id LONG, num_slices INT)
 RETURNS PROTO  AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
     'start_timestamp', slice_ts,
@@ -181,7 +181,7 @@ RETURNS PROTO  AS
     ORDER BY slice_dur DESC
     LIMIT $num_slices);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_dur_on_main_thread_for_startup_and_slice(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_dur_on_main_thread_for_startup_and_slice(
   startup_id LONG, slice_name STRING, num_slices INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
@@ -197,7 +197,7 @@ RETURNS PROTO AS
     ORDER BY slice_dur DESC
     LIMIT $num_slices);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_main_thread_binder_transactions_blocked(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_main_thread_binder_transactions_blocked(
   startup_id LONG, threshold DOUBLE, num_slices INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
@@ -224,7 +224,7 @@ RETURNS PROTO AS
     ORDER BY request.slice_dur DESC
     LIMIT $num_slices);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_slices_concurrent_to_launch(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_slices_concurrent_to_launch(
   startup_id INT, slice_glob STRING, num_slices INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
@@ -242,7 +242,7 @@ RETURNS PROTO AS
       s.ts BETWEEN launch.ts AND launch.ts_end
     ORDER BY dur DESC LIMIT $num_slices);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_slices_for_startup_and_slice_name(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_slices_for_startup_and_slice_name(
   startup_id INT, slice_name STRING, num_slices INT)
 RETURNS PROTO AS
   SELECT RepeatedField(AndroidStartupMetric_TraceSliceSection(
@@ -255,7 +255,7 @@ RETURNS PROTO AS
     ORDER BY slice_dur DESC
     LIMIT $num_slices);
 
-CREATE OR REPLACE PERFETTO FUNCTION get_process_running_concurrent_to_launch(
+CREATE OR REPLACE DEJAVIEW FUNCTION get_process_running_concurrent_to_launch(
   startup_id INT, process_glob STRING)
 RETURNS STRING AS
   SELECT process.name
@@ -273,7 +273,7 @@ RETURNS STRING AS
        ORDER BY (launch.ts_end - sched.ts) DESC
        LIMIT 1;
 
-CREATE OR REPLACE PERFETTO FUNCTION get_slow_start_reason_with_details(startup_id LONG)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_slow_start_reason_with_details(startup_id LONG)
 RETURNS PROTO AS
       SELECT RepeatedField(AndroidStartupMetric_SlowStartReason(
         'reason_id', reason_id,

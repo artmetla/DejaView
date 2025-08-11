@@ -18,32 +18,32 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/ext/tracing/ipc/service_ipc_host.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/default_socket.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/ext/tracing/ipc/service_ipc_host.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/default_socket.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 // If we're building on Android and starting the daemons ourselves,
 // create the sockets in a world-writable location.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && \
-    PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
 #define TEST_PRODUCER_SOCK_NAME "/data/local/tmp/traced_producer"
 #else
-#define TEST_PRODUCER_SOCK_NAME ::perfetto::GetProducerSocket()
+#define TEST_PRODUCER_SOCK_NAME ::dejaview::GetProducerSocket()
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace shm_fuzz {
 namespace {
 
@@ -63,7 +63,7 @@ class FakeProducer : public Producer {
 
   void Connect(const char* socket_name, base::TaskRunner* task_runner) {
     endpoint_ = ProducerIPCClient::Connect(
-        socket_name, this, "android.perfetto.FakeProducer", task_runner);
+        socket_name, this, "android.dejaview.FakeProducer", task_runner);
   }
 
   void OnConnect() override {
@@ -126,9 +126,9 @@ class FuzzerFakeProducerThread {
   }
 
   void Connect() {
-    runner_ = base::ThreadTaskRunner::CreateAndStart("perfetto.prd.fake");
+    runner_ = base::ThreadTaskRunner::CreateAndStart("dejaview.prd.fake");
     runner_->PostTaskAndWaitForTesting([this]() {
-      producer_.reset(new FakeProducer("android.perfetto.FakeProducer", data_,
+      producer_.reset(new FakeProducer("android.dejaview.FakeProducer", data_,
                                        size_, on_produced_and_committed_));
       producer_->Connect(TEST_PRODUCER_SOCK_NAME, runner_->get());
     });
@@ -171,7 +171,7 @@ int FuzzSharedMemory(const uint8_t* data, size_t size) {
   trace_config.add_buffers()->set_size_kb(8);
 
   auto* ds_config = trace_config.add_data_sources()->mutable_config();
-  ds_config->set_name("android.perfetto.FakeProducer");
+  ds_config->set_name("android.dejaview.FakeProducer");
   ds_config->set_target_buffer(0);
 
   helper.StartTracing(trace_config);
@@ -185,10 +185,10 @@ int FuzzSharedMemory(const uint8_t* data, size_t size) {
 
 }  // namespace
 }  // namespace shm_fuzz
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  return perfetto::shm_fuzz::FuzzSharedMemory(data, size);
+  return dejaview::shm_fuzz::FuzzSharedMemory(data, size);
 }

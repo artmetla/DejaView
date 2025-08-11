@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/platform.h"
+#include "dejaview/tracing/platform.h"
 
 #include <atomic>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/waitable_event.h"
-#include "perfetto/tracing/internal/tracing_tls.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/waitable_event.h"
+#include "dejaview/tracing/internal/tracing_tls.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 internal::TracingTLS* GetTLS() {
@@ -39,9 +39,9 @@ class FakeTraceWriter : public TraceWriterBase {
   ~FakeTraceWriter() override { *destroyed_flag = true; }
   protozero::MessageHandle<protos::pbzero::TracePacket> NewTracePacket()
       override {
-    PERFETTO_CHECK(false);
+    DEJAVIEW_CHECK(false);
   }
-  void FinishTracePacket() override { PERFETTO_CHECK(false); }
+  void FinishTracePacket() override { DEJAVIEW_CHECK(false); }
   void Flush(std::function<void()>) override {}
   uint64_t written() const override { return 0; }
 };
@@ -109,4 +109,4 @@ TEST(PlatformUnittest, ThreadingAndTLSDtor) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

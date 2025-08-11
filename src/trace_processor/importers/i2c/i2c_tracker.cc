@@ -15,9 +15,9 @@
  */
 
 #include "src/trace_processor/importers/i2c/i2c_tracker.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 I2cTracker::I2cTracker(TraceProcessorContext* context) : context_(context) {
@@ -69,4 +69,4 @@ void I2cTracker::Exit(int64_t ts,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -28,8 +28,8 @@ import tempfile
 import time
 import uuid
 
-from perfetto.prebuilts.manifests.traceconv import *
-from perfetto.prebuilts.perfetto_prebuilts import *
+from dejaview.prebuilts.manifests.traceconv import *
+from dejaview.prebuilts.dejaview_prebuilts import *
 
 NULL = open(os.devnull)
 NOOUT = {
@@ -158,7 +158,7 @@ def print_options(parser):
 def main(argv):
   parser = argparse.ArgumentParser(description="""Collect a heap profile
 
-  The PERFETTO_PROGUARD_MAP=packagename=map_filename.txt[:packagename=map_filename.txt...] environment variable can be used to pass proguard deobfuscation maps for different packages""", formatter_class=argparse.RawDescriptionHelpFormatter)
+  The DEJAVIEW_PROGUARD_MAP=packagename=map_filename.txt[:packagename=map_filename.txt...] environment variable can be used to pass proguard deobfuscation maps for different packages""", formatter_class=argparse.RawDescriptionHelpFormatter)
 
   parser.add_argument(
       "-i",
@@ -376,7 +376,7 @@ def main(argv):
   # Do this AFTER print_config so we do not download traceconv only to
   # print out the config.
   if traceconv_binary is None:
-    traceconv_binary = get_perfetto_prebuilt(TRACECONV_MANIFEST, soft_fail=True)
+    traceconv_binary = get_dejaview_prebuilt(TRACECONV_MANIFEST, soft_fail=True)
 
   known_issues = maybe_known_issues()
   if known_issues:
@@ -387,14 +387,14 @@ def main(argv):
   # this.
   uuid_trace = release_or_newer('R')
   if uuid_trace:
-    profile_device_path = '/data/misc/perfetto-traces/profile-' + UUID
+    profile_device_path = '/data/misc/dejaview-traces/profile-' + UUID
   else:
     user = subprocess.check_output(['adb', 'shell',
                                     'whoami']).decode('utf-8').strip()
-    profile_device_path = '/data/misc/perfetto-traces/profile-' + user
+    profile_device_path = '/data/misc/dejaview-traces/profile-' + user
 
-  perfetto_cmd = ('CFG=\'{cfg}\'; echo ${{CFG}} | '
-                  'perfetto --txt -c - -o ' + profile_device_path + ' -d')
+  dejaview_cmd = ('CFG=\'{cfg}\'; echo ${{CFG}} | '
+                  'dejaview --txt -c - -o ' + profile_device_path + ' -d')
 
   if args.disable_selinux:
     enforcing = subprocess.check_output(['adb', 'shell',
@@ -428,12 +428,12 @@ def main(argv):
         "Output directory {} not empty".format(profile_target), file=sys.stderr)
     return 1
 
-  perfetto_pid = subprocess.check_output(
-      ['adb', 'exec-out', perfetto_cmd.format(cfg=cfg)]).strip()
+  dejaview_pid = subprocess.check_output(
+      ['adb', 'exec-out', dejaview_cmd.format(cfg=cfg)]).strip()
   try:
-    perfetto_pid = int(perfetto_pid.strip())
+    dejaview_pid = int(dejaview_pid.strip())
   except ValueError:
-    print("Failed to invoke perfetto: {}".format(perfetto_pid), file=sys.stderr)
+    print("Failed to invoke dejaview: {}".format(dejaview_pid), file=sys.stderr)
     return 1
 
   old_handler = signal.signal(signal.SIGINT, sigint_handler)
@@ -444,14 +444,14 @@ def main(argv):
   device_connected = True
   while not device_connected or (exists and not IS_INTERRUPTED):
     exists = subprocess.call(
-        ['adb', 'shell', '[ -d /proc/{} ]'.format(perfetto_pid)], **NOOUT) == 0
+        ['adb', 'shell', '[ -d /proc/{} ]'.format(dejaview_pid)], **NOOUT) == 0
     device_connected = subprocess.call(['adb', 'shell', 'true'], **NOOUT) == 0
     time.sleep(1)
   print("Waiting for profiler shutdown...")
   signal.signal(signal.SIGINT, old_handler)
   if IS_INTERRUPTED:
     # Not check_call because it could have existed in the meantime.
-    subprocess.call(['adb', 'shell', 'kill', '-INT', str(perfetto_pid)])
+    subprocess.call(['adb', 'shell', 'kill', '-INT', str(dejaview_pid)])
   if args.simpleperf:
     subprocess.check_call(['adb', 'shell', 'killall', '-INT', 'simpleperf'])
     print("Waiting for simpleperf to exit.")
@@ -463,10 +463,10 @@ def main(argv):
     print("Pulled simpleperf profile to " + profile_target +
           "/heapprofd_profile")
 
-  # Wait for perfetto cmd to return.
+  # Wait for dejaview cmd to return.
   while exists:
     exists = subprocess.call(
-        ['adb', 'shell', '[ -d /proc/{} ]'.format(perfetto_pid)]) == 0
+        ['adb', 'shell', '[ -d /proc/{} ]'.format(dejaview_pid)]) == 0
     time.sleep(1)
 
   profile_host_path = os.path.join(profile_target, 'raw-trace')
@@ -479,11 +479,11 @@ def main(argv):
   if traceconv_binary is None:
     print('Wrote profile to {}'.format(profile_host_path))
     print(
-        'This file can be opened using the Perfetto UI, https://ui.perfetto.dev'
+        'This file can be opened using the DejaView UI, https://ui.perfetto.dev'
     )
     return 0
 
-  binary_path = os.getenv('PERFETTO_BINARY_PATH')
+  binary_path = os.getenv('DEJAVIEW_BINARY_PATH')
   if not args.no_android_tree_symbolization:
     product_out = os.getenv('ANDROID_PRODUCT_OUT')
     if product_out:
@@ -506,14 +506,14 @@ def main(argv):
           os.path.join(profile_target, 'raw-trace')
       ],
                             env=dict(
-                                os.environ, PERFETTO_BINARY_PATH=binary_path),
+                                os.environ, DEJAVIEW_BINARY_PATH=binary_path),
                             stdout=fd)
     if ret == 0:
       concat_files.append(os.path.join(profile_target, 'symbols'))
     else:
       print("Failed to symbolize. Continuing without symbols.", file=sys.stderr)
 
-  proguard_map = os.getenv('PERFETTO_PROGUARD_MAP')
+  proguard_map = os.getenv('DEJAVIEW_PROGUARD_MAP')
   if proguard_map is not None:
     with open(os.path.join(profile_target, 'deobfuscation-packets'), 'w') as fd:
       ret = subprocess.call([
@@ -521,7 +521,7 @@ def main(argv):
           os.path.join(profile_target, 'raw-trace')
       ],
                             env=dict(
-                                os.environ, PERFETTO_PROGUARD_MAP=proguard_map),
+                                os.environ, DEJAVIEW_PROGUARD_MAP=proguard_map),
                             stdout=fd)
     if ret == 0:
       concat_files.append(os.path.join(profile_target, 'deobfuscation-packets'))

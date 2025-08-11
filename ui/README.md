@@ -1,10 +1,10 @@
-# Perfetto UI
+# DejaView UI
 
 ## Quick Start
 
 ```bash
 $ git clone https://android.googlesource.com/platform/external/perfetto/
-$ cd perfetto
+$ cd dejaview
 
 # Install build dependencies
 tools/install-build-deps --ui

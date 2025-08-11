@@ -16,23 +16,23 @@
 
 #include "src/trace_processor/util/protozero_to_json.h"
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/protozero/test/example_proto/test_messages.pbzero.h"
 #include "src/trace_processor/importers/proto/track_event.descriptor.h"
 #include "src/trace_processor/test_messages.descriptor.h"
 #include "src/trace_processor/util/descriptors.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/track_event/chrome_compositor_scheduler_state.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_compositor_scheduler_state.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_STANDALONE_BUILD)
-#include "protos/perfetto/metrics/chrome/all_chrome_metrics.pb.h"  // nogncheck
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_STANDALONE_BUILD)
+#include "protos/dejaview/metrics/chrome/all_chrome_metrics.pb.h"  // nogncheck
 #include "src/trace_processor/metrics/all_chrome_metrics.descriptor.h"  // nogncheck
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace protozero_to_json {
 
@@ -48,21 +48,21 @@ using ::testing::Eq;
 using ::testing::StartsWith;
 
 TEST(ProtozeroToJsonTest, CustomDescriptorPoolEmpty) {
-  using perfetto::protos::pbzero::TrackEvent;
+  using dejaview::protos::pbzero::TrackEvent;
   protozero::HeapBuffered<TrackEvent> msg{kChunkSize, kChunkSize};
   auto binary_proto = msg.SerializeAsArray();
   DescriptorPool pool;
   auto status = pool.AddFromFileDescriptorSet(kTrackEventDescriptor.data(),
                                               kTrackEventDescriptor.size());
   ASSERT_TRUE(status.ok());
-  EXPECT_EQ("{}", ProtozeroToJson(pool, ".perfetto.protos.TrackEvent",
+  EXPECT_EQ("{}", ProtozeroToJson(pool, ".dejaview.protos.TrackEvent",
                                   binary_proto, kPretty));
-  EXPECT_EQ("{}", ProtozeroToJson(pool, ".perfetto.protos.TrackEvent",
+  EXPECT_EQ("{}", ProtozeroToJson(pool, ".dejaview.protos.TrackEvent",
                                   binary_proto, kNone));
 }
 
 TEST(ProtozeroToJsonTest, CustomDescriptorPoolBasic) {
-  using perfetto::protos::pbzero::TrackEvent;
+  using dejaview::protos::pbzero::TrackEvent;
   protozero::HeapBuffered<TrackEvent> msg{kChunkSize, kChunkSize};
   msg->set_track_uuid(4);
   msg->set_timestamp_delta_us(3);
@@ -75,15 +75,15 @@ TEST(ProtozeroToJsonTest, CustomDescriptorPoolBasic) {
   "track_uuid": 4,
   "timestamp_delta_us": 3
 })",
-            ProtozeroToJson(pool, ".perfetto.protos.TrackEvent", binary_proto,
+            ProtozeroToJson(pool, ".dejaview.protos.TrackEvent", binary_proto,
                             kPretty));
   EXPECT_EQ(R"({"track_uuid":4,"timestamp_delta_us":3})",
-            ProtozeroToJson(pool, ".perfetto.protos.TrackEvent", binary_proto,
+            ProtozeroToJson(pool, ".dejaview.protos.TrackEvent", binary_proto,
                             kNone));
 }
 
 TEST(ProtozeroToJsonTest, CustomDescriptorPoolNestedMsg) {
-  using perfetto::protos::pbzero::TrackEvent;
+  using dejaview::protos::pbzero::TrackEvent;
   protozero::HeapBuffered<TrackEvent> msg{kChunkSize, kChunkSize};
   msg->set_track_uuid(4);
   auto* state = msg->set_cc_scheduler_state();
@@ -113,20 +113,20 @@ TEST(ProtozeroToJsonTest, CustomDescriptorPoolNestedMsg) {
   },
   "timestamp_delta_us": 3
 })",
-            ProtozeroToJson(pool, ".perfetto.protos.TrackEvent", binary_proto,
+            ProtozeroToJson(pool, ".dejaview.protos.TrackEvent", binary_proto,
                             kPretty));
 
   EXPECT_EQ(
       R"({"track_uuid":4,"cc_scheduler_state":{"deadline_us":7,"state_machine":{"minor_state":{"commit_count":8}},"observing_begin_frame_source":true},"timestamp_delta_us":3})",
-      ProtozeroToJson(pool, ".perfetto.protos.TrackEvent", binary_proto,
+      ProtozeroToJson(pool, ".dejaview.protos.TrackEvent", binary_proto,
                       kNone));
 }
 
 // This test depends on the CustomOptions message in descriptor.proto which
 // is very tricky to point to on the non-standalone build.
-#if PERFETTO_BUILDFLAG(PERFETTO_STANDALONE_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_STANDALONE_BUILD)
 TEST(ProtozeroToJsonTest, CustomDescriptorPoolAnnotations) {
-  using perfetto::protos::TestChromeMetric;
+  using dejaview::protos::TestChromeMetric;
   TestChromeMetric msg;
   msg.set_test_value(1);
   auto binary_proto = msg.SerializeAsString();
@@ -149,7 +149,7 @@ TEST(ProtozeroToJsonTest, CustomDescriptorPoolAnnotations) {
     }
   }
 })",
-            ProtozeroToJson(pool, ".perfetto.protos.TestChromeMetric",
+            ProtozeroToJson(pool, ".dejaview.protos.TestChromeMetric",
                             binary_proto_bytes, kPretty | kInlineAnnotations));
 }
 #endif
@@ -790,4 +790,4 @@ TEST_F(ProtozeroToJsonTestMessageTest, NonExistingType) {
 }  // namespace
 }  // namespace protozero_to_json
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

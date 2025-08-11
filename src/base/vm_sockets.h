@@ -17,10 +17,10 @@
 #ifndef SRC_BASE_VM_SOCKETS_H_
 #define SRC_BASE_VM_SOCKETS_H_
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
 #include <sys/socket.h>
 
@@ -47,7 +47,7 @@ struct sockaddr_vm {
 
 #endif  // defined(AF_SOCK)
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||
-        // PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||
+        // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
 #endif  // SRC_BASE_VM_SOCKETS_H_

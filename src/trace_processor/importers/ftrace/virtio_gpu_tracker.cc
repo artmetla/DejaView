@@ -15,9 +15,9 @@
  */
 
 #include "src/trace_processor/importers/ftrace/virtio_gpu_tracker.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/virtio_gpu.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/virtio_gpu.pbzero.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
@@ -118,7 +118,7 @@ static const char* virtio_gpu_ctrl_name(uint32_t type) {
   }
 }
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 VirtioGpuTracker::VirtioGpuTracker(TraceProcessorContext* context)
@@ -141,7 +141,7 @@ void VirtioGpuTracker::ParseVirtioGpu(int64_t timestamp,
       break;
     }
     default:
-      PERFETTO_DFATAL("Unexpected field id");
+      DEJAVIEW_DFATAL("Unexpected field id");
       break;
   }
 }
@@ -243,4 +243,4 @@ void VirtioGpuTracker::ParseVirtioGpuCmdResponse(int64_t timestamp,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

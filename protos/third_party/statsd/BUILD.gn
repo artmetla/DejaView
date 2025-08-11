@@ -14,7 +14,7 @@
 
 import("../../../gn/proto_library.gni")
 
-perfetto_proto_library("config_@TYPE@") {
+dejaview_proto_library("config_@TYPE@") {
   proto_generators = [
     "zero",
     "source_set",

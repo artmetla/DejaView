@@ -16,7 +16,7 @@
 
 #include "src/traced/probes/filesystem/lru_inode_cache.h"
 
-namespace perfetto {
+namespace dejaview {
 
 InodeMapValue* LRUInodeCache::Get(const InodeKey& k) {
   const auto& map_it = map_.find(k);
@@ -55,4 +55,4 @@ void LRUInodeCache::Insert(typename MapType::iterator map_it,
     list_.erase(list_last_it);
   }
 }
-}  // namespace perfetto
+}  // namespace dejaview

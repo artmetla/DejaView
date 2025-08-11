@@ -5,7 +5,7 @@ This can cause problems when visualising large traces.
 
 ## Using TraceProcessor as a native accelerator
 
-Perfetto UI supports offloading the parsing and processing of the trace to a
+DejaView UI supports offloading the parsing and processing of the trace to a
 'server' instance of TraceProcessor running natively on your local machine.
 This server process can take full advantage of the RAM of your machine as well
 as running at full native (rather than WebAssembly) performance, leveraging
@@ -19,7 +19,7 @@ chmod +x ./trace_processor
 
 Then open https://ui.perfetto.dev as usual.
 
-The Perfetto UI will automatically detect the presence of
+The DejaView UI will automatically detect the presence of
 `trace_processor --httpd` by probing http://127.0.0.1:9001 . When detected it
 will prompt a dialog that asks if you want to use the external accelerator via
 a WebSocket or the built-in WebAssembly runtime that runs in the browser.

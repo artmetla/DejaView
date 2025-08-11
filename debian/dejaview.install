@@ -1,0 +1,6 @@
+out/release/libdejaview.so usr/lib
+out/release/traced usr/sbin
+out/release/traced_probes usr/sbin
+out/release/dejaview usr/bin
+debian/traced.service lib/systemd/system
+debian/traced-probes.service lib/systemd/system

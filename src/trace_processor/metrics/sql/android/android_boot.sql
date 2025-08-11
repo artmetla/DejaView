@@ -14,14 +14,14 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.app_process_starts;
-INCLUDE PERFETTO MODULE android.broadcasts;
-INCLUDE PERFETTO MODULE android.garbage_collection;
-INCLUDE PERFETTO MODULE android.oom_adjuster;
-INCLUDE PERFETTO MODULE android.process_metadata;
+INCLUDE DEJAVIEW MODULE android.app_process_starts;
+INCLUDE DEJAVIEW MODULE android.broadcasts;
+INCLUDE DEJAVIEW MODULE android.garbage_collection;
+INCLUDE DEJAVIEW MODULE android.oom_adjuster;
+INCLUDE DEJAVIEW MODULE android.process_metadata;
 
 DROP VIEW IF EXISTS android_oom_adj_intervals_with_detailed_bucket_name;
-CREATE PERFETTO VIEW android_oom_adj_intervals_with_detailed_bucket_name AS
+CREATE DEJAVIEW VIEW android_oom_adj_intervals_with_detailed_bucket_name AS
 SELECT
   ts,
   dur,
@@ -38,7 +38,7 @@ SELECT
   oom_adj_trigger
 FROM _oom_adjuster_intervals;
 
-CREATE OR REPLACE PERFETTO FUNCTION get_durations(process_name STRING)
+CREATE OR REPLACE DEJAVIEW FUNCTION get_durations(process_name STRING)
 RETURNS TABLE(uint_sleep_dur LONG, total_dur LONG) AS
 SELECT
     SUM(CASE WHEN thread_state.state="D" then thread_state.dur ELSE 0 END) AS uint_sleep_dur,
@@ -47,12 +47,12 @@ FROM android_process_metadata
 INNER JOIN thread ON thread.upid=android_process_metadata.upid
 INNER JOIN thread_state ON thread.utid=thread_state.utid WHERE android_process_metadata.process_name=$process_name;
 
-CREATE OR REPLACE PERFETTO FUNCTION first_user_unlocked() RETURNS INT AS
+CREATE OR REPLACE DEJAVIEW FUNCTION first_user_unlocked() RETURNS INT AS
 SELECT COALESCE(MIN(ts), 0) FROM thread_slice
 WHERE name GLOB "*android.intent.action.USER_UNLOCKED*";
 
 DROP TABLE IF EXISTS _oom_adj_events_with_src_bucket;
-CREATE PERFETTO TABLE _oom_adj_events_with_src_bucket
+CREATE DEJAVIEW TABLE _oom_adj_events_with_src_bucket
 AS
 SELECT
   LAG(bucket) OVER (PARTITION BY upid ORDER BY ts) AS src_bucket,
@@ -63,7 +63,7 @@ SELECT
 FROM android_oom_adj_intervals_with_detailed_bucket_name;
 
 DROP VIEW IF EXISTS oom_adj_events_by_process_name;
-CREATE PERFETTO VIEW oom_adj_events_by_process_name AS
+CREATE DEJAVIEW VIEW oom_adj_events_by_process_name AS
 SELECT
   src_bucket,
   bucket,
@@ -74,7 +74,7 @@ FROM _oom_adj_events_with_src_bucket
 GROUP BY process_name, bucket, src_bucket;
 
 DROP VIEW IF EXISTS oom_adj_events_global_by_bucket;
-CREATE PERFETTO VIEW oom_adj_events_global_by_bucket AS
+CREATE DEJAVIEW VIEW oom_adj_events_global_by_bucket AS
 SELECT
   src_bucket,
   bucket,
@@ -86,7 +86,7 @@ WHERE
 GROUP BY bucket, src_bucket;
 
 DROP VIEW IF EXISTS oom_adj_events_by_oom_adj_reason;
-CREATE PERFETTO VIEW oom_adj_events_by_oom_adj_reason AS
+CREATE DEJAVIEW VIEW oom_adj_events_by_oom_adj_reason AS
 SELECT
   src_bucket,
   bucket,
@@ -97,7 +97,7 @@ WHERE ts > first_user_unlocked()
 GROUP BY bucket, src_bucket, oom_adj_reason;
 
 DROP VIEW IF EXISTS android_boot_output;
-CREATE PERFETTO VIEW android_boot_output AS
+CREATE DEJAVIEW VIEW android_boot_output AS
 SELECT AndroidBootMetric(
     'system_server_durations', (
         SELECT NULL_IF_EMPTY(ProcessStateDurations(

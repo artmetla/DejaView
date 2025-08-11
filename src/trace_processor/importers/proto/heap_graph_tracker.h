@@ -23,15 +23,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/string_view.h"
 
-#include "protos/perfetto/trace/profiling/heap_graph.pbzero.h"
+#include "protos/dejaview/trace/profiling/heap_graph.pbzero.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -269,6 +269,6 @@ class HeapGraphTracker : public Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_HEAP_GRAPH_TRACKER_H_

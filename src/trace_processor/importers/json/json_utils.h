@@ -21,12 +21,12 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 #include <json/value.h>
 #else
 namespace Json {
@@ -34,12 +34,12 @@ class Value {};
 }  // namespace Json
 #endif
 
-namespace perfetto::trace_processor::json {
+namespace dejaview::trace_processor::json {
 
 // Returns whether JSON related functioanlity is supported with the current
 // build flags.
 constexpr bool IsJsonSupported() {
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
   return true;
 #else
   return false;
@@ -67,6 +67,6 @@ bool AddJsonValueToArgs(const Json::Value& value,
                         TraceStorage* storage,
                         ArgsTracker::BoundInserter* inserter);
 
-}  // namespace perfetto::trace_processor::json
+}  // namespace dejaview::trace_processor::json
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_JSON_JSON_UTILS_H_

@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {featureFlags} from './feature_flags';
-import {MetatraceCategories, PerfettoMetatrace} from '../protos';
+import {MetatraceCategories, DejaViewMetatrace} from '../protos';
 import protobuf from 'protobufjs/minimal';
 
 const METATRACING_BUFFER_SIZE = 100000;
@@ -83,14 +83,14 @@ const traceEvents: TraceEvent[] = [];
 
 function readMetatrace(): Uint8Array {
   const eventToPacket = (e: TraceEvent): Uint8Array => {
-    const metatraceEvent = PerfettoMetatrace.create({
+    const metatraceEvent = DejaViewMetatrace.create({
       eventName: e.eventName,
       threadId: e.track,
       eventDurationNs: e.durNs,
     });
     for (const [key, value] of Object.entries(e.args ?? {})) {
       metatraceEvent.args.push(
-        PerfettoMetatrace.Arg.create({
+        DejaViewMetatrace.Arg.create({
           key,
           value,
         }),
@@ -111,7 +111,7 @@ function readMetatrace(): Uint8Array {
     wri.uint32(TRACE_PACKET_CLOCK_ID_TAG).int32(1);
     wri
       .uint32(TRACE_PACKET_METATRACE_TAG)
-      .bytes(PerfettoMetatrace.encode(metatraceEvent).finish());
+      .bytes(DejaViewMetatrace.encode(metatraceEvent).finish());
     wri.ldelim();
     return wri.finish();
   };

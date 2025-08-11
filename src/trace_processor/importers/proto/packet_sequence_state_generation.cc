@@ -22,7 +22,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 PacketSequenceStateGeneration::CustomState::~CustomState() = default;
 
@@ -112,8 +112,8 @@ void PacketSequenceStateGeneration::InternMessage(uint32_t field_id,
   protozero::ProtoDecoder decoder(message_start, message_size);
 
   auto field = decoder.FindField(kIidFieldNumber);
-  if (PERFETTO_UNLIKELY(!field)) {
-    PERFETTO_DLOG("Interned message without interning_id");
+  if (DEJAVIEW_UNLIKELY(!field)) {
+    DEJAVIEW_DLOG("Interned message without interning_id");
     context_->storage->IncrementStats(stats::interned_data_tokenizer_errors);
     return;
   }
@@ -127,10 +127,10 @@ void PacketSequenceStateGeneration::InternMessage(uint32_t field_id,
   // proto).
   // TODO(eseckler): This DCHECK assumes that the message is encoded the
   // same way if it is re-emitted.
-  PERFETTO_DCHECK(res.second ||
+  DEJAVIEW_DCHECK(res.second ||
                   (res.first->second.message().length() == message_size &&
                    memcmp(res.first->second.message().data(), message_start,
                           message_size) == 0));
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -18,22 +18,22 @@
 
 #include <string>
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_redaction/proto_util.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
-#include "protos/perfetto/trace/ftrace/task.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/ftrace/task.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status RedactProcessEvents::Transform(const Context& context,
                                             std::string* packet) const {
-  PERFETTO_DCHECK(modifier_);
-  PERFETTO_DCHECK(filter_);
+  DEJAVIEW_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(filter_);
 
   if (!context.timeline) {
     return base::ErrStatus("RedactProcessEvents: missing timeline.");
@@ -94,8 +94,8 @@ base::Status RedactProcessEvents::OnFtraceEvent(
     protozero::ConstBytes bytes,
     std::string* shared_comm,
     protos::pbzero::FtraceEvent* message) const {
-  PERFETTO_DCHECK(shared_comm);
-  PERFETTO_DCHECK(message);
+  DEJAVIEW_DCHECK(shared_comm);
+  DEJAVIEW_DCHECK(message);
 
   protozero::ProtoDecoder decoder(bytes);
 
@@ -148,8 +148,8 @@ base::Status RedactProcessEvents::OnProcessFree(
     protozero::ConstBytes bytes,
     std::string* shared_comm,
     protos::pbzero::FtraceEvent* parent_message) const {
-  PERFETTO_DCHECK(shared_comm);
-  PERFETTO_DCHECK(parent_message);
+  DEJAVIEW_DCHECK(shared_comm);
+  DEJAVIEW_DCHECK(parent_message);
 
   protos::pbzero::SchedProcessFreeFtraceEvent::Decoder decoder(bytes);
 
@@ -175,14 +175,14 @@ base::Status RedactProcessEvents::OnProcessFree(
   auto comm = decoder.comm();
   auto prio = decoder.prio();
 
-  PERFETTO_DCHECK(filter_);
+  DEJAVIEW_DCHECK(filter_);
   if (!filter_->Includes(context, ts, pid)) {
     return base::OkStatus();
   }
 
   shared_comm->assign(comm.data, comm.size);
 
-  PERFETTO_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(modifier_);
   modifier_->Modify(context, ts, cpu, &pid, shared_comm);
 
   auto* message = parent_message->set_sched_process_free();
@@ -200,8 +200,8 @@ base::Status RedactProcessEvents::OnNewTask(
     protozero::ConstBytes bytes,
     std::string* shared_comm,
     protos::pbzero::FtraceEvent* parent_message) const {
-  PERFETTO_DCHECK(shared_comm);
-  PERFETTO_DCHECK(parent_message);
+  DEJAVIEW_DCHECK(shared_comm);
+  DEJAVIEW_DCHECK(parent_message);
 
   protos::pbzero::TaskNewtaskFtraceEvent::Decoder decoder(bytes);
 
@@ -234,14 +234,14 @@ base::Status RedactProcessEvents::OnNewTask(
   auto omm_score_adj = decoder.oom_score_adj();
   auto pid = decoder.pid();
 
-  PERFETTO_DCHECK(filter_);
+  DEJAVIEW_DCHECK(filter_);
   if (!filter_->Includes(context, ts, pid)) {
     return base::OkStatus();
   }
 
   shared_comm->assign(comm.data, comm.size);
 
-  PERFETTO_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(modifier_);
   modifier_->Modify(context, ts, cpu, &pid, shared_comm);
 
   auto* message = parent_message->set_task_newtask();
@@ -260,8 +260,8 @@ base::Status RedactProcessEvents::OnProcessRename(
     protozero::ConstBytes bytes,
     std::string* shared_comm,
     protos::pbzero::FtraceEvent* parent_message) const {
-  PERFETTO_DCHECK(shared_comm);
-  PERFETTO_DCHECK(parent_message);
+  DEJAVIEW_DCHECK(shared_comm);
+  DEJAVIEW_DCHECK(parent_message);
 
   protos::pbzero::TaskRenameFtraceEvent::Decoder decoder(bytes);
 
@@ -294,7 +294,7 @@ base::Status RedactProcessEvents::OnProcessRename(
   auto old_comm = decoder.oldcomm();
   auto oom_score_adj = decoder.oom_score_adj();
 
-  PERFETTO_DCHECK(filter_);
+  DEJAVIEW_DCHECK(filter_);
   if (!filter_->Includes(context, ts, pid)) {
     return base::OkStatus();
   }
@@ -305,7 +305,7 @@ base::Status RedactProcessEvents::OnProcessRename(
 
   shared_comm->assign(old_comm.data, old_comm.size);
 
-  PERFETTO_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(modifier_);
   modifier_->Modify(context, ts, cpu, &noop_pid, shared_comm);
 
   // Write the old-comm now so shared_comm can be used new-comm.
@@ -313,14 +313,14 @@ base::Status RedactProcessEvents::OnProcessRename(
 
   shared_comm->assign(new_comm.data, new_comm.size);
 
-  PERFETTO_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(modifier_);
   modifier_->Modify(context, ts, cpu, &pid, shared_comm);
 
   message->set_newcomm(*shared_comm);
 
   // Because the same modification is used for each comm, the resulting pids
   // should be the same.
-  PERFETTO_DCHECK(noop_pid == pid);
+  DEJAVIEW_DCHECK(noop_pid == pid);
 
   message->set_pid(pid);
   message->set_oom_score_adj(oom_score_adj);
@@ -333,7 +333,7 @@ base::Status RedactProcessEvents::OnPrint(
     uint64_t ts,
     protozero::ConstBytes event_bytes,
     protos::pbzero::FtraceEvent* parent_message) const {
-  PERFETTO_DCHECK(parent_message);
+  DEJAVIEW_DCHECK(parent_message);
 
   protozero::ProtoDecoder decoder(event_bytes);
 
@@ -362,7 +362,7 @@ base::Status RedactProcessEvents::OnSuspendResume(
     uint64_t ts,
     protozero::ConstBytes event_bytes,
     protos::pbzero::FtraceEvent* parent_message) const {
-  PERFETTO_DCHECK(parent_message);
+  DEJAVIEW_DCHECK(parent_message);
 
   // Values are taken from "suspend_period.textproto". These values would
   // ideally be provided via the context, but until there are multiple sources,
@@ -407,7 +407,7 @@ base::Status RedactProcessEvents::OnSchedBlockedReason(
     uint64_t ts,
     protozero::ConstBytes event_bytes,
     protos::pbzero::FtraceEvent* parent_message) const {
-  PERFETTO_DCHECK(parent_message);
+  DEJAVIEW_DCHECK(parent_message);
 
   protos::pbzero::FtraceEvent::Decoder decoder(event_bytes);
 
@@ -449,4 +449,4 @@ base::Status RedactProcessEvents::OnSchedBlockedReason(
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

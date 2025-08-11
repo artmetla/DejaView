@@ -14,15 +14,15 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.process_metadata;
+INCLUDE DEJAVIEW MODULE android.process_metadata;
 
 -- Alias the process_metadata_table since unfortunately there are places
 -- depending on it (which we will clean up)
 DROP VIEW IF EXISTS process_metadata_table;
-CREATE PERFETTO VIEW process_metadata_table AS
+CREATE DEJAVIEW VIEW process_metadata_table AS
 SELECT * FROM android_process_metadata;
 
-CREATE OR REPLACE PERFETTO FUNCTION process_metadata_proto(upid INT)
+CREATE OR REPLACE DEJAVIEW FUNCTION process_metadata_proto(upid INT)
 RETURNS PROTO
 AS
 SELECT NULL_IF_EMPTY(AndroidProcessMetadata(
@@ -39,14 +39,14 @@ FROM android_process_metadata
 WHERE upid = $upid;
 
 DROP VIEW IF EXISTS process_metadata;
-CREATE PERFETTO VIEW process_metadata AS
+CREATE DEJAVIEW VIEW process_metadata AS
 SELECT
   upid,
   process_metadata_proto(upid) AS metadata
 FROM android_process_metadata;
 
 -- Given a process name, return if it is debuggable.
-CREATE OR REPLACE PERFETTO FUNCTION is_process_debuggable(process_name STRING)
+CREATE OR REPLACE DEJAVIEW FUNCTION is_process_debuggable(process_name STRING)
 RETURNS BOOL AS
 SELECT p.debuggable
 FROM android_process_metadata p

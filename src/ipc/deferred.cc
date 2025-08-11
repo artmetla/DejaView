@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/ipc/deferred.h"
+#include "dejaview/ext/ipc/deferred.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 DeferredBase::DeferredBase(
@@ -61,7 +61,7 @@ bool DeferredBase::IsBound() const {
 
 void DeferredBase::Resolve(AsyncResult<ProtoMessage> async_result) {
   if (!callback_) {
-    PERFETTO_DFATAL("No callback set.");
+    DEJAVIEW_DFATAL("No callback set.");
     return;
   }
   bool has_more = async_result.has_more();
@@ -76,4 +76,4 @@ void DeferredBase::Reject() {
 }
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

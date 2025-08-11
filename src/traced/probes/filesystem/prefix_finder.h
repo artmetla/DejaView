@@ -24,9 +24,9 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // PrefixFinder allows to find prefixes for filenames that ensure that
 // they can be found again within a provided limit of steps when searching
@@ -104,10 +104,10 @@ class PrefixFinder {
   // (path element, count) tuples for last path seen.
   std::vector<std::pair<std::string, size_t>> state_{{"", 0}};
   Node root_{"", nullptr};
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   bool finalized_ = false;
 #endif
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // SRC_TRACED_PROBES_FILESYSTEM_PREFIX_FINDER_H_

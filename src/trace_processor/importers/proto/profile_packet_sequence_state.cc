@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/importers/proto/profile_packet_sequence_state.h"
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
@@ -31,7 +31,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 const char kArtHeapName[] = "com.android.art";
@@ -64,7 +64,7 @@ void ProfilePacketSequenceState::SetProfilePacketIndex(uint64_t index) {
 
 void ProfilePacketSequenceState::AddString(SourceStringId id,
                                            base::StringView str) {
-  PERFETTO_CHECK(id != 0 || str.empty());
+  DEJAVIEW_CHECK(id != 0 || str.empty());
   strings_.Insert(id, str.ToStdString());
 }
 
@@ -118,7 +118,7 @@ void ProfilePacketSequenceState::AddFrame(SourceFrameId id,
 
   FrameId frame_id =
       mapping->InternFrame(frame.rel_pc, base::StringView(*function_name));
-  PERFETTO_CHECK(!mapping->is_jitted());
+  DEJAVIEW_CHECK(!mapping->is_jitted());
   frames_.Insert(id, frame_id);
 }
 
@@ -169,7 +169,7 @@ FrameId ProfilePacketSequenceState::GetDatabaseFrameIdForTesting(
     SourceFrameId source_frame_id) {
   FrameId* frame_id = frames_.Find(source_frame_id);
   if (!frame_id) {
-    PERFETTO_DLOG("Invalid frame.");
+    DEJAVIEW_DLOG("Invalid frame.");
     return {};
   }
   return *frame_id;
@@ -251,7 +251,7 @@ void ProfilePacketSequenceState::AddAllocation(const SourceAllocation& alloc) {
 
   if (alloc_delta.count < 0 || alloc_delta.size < 0 || free_delta.count > 0 ||
       free_delta.size > 0) {
-    PERFETTO_DLOG("Non-monotonous allocation.");
+    DEJAVIEW_DLOG("Non-monotonous allocation.");
     context_->storage->IncrementIndexedStats(stats::heapprofd_malformed_packet,
                                              static_cast<int>(upid));
     return;
@@ -288,4 +288,4 @@ std::optional<CallsiteId> ProfilePacketSequenceState::FindOrInsertCallstack(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

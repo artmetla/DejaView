@@ -16,15 +16,15 @@
 
 #include "src/trace_redaction/broadphase_packet_filter.h"
 
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_redaction/proto_util.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status BroadphasePacketFilter::Transform(const Context& context,
                                                std::string* packet) const {
@@ -67,7 +67,7 @@ void BroadphasePacketFilter::OnFtraceEvents(
     const Context& context,
     protozero::ConstBytes bytes,
     protos::pbzero::FtraceEventBundle* message) const {
-  PERFETTO_DCHECK(message);
+  DEJAVIEW_DCHECK(message);
 
   protozero::ProtoDecoder decoder(bytes);
 
@@ -85,7 +85,7 @@ void BroadphasePacketFilter::OnFtraceEvent(
     const Context& context,
     protozero::ConstBytes bytes,
     protos::pbzero::FtraceEvent* message) const {
-  PERFETTO_DCHECK(message);
+  DEJAVIEW_DCHECK(message);
 
   protozero::ProtoDecoder decoder(bytes);
 
@@ -101,4 +101,4 @@ void BroadphasePacketFilter::OnFtraceEvent(
   }
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

@@ -16,9 +16,9 @@
 
 #include "src/tracing/test/aligned_buffer_test.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 
 void AlignedBufferTest::SetUp() {
   page_size_ = GetParam();
@@ -29,4 +29,4 @@ void AlignedBufferTest::TearDown() {
   buf_.reset();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,7 +21,7 @@ from python.generators.diff_tests.testing import TestSuite
 
 class SmokeComputeMetrics(TestSuite):
   # Contains smoke tests which test the most fundamentally important features
-  # trace processor  Note: new tests here should only be added by the Perfetto
+  # trace processor  Note: new tests here should only be added by the DejaView
   # Compute CPU time metric testing several core tables.
   def test_thread_cpu_time_example_android_trace_30s(self):
     return DiffTestBlueprint(

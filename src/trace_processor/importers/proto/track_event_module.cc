@@ -18,20 +18,20 @@
 #include <cstdint>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/track_event_tracker.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 TrackEventModule::TrackEventModule(TraceProcessorContext* context)
     : track_event_tracker_(new TrackEventTracker(context)),
@@ -88,7 +88,7 @@ void TrackEventModule::ParseTracePacketData(const TracePacket::Decoder& decoder,
       parser_.ParseThreadDescriptor(decoder.thread_descriptor());
       break;
     case TracePacket::kTrackEventFieldNumber:
-      PERFETTO_DFATAL("Wrong TracePacket number");
+      DEJAVIEW_DFATAL("Wrong TracePacket number");
   }
 }
 
@@ -111,4 +111,4 @@ void TrackEventModule::NotifyEndOfFile() {
   parser_.NotifyEndOfFile();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

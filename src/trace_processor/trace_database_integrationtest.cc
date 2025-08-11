@@ -23,25 +23,25 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/iterator.h"
-#include "perfetto/trace_processor/status.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "perfetto/trace_processor/trace_processor.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
-#include "protos/perfetto/trace_processor/trace_processor.pbzero.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/iterator.h"
+#include "dejaview/trace_processor/status.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_processor.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
+#include "protos/dejaview/trace_processor/trace_processor.pbzero.h"
 
 #include "src/base/test/status_matchers.h"
 #include "src/base/test/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 using testing::HasSubstr;
@@ -192,8 +192,8 @@ TEST_F(TraceProcessorIntegrationTest, Hash) {
   ASSERT_EQ(it.Get(0).long_value, static_cast<int64_t>(0xa9cb070fdc15f7a4));
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_LLVM_DEMANGLE) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_LLVM_DEMANGLE) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #define MAYBE_Demangle DISABLED_Demangle
 #else
 #define MAYBE_Demangle Demangle
@@ -213,7 +213,7 @@ TEST_F(TraceProcessorIntegrationTest, MAYBE_Demangle) {
   EXPECT_TRUE(it.Get(0).is_null());
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_LLVM_DEMANGLE)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_LLVM_DEMANGLE)
 #define MAYBE_DemangleRust DISABLED_DemangleRust
 #else
 #define MAYBE_DemangleRust DemangleRust
@@ -236,7 +236,7 @@ TEST_F(TraceProcessorIntegrationTest, MAYBE_DemangleRust) {
   ASSERT_TRUE(it.Get(0).is_null());
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 TEST_F(TraceProcessorIntegrationTest, Sfgate) {
   ASSERT_TRUE(LoadTrace("sfgate.json", strlen("{\"traceEvents\":[")).ok());
   auto it = Query(
@@ -277,7 +277,7 @@ TEST_F(TraceProcessorIntegrationTest, SerializeMetricDescriptors) {
   int trace_metrics_count = 0;
   for (auto desc = desc_set.descriptors(); desc; ++desc) {
     protos::pbzero::DescriptorProto::Decoder proto_desc(*desc);
-    if (proto_desc.name().ToStdString() == ".perfetto.protos.TraceMetrics") {
+    if (proto_desc.name().ToStdString() == ".dejaview.protos.TraceMetrics") {
       ASSERT_TRUE(proto_desc.has_field());
       trace_metrics_count++;
     }
@@ -296,7 +296,7 @@ TEST_F(TraceProcessorIntegrationTest, ComputeMetricsFormattedExtension) {
   ASSERT_TRUE(status.ok());
   // Extension fields are output as [fully.qualified.name].
   ASSERT_EQ(metric_output,
-            "[perfetto.protos.test_chrome_metric] {\n"
+            "[dejaview.protos.test_chrome_metric] {\n"
             "  test_value: 1\n"
             "}");
 }
@@ -320,7 +320,7 @@ TEST_F(TraceProcessorIntegrationTest, DISABLED_AndroidBuildTrace) {
 TEST_F(TraceProcessorIntegrationTest, DISABLED_Clusterfuzz14357) {
   ASSERT_FALSE(LoadTrace("clusterfuzz_14357", 4096).ok());
 }
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_TP_JSON)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_JSON)
 
 TEST_F(TraceProcessorIntegrationTest, Clusterfuzz14730) {
   ASSERT_TRUE(LoadTrace("clusterfuzz_14730", 4096).ok());
@@ -363,7 +363,7 @@ TEST_F(TraceProcessorIntegrationTest, Clusterfuzz17805) {
 }
 
 // Failing on DCHECKs during import because the traces aren't really valid.
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 #define MAYBE_Clusterfuzz20215 DISABLED_Clusterfuzz20215
 #define MAYBE_Clusterfuzz20292 DISABLED_Clusterfuzz20292
 #define MAYBE_Clusterfuzz21178 DISABLED_Clusterfuzz21178
@@ -371,7 +371,7 @@ TEST_F(TraceProcessorIntegrationTest, Clusterfuzz17805) {
 #define MAYBE_Clusterfuzz23053 DISABLED_Clusterfuzz23053
 #define MAYBE_Clusterfuzz28338 DISABLED_Clusterfuzz28338
 #define MAYBE_Clusterfuzz28766 DISABLED_Clusterfuzz28766
-#else  // PERFETTO_DCHECK_IS_ON()
+#else  // DEJAVIEW_DCHECK_IS_ON()
 #define MAYBE_Clusterfuzz20215 Clusterfuzz20215
 #define MAYBE_Clusterfuzz20292 Clusterfuzz20292
 #define MAYBE_Clusterfuzz21178 Clusterfuzz21178
@@ -379,7 +379,7 @@ TEST_F(TraceProcessorIntegrationTest, Clusterfuzz17805) {
 #define MAYBE_Clusterfuzz23053 Clusterfuzz23053
 #define MAYBE_Clusterfuzz28338 Clusterfuzz28338
 #define MAYBE_Clusterfuzz28766 Clusterfuzz28766
-#endif  // PERFETTO_DCHECK_IS_ON()
+#endif  // DEJAVIEW_DCHECK_IS_ON()
 
 TEST_F(TraceProcessorIntegrationTest, MAYBE_Clusterfuzz20215) {
   ASSERT_TRUE(LoadTrace("clusterfuzz_20215", 4096).ok());
@@ -415,43 +415,43 @@ TEST_F(TraceProcessorIntegrationTest, RestoreInitialTablesInvariant) {
   ASSERT_EQ(RestoreInitialTables(), first_restore);
 }
 
-TEST_F(TraceProcessorIntegrationTest, RestoreInitialTablesPerfettoSql) {
+TEST_F(TraceProcessorIntegrationTest, RestoreInitialTablesDejaViewSql) {
   ASSERT_OK(Processor()->NotifyEndOfFile());
   RestoreInitialTables();
 
   for (int repeat = 0; repeat < 3; repeat++) {
     ASSERT_EQ(RestoreInitialTables(), 0u);
 
-    // 1. Perfetto table
+    // 1. DejaView table
     {
-      auto it = Query("CREATE PERFETTO TABLE obj1 AS SELECT 1 AS col;");
+      auto it = Query("CREATE DEJAVIEW TABLE obj1 AS SELECT 1 AS col;");
       it.Next();
       ASSERT_TRUE(it.Status().ok());
     }
-    // 2. Perfetto view
+    // 2. DejaView view
     {
-      auto it = Query("CREATE PERFETTO VIEW obj2 AS SELECT * FROM stats;");
+      auto it = Query("CREATE DEJAVIEW VIEW obj2 AS SELECT * FROM stats;");
       it.Next();
       ASSERT_TRUE(it.Status().ok());
     }
     // 3. Runtime function
     {
       auto it =
-          Query("CREATE PERFETTO FUNCTION obj3() RETURNS INT AS SELECT 1;");
+          Query("CREATE DEJAVIEW FUNCTION obj3() RETURNS INT AS SELECT 1;");
       it.Next();
       ASSERT_TRUE(it.Status().ok());
     }
     // 4. Runtime table function
     {
       auto it = Query(
-          "CREATE PERFETTO FUNCTION obj4() RETURNS TABLE(col INT) AS SELECT 1 "
+          "CREATE DEJAVIEW FUNCTION obj4() RETURNS TABLE(col INT) AS SELECT 1 "
           "AS col;");
       it.Next();
       ASSERT_TRUE(it.Status().ok());
     }
     // 5. Macro
     {
-      auto it = Query("CREATE PERFETTO MACRO obj5(a Expr) returns Expr AS $a;");
+      auto it = Query("CREATE DEJAVIEW MACRO obj5(a Expr) returns Expr AS $a;");
       it.Next();
       ASSERT_TRUE(it.Status().ok());
     }
@@ -497,7 +497,7 @@ TEST_F(TraceProcessorIntegrationTest, RestoreInitialTablesModules) {
   for (int repeat = 0; repeat < 3; repeat++) {
     ASSERT_EQ(RestoreInitialTables(), 0u);
     {
-      auto it = Query("INCLUDE PERFETTO MODULE common.timestamps;");
+      auto it = Query("INCLUDE DEJAVIEW MODULE common.timestamps;");
       it.Next();
       ASSERT_TRUE(it.Status().ok());
     }
@@ -557,7 +557,7 @@ TEST_F(TraceProcessorIntegrationTest, RestoreInitialTablesWithClause) {
     ASSERT_EQ(RestoreInitialTables(), 0u);
     {
       auto it = Query(
-          "CREATE PERFETTO TABLE foo AS WITH bar AS (SELECT * FROM slice) "
+          "CREATE DEJAVIEW TABLE foo AS WITH bar AS (SELECT * FROM slice) "
           "SELECT ts FROM bar;");
       it.Next();
       ASSERT_TRUE(it.Status().ok());
@@ -607,11 +607,11 @@ TEST_F(TraceProcessorIntegrationTest, RestoreInitialTablesTraceBounds) {
 TEST_F(TraceProcessorIntegrationTest, RestoreInitialTablesDependents) {
   ASSERT_OK(Processor()->NotifyEndOfFile());
   {
-    auto it = Query("create perfetto table foo as select 1 as x");
+    auto it = Query("create dejaview table foo as select 1 as x");
     ASSERT_FALSE(it.Next());
     ASSERT_TRUE(it.Status().ok());
 
-    it = Query("create perfetto function f() returns INT as select * from foo");
+    it = Query("create dejaview function f() returns INT as select * from foo");
     ASSERT_FALSE(it.Next());
     ASSERT_TRUE(it.Status().ok());
 
@@ -628,13 +628,13 @@ TEST_F(TraceProcessorIntegrationTest, RestoreDependentFunction) {
   ASSERT_OK(Processor()->NotifyEndOfFile());
   {
     auto it =
-        Query("create perfetto function foo0() returns INT as select 1 as x");
+        Query("create dejaview function foo0() returns INT as select 1 as x");
     ASSERT_FALSE(it.Next());
     ASSERT_TRUE(it.Status().ok());
   }
   for (int i = 1; i < 100; ++i) {
     base::StackString<1024> sql(
-        "create perfetto function foo%d() returns INT as select foo%d()", i,
+        "create dejaview function foo%d() returns INT as select foo%d()", i,
         i - 1);
     auto it = Query(sql.c_str());
     ASSERT_FALSE(it.Next());
@@ -648,14 +648,14 @@ TEST_F(TraceProcessorIntegrationTest, RestoreDependentTableFunction) {
   ASSERT_OK(Processor()->NotifyEndOfFile());
   {
     auto it = Query(
-        "create perfetto function foo0() returns TABLE(x INT) "
+        "create dejaview function foo0() returns TABLE(x INT) "
         " as select 1 as x");
     ASSERT_FALSE(it.Next());
     ASSERT_TRUE(it.Status().ok());
   }
   for (int i = 1; i < 100; ++i) {
     base::StackString<1024> sql(
-        "create perfetto function foo%d() returns TABLE(x INT) "
+        "create dejaview function foo%d() returns TABLE(x INT) "
         " as select * from foo%d()",
         i, i - 1);
     auto it = Query(sql.c_str());
@@ -773,14 +773,14 @@ TEST_F(TraceProcessorIntegrationTest, ErrorMessageModule) {
 
   ASSERT_TRUE(Processor()->RegisterSqlPackage(module).ok());
 
-  auto it = Query("include perfetto module foo.bar;");
+  auto it = Query("include dejaview module foo.bar;");
   ASSERT_FALSE(it.Next());
   ASSERT_FALSE(it.Status().ok());
 
   ASSERT_EQ(it.Status().message(),
             R"(Traceback (most recent call last):
   File "stdin" line 1 col 1
-    include perfetto module foo.bar
+    include dejaview module foo.bar
     ^
   Module include "foo.bar" line 1 col 8
     select t from slice
@@ -790,7 +790,7 @@ no such column: t)");
 
 TEST_F(TraceProcessorIntegrationTest, FunctionRegistrationError) {
   auto it =
-      Query("create perfetto function f() returns INT as select * from foo");
+      Query("create dejaview function f() returns INT as select * from foo");
   ASSERT_FALSE(it.Next());
   ASSERT_FALSE(it.Status().ok());
 
@@ -798,14 +798,14 @@ TEST_F(TraceProcessorIntegrationTest, FunctionRegistrationError) {
   ASSERT_FALSE(it.Next());
   ASSERT_FALSE(it.Status().ok());
 
-  it = Query("create perfetto function f() returns INT as select 1");
+  it = Query("create dejaview function f() returns INT as select 1");
   ASSERT_FALSE(it.Next());
   ASSERT_TRUE(it.Status().ok());
 }
 
 TEST_F(TraceProcessorIntegrationTest, CreateTableDuplicateNames) {
   auto it = Query(
-      "create perfetto table foo select 1 as duplicate_a, 2 as duplicate_a, 3 "
+      "create dejaview table foo select 1 as duplicate_a, 2 as duplicate_a, 3 "
       "as duplicate_b, 4 as duplicate_b");
   ASSERT_FALSE(it.Next());
   ASSERT_FALSE(it.Status().ok());
@@ -831,4 +831,4 @@ TEST_F(TraceProcessorIntegrationTest, NoNotifyEndOfFileCalled) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

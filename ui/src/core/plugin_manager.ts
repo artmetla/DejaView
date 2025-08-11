@@ -16,7 +16,7 @@ import {Registry} from '../base/registry';
 import {Trace} from '../public/trace';
 import {App} from '../public/app';
 import {MetricVisualisation} from '../public/plugin';
-import {PerfettoPlugin, PluginDescriptor} from '../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../public/plugin';
 import {Flag, featureFlags} from './feature_flags';
 import {assertExists} from '../base/logging';
 import {raf} from './raf_scheduler';
@@ -34,13 +34,13 @@ export class PluginRegistry extends Registry<PluginDescriptor> {
 }
 
 export interface PluginDetails {
-  plugin: PerfettoPlugin;
+  plugin: DejaViewPlugin;
   app: App;
   trace?: Trace;
   previousOnTraceLoadTimeMillis?: number;
 }
 
-function makePlugin(info: PluginDescriptor): PerfettoPlugin {
+function makePlugin(info: PluginDescriptor): DejaViewPlugin {
   const {plugin} = info;
 
   // Class refs are functions, concrete plugins are not

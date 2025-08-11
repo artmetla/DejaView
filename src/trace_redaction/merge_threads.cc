@@ -16,7 +16,7 @@
 
 #include "src/trace_redaction/merge_threads.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 void MergeThreadsPids::Modify(const Context& context,
                               uint64_t ts,
@@ -24,7 +24,7 @@ void MergeThreadsPids::Modify(const Context& context,
                               int32_t* pid,
                               std::string* comm) const {
   // When Modify() is used with RedactFtraceEvents, comm will be null.
-  PERFETTO_DCHECK(pid);
+  DEJAVIEW_DCHECK(pid);
 
   // Avoid re-mapping system threads (pid 0). These pids have special uses (e.g.
   // cpu_idle) and if re-mapped, important structures break (e.g. remapping
@@ -45,4 +45,4 @@ void MergeThreadsPids::Modify(const Context& context,
   }
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

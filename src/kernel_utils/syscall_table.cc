@@ -15,16 +15,16 @@
  */
 #include "src/kernel_utils/syscall_table.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/utsname.h>
 #endif
 
 #include "src/kernel_utils/syscall_table_generated.h"
 
-namespace perfetto {
+namespace dejaview {
 
 SyscallTable::SyscallTable(Architecture arch) {
   switch (arch) {
@@ -64,8 +64,8 @@ Architecture SyscallTable::ArchFromString(base::StringView machine) {
 SyscallTable SyscallTable::FromCurrentArch() {
   Architecture arch = Architecture::kUnknown;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   struct utsname uname_info;
   if (uname(&uname_info) == 0) {
     arch = ArchFromString(uname_info.machine);
@@ -91,4 +91,4 @@ const char* SyscallTable::GetById(size_t id) const {
   return nullptr;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

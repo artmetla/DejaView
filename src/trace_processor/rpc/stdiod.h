@@ -18,9 +18,9 @@
 #define SRC_TRACE_PROCESSOR_RPC_STDIOD_H_
 
 #include <memory>
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessor;
@@ -30,6 +30,6 @@ class TraceProcessor;
 base::Status RunStdioRpcServer(std::unique_ptr<TraceProcessor>);
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_RPC_STDIOD_H_

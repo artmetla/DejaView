@@ -20,13 +20,13 @@
 #include <fstream>
 #include <regex>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -113,13 +113,13 @@ void GenerateFtraceEventProto(const std::vector<FtraceEventName>& raw_eventlist,
         << "\n\n";
 
   for (const std::string& group : groups) {
-    *fout << R"(import "protos/perfetto/trace/ftrace/)" << group
+    *fout << R"(import "protos/dejaview/trace/ftrace/)" << group
           << R"(.proto";)"
           << "\n";
   }
-  *fout << "import \"protos/perfetto/trace/ftrace/generic.proto\";\n";
+  *fout << "import \"protos/dejaview/trace/ftrace/generic.proto\";\n";
   *fout << "\n";
-  *fout << "package perfetto.protos;\n\n";
+  *fout << "package dejaview.protos;\n\n";
   *fout << R"(message FtraceEvent {
   // Timestamp in nanoseconds using .../tracing/trace_clock.
   optional uint64 timestamp = 1;
@@ -175,7 +175,7 @@ void GenerateFtraceEventProto(const std::vector<FtraceEventName>& raw_eventlist,
 }
 
 // Generates section of event_info.cc for a single event.
-std::string SingleEventInfo(perfetto::Proto proto,
+std::string SingleEventInfo(dejaview::Proto proto,
                             const std::string& group,
                             const uint32_t proto_field_id) {
   std::string s = "{";
@@ -225,9 +225,9 @@ void GenerateEventInfo(const std::vector<std::string>& events_info,
   s += R"(
 #include "src/traced/probes/ftrace/event_info.h"
 
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/protozero/proto_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using protozero::proto_utils::ProtoSchemaType;
 
@@ -248,7 +248,7 @@ std::vector<Event> GetStaticEventInfo() {
   s += R"(
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 )";
 
   *fout << s;
@@ -261,10 +261,10 @@ std::string ProtoHeader() {
 
   s += R"(
 syntax = "proto2";
-package perfetto.protos;
+package dejaview.protos;
 
 )";
   return s;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

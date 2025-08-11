@@ -19,13 +19,13 @@
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/system_info/cpu_info.gen.h"
+#include "protos/dejaview/trace/system_info/cpu_info.gen.h"
 
 using ::testing::AnyOf;
 using ::testing::ElementsAre;
 using ::testing::Return;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 static const uint32_t CPU_COUNT = 8;
@@ -196,4 +196,4 @@ TEST_F(SystemInfoDataSourceTest, CpuInfoAndroid) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

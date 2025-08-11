@@ -22,21 +22,21 @@
 #include <type_traits>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/thread_annotations.h"
-#include "perfetto/protozero/message.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/root_message.h"
-#include "perfetto/protozero/static_buffer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/thread_annotations.h"
+#include "dejaview/protozero/message.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/root_message.h"
+#include "dejaview/protozero/static_buffer.h"
 #include "src/tracing/core/shared_memory_arbiter_impl.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 using protozero::proto_utils::kMessageLengthFieldSize;
 using protozero::proto_utils::WriteRedundantVarInt;
-using ChunkHeader = perfetto::SharedMemoryABI::ChunkHeader;
+using ChunkHeader = dejaview::SharedMemoryABI::ChunkHeader;
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr size_t kPacketHeaderSize = SharedMemoryABI::kPacketHeaderSize;
@@ -61,7 +61,7 @@ TraceWriterImpl::TraceWriterImpl(SharedMemoryArbiterImpl* shmem_arbiter,
       process_id_(base::GetProcessId()) {
   // TODO(primiano): we could handle the case of running out of TraceWriterID(s)
   // more gracefully and always return a no-op TracePacket in NewTracePacket().
-  PERFETTO_CHECK(id_ != 0);
+  DEJAVIEW_CHECK(id_ != 0);
 
   cur_packet_.reset(new protozero::RootMessage<protos::pbzero::TracePacket>());
   cur_packet_->Finalize();  // To avoid the CHECK in NewTracePacket().
@@ -79,11 +79,11 @@ TraceWriterImpl::~TraceWriterImpl() {
 }
 
 void TraceWriterImpl::ReturnCompletedChunk() {
-  PERFETTO_DCHECK(cur_chunk_.is_valid());
+  DEJAVIEW_DCHECK(cur_chunk_.is_valid());
   if (cur_chunk_packet_count_inflated_) {
     uint8_t zero_size = 0;
     static_assert(sizeof zero_size == kExtraRoomForInflatedPacket);
-    PERFETTO_CHECK(protobuf_stream_writer_.bytes_available() != 0);
+    DEJAVIEW_CHECK(protobuf_stream_writer_.bytes_available() != 0);
     protobuf_stream_writer_.WriteBytesUnsafe(&zero_size, sizeof zero_size);
     cur_chunk_packet_count_inflated_ = false;
   }
@@ -93,7 +93,7 @@ void TraceWriterImpl::ReturnCompletedChunk() {
 
 void TraceWriterImpl::Flush(std::function<void()> callback) {
   // Flush() cannot be called in the middle of a TracePacket.
-  PERFETTO_CHECK(cur_packet_->is_finalized());
+  DEJAVIEW_CHECK(cur_packet_->is_finalized());
   // cur_packet_ is finalized: that means that the size is correct for all the
   // nested submessages. The root fragment size however is not handled by
   // protozero::Message::Finalize() and must be filled here.
@@ -107,7 +107,7 @@ void TraceWriterImpl::Flush(std::function<void()> callback) {
     // may not be the case because the packet may have been fragmenting when
     // SMB exhaustion occurred and |cur_chunk_| became invalid. In this case,
     // drop_packets_ should be true.
-    PERFETTO_DCHECK(patch_list_.empty() || drop_packets_);
+    DEJAVIEW_DCHECK(patch_list_.empty() || drop_packets_);
   }
 
   // Always issue the Flush request, even if there is nothing to flush, just
@@ -119,12 +119,12 @@ void TraceWriterImpl::Flush(std::function<void()> callback) {
 TraceWriterImpl::TracePacketHandle TraceWriterImpl::NewTracePacket() {
   // If we hit this, the caller is calling NewTracePacket() without having
   // finalized the previous packet.
-  PERFETTO_CHECK(cur_packet_->is_finalized());
+  DEJAVIEW_CHECK(cur_packet_->is_finalized());
   // If we hit this, this trace writer was created in a different process. This
   // likely means that the process forked while tracing was active, and the
   // forked child process tried to emit a trace event. This is not supported, as
   // it would lead to two processes writing to the same tracing SMB.
-  PERFETTO_DCHECK(process_id_ == base::GetProcessId());
+  DEJAVIEW_DCHECK(process_id_ == base::GetProcessId());
 
   // Before starting a new packet, make sure that the last fragment size has ben
   // written correctly. The root fragment size is not written by
@@ -168,7 +168,7 @@ TraceWriterImpl::TracePacketHandle TraceWriterImpl::NewTracePacket() {
   cur_fragment_start_ = protobuf_stream_writer_.write_ptr();
   fragmenting_packet_ = true;
 
-  if (PERFETTO_LIKELY(!drop_packets_)) {
+  if (DEJAVIEW_LIKELY(!drop_packets_)) {
     uint16_t new_packet_count;
     if (cur_chunk_packet_count_inflated_) {
       new_packet_count =
@@ -179,7 +179,7 @@ TraceWriterImpl::TracePacketHandle TraceWriterImpl::NewTracePacket() {
     }
     reached_max_packets_per_chunk_ = new_packet_count == kMaxPacketsPerChunk;
 
-    if (PERFETTO_UNLIKELY(was_dropping_packets)) {
+    if (DEJAVIEW_UNLIKELY(was_dropping_packets)) {
       // We've succeeded to get a new chunk from the SMB after we entered
       // drop_packets_ mode. Record a marker into the new packet to indicate the
       // data loss.
@@ -187,7 +187,7 @@ TraceWriterImpl::TracePacketHandle TraceWriterImpl::NewTracePacket() {
     }
   }
 
-  if (PERFETTO_UNLIKELY(first_packet_on_sequence_)) {
+  if (DEJAVIEW_UNLIKELY(first_packet_on_sequence_)) {
     cur_packet_->set_first_packet_on_sequence(true);
     first_packet_on_sequence_ = false;
   }
@@ -250,7 +250,7 @@ protozero::ContiguousMemoryRange TraceWriterImpl::GetNewBuffer() {
       // We can only end up here if the previous chunk was a valid chunk,
       // because we never try to acquire a new chunk in |drop_packets_| mode
       // while fragmenting.
-      PERFETTO_DCHECK(!drop_packets_);
+      DEJAVIEW_DCHECK(!drop_packets_);
 
       // Backfill the last fragment's header with an invalid size (too large),
       // so that the service's TraceBuffer throws out the incomplete packet.
@@ -290,11 +290,11 @@ protozero::ContiguousMemoryRange TraceWriterImpl::GetNewBuffer() {
       // service that we're about to lose data. We do this by invalidating the
       // size of the last packet in |cur_chunk_|. The service will record
       // statistics about packets with kPacketSizeDropPacket size.
-      PERFETTO_DCHECK(cur_packet_->is_finalized());
-      PERFETTO_DCHECK(cur_chunk_.is_valid());
+      DEJAVIEW_DCHECK(cur_packet_->is_finalized());
+      DEJAVIEW_DCHECK(cur_chunk_.is_valid());
 
       // |cur_fragment_size_field_| should point within |cur_chunk_|'s payload.
-      PERFETTO_DCHECK(cur_fragment_size_field_ >= cur_chunk_.payload_begin() &&
+      DEJAVIEW_DCHECK(cur_fragment_size_field_ >= cur_chunk_.payload_begin() &&
                       cur_fragment_size_field_ + kMessageLengthFieldSize <=
                           cur_chunk_.end());
 
@@ -314,27 +314,27 @@ protozero::ContiguousMemoryRange TraceWriterImpl::GetNewBuffer() {
     cur_fragment_size_field_ = nullptr;
     cur_fragment_start_ = &g_garbage_chunk[0];
 
-    PERFETTO_ANNOTATE_BENIGN_RACE_SIZED(&g_garbage_chunk,
+    DEJAVIEW_ANNOTATE_BENIGN_RACE_SIZED(&g_garbage_chunk,
                                         sizeof(g_garbage_chunk),
                                         "nobody reads the garbage chunk")
     return protozero::ContiguousMemoryRange{
         &g_garbage_chunk[0], &g_garbage_chunk[0] + sizeof(g_garbage_chunk)};
   }  // if (!new_chunk.is_valid())
 
-  PERFETTO_DCHECK(new_chunk.is_valid());
+  DEJAVIEW_DCHECK(new_chunk.is_valid());
 
   if (fragmenting_packet_) {
     // We should not be fragmenting a packet after we exited drop_packets_ mode,
     // because we only retry to get a new chunk when a fresh packet is started.
-    PERFETTO_DCHECK(!drop_packets_);
+    DEJAVIEW_DCHECK(!drop_packets_);
 
     uint8_t* const wptr = protobuf_stream_writer_.write_ptr();
-    PERFETTO_DCHECK(wptr >= cur_fragment_start_);
+    DEJAVIEW_DCHECK(wptr >= cur_fragment_start_);
     uint32_t partial_size = static_cast<uint32_t>(wptr - cur_fragment_start_);
-    PERFETTO_DCHECK(partial_size < cur_chunk_.size());
+    DEJAVIEW_DCHECK(partial_size < cur_chunk_.size());
 
     // Backfill the packet header with the fragment size.
-    PERFETTO_DCHECK(partial_size > 0);
+    DEJAVIEW_DCHECK(partial_size > 0);
     cur_chunk_.SetFlag(ChunkHeader::kLastPacketContinuesOnNextChunk);
     WriteRedundantVarInt(partial_size, cur_fragment_size_field_);
 
@@ -355,13 +355,13 @@ protozero::ContiguousMemoryRange TraceWriterImpl::GetNewBuffer() {
         cur_hdr = TraceWriterImpl::AnnotatePatch(cur_hdr);
         nested_msg->set_size_field(cur_hdr);
       } else {
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
         // Ensure that the size field of the message points to an element of the
         // patch list.
         auto patch_it = std::find_if(
             patch_list_.begin(), patch_list_.end(),
             [cur_hdr](const Patch& p) { return &p.size_field[0] == cur_hdr; });
-        PERFETTO_DCHECK(patch_it != patch_list_.end());
+        DEJAVIEW_DCHECK(patch_it != patch_list_.end());
 #endif
       }
     }  // for(nested_msg)
@@ -398,7 +398,7 @@ void TraceWriterImpl::FinishTracePacket() {
   // likely means that the process forked while tracing was active, and the
   // forked child process tried to emit a trace event. This is not supported, as
   // it would lead to two processes writing to the same tracing SMB.
-  PERFETTO_DCHECK(process_id_ == base::GetProcessId());
+  DEJAVIEW_DCHECK(process_id_ == base::GetProcessId());
 
   FinalizeFragmentIfRequired();
 
@@ -431,7 +431,7 @@ void TraceWriterImpl::FinalizeFragmentIfRequired() {
     return;
   }
   uint8_t* const wptr = protobuf_stream_writer_.write_ptr();
-  PERFETTO_DCHECK(wptr >= cur_fragment_start_);
+  DEJAVIEW_DCHECK(wptr >= cur_fragment_start_);
   uint32_t partial_size = static_cast<uint32_t>(wptr - cur_fragment_start_);
 
   // cur_fragment_size_field_, if not nullptr, is always inside or immediately
@@ -480,4 +480,4 @@ WriterID TraceWriterImpl::writer_id() const {
 TraceWriter::TraceWriter() = default;
 TraceWriter::~TraceWriter() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

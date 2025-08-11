@@ -18,14 +18,14 @@
 
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_redaction/proto_util.h"
 
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status PrunePackageList::Transform(const Context& context,
                                          std::string* packet) const {
@@ -65,7 +65,7 @@ void PrunePackageList::OnPackageList(
     const Context& context,
     protozero::ConstBytes bytes,
     protos::pbzero::PackagesList* message) const {
-  PERFETTO_DCHECK(message);
+  DEJAVIEW_DCHECK(message);
 
   protozero::ProtoDecoder decoder(bytes);
 
@@ -89,4 +89,4 @@ void PrunePackageList::OnPackageList(
   }
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

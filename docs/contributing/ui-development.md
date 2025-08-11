@@ -23,7 +23,7 @@ the page earlier, at the cost of sometimes making multiple reloads in a row.
 
 ## Mithril components
 
-Perfetto UI uses the [Mithril](https://mithril.js.org/) library for rendering
+DejaView UI uses the [Mithril](https://mithril.js.org/) library for rendering
 the interface. The majority of the components in the codebase use
 [class components](https://mithril.js.org/components.html#classes). When Mithril
 is imported via `m` alias (as it is usually done in the codebase), the class

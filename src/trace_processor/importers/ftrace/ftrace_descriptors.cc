@@ -20,7 +20,7 @@
 
 #include "src/trace_processor/importers/ftrace/ftrace_descriptors.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -6002,7 +6002,7 @@ std::array<FtraceMessageDescriptor, 542> descriptors{{
 }  // namespace
 
 FtraceMessageDescriptor* GetMessageDescriptorForId(size_t id) {
-  PERFETTO_CHECK(id < descriptors.size());
+  DEJAVIEW_CHECK(id < descriptors.size());
   return &descriptors[id];
 }
 
@@ -6018,4 +6018,4 @@ size_t GetDescriptorsSize() {
   return descriptors.size();
 }
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

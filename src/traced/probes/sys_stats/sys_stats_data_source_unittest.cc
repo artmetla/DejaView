@@ -16,26 +16,26 @@
 
 #include <unistd.h>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/traced/probes/common/cpu_freq_info_for_testing.h"
 #include "src/traced/probes/sys_stats/sys_stats_data_source.h"
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/sys_stats_counters.gen.h"
-#include "protos/perfetto/config/data_source_config.gen.h"
-#include "protos/perfetto/config/sys_stats/sys_stats_config.gen.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.gen.h"
+#include "protos/dejaview/common/sys_stats_counters.gen.h"
+#include "protos/dejaview/config/data_source_config.gen.h"
+#include "protos/dejaview/config/sys_stats/sys_stats_config.gen.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.gen.h"
 
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::Return;
 using ::testing::UnorderedElementsAre;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 const char kMockMeminfo[] = R"(
@@ -270,7 +270,7 @@ base::ScopedFile MockOpenReadOnly(const char* path) {
   } else if (base::StartsWith(path, "/proc/pressure/")) {
     EXPECT_GT(pwrite(tmp_.fd(), kMockPsi, strlen(kMockPsi), 0), 0);
   } else {
-    PERFETTO_FATAL("Unexpected file opened %s", path);
+    DEJAVIEW_FATAL("Unexpected file opened %s", path);
   }
   return tmp_.ReleaseFD();
 }
@@ -857,4 +857,4 @@ TEST_F(SysStatsDataSourceTest, Psi) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

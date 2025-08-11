@@ -22,19 +22,19 @@
 #include <unordered_map>
 #include <utility>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/watchdog.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/watchdog.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 #include "src/traced/probes/filesystem/inode_file_data_source.h"
 #include "src/traced/probes/ftrace/ftrace_controller.h"
 #include "src/traced/probes/ftrace/ftrace_metadata.h"
 
-#include "protos/perfetto/trace/filesystem/inode_file_map.pbzero.h"
+#include "protos/dejaview/trace/filesystem/inode_file_map.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class ProbesDataSource;
 
@@ -139,6 +139,6 @@ class ProbesProducer : public Producer, public FtraceController::Observer {
   base::WeakPtrFactory<ProbesProducer> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_PROBES_PRODUCER_H_

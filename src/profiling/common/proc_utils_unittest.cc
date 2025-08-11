@@ -18,10 +18,10 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -104,9 +104,9 @@ TEST(ProcUtilsTest, NormalizeZeroLength) {
 TEST(ProcUtilsTest, FindProfilablePids) {
   std::set<pid_t> pids;
   int pipefds[2];
-  PERFETTO_CHECK(pipe(pipefds) == 0);
+  DEJAVIEW_CHECK(pipe(pipefds) == 0);
   pid_t pid = fork();
-  PERFETTO_CHECK(pid >= 0);
+  DEJAVIEW_CHECK(pid >= 0);
   switch (pid) {
     case 0: {
       close(pipefds[1]);
@@ -123,7 +123,7 @@ TEST(ProcUtilsTest, FindProfilablePids) {
   close(pipefds[1]);
   EXPECT_THAT(pids, Contains(pid));
   EXPECT_THAT(pids, Not(Contains(getpid())));
-  PERFETTO_CHECK(PERFETTO_EINTR(waitpid(pid, nullptr, 0)) == pid);
+  DEJAVIEW_CHECK(DEJAVIEW_EINTR(waitpid(pid, nullptr, 0)) == pid);
 }
 
 TEST(ProcUtilsTest, GetRssAnonAndSwap) {
@@ -167,4 +167,4 @@ TEST(ProcUtilsTest, GetUidsInvalidTooFew) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

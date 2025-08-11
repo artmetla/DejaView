@@ -20,10 +20,10 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 static constexpr size_t kMaxSyscalls = 550;
 
@@ -72,6 +72,6 @@ class SyscallTable {
   const OffT* syscall_offsets_ = {};
   size_t syscall_count_ = 0;
 };
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_KERNEL_UTILS_SYSCALL_TABLE_H_

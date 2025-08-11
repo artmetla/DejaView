@@ -26,7 +26,7 @@ class StdlibSmoke(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(''),
         query="""
-        INCLUDE PERFETTO MODULE *;
+        INCLUDE DEJAVIEW MODULE *;
 
         SELECT 1 as result;
         """,

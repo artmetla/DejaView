@@ -15,17 +15,17 @@
  */
 
 #include "src/trace_redaction/broadphase_packet_filter.h"
-#include "protos/perfetto/trace/ftrace/ftrace.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class BroadphasePacketFilterTest : public testing::Test {
  protected:
@@ -204,4 +204,4 @@ TEST_F(BroadphasePacketFilterTest, DropsFtraceEvent) {
   ASSERT_FALSE(packet.ftrace_events().event().at(0).has_print());
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

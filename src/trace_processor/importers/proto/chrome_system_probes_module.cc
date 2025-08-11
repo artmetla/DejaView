@@ -15,15 +15,15 @@
  */
 
 #include "src/trace_processor/importers/proto/chrome_system_probes_module.h"
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "src/trace_processor/importers/proto/chrome_system_probes_parser.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 ChromeSystemProbesModule::ChromeSystemProbesModule(
     TraceProcessorContext* context)
@@ -44,4 +44,4 @@ void ChromeSystemProbesModule::ParseTracePacketData(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

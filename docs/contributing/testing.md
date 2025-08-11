@@ -1,18 +1,18 @@
 # Running tests
 
-The testing strategy for Perfetto is rather complex due to the wide variety
+The testing strategy for DejaView is rather complex due to the wide variety
 of build configurations and embedding targets.
 
 Common test targets (all platforms / checkouts):
 
-`perfetto_unittests`:  
+`dejaview_unittests`:  
 Platform-agnostic unit-tests.
 
-`perfetto_integrationtests`:  
+`dejaview_integrationtests`:  
 End-to-end tests, involving the protobuf-based IPC transport and ftrace
 integration (Linux/Android only).
 
-`perfetto_benchmarks`:  
+`dejaview_benchmarks`:  
 Benchmarks tracking the performance of: (i) trace writing, (ii) trace readback
 and (iii) ftrace raw pipe -> protobuf translation.
 
@@ -20,11 +20,11 @@ Running tests on Linux / MacOS
 ------------------------------
 
 ```bash
-tools/ninja -C out/default perfetto_{unittests,integrationtests,benchmarks}
-out/default/perfetto_unittests --gtest_help
+tools/ninja -C out/default dejaview_{unittests,integrationtests,benchmarks}
+out/default/dejaview_unittests --gtest_help
 ```
 
-`perfetto_integrationtests` requires that the ftrace debugfs directory is
+`dejaview_integrationtests` requires that the ftrace debugfs directory is
 is readable/writable by the current user on Linux:
 ```bash
 sudo chown  -R $USER /sys/kernel/debug/tracing
@@ -43,33 +43,33 @@ tools/run_android_emulator &
 2) Run the tests (either on the emulator or physical device):  
 
 ```bash
-tools/run_android_test out/default perfetto_unittests
+tools/run_android_test out/default dejaview_unittests
 ```
 
 Continuous testing
 ------------------
-Perfetto is tested in a variety of locations:
+DejaView is tested in a variety of locations:
 
-**Perfetto CI**: https://ci.perfetto.dev/  
-Builds and runs perfetto_{unittests,integrationtests,benchmarks} from the
+**DejaView CI**: https://ci.perfetto.dev/  
+Builds and runs dejaview_{unittests,integrationtests,benchmarks} from the
 standalone checkout. Benchmarks are ran in a reduced form for smoke testing.
 See [this doc](/docs/design-docs/continuous-integration.md) for more details.
 
 **Android CI** (see go/apct and go/apct-guide):  
-runs only `perfetto_integrationtests`
+runs only `dejaview_integrationtests`
 
 **Android presubmits (TreeHugger)**:  
-Runs before submission of every AOSP CL of `external/perfetto`.
+Runs before submission of every AOSP CL of `external/dejaview`.
 
 **Android CTS** (Android test suite used run to ensure API compatibility):   
 Rolling runs internally.
 
-Note that Perfetto CI uses the standalone build system and the others build as
+Note that DejaView CI uses the standalone build system and the others build as
 part of the Android tree.
 
 Unit tests
 ----------
-Unit tests exist for most of the code in Perfetto on the class level. They
+Unit tests exist for most of the code in DejaView on the class level. They
 ensure that each class broadly works as expected.
 
 Unit tests are currently ran on ci.perfetto.dev and build.chromium.org.
@@ -78,7 +78,7 @@ Running unit tests on APCT and Treehugger is WIP.
 Integration tests
 -----------------
 Integration tests ensure that subsystems (importantly ftrace and the IPC layer)
-and Perfetto as a whole is working correctly end-to-end.
+and DejaView as a whole is working correctly end-to-end.
 
 There are two configurations in which integration tests can be run:
 
@@ -155,65 +155,65 @@ platform API.
 
 These tests include a subset of the integration tests above as well as adding
 more complex tests which ensure interaction between platform (e.g. Android apps
-etc.) and Perfetto is not broken.
+etc.) and DejaView is not broken.
 
-The relevant targets are `CtsPerfettoProducerApp` and `CtsPerfettoTestCases`. Once these are built, the following commands should be run:
+The relevant targets are `CtsDejaViewProducerApp` and `CtsDejaViewTestCases`. Once these are built, the following commands should be run:
 
 ```bash
-adb push $ANDROID_HOST_OUT/cts/android-cts/testcases/CtsPerfettoTestCases64 /data/local/tmp/
-adb install -r $ANDROID_HOST_OUT/cts/android-cts/testcases/CtsPerfettoProducerApp.apk
+adb push $ANDROID_HOST_OUT/cts/android-cts/testcases/CtsDejaViewTestCases64 /data/local/tmp/
+adb install -r $ANDROID_HOST_OUT/cts/android-cts/testcases/CtsDejaViewProducerApp.apk
 ```
 
-Next, the app named `android.perfetto.producer` should be run on the device.
+Next, the app named `android.dejaview.producer` should be run on the device.
 
 Finally, the following command should be run:
 
 ```bash
-adb shell /data/local/tmp/CtsPerfettoTestCases64
+adb shell /data/local/tmp/CtsDejaViewTestCases64
 ```
 
 {#chromium} Chromium waterfall
 ------------------
-Perfetto is constantly rolled into chromium's //third_party/perfetto via
+DejaView is constantly rolled into chromium's //third_party/dejaview via
 [this autoroller](https://autoroll.skia.org/r/perfetto-chromium-autoroll).
 
-The [Chromium CI](https://build.chromium.org) runs the `perfetto_unittests`
+The [Chromium CI](https://build.chromium.org) runs the `dejaview_unittests`
 target, as defined in the [buildbot config][chromium_buildbot].
 
-You can also test a pending Perfetto CL against Chromium's CI / TryBots
+You can also test a pending DejaView CL against Chromium's CI / TryBots
 before submitting it. This can be useful when making trickier API changes or to
-test on platforms that the Perfetto CI doesn't cover (e.g. Windows, MacOS),
+test on platforms that the DejaView CI doesn't cover (e.g. Windows, MacOS),
 allowing you to verify the patch before you submit it (and it then eventually
 auto-rolls into Chromium).
 
-To do this, first make sure you have uploaded your Perfetto patch to the
+To do this, first make sure you have uploaded your DejaView patch to the
 Android Gerrit. Next, create a new Chromium CL that modifies Chromium's
 `//src/DEPS` file.
 
 If you recently uploaded your change, it may be enough to modify the git commit
-hash in the `DEPS` entry for `src/third_party/perfetto`:
+hash in the `DEPS` entry for `src/third_party/dejaview`:
 
 ```
-  'src/third_party/perfetto':
-    Var('android_git') + '/platform/external/perfetto.git' + '@' + '8fe19f55468ee227e99c1a682bd8c0e8f7e5bcdb',
+  'src/third_party/dejaview':
+    Var('android_git') + '/platform/external/dejaview.git' + '@' + '8fe19f55468ee227e99c1a682bd8c0e8f7e5bcdb',
 ```
 
 Replace the git hash with the commit hash of your most recent patch set, which
 you can find in gerrit next to the active patch set number.
 
 Alternatively, you can add `hooks` to patch in the pending CL on top of
-Chromium's current third_party/perfetto revision. For this, add the following
+Chromium's current third_party/dejaview revision. For this, add the following
 entries to the `hooks` array in Chromium's `//src/DEPS` file, modifying the
 `refs/changes/XX/YYYYYYY/ZZ` to the appropriate values for your gerrit change.
 You can see these values when pressing the "Download" button in gerrit. You can
-also use this method to patch in multiple Perfetto changes at once by
+also use this method to patch in multiple DejaView changes at once by
 adding additional `hooks` entries. [Here][chromium_cl]'s an example CL.
 
 ```
   {
     'name': 'fetch_custom_patch',
     'pattern': '.',
-    'action': [ 'git', '-C', 'src/third_party/perfetto/',
+    'action': [ 'git', '-C', 'src/third_party/dejaview/',
                 'fetch', 'https://android.googlesource.com/platform/external/perfetto',
                 'refs/changes/XX/YYYYYYY/ZZ',
     ],
@@ -221,7 +221,7 @@ adding additional `hooks` entries. [Here][chromium_cl]'s an example CL.
   {
     'name': 'apply_custom_patch',
     'pattern': '.',
-    'action': ['git', '-C', 'src/third_party/perfetto/',
+    'action': ['git', '-C', 'src/third_party/dejaview/',
                '-c', 'user.name=Custom Patch', '-c', 'user.email=custompatch@example.com',
                'cherry-pick', 'FETCH_HEAD',
     ],
@@ -229,15 +229,15 @@ adding additional `hooks` entries. [Here][chromium_cl]'s an example CL.
 ```
 
 If you'd like to test your change against the SDK build of Chrome, you
-can add `Cq-Include-Trybots:` lines for perfetto SDK trybots to the change
+can add `Cq-Include-Trybots:` lines for dejaview SDK trybots to the change
 description in gerrit (this won't be needed once Chrome's migration to the
 SDK is complete, see [tracking bug][sdk_migration_bug]):
 
 ```
-Cq-Include-Trybots: luci.chromium.try:linux-perfetto-rel
-Cq-Include-Trybots: luci.chromium.try:android-perfetto-rel
-Cq-Include-Trybots: luci.chromium.try:mac-perfetto-rel
-Cq-Include-Trybots: luci.chromium.try:win-perfetto-rel
+Cq-Include-Trybots: luci.chromium.try:linux-dejaview-rel
+Cq-Include-Trybots: luci.chromium.try:android-dejaview-rel
+Cq-Include-Trybots: luci.chromium.try:mac-dejaview-rel
+Cq-Include-Trybots: luci.chromium.try:win-dejaview-rel
 ```
 
 [chromium_buildbot]: https://cs.chromium.org/search/?q=perfetto_.*tests+f:%5Esrc/testing.*json$&sq=package:chromium&type=cs

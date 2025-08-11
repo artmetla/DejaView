@@ -21,19 +21,19 @@
 #include <set>
 #include <vector>
 
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
 
-#include "perfetto/tracing/core/forward_decls.h"
-#include "protos/perfetto/config/profiling/java_hprof_config.gen.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "protos/dejaview/config/profiling/java_hprof_config.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 using JavaHprofConfig = protos::gen::JavaHprofConfig;
@@ -110,6 +110,6 @@ class JavaHprofProducer : public Producer {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_JAVA_HPROF_PRODUCER_H_

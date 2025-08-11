@@ -20,7 +20,7 @@ import sys
 import tempfile
 import time
 
-from perfetto.prebuilts.perfetto_prebuilts import *
+from dejaview.prebuilts.dejaview_prebuilts import *
 
 PERMSISION_REGEX = re.compile(r'''uses-permission: name='(.*)'.*''')
 NAME_REGEX = re.compile(r'''package: name='(.*?)' .*''')
@@ -41,8 +41,8 @@ def main():
     apk = args.apk
   else:
     apk = download_or_get_cached(
-        'CtsPerfettoReporterApp.apk',
-        'https://storage.googleapis.com/perfetto/CtsPerfettoReporterApp.apk',
+        'CtsDejaViewReporterApp.apk',
+        'https://storage.googleapis.com/perfetto/CtsDejaViewReporterApp.apk',
         'f21dda36668c368793500b13724ab2a6231d12ded05746f7cfaaba4adedd7d46')
 
   # Figure out the package name and the permissions we need

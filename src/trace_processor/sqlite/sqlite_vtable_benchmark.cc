@@ -29,15 +29,15 @@
 #include <benchmark/benchmark.h>
 #include <sqlite3.h>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/sqlite/scoped_db.h"
 
 namespace {
 
 using benchmark::Counter;
-using perfetto::trace_processor::ScopedDb;
-using perfetto::trace_processor::ScopedStmt;
+using dejaview::trace_processor::ScopedDb;
+using dejaview::trace_processor::ScopedStmt;
 
 bool IsBenchmarkFunctionalOnly() {
   return getenv("BENCHMARK_FUNCTIONAL_TEST_ONLY") != nullptr;
@@ -79,9 +79,9 @@ class BenchmarkCursor : public sqlite3_vtab_cursor {
       col.resize(batch_size);
     RandomFill();
   }
-  PERFETTO_NO_INLINE int Next();
-  PERFETTO_NO_INLINE int Column(sqlite3_context* ctx, int);
-  PERFETTO_NO_INLINE int Eof() const;
+  DEJAVIEW_NO_INLINE int Next();
+  DEJAVIEW_NO_INLINE int Column(sqlite3_context* ctx, int);
+  DEJAVIEW_NO_INLINE int Eof() const;
   void RandomFill();
 
  private:
@@ -124,7 +124,7 @@ int BenchmarkCursor::Eof() const {
 
 int BenchmarkCursor::Column(sqlite3_context* ctx, int col_int) {
   const auto col = static_cast<size_t>(col_int);
-  PERFETTO_CHECK(col < column_buffer_.size());
+  DEJAVIEW_CHECK(col < column_buffer_.size());
   sqlite3_result_int64(ctx, column_buffer_[col][row_]);
   return SQLITE_OK;
 }
@@ -141,7 +141,7 @@ ScopedDb CreateDbAndRegisterVtable(sqlite3_module& module,
 
   ScopedDb db;
   sqlite3* raw_db = nullptr;
-  PERFETTO_CHECK(sqlite3_open(":memory:", &raw_db) == SQLITE_OK);
+  DEJAVIEW_CHECK(sqlite3_open(":memory:", &raw_db) == SQLITE_OK);
   db.reset(raw_db);
 
   auto create_fn = [](sqlite3* xdb, void* aux, int, const char* const*,
@@ -152,7 +152,7 @@ ScopedDb CreateDbAndRegisterVtable(sqlite3_module& module,
       sql += "c" + std::to_string(col) + " BIGINT,";
     sql[sql.size() - 1] = ')';
     int res = sqlite3_declare_vtab(xdb, sql.c_str());
-    PERFETTO_CHECK(res == SQLITE_OK);
+    DEJAVIEW_CHECK(res == SQLITE_OK);
     auto* vtab = new BenchmarkVtab();
     vtab->batch_size = _context.batch_size;
     vtab->num_cols = _context.num_cols;
@@ -202,7 +202,7 @@ ScopedDb CreateDbAndRegisterVtable(sqlite3_module& module,
 
   int res =
       sqlite3_create_module_v2(*db, "benchmark", &module, &context, nullptr);
-  PERFETTO_CHECK(res == SQLITE_OK);
+  DEJAVIEW_CHECK(res == SQLITE_OK);
 
   return db;
 }
@@ -222,12 +222,12 @@ void BM_SqliteStepAndResult(benchmark::State& state) {
   std::string sql = "SELECT * from benchmark";
   int err = sqlite3_prepare_v2(*db, sql.c_str(), static_cast<int>(sql.size()),
                                &raw_stmt, nullptr);
-  PERFETTO_CHECK(err == SQLITE_OK);
+  DEJAVIEW_CHECK(err == SQLITE_OK);
   stmt.reset(raw_stmt);
 
   for (auto _ : state) {
     for (size_t i = 0; i < batch_size; i++) {
-      PERFETTO_CHECK(sqlite3_step(*stmt) == SQLITE_ROW);
+      DEJAVIEW_CHECK(sqlite3_step(*stmt) == SQLITE_ROW);
       for (int col = 0; col < static_cast<int>(num_cols); col++) {
         benchmark::DoNotOptimize(sqlite3_column_int64(*stmt, col));
       }
@@ -255,14 +255,14 @@ void BM_SqliteCountOne(benchmark::State& state) {
   std::string sql = "SELECT COUNT(1) from benchmark";
   int err = sqlite3_prepare_v2(*db, sql.c_str(), static_cast<int>(sql.size()),
                                &raw_stmt, nullptr);
-  PERFETTO_CHECK(err == SQLITE_OK);
+  DEJAVIEW_CHECK(err == SQLITE_OK);
   stmt.reset(raw_stmt);
 
   for (auto _ : state) {
     sqlite3_reset(raw_stmt);
-    PERFETTO_CHECK(sqlite3_step(*stmt) == SQLITE_ROW);
+    DEJAVIEW_CHECK(sqlite3_step(*stmt) == SQLITE_ROW);
     benchmark::DoNotOptimize(sqlite3_column_int64(*stmt, 0));
-    PERFETTO_CHECK(sqlite3_step(*stmt) == SQLITE_DONE);
+    DEJAVIEW_CHECK(sqlite3_step(*stmt) == SQLITE_DONE);
   }
 
   state.counters["s/row"] =

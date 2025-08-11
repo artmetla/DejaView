@@ -17,16 +17,16 @@
 #include <algorithm>
 #include <string>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/protozero/proto_ring_buffer.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/protozero/proto_ring_buffer.h"
 #include "src/base/test/utils.h"
 
 static void BM_ProtoRingBufferReadLargeChunks(benchmark::State& state) {
   std::string trace_data;
   static const char kTestTrace[] = "test/data/example_android_trace_30s.pb";
-  perfetto::base::ReadFile(perfetto::base::GetTestDataPath(kTestTrace),
+  dejaview::base::ReadFile(dejaview::base::GetTestDataPath(kTestTrace),
                            &trace_data);
-  PERFETTO_CHECK(!trace_data.empty());
+  DEJAVIEW_CHECK(!trace_data.empty());
 
   size_t total_packet_size = 0;
   protozero::ProtoRingBuffer buffer;
@@ -48,9 +48,9 @@ BENCHMARK(BM_ProtoRingBufferReadLargeChunks);
 static void BM_ProtoRingBufferRead(benchmark::State& state) {
   std::string trace_data;
   static const char kTestTrace[] = "test/data/example_android_trace_30s.pb";
-  perfetto::base::ReadFile(perfetto::base::GetTestDataPath(kTestTrace),
+  dejaview::base::ReadFile(dejaview::base::GetTestDataPath(kTestTrace),
                            &trace_data);
-  PERFETTO_CHECK(!trace_data.empty());
+  DEJAVIEW_CHECK(!trace_data.empty());
 
   constexpr size_t kChunkSize = 1024 * 1024 * 3;
 

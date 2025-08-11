@@ -20,11 +20,11 @@
 #include <functional>
 #include <memory>
 
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/weak_ptr.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/weak_ptr.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -42,7 +42,7 @@ class TraceWriter;
 // be reused by other components (e.g. heapprofd).
 class MetatraceWriter {
  public:
-  static constexpr char kDataSourceName[] = "perfetto.metatrace";
+  static constexpr char kDataSourceName[] = "dejaview.metatrace";
 
   MetatraceWriter();
   ~MetatraceWriter();
@@ -62,10 +62,10 @@ class MetatraceWriter {
   bool started_ = false;
   base::TaskRunner* task_runner_ = nullptr;
   std::unique_ptr<TraceWriter> trace_writer_;
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
   base::WeakPtrFactory<MetatraceWriter> weak_ptr_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_SERVICE_METATRACE_WRITER_H_

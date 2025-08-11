@@ -17,13 +17,13 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROFILE_MODULE_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROFILE_MODULE_H_
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Importer module for heap and CPU sampling profile data.
@@ -78,6 +78,6 @@ class ProfileModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROFILE_MODULE_H_

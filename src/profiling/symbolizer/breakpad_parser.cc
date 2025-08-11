@@ -17,13 +17,13 @@
 
 #include "src/profiling/symbolizer/breakpad_parser.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_writer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_writer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -67,14 +67,14 @@ BreakpadParser::BreakpadParser(const std::string& file_path)
 bool BreakpadParser::ParseFile() {
   std::optional<std::string> file_contents = GetFileContents(file_path_);
   if (!file_contents) {
-    PERFETTO_ELOG("Could not get file contents of %s.", file_path_.c_str());
+    DEJAVIEW_ELOG("Could not get file contents of %s.", file_path_.c_str());
     return false;
   }
 
   // TODO(uwemwilson): Extract a build id and store it in the Symbol object.
 
   if (!ParseFromString(*file_contents)) {
-    PERFETTO_ELOG("Could not parse file contents.");
+    DEJAVIEW_ELOG("Could not parse file contents.");
     return false;
   }
 
@@ -94,7 +94,7 @@ bool BreakpadParser::ParseFromString(const std::string& file_contents) {
   base::StringView first_line(lines.cur_token(), lines.cur_token_size());
   base::Status parse_record_status = ParseIfModuleRecord(first_line);
   if (!parse_record_status.ok()) {
-    PERFETTO_ELOG("%s Breakpad files should begin with a MODULE record",
+    DEJAVIEW_ELOG("%s Breakpad files should begin with a MODULE record",
                   parse_record_status.message().c_str());
     return false;
   }
@@ -103,7 +103,7 @@ bool BreakpadParser::ParseFromString(const std::string& file_contents) {
   while (lines.Next()) {
     parse_record_status = ParseIfFuncRecord(lines.cur_token());
     if (!parse_record_status.ok()) {
-      PERFETTO_ELOG("%s", parse_record_status.message().c_str());
+      DEJAVIEW_ELOG("%s", parse_record_status.message().c_str());
       return false;
     }
   }
@@ -212,4 +212,4 @@ base::Status BreakpadParser::ParseIfFuncRecord(base::StringView current_line) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

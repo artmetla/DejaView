@@ -38,7 +38,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument(
       '--stdlib-sources',
-      default=os.path.join(ROOT_DIR, "src", "trace_processor", "perfetto_sql",
+      default=os.path.join(ROOT_DIR, "src", "trace_processor", "dejaview_sql",
                            "stdlib"))
   parser.add_argument(
       '--verbose',

@@ -21,10 +21,10 @@
 
 #include <memory>
 
-#include "perfetto/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
 #include "src/tracing/core/in_process_shared_memory.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // A dummy implementation of shared memory for single process unittests
 // (just a wrapper around malloc() that fits the SharedMemory API).
@@ -57,6 +57,6 @@ class TestRefSharedMemory : public SharedMemory {
   size_t size_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_TEST_SHARED_MEMORY_H_

@@ -25,11 +25,11 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 #define MAX_FIELD_LENGTH 127
@@ -54,7 +54,7 @@ bool ParseFtraceEventBody(base::StringSplitter* ss,
                           std::vector<FtraceEvent::Field>* common_fields,
                           std::vector<FtraceEvent::Field>* fields,
                           bool disable_logging_for_testing) {
-  PERFETTO_DCHECK(common_fields || fields);
+  DEJAVIEW_DCHECK(common_fields || fields);
   char buffer[MAX_FIELD_LENGTH + 1];
   while (ss->Next()) {
     const char* line = ss->cur_token();
@@ -84,7 +84,7 @@ bool ParseFtraceEventBody(base::StringSplitter* ss,
     }
 
     if (!disable_logging_for_testing)
-      PERFETTO_DLOG("Cannot parse line: \"%s\"\n", line);
+      DEJAVIEW_DLOG("Cannot parse line: \"%s\"\n", line);
     return false;
   }
   return true;
@@ -162,13 +162,13 @@ bool ParseFtraceEvent(std::string input, FtraceEvent* output) {
     }
 
     if (output)
-      PERFETTO_DLOG("Cannot parse line: \"%s\"\n", line);
+      DEJAVIEW_DLOG("Cannot parse line: \"%s\"\n", line);
     return false;
   }
 
   if (!has_id || !has_name || common_fields.empty()) {
     if (output)
-      PERFETTO_DLOG("Could not parse format file: %s.\n",
+      DEJAVIEW_DLOG("Could not parse format file: %s.\n",
                     !has_id ? "no ID found"
                             : !has_name ? "no name found" : "no fields found");
     return false;
@@ -197,4 +197,4 @@ void PrintTo(const FtraceEvent::Field& field, ::std::ostream* os) {
       << ", " << field.size << ", " << field.is_signed << ")";
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

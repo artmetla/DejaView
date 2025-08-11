@@ -16,33 +16,33 @@
 
 #include "test/integrationtest_initializer.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::integration_tests {
+namespace dejaview::integration_tests {
 
 static void (*heapprofd_end_to_end_test_initializer)(void) = nullptr;
 int RegisterHeapprofdEndToEndTestInitializer(void (*fn)(void)) {
-  PERFETTO_CHECK(heapprofd_end_to_end_test_initializer == nullptr);
+  DEJAVIEW_CHECK(heapprofd_end_to_end_test_initializer == nullptr);
   heapprofd_end_to_end_test_initializer = fn;
   return 0;
 }
 
 static void (*api_integration_test_initializer)(void) = nullptr;
 int RegisterApiIntegrationTestInitializer(void (*fn)(void)) {
-  PERFETTO_CHECK(api_integration_test_initializer == nullptr);
+  DEJAVIEW_CHECK(api_integration_test_initializer == nullptr);
   api_integration_test_initializer = fn;
   return 0;
 }
 
-}  // namespace perfetto::integration_tests
+}  // namespace dejaview::integration_tests
 
 int main(int argc, char** argv) {
-  if (perfetto::integration_tests::heapprofd_end_to_end_test_initializer) {
-    perfetto::integration_tests::heapprofd_end_to_end_test_initializer();
+  if (dejaview::integration_tests::heapprofd_end_to_end_test_initializer) {
+    dejaview::integration_tests::heapprofd_end_to_end_test_initializer();
   }
-  if (perfetto::integration_tests::api_integration_test_initializer) {
-    perfetto::integration_tests::api_integration_test_initializer();
+  if (dejaview::integration_tests::api_integration_test_initializer) {
+    dejaview::integration_tests::api_integration_test_initializer();
   }
 
   ::testing::InitGoogleTest(&argc, argv);

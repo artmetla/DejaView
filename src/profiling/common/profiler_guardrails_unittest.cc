@@ -22,11 +22,11 @@
 #include <map>
 #include <optional>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -127,4 +127,4 @@ TEST(ProfilerMemoryGuardrailsTest, NotExceeded) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

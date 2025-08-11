@@ -206,7 +206,7 @@ def append_jobs(patch_obj, src, git_ref, now=None):
     patch_obj['jobs/' + job_id] = {
         'src': src,
         'type': cfg_name,
-        'env': dict(env, PERFETTO_TEST_GIT_REF=git_ref),
+        'env': dict(env, DEJAVIEW_TEST_GIT_REF=git_ref),
         'status': 'QUEUED',
         'time_queued': utc_now_iso(),
     }

@@ -23,17 +23,17 @@
 #include <queue>
 #include <unordered_map>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 
-#include "protos/perfetto/config/inode_file/inode_file_config.pbzero.h"
-#include "protos/perfetto/trace/filesystem/inode_file_map.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/inode_file/inode_file_config.pbzero.h"
+#include "protos/dejaview/trace/filesystem/inode_file_map.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/traced/probes/filesystem/file_scanner.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 constexpr uint32_t kScanIntervalMs = 10000;  // 10s
 constexpr uint32_t kScanDelayMs = 10000;     // 10s
@@ -167,7 +167,7 @@ void InodeFileDataSource::AddInodesFromStaticMap(
     FillInodeEntry(AddToCurrentTracePacket(block_device_id), inode_number,
                    inode_it->second);
   }
-  PERFETTO_DLOG("%" PRIu64 " inodes found in static file map",
+  DEJAVIEW_DLOG("%" PRIu64 " inodes found in static file map",
                 system_found_count);
 }
 
@@ -188,7 +188,7 @@ void InodeFileDataSource::AddInodesFromLRUCache(
                    *value);
   }
   if (cache_found_count > 0)
-    PERFETTO_DLOG("%" PRIu64 " inodes found in cache", cache_found_count);
+    DEJAVIEW_DLOG("%" PRIu64 " inodes found in cache", cache_found_count);
 }
 
 void InodeFileDataSource::Flush(FlushRequestID,
@@ -210,13 +210,13 @@ void InodeFileDataSource::OnInodes(
     inode_file_maps[block_device_id].emplace(inode_number);
   }
   if (inode_file_maps.size() > 1)
-    PERFETTO_DLOG("Saw %zu block devices.", inode_file_maps.size());
+    DEJAVIEW_DLOG("Saw %zu block devices.", inode_file_maps.size());
 
   // Write a TracePacket with an InodeFileMap proto for each block device id
   for (auto& inode_file_map_data : inode_file_maps) {
     BlockDeviceID block_device_id = inode_file_map_data.first;
     std::set<Inode>& inode_numbers = inode_file_map_data.second;
-    PERFETTO_DLOG("Saw %zu unique inode numbers.", inode_numbers.size());
+    DEJAVIEW_DLOG("Saw %zu unique inode numbers.", inode_numbers.size());
 
     // Add entries to InodeFileMap as inodes are found and resolved to their
     // paths/type
@@ -255,7 +255,7 @@ void InodeFileDataSource::OnInodes(
         task_runner_->PostDelayedTask(
             [weak_this] {
               if (!weak_this) {
-                PERFETTO_DLOG("Giving up filesystem scan.");
+                DEJAVIEW_DLOG("Giving up filesystem scan.");
                 return;
               }
               weak_this->FindMissingInodes();
@@ -327,7 +327,7 @@ bool InodeFileDataSource::OnInodeFound(BlockDeviceID block_device_id,
     FillInodeEntry(AddToCurrentTracePacket(block_device_id), inode_number,
                    new_val);
   }
-  PERFETTO_DLOG("Filled %s", path.c_str());
+  DEJAVIEW_DLOG("Filled %s", path.c_str());
   return !missing_inodes_.empty();
 }
 
@@ -355,11 +355,11 @@ void InodeFileDataSource::OnInodeScanDone() {
     scan_running_ = false;
   } else {
     auto weak_this = GetWeakPtr();
-    PERFETTO_DLOG("Starting another filesystem scan.");
+    DEJAVIEW_DLOG("Starting another filesystem scan.");
     task_runner_->PostDelayedTask(
         [weak_this] {
           if (!weak_this) {
-            PERFETTO_DLOG("Giving up filesystem scan.");
+            DEJAVIEW_DLOG("Giving up filesystem scan.");
             return;
           }
           weak_this->FindMissingInodes();
@@ -373,7 +373,7 @@ void InodeFileDataSource::AddRootsForBlockDevice(
     std::vector<std::string>* roots) {
   auto range = mount_points_.equal_range(block_device_id);
   for (auto it = range.first; it != range.second; ++it) {
-    PERFETTO_DLOG("Trying to replace %s", it->second.c_str());
+    DEJAVIEW_DLOG("Trying to replace %s", it->second.c_str());
     auto replace_it = mount_point_mapping_.find(it->second);
     if (replace_it != mount_point_mapping_.end()) {
       roots->insert(roots->end(), replace_it->second.cbegin(),
@@ -392,9 +392,9 @@ void InodeFileDataSource::FindMissingInodes() {
   for (auto& p : missing_inodes_)
     AddRootsForBlockDevice(p.first, &roots);
 
-  PERFETTO_DCHECK(file_scanner_.get() == nullptr);
+  DEJAVIEW_DCHECK(file_scanner_.get() == nullptr);
   auto weak_this = GetWeakPtr();
-  PERFETTO_DLOG("Starting scan of %s", DbgFmt(roots).c_str());
+  DEJAVIEW_DLOG("Starting scan of %s", DbgFmt(roots).c_str());
   file_scanner_ = std::unique_ptr<FileScanner>(new FileScanner(
       std::move(roots), this, scan_interval_ms_, scan_batch_size_));
 
@@ -405,4 +405,4 @@ base::WeakPtr<InodeFileDataSource> InodeFileDataSource::GetWeakPtr() const {
   return weak_factory_.GetWeakPtr();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

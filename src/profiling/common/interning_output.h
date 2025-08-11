@@ -22,13 +22,13 @@
 
 #include <stdint.h>
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/profiling/common/callstack_trie.h"
 #include "src/profiling/common/interner.h"
 
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 class InterningOutputTracker {
@@ -73,6 +73,6 @@ class InterningOutputTracker {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_COMMON_INTERNING_OUTPUT_H_

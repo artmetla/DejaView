@@ -61,7 +61,7 @@ export function addQueryResultsTab(
 }
 
 export class QueryResultTab extends BottomTab<QueryResultTabConfig> {
-  static readonly kind = 'dev.perfetto.QueryResultTab';
+  static readonly kind = 'dev.dejaview.QueryResultTab';
 
   queryResponse?: QueryResponse;
   sqlViewName?: string;

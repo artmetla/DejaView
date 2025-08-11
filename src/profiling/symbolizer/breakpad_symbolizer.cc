@@ -18,13 +18,13 @@
 
 #include <optional>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/string_writer.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/string_writer.h"
 #include "src/profiling/symbolizer/breakpad_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -38,8 +38,8 @@ std::string MakeFilePath(const std::string& build_id,
   // Append file name to symbol directory path using |build_id| and
   // |kBreakpadSuffix|.
   file_path.append(symbol_dir_path);
-// TODO: Add a path utility for perfetto to use here.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+// TODO: Add a path utility for dejaview to use here.
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   file_path.append("\\");
 #else
   file_path.append("/");
@@ -76,8 +76,8 @@ std::vector<std::vector<SymbolizedFrame>> BreakpadSymbolizer::Symbolize(
 
   BreakpadParser parser(file_path);
   if (!parser.ParseFile()) {
-    PERFETTO_ELOG("Failed to parse file %s.", file_path.c_str());
-    PERFETTO_PLOG("Symbolized %zu of %zu frames.", num_symbolized_frames,
+    DEJAVIEW_ELOG("Failed to parse file %s.", file_path.c_str());
+    DEJAVIEW_PLOG("Symbolized %zu of %zu frames.", num_symbolized_frames,
                   address.size());
     return result;
   }
@@ -92,10 +92,10 @@ std::vector<std::vector<SymbolizedFrame>> BreakpadSymbolizer::Symbolize(
     }
     result.push_back({std::move(frame)});
   }
-  PERFETTO_PLOG("Symbolized %zu of %zu frames.", num_symbolized_frames,
+  DEJAVIEW_PLOG("Symbolized %zu of %zu frames.", num_symbolized_frames,
                 address.size());
   return result;
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

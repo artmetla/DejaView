@@ -21,12 +21,12 @@
       'filepath': 'ui/',
     },
     'stdlib': {
-      'filepath': 'src/trace_processor/perfetto_sql/stdlib/',
+      'filepath': 'src/trace_processor/dejaview_sql/stdlib/',
     },
   },
   'WATCHLISTS': {
-    'ui': ['perfetto-watch+ui@google.com'],
-    'stdlib': ['perfetto-watch+stdlib@google.com'],
+    'ui': ['dejaview-watch+ui@google.com'],
+    'stdlib': ['dejaview-watch+stdlib@google.com'],
   },
 }
 

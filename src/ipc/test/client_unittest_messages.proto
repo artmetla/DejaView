@@ -16,7 +16,7 @@
 
 syntax = "proto2";
 
-package perfetto.ipc;
+package dejaview.ipc;
 
 message RequestProto {
   optional string data = 1;

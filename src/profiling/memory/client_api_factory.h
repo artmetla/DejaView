@@ -21,7 +21,7 @@
 
 #include "src/profiling/memory/unhooked_allocator.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 class Client;
@@ -29,9 +29,9 @@ class Client;
 void StartHeapprofdIfStatic();
 
 std::shared_ptr<Client> ConstructClient(
-    UnhookedAllocator<perfetto::profiling::Client> unhooked_allocator);
+    UnhookedAllocator<dejaview::profiling::Client> unhooked_allocator);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_CLIENT_API_FACTORY_H_

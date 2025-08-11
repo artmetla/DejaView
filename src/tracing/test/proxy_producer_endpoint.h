@@ -17,9 +17,9 @@
 #ifndef SRC_TRACING_TEST_PROXY_PRODUCER_ENDPOINT_H_
 #define SRC_TRACING_TEST_PROXY_PRODUCER_ENDPOINT_H_
 
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // A "proxy" ProducerEndpoint that forwards all the requests to a real
 // (`backend_`) ProducerEndpoint endpoint or drops them if (`backend_`) is
@@ -61,6 +61,6 @@ class ProxyProducerEndpoint : public ProducerEndpoint {
   ProducerEndpoint* backend_ = nullptr;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_PROXY_PRODUCER_ENDPOINT_H_

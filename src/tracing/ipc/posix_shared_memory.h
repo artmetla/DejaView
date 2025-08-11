@@ -17,23 +17,23 @@
 #ifndef SRC_TRACING_IPC_POSIX_SHARED_MEMORY_H_
 #define SRC_TRACING_IPC_POSIX_SHARED_MEMORY_H_
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_WASM)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WASM)
 
 #include <stddef.h>
 
 #include <memory>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Implements the SharedMemory and its factory for the posix-based transport.
 class PosixSharedMemory : public SharedMemory {
@@ -77,7 +77,7 @@ class PosixSharedMemory : public SharedMemory {
   base::ScopedFile fd_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // OS_LINUX || OS_ANDROID || OS_APPLE
 #endif  // SRC_TRACING_IPC_POSIX_SHARED_MEMORY_H_

@@ -26,7 +26,7 @@ class AndroidGpu(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/gpu_metric.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.gpu.memory;
+        INCLUDE DEJAVIEW MODULE android.gpu.memory;
         SELECT *
         FROM android_gpu_memory_per_process;
         """,
@@ -44,7 +44,7 @@ class AndroidGpu(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/graphics/gpu_frequency_metric.textproto'),
         query="""
-        INCLUDE PERFETTO MODULE android.gpu.frequency;
+        INCLUDE DEJAVIEW MODULE android.gpu.frequency;
         SELECT *
         FROM android_gpu_frequency;
       """,

@@ -1,9 +1,9 @@
 # UI plugins
-The Perfetto UI can be extended with plugins. These plugins are shipped
-part of Perfetto.
+The DejaView UI can be extended with plugins. These plugins are shipped
+part of DejaView.
 
 ## Create a plugin
-The guide below explains how to create a plugin for the Perfetto UI.
+The guide below explains how to create a plugin for the DejaView UI.
 
 ### Prepare for UI development
 First we need to prepare the UI development environment.
@@ -13,7 +13,7 @@ Follow the steps below or see the
 
 ```sh
 git clone https://android.googlesource.com/platform/external/perfetto/
-cd perfetto
+cd dejaview
 ./tools/install-build-deps --ui
 ```
 
@@ -31,8 +31,8 @@ Notes on naming:
 - Plugins should be prefixed with the reversed components of a domain
   name you control. For example if `example.com` is your domain your
   plugin should be named `com.example.Foo`.
-- Core plugins maintained by the Perfetto team should use
-  `dev.perfetto.Foo`.
+- Core plugins maintained by the DejaView team should use
+  `dev.dejaview.Foo`.
 - Commands should have ids with the pattern `example.com#DoSomething`
 - Command's ids should be prefixed with the id of the plugin which
   provides them.
@@ -82,11 +82,11 @@ while a trace is loaded, whereas commands registered in `onActivate()` are
 available all the time the plugin is active.
 
 ```typescript
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onActivate(ctx: PluginContext): void {
     ctx.registerCommand(
        {
-         id: 'dev.perfetto.ExampleSimpleCommand#LogHelloPlugin',
+         id: 'dev.dejaview.ExampleSimpleCommand#LogHelloPlugin',
          name: 'Log "Hello, plugin!"',
          callback: () => console.log('Hello, plugin!'),
        },
@@ -96,7 +96,7 @@ class MyPlugin implements PerfettoPlugin {
   onTraceLoad(ctx: PluginContextTrace): void {
     ctx.registerCommand(
        {
-         id: 'dev.perfetto.ExampleSimpleTraceCommand#LogHelloTrace',
+         id: 'dev.dejaview.ExampleSimpleTraceCommand#LogHelloTrace',
          name: 'Log "Hello, trace!"',
          callback: () => console.log('Hello, trace!'),
        },
@@ -119,9 +119,9 @@ and commands registered with the `PluginContextTrace` are removed when the trace
 is unloaded.
 
 Examples:
-- [dev.perfetto.ExampleSimpleCommand](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.ExampleSimpleCommand/index.ts).
-- [perfetto.CoreCommands](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/core_plugins/commands/index.ts).
-- [dev.perfetto.ExampleState](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.ExampleState/index.ts).
+- [dev.dejaview.ExampleSimpleCommand](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.ExampleSimpleCommand/index.ts).
+- [dejaview.CoreCommands](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/core_plugins/commands/index.ts).
+- [dev.dejaview.ExampleState](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.ExampleState/index.ts).
 
 #### Hotkeys
 
@@ -129,7 +129,7 @@ A default hotkey may be provided when registering a command.
 
 ```typescript
 ctx.registerCommand({
-  id: 'dev.perfetto.ExampleSimpleCommand#LogHelloWorld',
+  id: 'dev.dejaview.ExampleSimpleCommand#LogHelloWorld',
   name: 'Log "Hello, World!"',
   callback: () => console.log('Hello, World!'),
   defaultHotkey: 'Shift+H',
@@ -189,11 +189,11 @@ class MyTrack extends NamedSliceTrack {
 ```
 
 #### Registering Tracks
-Plugins may register tracks with Perfetto using
+Plugins may register tracks with DejaView using
 `PluginContextTrace.registerTrack()`, usually in their `onTraceLoad` function.
 
 ```ts
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onTraceLoad(ctx: PluginContextTrace): void {
     ctx.registerTrack({
       uri: 'dev.MyPlugin#ExampleTrack',
@@ -216,7 +216,7 @@ Thus it only makes sense to add default tracks in your plugin's `onTraceLoad`
 function, as adding a default track later will have no effect.
 
 ```ts
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onTraceLoad(ctx: PluginContextTrace): void {
     ctx.registerTrack({
       // ... as above ...
@@ -236,7 +236,7 @@ shortcut for doing both in one go: `PluginContextTrace.registerStaticTrack()`,
 which saves having to repeat the URI and display name.
 
 ```ts
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onTraceLoad(ctx: PluginContextTrace): void {
     ctx.registerStaticTrack({
       uri: 'dev.MyPlugin#ExampleTrack',
@@ -256,7 +256,7 @@ as a result of a command or on some other user action such as a button click.
 We can do this using `PluginContext.timeline.addTrack()`.
 
 ```ts
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onTraceLoad(ctx: PluginContextTrace): void {
     ctx.registerTrack({
       // ... as above ...
@@ -298,7 +298,7 @@ class MyTab implements Tab {
   }
 }
 
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onActivate(_: PluginContext): void {}
   async onTraceLoad(ctx: PluginContextTrace): Promise<void> {
     ctx.registerTab({
@@ -381,7 +381,7 @@ class MyNameTab implements Tab {
   }
 }
 
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onActivate(_: PluginContext): void {}
   async onTraceLoad(ctx: PluginContextTrace): Promise<void> {
     ctx.registerCommand({
@@ -396,7 +396,7 @@ function handleCommand(ctx: PluginContextTrace): void {
   const name = prompt('What is your name');
   if (name) {
     const uri = 'dev.MyPlugin#MyName' + uuidv4();
-    // This makes the tab available to perfetto
+    // This makes the tab available to dejaview
     ctx.registerTab({
       isEphemeral: true,
       uri,
@@ -425,7 +425,7 @@ Plugins may register interest in providing content for this tab using the
 For example:
 
 ```ts
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   onActivate(_: PluginContext): void {}
   async onTraceLoad(ctx: PluginContextTrace): Promise<void> {
     ctx.registerDetailsPanel({
@@ -458,7 +458,7 @@ to a more democratic contribution model in the future.
 TBD
 
 Examples:
-- [dev.perfetto.AndroidBinderViz](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.AndroidBinderViz/index.ts).
+- [dev.dejaview.AndroidBinderViz](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.AndroidBinderViz/index.ts).
 
 ### State
 NOTE: It is important to consider version skew when using persistent state.
@@ -512,7 +512,7 @@ interface MyState {
 To access permalink state, call `mountStore()` on your `PluginContextTrace`
 object, passing in a migration function.
 ```typescript
-class MyPlugin implements PerfettoPlugin {
+class MyPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: PluginContextTrace): Promise<void> {
     const store = ctx.mountStore(migrate);
   }
@@ -578,7 +578,7 @@ You'll need to remember to update your version number when making changes!
 Migration should be unit-tested to ensure compatibility.
 
 Examples:
-- [dev.perfetto.ExampleState](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.ExampleState/index.ts).
+- [dev.dejaview.ExampleState](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/plugins/dev.perfetto.ExampleState/index.ts).
 
 ## Guide to the plugin API
 The plugin interfaces are defined in [ui/src/public/](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/ui/src/public).
@@ -593,7 +593,7 @@ The list of default plugins is specified at [ui/src/core/default_plugins.ts](htt
   [Apache-2.0](https://spdx.org/licenses/Apache-2.0.html)
   the same as all other code in the repository.
 - Plugins are the responsibility of the OWNERS of that plugin to
-  maintain, not the responsibility of the Perfetto team. All
+  maintain, not the responsibility of the DejaView team. All
   efforts will be made to keep the plugin API stable and existing
   plugins working however plugins that remain unmaintained for long
   periods of time will be disabled and ultimately deleted.

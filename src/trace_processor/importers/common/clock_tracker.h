@@ -28,15 +28,15 @@
 #include <set>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/importers/common/metadata_tracker.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class ClockTrackerTest;
@@ -154,7 +154,7 @@ class ClockTracker {
   // Converts a sequence-scoped clock ids to a global clock id that can be
   // passed as argument to ClockTracker functions.
   static ClockId SequenceToGlobalClock(uint32_t seq_id, uint32_t clock_id) {
-    PERFETTO_DCHECK(IsSequenceClock(clock_id));
+    DEJAVIEW_DCHECK(IsSequenceClock(clock_id));
     return (static_cast<int64_t>(seq_id) << 32) | clock_id;
   }
 
@@ -176,8 +176,8 @@ class ClockTracker {
   }
 
   // Apply the clock offset to convert remote trace times to host trace time.
-  PERFETTO_ALWAYS_INLINE int64_t ToHostTraceTime(int64_t timestamp) {
-    if (PERFETTO_LIKELY(!context_->machine_id())) {
+  DEJAVIEW_ALWAYS_INLINE int64_t ToHostTraceTime(int64_t timestamp) {
+    if (DEJAVIEW_LIKELY(!context_->machine_id())) {
       // No need to convert host timestamps.
       return timestamp;
     }
@@ -188,10 +188,10 @@ class ClockTracker {
     return timestamp - clock_offset;
   }
 
-  PERFETTO_ALWAYS_INLINE base::StatusOr<int64_t> ToTraceTime(
+  DEJAVIEW_ALWAYS_INLINE base::StatusOr<int64_t> ToTraceTime(
       ClockId clock_id,
       int64_t timestamp) {
-    if (PERFETTO_UNLIKELY(!trace_time_clock_id_used_for_conversion_)) {
+    if (DEJAVIEW_UNLIKELY(!trace_time_clock_id_used_for_conversion_)) {
       context_->metadata_tracker->SetMetadata(
           metadata::trace_time_clock_id,
           Variadic::Integer(trace_time_clock_id_));
@@ -214,10 +214,10 @@ class ClockTracker {
       const std::vector<ClockTimestamp>&);
 
   void SetTraceTimeClock(ClockId clock_id) {
-    PERFETTO_DCHECK(!IsSequenceClock(clock_id));
+    DEJAVIEW_DCHECK(!IsSequenceClock(clock_id));
     if (trace_time_clock_id_used_for_conversion_ &&
         trace_time_clock_id_ != clock_id) {
-      PERFETTO_ELOG("Not updating trace time clock from %" PRIu64 " to %" PRIu64
+      DEJAVIEW_ELOG("Not updating trace time clock from %" PRIu64 " to %" PRIu64
                     " because the old clock was already used for timestamp "
                     "conversion - ClockSnapshot too late in trace?",
                     trace_time_clock_id_, clock_id);
@@ -258,7 +258,7 @@ class ClockTracker {
     // Constructs a path by appending a node to |prefix|.
     // If |prefix| = [A,B] and clock_id = C, then |this| = [A,B,C].
     ClockPath(const ClockPath& prefix, ClockId clock_id, SnapshotHash hash) {
-      PERFETTO_DCHECK(prefix.len < kMaxLen);
+      DEJAVIEW_DCHECK(prefix.len < kMaxLen);
       len = prefix.len + 1;
       path = prefix.path;
       path[prefix.len] = ClockGraphEdge{prefix.last, clock_id, hash};
@@ -267,7 +267,7 @@ class ClockTracker {
 
     bool valid() const { return len > 0; }
     const ClockGraphEdge& at(uint32_t i) const {
-      PERFETTO_DCHECK(i < len);
+      DEJAVIEW_DCHECK(i < len);
       return path[i];
     }
 
@@ -310,7 +310,7 @@ class ClockTracker {
 
     const ClockSnapshots& GetSnapshot(uint32_t hash) const {
       auto it = snapshots.find(hash);
-      PERFETTO_DCHECK(it != snapshots.end());
+      DEJAVIEW_DCHECK(it != snapshots.end());
       return it->second;
     }
   };
@@ -339,7 +339,7 @@ class ClockTracker {
   base::StatusOr<int64_t> Convert(ClockId src_clock_id,
                                   int64_t src_timestamp,
                                   ClockId target_clock_id) {
-    if (PERFETTO_LIKELY(!cache_lookups_disabled_for_testing_)) {
+    if (DEJAVIEW_LIKELY(!cache_lookups_disabled_for_testing_)) {
       for (const auto& cached_clock_path : cache_) {
         if (cached_clock_path.src != src_clock_id ||
             cached_clock_path.target != target_clock_id)
@@ -365,7 +365,7 @@ class ClockTracker {
 
   ClockDomain* GetClock(ClockId clock_id) {
     auto it = clocks_.find(clock_id);
-    PERFETTO_DCHECK(it != clocks_.end());
+    DEJAVIEW_DCHECK(it != clocks_.end());
     return &it->second;
   }
 
@@ -384,6 +384,6 @@ class ClockTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_CLOCK_TRACKER_H_

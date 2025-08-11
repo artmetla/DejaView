@@ -20,7 +20,7 @@
 #include <map>
 #include <vector>
 
-#include "perfetto/base/time.h"
+#include "dejaview/base/time.h"
 #include "src/profiling/common/callstack_trie.h"
 #include "src/profiling/common/interner.h"
 #include "src/profiling/memory/unwound_messages.h"
@@ -86,7 +86,7 @@
 // or freed bytes, they only contain a reference count to destroy them as
 // soon as they are no longer referenced by a HeapTracker.
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // Snapshot for memory allocations of a particular process. Shares callsites
@@ -262,7 +262,7 @@ class HeapTracker {
       bool inserted;
       std::tie(callstack_allocations_it, inserted) =
           callstack_allocations_.emplace(node, node);
-      PERFETTO_DCHECK(inserted);
+      DEJAVIEW_DCHECK(inserted);
     }
     return &callstack_allocations_it->second;
   }
@@ -367,6 +367,6 @@ class HeapTracker {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_BOOKKEEPING_H_

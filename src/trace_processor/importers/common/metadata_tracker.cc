@@ -19,16 +19,16 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/crash_keys.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/crash_keys.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/storage/metadata.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 base::CrashKey g_crash_key_uuid("trace_uuid");
@@ -44,8 +44,8 @@ MetadataTracker::MetadataTracker(TraceStorage* storage) : storage_(storage) {
 }
 
 MetadataId MetadataTracker::SetMetadata(metadata::KeyId key, Variadic value) {
-  PERFETTO_DCHECK(metadata::kKeyTypes[key] == metadata::KeyType::kSingle);
-  PERFETTO_DCHECK(value.type == metadata::kValueTypes[key]);
+  DEJAVIEW_DCHECK(metadata::kKeyTypes[key] == metadata::KeyType::kSingle);
+  DEJAVIEW_DCHECK(value.type == metadata::kValueTypes[key]);
 
   // When the trace_uuid is set, store a copy in a crash key, so in case of
   // a crash in the pipelines we can tell which trace caused the crash.
@@ -77,7 +77,7 @@ MetadataId MetadataTracker::SetMetadata(metadata::KeyId key, Variadic value) {
 
 std::optional<SqlValue> MetadataTracker::GetMetadata(metadata::KeyId key) {
   // KeyType::kMulti not yet supported by this method:
-  PERFETTO_CHECK(metadata::kKeyTypes[key] == metadata::KeyType::kSingle);
+  DEJAVIEW_CHECK(metadata::kKeyTypes[key] == metadata::KeyType::kSingle);
 
   auto& metadata_table = *storage_->mutable_metadata_table();
   auto key_idx = static_cast<uint32_t>(key);
@@ -112,16 +112,16 @@ std::optional<SqlValue> MetadataTracker::GetMetadata(metadata::KeyId key) {
     case Variadic::kPointer:
     case Variadic::kReal:
     case Variadic::kBool:
-      PERFETTO_FATAL("Invalid metadata value type %zu", value_type);
+      DEJAVIEW_FATAL("Invalid metadata value type %zu", value_type);
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 MetadataId MetadataTracker::AppendMetadata(metadata::KeyId key,
                                            Variadic value) {
-  PERFETTO_DCHECK(key < metadata::kNumKeys);
-  PERFETTO_DCHECK(metadata::kKeyTypes[key] == metadata::KeyType::kMulti);
-  PERFETTO_DCHECK(value.type == metadata::kValueTypes[key]);
+  DEJAVIEW_DCHECK(key < metadata::kNumKeys);
+  DEJAVIEW_DCHECK(metadata::kKeyTypes[key] == metadata::KeyType::kMulti);
+  DEJAVIEW_DCHECK(value.type == metadata::kValueTypes[key]);
 
   uint32_t key_idx = static_cast<uint32_t>(key);
   tables::MetadataTable::Row row;
@@ -163,8 +163,8 @@ void MetadataTracker::WriteValue(uint32_t row, Variadic value) {
     case Variadic::Type::kUint:
     case Variadic::Type::kReal:
     case Variadic::Type::kNull:
-      PERFETTO_FATAL("Unsupported value type");
+      DEJAVIEW_FATAL("Unsupported value type");
   }
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

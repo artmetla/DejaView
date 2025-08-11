@@ -18,8 +18,8 @@
 
 #include "src/trace_processor/containers/row_map.h"
 
-using perfetto::trace_processor::BitVector;
-using perfetto::trace_processor::RowMap;
+using dejaview::trace_processor::BitVector;
+using dejaview::trace_processor::RowMap;
 
 namespace {
 

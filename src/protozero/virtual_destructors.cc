@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/cpp_message_obj.h"
-#include "perfetto/protozero/message_handle.h"
+#include "dejaview/protozero/cpp_message_obj.h"
+#include "dejaview/protozero/message_handle.h"
 
 namespace protozero {
 

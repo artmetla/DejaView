@@ -22,14 +22,14 @@
 #include <memory>
 #include <string>
 
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/ipc/basic_types.h"
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "protos/perfetto/ipc/consumer_port.ipc.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/ipc/basic_types.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "protos/dejaview/ipc/consumer_port.ipc.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace ipc {
 class Host;
@@ -169,6 +169,6 @@ class ConsumerIPCService : public protos::gen::ConsumerPort {
   base::WeakPtrFactory<ConsumerIPCService> weak_ptr_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_SERVICE_CONSUMER_IPC_SERVICE_H_

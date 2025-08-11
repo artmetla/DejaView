@@ -23,12 +23,12 @@
 #include <cinttypes>
 #include <optional>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 #include "src/profiling/common/proc_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 std::optional<uint64_t> GetCputimeSecForCurrentProcess();
@@ -67,6 +67,6 @@ class ProfilerMemoryGuardrails {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_COMMON_PROFILER_GUARDRAILS_H_

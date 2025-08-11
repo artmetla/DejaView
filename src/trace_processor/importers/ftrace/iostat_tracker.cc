@@ -15,11 +15,11 @@
  */
 
 #include "src/trace_processor/importers/ftrace/iostat_tracker.h"
-#include "protos/perfetto/trace/ftrace/f2fs.pbzero.h"
+#include "protos/dejaview/trace/ftrace/f2fs.pbzero.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 static constexpr char kF2fsIostatTag[] = "f2fs_iostat";
@@ -119,4 +119,4 @@ void IostatTracker::ParseF2fsIostatLatency(int64_t timestamp,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

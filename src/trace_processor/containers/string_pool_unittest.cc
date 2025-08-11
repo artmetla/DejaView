@@ -21,7 +21,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class StringPoolTest : public testing::Test {
@@ -199,4 +199,4 @@ TEST_F(StringPoolTest, BigString) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

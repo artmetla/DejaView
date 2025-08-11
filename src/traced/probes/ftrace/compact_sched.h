@@ -19,13 +19,13 @@
 
 #include <stdint.h>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 #include "src/traced/probes/ftrace/event_info_constants.h"
 #include "src/traced/probes/ftrace/ftrace_config_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // The subset of the sched_switch event's format that is used when parsing and
 // encoding into the compact format.
@@ -190,8 +190,8 @@ class CommInterner {
     base::StringView safe_view(start, size);
     interned_comms_[interned_comms_size_++] = safe_view;
 
-    PERFETTO_DCHECK(intern_buf_write_pos_ <= sizeof(intern_buf_));
-    PERFETTO_DCHECK(interned_comms_size_ < kMaxElements);
+    DEJAVIEW_DCHECK(intern_buf_write_pos_ <= sizeof(intern_buf_));
+    DEJAVIEW_DCHECK(interned_comms_size_ < kMaxElements);
     return idx;
   }
 
@@ -240,6 +240,6 @@ class CompactSchedBuffer {
   CompactSchedWakingBuffer waking_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_COMPACT_SCHED_H_

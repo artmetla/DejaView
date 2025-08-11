@@ -51,7 +51,7 @@
 #include <uapi/asm-riscv/asm/perf_regs.h>
 #undef PERF_REG_EXTENDED_MASK
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -96,7 +96,7 @@ uint64_t PerfUserRegsMask(unwindstack::ArchEnum arch) {
     case unwindstack::ARCH_RISCV64:
       return (1ULL << PERF_REG_RISCV_MAX) - 1;
     default:
-      PERFETTO_FATAL("Unsupported architecture");
+      DEJAVIEW_FATAL("Unsupported architecture");
   }
 }
 
@@ -222,7 +222,7 @@ std::unique_ptr<unwindstack::Regs> ToLibUnwindstackRegs(
         unwindstack::RegsRiscv64::Read(&raw_regs.regs[0]));
   }
 
-  PERFETTO_FATAL("Unsupported architecture");
+  DEJAVIEW_FATAL("Unsupported architecture");
 }
 
 }  // namespace
@@ -282,4 +282,4 @@ std::unique_ptr<unwindstack::Regs> ReadPerfUserRegsData(const char** data) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

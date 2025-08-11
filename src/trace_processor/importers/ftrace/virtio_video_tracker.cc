@@ -19,19 +19,19 @@
 #include <functional>
 #include <memory>
 
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/ftrace/virtio_video_tracker.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/virtio_video.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/virtio_video.pbzero.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -231,4 +231,4 @@ void VirtioVideoTracker::AddCommandSliceArgs(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

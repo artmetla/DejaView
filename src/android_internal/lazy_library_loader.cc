@@ -16,47 +16,47 @@
 
 #include "src/android_internal/lazy_library_loader.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-namespace perfetto {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+namespace dejaview {
 namespace android_internal {
 void* LazyLoadFunction(const char*) {
-  PERFETTO_CHECK(false);
+  DEJAVIEW_CHECK(false);
 }
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview
 #else
 
 #include <dlfcn.h>
 #include <stdlib.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 namespace {
 
-const char kLibName[] = "libperfetto_android_internal.so";
+const char kLibName[] = "libdejaview_android_internal.so";
 
 void* LoadLibraryOnce() {
-#if !PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   // For testing only. Allows to use the version of the .so shipped in the
-  // system (if any) with the standalone builds of perfetto. This is really
+  // system (if any) with the standalone builds of dejaview. This is really
   // crash-prone and should not be used in production. The .so doesn't have a
   // stable ABI, hence the version of the library in the system and the code in
   // ToT can diverge.
-  const char* env_var = getenv("PERFETTO_ENABLE_ANDROID_INTERNAL_LIB");
+  const char* env_var = getenv("DEJAVIEW_ENABLE_ANDROID_INTERNAL_LIB");
   if (!env_var || strcmp(env_var, "1")) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "android_internal functions can be used only with in-tree builds of "
-        "perfetto.");
+        "dejaview.");
     return nullptr;
   }
 #endif
   void* handle = dlopen(kLibName, RTLD_NOW);
   if (!handle)
-    PERFETTO_PLOG("dlopen(%s) failed", kLibName);
+    DEJAVIEW_PLOG("dlopen(%s) failed", kLibName);
   return handle;
 }
 
@@ -71,11 +71,11 @@ void* LazyLoadFunction(const char* name) {
     return nullptr;
   void* fn = dlsym(handle, function_name);
   if (!fn)
-    PERFETTO_PLOG("dlsym(%s) failed", function_name);
+    DEJAVIEW_PLOG("dlsym(%s) failed", function_name);
   return fn;
 }
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // !OS_WIN

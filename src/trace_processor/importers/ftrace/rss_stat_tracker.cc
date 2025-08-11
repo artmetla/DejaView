@@ -20,11 +20,11 @@
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/kmem.pbzero.h"
-#include "protos/perfetto/trace/ftrace/synthetic.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/kmem.pbzero.h"
+#include "protos/dejaview/trace/ftrace/synthetic.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using FtraceEvent = protos::pbzero::FtraceEvent;
@@ -74,7 +74,7 @@ void RssStatTracker::ParseRssStat(int64_t ts,
 
     ParseRssStat(ts, pid, size, member, curr, mm_id);
   } else {
-    PERFETTO_DFATAL("Unexpected field id");
+    DEJAVIEW_DFATAL("Unexpected field id");
   }
 }
 
@@ -153,4 +153,4 @@ std::optional<UniqueTid> RssStatTracker::FindUtidForMmId(int64_t mm_id,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

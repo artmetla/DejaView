@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/thread_utils.h"
-#include "perfetto/ext/base/thread_utils.h"
+#include "dejaview/base/thread_utils.h"
+#include "dejaview/ext/base/thread_utils.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 #include <zircon/process.h>
 #include <zircon/syscalls.h>
 #include <zircon/types.h>
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 static PlatformThreadId ResolveThreadId() {
   zx_info_handle_basic_t basic;
   return (zx_object_get_info(zx_thread_self(), ZX_INFO_HANDLE_BASIC, &basic,
@@ -43,7 +43,7 @@ PlatformThreadId GetThreadId() {
   return thread_id;
 }
 
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 // The SetThreadDescription API was brought in version 1607 of Windows 10.
 typedef HRESULT(WINAPI* SetThreadDescription)(HANDLE hThread,
@@ -90,7 +90,7 @@ bool GetThreadName(std::string& out_result) {
   return false;
 }
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

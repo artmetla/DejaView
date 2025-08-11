@@ -38,11 +38,11 @@ export class WattsonThreadSelectionAggregator
     const duration = area.end - area.start;
     const cpusCsv = `(` + selectedCpus.join() + `)`;
     engine.query(`
-      INCLUDE PERFETTO MODULE viz.summary.threads_w_processes;
-      INCLUDE PERFETTO MODULE wattson.curves.idle_attribution;
-      INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+      INCLUDE DEJAVIEW MODULE viz.summary.threads_w_processes;
+      INCLUDE DEJAVIEW MODULE wattson.curves.idle_attribution;
+      INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
 
-      CREATE OR REPLACE PERFETTO TABLE _ui_selection_window AS
+      CREATE OR REPLACE DEJAVIEW TABLE _ui_selection_window AS
       SELECT
         ${area.start} as ts,
         ${duration} as dur;
@@ -55,7 +55,7 @@ export class WattsonThreadSelectionAggregator
 
       -- Only get idle attribution in user defined window and filter by selected
       -- CPUs and GROUP BY thread
-      CREATE OR REPLACE PERFETTO TABLE _per_thread_idle_attribution AS
+      CREATE OR REPLACE DEJAVIEW TABLE _per_thread_idle_attribution AS
       SELECT
         ROUND(SUM(idle_cost_mws), 2) as idle_cost_mws,
         utid
@@ -84,12 +84,12 @@ export class WattsonThreadSelectionAggregator
     selectedCpu.forEach((cpu) => {
       engine.query(`
         -- Packages filtered by CPU
-        CREATE OR REPLACE PERFETTO VIEW _windowed_summary_per_cpu${cpu} AS
+        CREATE OR REPLACE DEJAVIEW VIEW _windowed_summary_per_cpu${cpu} AS
         SELECT *
         FROM _windowed_summary WHERE cpu = ${cpu};
 
         -- CPU specific track with slices for curves
-        CREATE OR REPLACE PERFETTO VIEW _per_cpu${cpu}_curve AS
+        CREATE OR REPLACE DEJAVIEW VIEW _per_cpu${cpu}_curve AS
         SELECT ts, dur, cpu${cpu}_curve
         FROM _system_state_curves;
 
@@ -100,7 +100,7 @@ export class WattsonThreadSelectionAggregator
           SPAN_JOIN(_per_cpu${cpu}_curve, _windowed_summary_per_cpu${cpu});
 
         -- Total estimate per UTID per CPU
-        CREATE OR REPLACE PERFETTO VIEW _total_per_cpu${cpu} AS
+        CREATE OR REPLACE DEJAVIEW VIEW _total_per_cpu${cpu} AS
         SELECT
           SUM(cpu${cpu}_curve * dur) as total_pws,
           SUM(dur) as dur,
@@ -118,7 +118,7 @@ export class WattsonThreadSelectionAggregator
     });
 
     // Estimate and total per UTID, removing CPU dimension
-    let query = `CREATE OR REPLACE PERFETTO TABLE _unioned_per_cpu_total AS `;
+    let query = `CREATE OR REPLACE DEJAVIEW TABLE _unioned_per_cpu_total AS `;
     selectedCpu.forEach((cpu, i) => {
       query += i != 0 ? `UNION ALL\n` : ``;
       query += `SELECT * from _total_per_cpu${cpu}\n`;

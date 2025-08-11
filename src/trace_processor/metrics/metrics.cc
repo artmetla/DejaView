@@ -33,27 +33,27 @@
 
 #include <sqlite3.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "src/trace_processor/perfetto_sql/engine/perfetto_sql_engine.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "src/trace_processor/dejaview_sql/engine/dejaview_sql_engine.h"
 #include "src/trace_processor/sqlite/sql_source.h"
 #include "src/trace_processor/sqlite/sqlite_utils.h"
 #include "src/trace_processor/tp_metatrace.h"
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/common/descriptor.pbzero.h"
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
-#include "protos/perfetto/trace_processor/metrics_impl.pbzero.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metrics_impl.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace metrics {
 
@@ -64,7 +64,7 @@ base::StatusOr<protozero::ConstBytes> ValidateSingleNonEmptyMessage(
     size_t size,
     uint32_t schema_type,
     const std::string& message_type) {
-  PERFETTO_DCHECK(size > 0);
+  DEJAVIEW_DCHECK(size > 0);
 
   if (size > protozero::proto_utils::kMaxMessageLength) {
     return base::ErrStatus(
@@ -151,7 +151,7 @@ base::Status ProtoBuilder::AppendSqlValue(const std::string& field_name,
       // don't append anything.
       return base::OkStatus();
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 base::Status ProtoBuilder::AppendSingleLong(const FieldDescriptor& field,
@@ -323,7 +323,7 @@ base::Status ProtoBuilder::AppendSingleBytes(const FieldDescriptor& field,
 base::Status ProtoBuilder::AppendRepeated(const FieldDescriptor& field,
                                           const uint8_t* ptr,
                                           size_t size) {
-  PERFETTO_DCHECK(field.is_repeated());
+  DEJAVIEW_DCHECK(field.is_repeated());
 
   if (size > protozero::proto_utils::kMaxMessageLength) {
     return base::ErrStatus(
@@ -417,7 +417,7 @@ base::Status RepeatedFieldBuilder::AddSqlValue(SqlValue value) {
     case SqlValue::kNull:
       return AddBytes(nullptr, 0);
   }
-  PERFETTO_FATAL("Unknown SqlValue type");
+  DEJAVIEW_FATAL("Unknown SqlValue type");
 }
 
 std::vector<uint8_t> RepeatedFieldBuilder::SerializeToProtoBuilderResult() {
@@ -503,7 +503,7 @@ base::Status NullIfEmpty::Run(void*,
                               SqlValue& out,
                               Destructors&) {
   // SQLite should enforce this for us.
-  PERFETTO_CHECK(argc == 1);
+  DEJAVIEW_CHECK(argc == 1);
 
   if (sqlite3_value_type(argv[0]) != SQLITE_BLOB) {
     return base::ErrStatus(
@@ -721,7 +721,7 @@ base::Status UnwrapMetricProto::Run(Context*,
   return base::OkStatus();
 }
 
-base::Status ComputeMetrics(PerfettoSqlEngine* engine,
+base::Status ComputeMetrics(DejaViewSqlEngine* engine,
                             const std::vector<std::string>& metrics_to_compute,
                             const std::vector<SqlMetricFile>& sql_metrics,
                             const DescriptorPool& pool,
@@ -746,7 +746,7 @@ base::Status ComputeMetrics(PerfettoSqlEngine* engine,
 
     auto output_query =
         "SELECT * FROM " + sql_metric.output_table_name.value() + ";";
-    PERFETTO_TP_TRACE(
+    DEJAVIEW_TP_TRACE(
         metatrace::Category::QUERY_TIMELINE, "COMPUTE_METRIC_QUERY",
         [&](metatrace::Record* r) { r->AddArg("SQL", output_query); });
 
@@ -788,4 +788,4 @@ base::Status ComputeMetrics(PerfettoSqlEngine* engine,
 
 }  // namespace metrics
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -31,23 +31,23 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/tracing/backend_type.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "perfetto/tracing/core/trace_config.h"
-#include "perfetto/tracing/internal/basic_types.h"
-#include "perfetto/tracing/internal/tracing_muxer.h"
-#include "perfetto/tracing/tracing.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/tracing/backend_type.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "dejaview/tracing/core/trace_config.h"
+#include "dejaview/tracing/internal/basic_types.h"
+#include "dejaview/tracing/internal/tracing_muxer.h"
+#include "dejaview/tracing/tracing.h"
 
-#include "protos/perfetto/common/interceptor_descriptor.gen.h"
+#include "protos/dejaview/common/interceptor_descriptor.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class ConsumerEndpoint;
 class DataSourceBase;
@@ -81,7 +81,7 @@ struct DataSourceStaticState;
 //
 // Handing data source registration and start/stop flows [producer side]:
 // ----------------------------------------------------------------------
-// 1. The API client subclasses perfetto::DataSource and calls
+// 1. The API client subclasses dejaview::DataSource and calls
 //    DataSource::Register<MyDataSource>(). In turn this calls into the
 //    TracingMuxer.
 // 2. The tracing muxer iterates through all the backends (1 backend == 1
@@ -221,7 +221,7 @@ class TracingMuxerImpl : public TracingMuxer {
                             DataSourceStaticState*);
     void DisposeConnection();
 
-    // perfetto::Producer implementation.
+    // dejaview::Producer implementation.
     void OnConnect() override;
     void OnDisconnect() override;
     void OnTracingSetup() override;
@@ -241,7 +241,7 @@ class TracingMuxerImpl : public TracingMuxer {
     void SendOnConnectTriggers();
     void NotifyFlushForDataSourceDone(DataSourceInstanceID, FlushRequestID);
 
-    PERFETTO_THREAD_CHECKER(thread_checker_)
+    DEJAVIEW_THREAD_CHECKER(thread_checker_)
     TracingMuxerImpl* muxer_;
     TracingBackendId const backend_id_;
     bool connected_ = false;
@@ -298,7 +298,7 @@ class TracingMuxerImpl : public TracingMuxer {
 
     void Initialize(std::unique_ptr<ConsumerEndpoint> endpoint);
 
-    // perfetto::Consumer implementation.
+    // dejaview::Consumer implementation.
     void OnConnect() override;
     void OnDisconnect() override;
     void OnTracingDisabled(const std::string& error) override;
@@ -378,7 +378,7 @@ class TracingMuxerImpl : public TracingMuxer {
     std::map<DataSourceHandle, bool> data_source_states_;
 
     std::unique_ptr<ConsumerEndpoint> service_;  // Keep before last.
-    PERFETTO_THREAD_CHECKER(thread_checker_)     // Keep last.
+    DEJAVIEW_THREAD_CHECKER(thread_checker_)     // Keep last.
   };
 
   // This object is returned to API clients when they call
@@ -563,10 +563,10 @@ class TracingMuxerImpl : public TracingMuxer {
   // thread when ResetForTesting() is called.
   std::list<std::function<void()>> reset_callbacks_;
 
-  PERFETTO_THREAD_CHECKER(thread_checker_)
+  DEJAVIEW_THREAD_CHECKER(thread_checker_)
 };
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_INTERNAL_TRACING_MUXER_IMPL_H_

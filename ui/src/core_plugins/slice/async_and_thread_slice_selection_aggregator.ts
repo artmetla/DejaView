@@ -29,7 +29,7 @@ export class AsyncAndThreadSliceSelectionAggregator
     if (selectedTrackKeys.length === 0) return false;
 
     await engine.query(`
-      create or replace perfetto table ${this.id} as
+      create or replace dejaview table ${this.id} as
       select
         name,
         sum(dur) AS total_dur,

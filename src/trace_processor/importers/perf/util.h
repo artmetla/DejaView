@@ -18,12 +18,12 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PERF_UTIL_H_
 
 #include <cstdint>
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 inline bool SafeAdd(uint64_t a, uint64_t b, uint64_t* result) {
   return !__builtin_add_overflow(a, b, result);
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_UTIL_H_

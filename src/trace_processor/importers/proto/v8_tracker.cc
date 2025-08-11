@@ -22,15 +22,15 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/base64.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/trace/chrome/v8.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/base64.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/trace/chrome/v8.pbzero.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/jit_cache.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
@@ -43,19 +43,19 @@
 #include "src/trace_processor/tables/v8_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
-using ::perfetto::protos::pbzero::InternedV8Isolate;
-using ::perfetto::protos::pbzero::InternedV8JsFunction;
-using ::perfetto::protos::pbzero::InternedV8JsScript;
-using ::perfetto::protos::pbzero::InternedV8WasmScript;
-using ::perfetto::protos::pbzero::V8InternalCode;
-using ::perfetto::protos::pbzero::V8JsCode;
-using ::perfetto::protos::pbzero::V8RegExpCode;
-using ::perfetto::protos::pbzero::V8String;
-using ::perfetto::protos::pbzero::V8WasmCode;
+using ::dejaview::protos::pbzero::InternedV8Isolate;
+using ::dejaview::protos::pbzero::InternedV8JsFunction;
+using ::dejaview::protos::pbzero::InternedV8JsScript;
+using ::dejaview::protos::pbzero::InternedV8WasmScript;
+using ::dejaview::protos::pbzero::V8InternalCode;
+using ::dejaview::protos::pbzero::V8JsCode;
+using ::dejaview::protos::pbzero::V8RegExpCode;
+using ::dejaview::protos::pbzero::V8String;
+using ::dejaview::protos::pbzero::V8WasmCode;
 
 bool IsInterpretedCode(const V8JsCode::Decoder& code) {
   switch (code.tier()) {
@@ -69,7 +69,7 @@ bool IsInterpretedCode(const V8JsCode::Decoder& code) {
     case V8JsCode::TIER_TURBOFAN:
       return false;
   }
-  PERFETTO_FATAL("Unreachable");
+  DEJAVIEW_FATAL("Unreachable");
 }
 
 bool IsNativeCode(const V8JsCode::Decoder& code) {
@@ -84,7 +84,7 @@ bool IsNativeCode(const V8JsCode::Decoder& code) {
     case V8JsCode::TIER_TURBOFAN:
       return true;
   }
-  PERFETTO_FATAL("Unreachable");
+  DEJAVIEW_FATAL("Unreachable");
 }
 
 base::StringView JsScriptTypeToString(int32_t type) {
@@ -186,7 +186,7 @@ UserMemoryMapping* V8Tracker::FindEmbeddedBlobMapping(
 std::pair<V8Tracker::IsolateCodeRanges, bool> V8Tracker::GetIsolateCodeRanges(
     UniquePid upid,
     const protos::pbzero::InternedV8Isolate::Decoder& isolate) {
-  PERFETTO_CHECK(isolate.has_code_range());
+  DEJAVIEW_CHECK(isolate.has_code_range());
 
   IsolateCodeRanges res;
 
@@ -234,7 +234,7 @@ AddressRangeMap<JitCache*> V8Tracker::GetOrCreateSharedJitCaches(
     UniquePid upid,
     const IsolateCodeRanges& code_ranges) {
   if (auto* shared = shared_code_ranges_.Find(upid); shared) {
-    PERFETTO_CHECK(shared->code_ranges == code_ranges);
+    DEJAVIEW_CHECK(shared->code_ranges == code_ranges);
     return shared->jit_caches;
   }
 
@@ -251,7 +251,7 @@ IsolateId V8Tracker::CreateIsolate(
   auto [code_ranges, is_process_wide] =
       GetIsolateCodeRanges(upid, isolate_proto);
 
-  PERFETTO_CHECK(isolates_
+  DEJAVIEW_CHECK(isolates_
                      .Insert(v8_isolate.id(),
                              is_process_wide
                                  ? GetOrCreateSharedJitCaches(upid, code_ranges)
@@ -366,7 +366,7 @@ JitCache* V8Tracker::MaybeFindJitCache(IsolateId isolate_id,
     return nullptr;
   }
   auto* isolate = isolates_.Find(isolate_id);
-  PERFETTO_CHECK(isolate);
+  DEJAVIEW_CHECK(isolate);
   if (auto it = isolate->FindRangeThatContains(code_range);
       it != isolate->end()) {
     return it->second;
@@ -540,4 +540,4 @@ StringId V8Tracker::InternV8String(const V8String::Decoder& v8_string) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

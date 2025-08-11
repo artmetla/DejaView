@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/internal/system_tracing_backend.h"
+#include "dejaview/tracing/internal/system_tracing_backend.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/tracing/default_socket.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_SYSTEM_CONSUMER)
-#include "perfetto/ext/tracing/ipc/consumer_ipc_client.h"
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_SYSTEM_CONSUMER)
+#include "dejaview/ext/tracing/ipc/consumer_ipc_client.h"
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include "src/tracing/ipc/shared_memory_windows.h"
 #else
 #include "src/tracing/ipc/posix_shared_memory.h"
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 // static
@@ -45,7 +45,7 @@ SystemProducerTracingBackend::SystemProducerTracingBackend() {}
 
 std::unique_ptr<ProducerEndpoint> SystemProducerTracingBackend::ConnectProducer(
     const ConnectProducerArgs& args) {
-  PERFETTO_DCHECK(args.task_runner->RunsTasksOnCurrentThread());
+  DEJAVIEW_DCHECK(args.task_runner->RunsTasksOnCurrentThread());
 
   std::unique_ptr<SharedMemory> shm;
   std::unique_ptr<SharedMemoryArbiter> arbiter;
@@ -56,7 +56,7 @@ std::unique_ptr<ProducerEndpoint> SystemProducerTracingBackend::ConnectProducer(
       shmem_size_hint = TracingService::kDefaultShmSize;
     if (shmem_page_size_hint == 0)
       shmem_page_size_hint = TracingService::kDefaultShmPageSize;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     shm = SharedMemoryWindows::Create(shmem_size_hint);
 #else
     shm = PosixSharedMemory::Create(shmem_size_hint);
@@ -71,7 +71,7 @@ std::unique_ptr<ProducerEndpoint> SystemProducerTracingBackend::ConnectProducer(
       TracingService::ProducerSMBScrapingMode::kEnabled, shmem_size_hint,
       shmem_page_size_hint, std::move(shm), std::move(arbiter),
       args.create_socket_async);
-  PERFETTO_CHECK(endpoint);
+  DEJAVIEW_CHECK(endpoint);
   return endpoint;
 }
 
@@ -85,17 +85,17 @@ SystemConsumerTracingBackend::SystemConsumerTracingBackend() {}
 
 std::unique_ptr<ConsumerEndpoint> SystemConsumerTracingBackend::ConnectConsumer(
     const ConnectConsumerArgs& args) {
-#if PERFETTO_BUILDFLAG(PERFETTO_SYSTEM_CONSUMER)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_SYSTEM_CONSUMER)
   auto endpoint = ConsumerIPCClient::Connect(GetConsumerSocket(), args.consumer,
                                              args.task_runner);
-  PERFETTO_CHECK(endpoint);
+  DEJAVIEW_CHECK(endpoint);
   return endpoint;
 #else
   base::ignore_result(args);
-  PERFETTO_FATAL("System backend consumer support disabled");
+  DEJAVIEW_FATAL("System backend consumer support disabled");
   return nullptr;
 #endif
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

@@ -18,14 +18,14 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROFILE_PACKET_UTILS_H_
 #include <optional>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/proto/profile_packet_sequence_state.h"
 
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class ProfilePacketUtils {
@@ -129,6 +129,6 @@ class ProfilePacketUtils {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROFILE_PACKET_UTILS_H_

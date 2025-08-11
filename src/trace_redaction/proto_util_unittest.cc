@@ -14,16 +14,16 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 
 #include "src/trace_redaction/proto_util.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/config/test_config.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/config/test_config.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace proto_util {
 
@@ -267,4 +267,4 @@ INSTANTIATE_TEST_SUITE_P(Reserialize,
 
 }  // namespace proto_util
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

@@ -18,11 +18,11 @@
 
 #include <vector>
 
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_splitter.h"
 #include "src/profiling/common/interner.h"
 #include "src/profiling/common/unwind_support.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 GlobalCallstackTrie::Node* GlobalCallstackTrie::GetOrCreateChild(
@@ -47,7 +47,7 @@ std::vector<Interned<Frame>> GlobalCallstackTrie::BuildInverseCallstack(
 GlobalCallstackTrie::Node* GlobalCallstackTrie::CreateCallsite(
     const std::vector<unwindstack::FrameData>& callstack,
     const std::vector<std::string>& build_ids) {
-  PERFETTO_CHECK(callstack.size() == build_ids.size());
+  DEJAVIEW_CHECK(callstack.size() == build_ids.size());
   Node* node = &root_;
   // libunwindstack gives the frames top-first, but we want to bookkeep and
   // emit as bottom first.
@@ -82,7 +82,7 @@ void GlobalCallstackTrie::IncrementNode(Node* node) {
 }
 
 void GlobalCallstackTrie::DecrementNode(Node* node) {
-  PERFETTO_DCHECK(node->ref_count_ >= 1);
+  DEJAVIEW_DCHECK(node->ref_count_ >= 1);
 
   bool delete_prev = false;
   Node* prev = nullptr;
@@ -152,4 +152,4 @@ GlobalCallstackTrie::Node* GlobalCallstackTrie::Node::GetChild(
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

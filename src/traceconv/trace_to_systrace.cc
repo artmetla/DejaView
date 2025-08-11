@@ -25,15 +25,15 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/traceconv/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 namespace {
@@ -139,7 +139,7 @@ class QueryWriter {
     // Check if we have an error in the iterator and print if so.
     auto status = iterator.Status();
     if (!status.ok()) {
-      PERFETTO_ELOG("Error while writing systrace %s", status.c_message());
+      DEJAVIEW_ELOG("Error while writing systrace %s", status.c_message());
       return false;
     }
 
@@ -347,4 +347,4 @@ int ExtractSystrace(trace_processor::TraceProcessor* tp,
 }
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

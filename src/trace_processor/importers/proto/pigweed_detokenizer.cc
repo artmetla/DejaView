@@ -20,10 +20,10 @@
 #include <cctype>
 #include <cstring>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/field.h"
 
 // Removed date for an entry that is live.
 static constexpr uint32_t kDateRemovedNever = 0xFFFFFFFF;
@@ -52,7 +52,7 @@ static constexpr uint32_t ReadUint32(const uint8_t* bytes) {
          static_cast<uint32_t>(bytes[3]) << 24;
 }
 
-namespace perfetto::trace_processor::pigweed {
+namespace dejaview::trace_processor::pigweed {
 
 PigweedDetokenizer CreateNullDetokenizer() {
   return PigweedDetokenizer{base::FlatHashMap<uint32_t, FormatString>()};
@@ -157,7 +157,7 @@ base::StatusOr<DetokenizedString> PigweedDetokenizer::Detokenize(
       double value = static_cast<double>(value_float);
       args.push_back(value);
       formatted_size =
-          perfetto::base::SprintfTrunc(buffer, kFormatBufferSize, fmt, value);
+          dejaview::base::SprintfTrunc(buffer, kFormatBufferSize, fmt, value);
     } else {
       uint64_t value;
       auto old_ptr = ptr;
@@ -170,7 +170,7 @@ base::StatusOr<DetokenizedString> PigweedDetokenizer::Detokenize(
         int64_t value_signed;
         memcpy(&value_signed, &value, sizeof(value_signed));
         args.push_back(value_signed);
-        formatted_size = perfetto::base::SprintfTrunc(buffer, kFormatBufferSize,
+        formatted_size = dejaview::base::SprintfTrunc(buffer, kFormatBufferSize,
                                                       fmt, value_signed);
       } else {
         if (arg.type == kUnsigned32) {
@@ -178,7 +178,7 @@ base::StatusOr<DetokenizedString> PigweedDetokenizer::Detokenize(
         }
         args.push_back(value);
         formatted_size =
-            perfetto::base::SprintfTrunc(buffer, kFormatBufferSize, fmt, value);
+            dejaview::base::SprintfTrunc(buffer, kFormatBufferSize, fmt, value);
       }
     }
     if (formatted_size == kFormatBufferSize - 1) {
@@ -310,4 +310,4 @@ FormatString::FormatString(std::string format) : template_str_(format) {
   }
 }
 
-}  // namespace perfetto::trace_processor::pigweed
+}  // namespace dejaview::trace_processor::pigweed

@@ -15,7 +15,7 @@
 import {NUM, STR_NULL} from '../../trace_processor/query_result';
 import {AsyncSliceTrack} from '../../core_plugins/async_slices/async_slice_track';
 import {NewTrackArgs} from '../../frontend/track';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {Trace} from '../../public/trace';
 import {TrackNode} from '../../public/workspace';
 import {SLICE_TRACK_KIND} from '../../public/track_kinds';
@@ -36,7 +36,7 @@ class SuspendResumeSliceTrack extends AsyncSliceTrack {
   }
 }
 
-class SuspendResumeLatency implements PerfettoPlugin {
+class SuspendResumeLatency implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const {engine} = ctx;
     const rawGlobalAsyncTracks = await engine.query(`

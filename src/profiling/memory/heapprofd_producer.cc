@@ -27,34 +27,34 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/thread_task_runner.h"
-#include "perfetto/ext/base/watchdog_posix.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/thread_task_runner.h"
+#include "dejaview/ext/base/watchdog_posix.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
 #include "src/profiling/common/producer_support.h"
 #include "src/profiling/common/profiler_guardrails.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 #include "src/profiling/memory/unwound_messages.h"
 #include "src/profiling/memory/wire_protocol.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/system_properties.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
-using ::perfetto::protos::pbzero::ProfilePacket;
+using ::dejaview::protos::pbzero::ProfilePacket;
 
 constexpr char kHeapprofdDataSource[] = "android.heapprofd";
 constexpr size_t kUnwinderThreads = 5;
@@ -103,11 +103,11 @@ bool IsFile(int fd, const char* fn) {
   struct stat fdstat;
   struct stat fnstat;
   if (fstat(fd, &fdstat) == -1) {
-    PERFETTO_PLOG("fstat");
+    DEJAVIEW_PLOG("fstat");
     return false;
   }
   if (lstat(fn, &fnstat) == -1) {
-    PERFETTO_PLOG("lstat");
+    DEJAVIEW_PLOG("lstat");
     return false;
   }
   return fdstat.st_ino == fnstat.st_ino;
@@ -162,12 +162,12 @@ bool HeapprofdConfigToClientConfiguration(
                           heapprofd_config.sampling_interval_bytes());
   }
   if (heap_intervals.size() != heaps.size()) {
-    PERFETTO_ELOG("heap_sampling_intervals and heaps length mismatch.");
+    DEJAVIEW_ELOG("heap_sampling_intervals and heaps length mismatch.");
     return false;
   }
   if (std::find(heap_intervals.begin(), heap_intervals.end(), 0u) !=
       heap_intervals.end()) {
-    PERFETTO_ELOG("zero sampling interval.");
+    DEJAVIEW_ELOG("zero sampling interval.");
     return false;
   }
   if (!exclude_heaps.empty()) {
@@ -181,14 +181,14 @@ bool HeapprofdConfigToClientConfiguration(
   }
   if (heaps.size() > base::ArraySize(cli_config->heaps)) {
     heaps.resize(base::ArraySize(cli_config->heaps));
-    PERFETTO_ELOG("Too many heaps requested. Truncating.");
+    DEJAVIEW_ELOG("Too many heaps requested. Truncating.");
   }
   for (size_t i = 0; i < heaps.size(); ++i) {
     const std::string& heap = heaps[i];
     const uint64_t interval = heap_intervals[i];
     // -1 for the \0 byte.
     if (heap.size() > HEAPPROFD_HEAP_NAME_SZ - 1) {
-      PERFETTO_ELOG("Invalid heap name %s (larger than %d)", heap.c_str(),
+      DEJAVIEW_ELOG("Invalid heap name %s (larger than %d)", heap.c_str(),
                     HEAPPROFD_HEAP_NAME_SZ - 1);
       continue;
     }
@@ -229,7 +229,7 @@ void HeapprofdProducer::SetDataSourceCallback(std::function<void()> fn) {
 }
 
 void HeapprofdProducer::AdoptSocket(base::ScopedFile fd) {
-  PERFETTO_DCHECK(mode_ == HeapprofdMode::kChild);
+  DEJAVIEW_DCHECK(mode_ == HeapprofdMode::kChild);
   auto socket = base::UnixSocket::AdoptConnected(
       std::move(fd), &socket_delegate_, task_runner_, base::SockFamily::kUnix,
       base::SockType::kStream);
@@ -238,10 +238,10 @@ void HeapprofdProducer::AdoptSocket(base::ScopedFile fd) {
 }
 
 void HeapprofdProducer::OnConnect() {
-  PERFETTO_DCHECK(state_ == kConnecting);
+  DEJAVIEW_DCHECK(state_ == kConnecting);
   state_ = kConnected;
   ResetConnectionBackoff();
-  PERFETTO_LOG("Connected to the service, mode [%s].",
+  DEJAVIEW_LOG("Connected to the service, mode [%s].",
                mode_ == HeapprofdMode::kCentral ? "central" : "child");
 
   DataSourceDescriptor desc;
@@ -251,8 +251,8 @@ void HeapprofdProducer::OnConnect() {
 }
 
 void HeapprofdProducer::OnDisconnect() {
-  PERFETTO_DCHECK(state_ == kConnected || state_ == kConnecting);
-  PERFETTO_LOG("Disconnected from tracing service");
+  DEJAVIEW_DCHECK(state_ == kConnected || state_ == kConnecting);
+  DEJAVIEW_LOG("Disconnected from tracing service");
 
   // Do not attempt to reconnect if we're a process-private process, just quit.
   if (exit_when_done_) {
@@ -280,7 +280,7 @@ void HeapprofdProducer::OnDisconnect() {
 }
 
 void HeapprofdProducer::ConnectWithRetries(const char* socket_name) {
-  PERFETTO_DCHECK(state_ == kNotStarted);
+  DEJAVIEW_DCHECK(state_ == kNotStarted);
   state_ = kNotConnected;
 
   ResetConnectionBackoff();
@@ -295,7 +295,7 @@ void HeapprofdProducer::ConnectService() {
 
 void HeapprofdProducer::SetProducerEndpoint(
     std::unique_ptr<TracingService::ProducerEndpoint> endpoint) {
-  PERFETTO_DCHECK(state_ == kNotConnected || state_ == kNotStarted);
+  DEJAVIEW_DCHECK(state_ == kNotConnected || state_ == kNotStarted);
   state_ = kConnecting;
   endpoint_ = std::move(endpoint);
 }
@@ -318,7 +318,7 @@ void HeapprofdProducer::Restart() {
 
   // Oneshot producer should not attempt restarts.
   if (exit_when_done_)
-    PERFETTO_FATAL("Attempting to restart a one shot producer.");
+    DEJAVIEW_FATAL("Attempting to restart a one shot producer.");
 
   HeapprofdMode mode = mode_;
   base::TaskRunner* task_runner = task_runner_;
@@ -337,8 +337,8 @@ void HeapprofdProducer::Restart() {
 // callback in the constructor.
 __attribute__((noreturn)) void HeapprofdProducer::TerminateProcess(
     int exit_status) {
-  PERFETTO_CHECK(mode_ == HeapprofdMode::kChild);
-  PERFETTO_LOG("Shutting down child heapprofd (status %d).", exit_status);
+  DEJAVIEW_CHECK(mode_ == HeapprofdMode::kChild);
+  DEJAVIEW_LOG("Shutting down child heapprofd (status %d).", exit_status);
   exit(exit_status);
 }
 
@@ -362,12 +362,12 @@ void HeapprofdProducer::SetupDataSource(DataSourceInstanceID id,
                                         const DataSourceConfig& ds_config) {
   if (ds_config.session_initiator() ==
       DataSourceConfig::SESSION_INITIATOR_TRUSTED_SYSTEM) {
-    PERFETTO_LOG("Setting up datasource: statsd initiator.");
+    DEJAVIEW_LOG("Setting up datasource: statsd initiator.");
   } else {
-    PERFETTO_LOG("Setting up datasource: non-statsd initiator.");
+    DEJAVIEW_LOG("Setting up datasource: non-statsd initiator.");
   }
   if (mode_ == HeapprofdMode::kChild && ds_config.enable_extra_guardrails()) {
-    PERFETTO_ELOG("enable_extra_guardrails is not supported on user.");
+    DEJAVIEW_ELOG("enable_extra_guardrails is not supported on user.");
     return;
   }
 
@@ -375,24 +375,24 @@ void HeapprofdProducer::SetupDataSource(DataSourceInstanceID id,
   heapprofd_config.ParseFromString(ds_config.heapprofd_config_raw());
 
   if (heapprofd_config.all() && !heapprofd_config.pid().empty())
-    PERFETTO_ELOG("No point setting all and pid");
+    DEJAVIEW_ELOG("No point setting all and pid");
   if (heapprofd_config.all() && !heapprofd_config.process_cmdline().empty())
-    PERFETTO_ELOG("No point setting all and process_cmdline");
+    DEJAVIEW_ELOG("No point setting all and process_cmdline");
 
   if (ds_config.name() != kHeapprofdDataSource) {
-    PERFETTO_DLOG("Invalid data source name.");
+    DEJAVIEW_DLOG("Invalid data source name.");
     return;
   }
 
   if (data_sources_.find(id) != data_sources_.end()) {
-    PERFETTO_ELOG("Received duplicated data source instance id: %" PRIu64, id);
+    DEJAVIEW_ELOG("Received duplicated data source instance id: %" PRIu64, id);
     return;
   }
 
   std::optional<std::vector<std::string>> normalized_cmdlines =
       NormalizeCmdlines(heapprofd_config.process_cmdline());
   if (!normalized_cmdlines.has_value()) {
-    PERFETTO_ELOG("Rejecting data source due to invalid cmdline in config.");
+    DEJAVIEW_ELOG("Rejecting data source due to invalid cmdline in config.");
     return;
   }
 
@@ -401,12 +401,12 @@ void HeapprofdProducer::SetupDataSource(DataSourceInstanceID id,
   if (mode_ == HeapprofdMode::kChild) {
     if (!ConfigTargetsProcess(heapprofd_config, target_process_,
                               normalized_cmdlines.value())) {
-      PERFETTO_DLOG("Child mode skipping setup of unrelated data source.");
+      DEJAVIEW_DLOG("Child mode skipping setup of unrelated data source.");
       return;
     }
 
     if (!data_sources_.empty()) {
-      PERFETTO_LOG("Child mode skipping concurrent data source.");
+      DEJAVIEW_LOG("Child mode skipping concurrent data source.");
 
       // Manually write one ProfilePacket about the rejected session.
       auto buffer_id = static_cast<BufferID>(ds_config.target_buffer());
@@ -420,7 +420,7 @@ void HeapprofdProducer::SetupDataSource(DataSourceInstanceID id,
     start_cputime_sec = GetCputimeSecForCurrentProcess();
 
     if (!start_cputime_sec) {
-      PERFETTO_ELOG("Failed to enforce CPU guardrail. Rejecting config.");
+      DEJAVIEW_ELOG("Failed to enforce CPU guardrail. Rejecting config.");
       return;
     }
   }
@@ -447,7 +447,7 @@ void HeapprofdProducer::SetupDataSource(DataSourceInstanceID id,
       data_source.trace_writer.get(),
       protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED);
   data_sources_.emplace(id, std::move(data_source));
-  PERFETTO_DLOG("Set up data source.");
+  DEJAVIEW_DLOG("Set up data source.");
 
   if (mode_ == HeapprofdMode::kChild && data_source_callback_)
     (*data_source_callback_)();
@@ -490,19 +490,19 @@ void HeapprofdProducer::SignalRunningProcesses(DataSource* data_source) {
   for (auto pid_it = pids.cbegin(); pid_it != pids.cend();) {
     pid_t pid = *pid_it;
     if (IsPidProfiled(pid)) {
-      PERFETTO_LOG("Rejecting concurrent session for %" PRIdMAX,
+      DEJAVIEW_LOG("Rejecting concurrent session for %" PRIdMAX,
                    static_cast<intmax_t>(pid));
       data_source->rejected_pids.emplace(pid);
       pid_it = pids.erase(pid_it);
       continue;
     }
 
-    PERFETTO_DLOG("Sending signal: %d (si_value: %d) to pid: %d",
+    DEJAVIEW_DLOG("Sending signal: %d (si_value: %d) to pid: %d",
                   kProfilingSignal, kHeapprofdSignalValue, pid);
     union sigval signal_value;
     signal_value.sival_int = kHeapprofdSignalValue;
     if (sigqueue(pid, kProfilingSignal, signal_value) != 0) {
-      PERFETTO_DPLOG("sigqueue");
+      DEJAVIEW_DPLOG("sigqueue");
     }
     ++pid_it;
   }
@@ -511,14 +511,14 @@ void HeapprofdProducer::SignalRunningProcesses(DataSource* data_source) {
 
 void HeapprofdProducer::StartDataSource(DataSourceInstanceID id,
                                         const DataSourceConfig&) {
-  PERFETTO_DLOG("Starting data source %" PRIu64, id);
+  DEJAVIEW_DLOG("Starting data source %" PRIu64, id);
 
   auto it = data_sources_.find(id);
   if (it == data_sources_.end()) {
     // This is expected in child heapprofd, where we reject uninteresting data
     // sources in SetupDataSource.
     if (mode_ == HeapprofdMode::kCentral) {
-      PERFETTO_ELOG("Received invalid data source instance to start: %" PRIu64,
+      DEJAVIEW_ELOG("Received invalid data source instance to start: %" PRIu64,
                     id);
     }
     return;
@@ -526,7 +526,7 @@ void HeapprofdProducer::StartDataSource(DataSourceInstanceID id,
 
   DataSource& data_source = it->second;
   if (data_source.started) {
-    PERFETTO_ELOG("Trying to start already started data-source: %" PRIu64, id);
+    DEJAVIEW_ELOG("Trying to start already started data-source: %" PRIu64, id);
     return;
   }
   const HeapprofdConfig& heapprofd_config = data_source.config;
@@ -554,7 +554,7 @@ void HeapprofdProducer::StartDataSource(DataSourceInstanceID id,
         continuous_dump_config.dump_phase_ms());
   }
   data_source.started = true;
-  PERFETTO_DLOG("Started DataSource");
+  DEJAVIEW_DLOG("Started DataSource");
 }
 
 UnwindingWorker& HeapprofdProducer::UnwinderForPID(pid_t pid) {
@@ -566,11 +566,11 @@ void HeapprofdProducer::StopDataSource(DataSourceInstanceID id) {
   if (it == data_sources_.end()) {
     endpoint_->NotifyDataSourceStopped(id);
     if (mode_ == HeapprofdMode::kCentral)
-      PERFETTO_ELOG("Trying to stop non existing data source: %" PRIu64, id);
+      DEJAVIEW_ELOG("Trying to stop non existing data source: %" PRIu64, id);
     return;
   }
 
-  PERFETTO_LOG("Stopping data source %" PRIu64, id);
+  DEJAVIEW_LOG("Stopping data source %" PRIu64, id);
 
   DataSource& data_source = it->second;
   data_source.was_stopped = true;
@@ -613,7 +613,7 @@ void HeapprofdProducer::ShutdownDataSource(DataSource* data_source) {
           return;
         auto ds_it = weak_producer->data_sources_.find(id);
         if (ds_it != weak_producer->data_sources_.end()) {
-          PERFETTO_ELOG("Final dump timed out.");
+          DEJAVIEW_ELOG("Final dump timed out.");
           DataSource& ds = ds_it->second;
 
           for (const auto& pid_and_process_state : ds.process_states) {
@@ -624,7 +624,7 @@ void HeapprofdProducer::ShutdownDataSource(DataSource* data_source) {
           // the data source.
           ds.process_states.clear();
           ds.rejected_pids.clear();
-          PERFETTO_CHECK(weak_producer->MaybeFinishDataSource(&ds));
+          DEJAVIEW_CHECK(weak_producer->MaybeFinishDataSource(&ds));
         }
       },
       data_source->stop_timeout_ms);
@@ -635,7 +635,7 @@ void HeapprofdProducer::DoDrainAndContinuousDump(DataSourceInstanceID id) {
   if (it == data_sources_.end())
     return;
   DataSource& data_source = it->second;
-  PERFETTO_DCHECK(data_source.pending_free_drains == 0);
+  DEJAVIEW_DCHECK(data_source.pending_free_drains == 0);
 
   for (auto& [pid, process_state] : data_source.process_states) {
     UnwinderForPID(pid).PostDrainFree(data_source.id, pid);
@@ -755,7 +755,7 @@ void HeapprofdProducer::DumpProcessesInDataSource(DataSource* ds) {
 }
 
 void HeapprofdProducer::DumpAll() {
-  PERFETTO_LOG("Received signal. Dumping all data sources.");
+  DEJAVIEW_LOG("Received signal. Dumping all data sources.");
   for (auto& id_and_data_source : data_sources_)
     DumpProcessesInDataSource(&id_and_data_source.second);
 }
@@ -765,12 +765,12 @@ void HeapprofdProducer::Flush(FlushRequestID flush_id,
                               size_t num_ids,
                               FlushFlags) {
   size_t& flush_in_progress = flushes_in_progress_[flush_id];
-  PERFETTO_DCHECK(flush_in_progress == 0);
+  DEJAVIEW_DCHECK(flush_in_progress == 0);
   flush_in_progress = num_ids;
   for (size_t i = 0; i < num_ids; ++i) {
     auto it = data_sources_.find(ids[i]);
     if (it == data_sources_.end()) {
-      PERFETTO_ELOG("Trying to flush unknown data-source %" PRIu64, ids[i]);
+      DEJAVIEW_ELOG("Trying to flush unknown data-source %" PRIu64, ids[i]);
       flush_in_progress--;
       continue;
     }
@@ -797,7 +797,7 @@ void HeapprofdProducer::Flush(FlushRequestID flush_id,
 void HeapprofdProducer::FinishDataSourceFlush(FlushRequestID flush_id) {
   auto it = flushes_in_progress_.find(flush_id);
   if (it == flushes_in_progress_.end()) {
-    PERFETTO_ELOG("FinishDataSourceFlush id invalid: %" PRIu64, flush_id);
+    DEJAVIEW_ELOG("FinishDataSourceFlush id invalid: %" PRIu64, flush_id);
     return;
   }
   size_t& flush_in_progress = it->second;
@@ -810,7 +810,7 @@ void HeapprofdProducer::FinishDataSourceFlush(FlushRequestID flush_id) {
 void HeapprofdProducer::SocketDelegate::OnDisconnect(base::UnixSocket* self) {
   auto it = producer_->pending_processes_.find(self->peer_pid_linux());
   if (it == producer_->pending_processes_.end()) {
-    PERFETTO_ELOG("Unexpected disconnect.");
+    DEJAVIEW_ELOG("Unexpected disconnect.");
     return;
   }
 
@@ -824,7 +824,7 @@ void HeapprofdProducer::SocketDelegate::OnNewIncomingConnection(
   Process peer_process;
   peer_process.pid = new_connection->peer_pid_linux();
   if (!GetCmdlineForPID(peer_process.pid, &peer_process.cmdline))
-    PERFETTO_PLOG("Failed to get cmdline for %d", peer_process.pid);
+    DEJAVIEW_PLOG("Failed to get cmdline for %d", peer_process.pid);
 
   producer_->HandleClientConnection(std::move(new_connection), peer_process);
 }
@@ -833,7 +833,7 @@ void HeapprofdProducer::SocketDelegate::OnDataAvailable(
     base::UnixSocket* self) {
   auto it = producer_->pending_processes_.find(self->peer_pid_linux());
   if (it == producer_->pending_processes_.end()) {
-    PERFETTO_ELOG("Unexpected data.");
+    DEJAVIEW_ELOG("Unexpected data.");
     return;
   }
 
@@ -855,7 +855,7 @@ void HeapprofdProducer::SocketDelegate::OnDataAvailable(
 
     if (data_source.shutting_down) {
       producer_->pending_processes_.erase(it);
-      PERFETTO_LOG("Got handshake for DS that is shutting down. Rejecting.");
+      DEJAVIEW_LOG("Got handshake for DS that is shutting down. Rejecting.");
       return;
     }
 
@@ -863,7 +863,7 @@ void HeapprofdProducer::SocketDelegate::OnDataAvailable(
         "/proc/" + std::to_string(self->peer_pid_linux()) + "/maps";
     if (!IsFile(*fds[kHandshakeMaps], maps_file.c_str())) {
       producer_->pending_processes_.erase(it);
-      PERFETTO_ELOG("Received invalid maps FD.");
+      DEJAVIEW_ELOG("Received invalid maps FD.");
       return;
     }
 
@@ -871,7 +871,7 @@ void HeapprofdProducer::SocketDelegate::OnDataAvailable(
         "/proc/" + std::to_string(self->peer_pid_linux()) + "/mem";
     if (!IsFile(*fds[kHandshakeMem], mem_file.c_str())) {
       producer_->pending_processes_.erase(it);
-      PERFETTO_ELOG("Received invalid mem FD.");
+      DEJAVIEW_ELOG("Received invalid mem FD.");
       return;
     }
 
@@ -880,7 +880,7 @@ void HeapprofdProducer::SocketDelegate::OnDataAvailable(
         std::forward_as_tuple(&producer_->callsites_,
                               data_source.config.dump_at_max()));
 
-    PERFETTO_DLOG("%d: Received FDs.", self->peer_pid_linux());
+    DEJAVIEW_DLOG("%d: Received FDs.", self->peer_pid_linux());
     int raw_fd = pending_process.shmem.fd();
     // TODO(fmayer): Full buffer could deadlock us here.
     if (!self->Send(&data_source.client_configuration,
@@ -905,10 +905,10 @@ void HeapprofdProducer::SocketDelegate::OnDataAvailable(
         .PostHandoffSocket(std::move(handoff_data));
     producer_->pending_processes_.erase(it);
   } else if (fds[kHandshakeMaps] || fds[kHandshakeMem]) {
-    PERFETTO_ELOG("%d: Received partial FDs.", self->peer_pid_linux());
+    DEJAVIEW_ELOG("%d: Received partial FDs.", self->peer_pid_linux());
     producer_->pending_processes_.erase(it);
   } else {
-    PERFETTO_ELOG("%d: Received no FDs.", self->peer_pid_linux());
+    DEJAVIEW_ELOG("%d: Received no FDs.", self->peer_pid_linux());
   }
 }
 
@@ -937,7 +937,7 @@ void HeapprofdProducer::HandleClientConnection(
     Process process) {
   DataSource* data_source = GetDataSourceForProcess(process);
   if (!data_source) {
-    PERFETTO_LOG("No data source found.");
+    DEJAVIEW_LOG("No data source found.");
     return;
   }
   RecordOtherSourcesAsRejected(data_source, process);
@@ -947,7 +947,7 @@ void HeapprofdProducer::HandleClientConnection(
   if (mode_ == HeapprofdMode::kCentral &&
       !CanProfile(data_source->ds_config, new_connection->peer_uid_posix(),
                   data_source->config.target_installed_by())) {
-    PERFETTO_ELOG("%d (%s) is not profileable.", process.pid,
+    DEJAVIEW_ELOG("%d (%s) is not profileable.", process.pid,
                   process.cmdline.c_str());
     return;
   }
@@ -956,7 +956,7 @@ void HeapprofdProducer::HandleClientConnection(
   if (!shmem_size)
     shmem_size = kDefaultShmemSize;
   if (shmem_size > kMaxShmemSize) {
-    PERFETTO_LOG("Specified shared memory size of %" PRIu64
+    DEJAVIEW_LOG("Specified shared memory size of %" PRIu64
                  " exceeds maximum size of %" PRIu64 ". Reducing.",
                  shmem_size, kMaxShmemSize);
     shmem_size = kMaxShmemSize;
@@ -964,13 +964,13 @@ void HeapprofdProducer::HandleClientConnection(
 
   auto shmem = SharedRingBuffer::Create(static_cast<size_t>(shmem_size));
   if (!shmem || !shmem->is_valid()) {
-    PERFETTO_LOG("Failed to create shared memory.");
+    DEJAVIEW_LOG("Failed to create shared memory.");
     return;
   }
 
   pid_t peer_pid = new_connection->peer_pid_linux();
   if (peer_pid != process.pid) {
-    PERFETTO_ELOG("Invalid PID connected.");
+    DEJAVIEW_ELOG("Invalid PID connected.");
     return;
   }
 
@@ -1036,14 +1036,14 @@ void HeapprofdProducer::HandleAllocRecord(AllocRecord* alloc_rec) {
   const AllocMetadata& alloc_metadata = alloc_rec->alloc_metadata;
   auto it = data_sources_.find(alloc_rec->data_source_instance_id);
   if (it == data_sources_.end()) {
-    PERFETTO_LOG("Invalid data source in alloc record.");
+    DEJAVIEW_LOG("Invalid data source in alloc record.");
     return;
   }
 
   DataSource& ds = it->second;
   auto process_state_it = ds.process_states.find(alloc_rec->pid);
   if (process_state_it == ds.process_states.end()) {
-    PERFETTO_LOG("Invalid PID in alloc record.");
+    DEJAVIEW_LOG("Invalid PID in alloc record.");
     return;
   }
 
@@ -1103,14 +1103,14 @@ void HeapprofdProducer::HandleAllocRecord(AllocRecord* alloc_rec) {
 void HeapprofdProducer::HandleFreeRecord(FreeRecord free_rec) {
   auto it = data_sources_.find(free_rec.data_source_instance_id);
   if (it == data_sources_.end()) {
-    PERFETTO_LOG("Invalid data source in free record.");
+    DEJAVIEW_LOG("Invalid data source in free record.");
     return;
   }
 
   DataSource& ds = it->second;
   auto process_state_it = ds.process_states.find(free_rec.pid);
   if (process_state_it == ds.process_states.end()) {
-    PERFETTO_LOG("Invalid PID in free record.");
+    DEJAVIEW_LOG("Invalid PID in free record.");
     return;
   }
 
@@ -1133,14 +1133,14 @@ void HeapprofdProducer::HandleFreeRecord(FreeRecord free_rec) {
 void HeapprofdProducer::HandleHeapNameRecord(HeapNameRecord rec) {
   auto it = data_sources_.find(rec.data_source_instance_id);
   if (it == data_sources_.end()) {
-    PERFETTO_LOG("Invalid data source in free record.");
+    DEJAVIEW_LOG("Invalid data source in free record.");
     return;
   }
 
   DataSource& ds = it->second;
   auto process_state_it = ds.process_states.find(rec.pid);
   if (process_state_it == ds.process_states.end()) {
-    PERFETTO_LOG("Invalid PID in free record.");
+    DEJAVIEW_LOG("Invalid PID in free record.");
     return;
   }
 
@@ -1149,12 +1149,12 @@ void HeapprofdProducer::HandleHeapNameRecord(HeapNameRecord rec) {
   if (entry.heap_name[0] != '\0') {
     std::string heap_name = entry.heap_name;
     if (entry.heap_id == 0) {
-      PERFETTO_ELOG("Invalid zero heap ID.");
+      DEJAVIEW_ELOG("Invalid zero heap ID.");
       return;
     }
     ProcessState::HeapInfo& hi = process_state.GetHeapInfo(entry.heap_id);
     if (!hi.heap_name.empty() && hi.heap_name != heap_name) {
-      PERFETTO_ELOG("Overriding heap name %s with %s", hi.heap_name.c_str(),
+      DEJAVIEW_ELOG("Overriding heap name %s with %s", hi.heap_name.c_str(),
                     heap_name.c_str());
     }
     hi.heap_name = entry.heap_name;
@@ -1215,11 +1215,11 @@ void HeapprofdProducer::HandleSocketDisconnected(
 
   auto process_state_it = ds.process_states.find(pid);
   if (process_state_it == ds.process_states.end()) {
-    PERFETTO_ELOG("Unexpected disconnect from %d", pid);
+    DEJAVIEW_ELOG("Unexpected disconnect from %d", pid);
     return;
   }
 
-  PERFETTO_LOG("%d disconnected from heapprofd (ds shutting down: %d).", pid,
+  DEJAVIEW_LOG("%d disconnected from heapprofd (ds shutting down: %d).", pid,
                ds.shutting_down);
 
   ProcessState& process_state = process_state_it->second;
@@ -1249,7 +1249,7 @@ void HeapprofdProducer::CheckDataSourceCpuTask() {
     DataSource& ds = p.second;
     if (gr.IsOverCpuThreshold(ds.guardrail_config)) {
       ds.hit_guardrail = true;
-      PERFETTO_LOG("Data source %" PRIu64 " hit CPU guardrail. Shutting down.",
+      DEJAVIEW_LOG("Data source %" PRIu64 " hit CPU guardrail. Shutting down.",
                    ds.id);
       ShutdownDataSource(&ds);
     }
@@ -1270,7 +1270,7 @@ void HeapprofdProducer::CheckDataSourceMemoryTask() {
     DataSource& ds = p.second;
     if (gr.IsOverMemoryThreshold(ds.guardrail_config)) {
       ds.hit_guardrail = true;
-      PERFETTO_LOG("Data source %" PRIu64
+      DEJAVIEW_LOG("Data source %" PRIu64
                    " hit memory guardrail. Shutting down.",
                    ds.id);
       ShutdownDataSource(&ds);
@@ -1279,4 +1279,4 @@ void HeapprofdProducer::CheckDataSourceMemoryTask() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

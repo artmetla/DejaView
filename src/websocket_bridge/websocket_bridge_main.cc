@@ -19,5 +19,5 @@
 // This is split in a dedicated translation unit so that tracebox can refer to
 // WebsocketBridgeMain() without pulling in a main() symbol.
 int main(int argc, char** argv) {
-  return perfetto::WebsocketBridgeMain(argc, argv);
+  return dejaview::WebsocketBridgeMain(argc, argv);
 }

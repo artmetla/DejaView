@@ -16,15 +16,15 @@
 
 #include "src/trace_redaction/redact_sched_events.h"
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_redaction/proto_util.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 bool IsTrue(bool value) {
@@ -108,8 +108,8 @@ std::string_view InternTable::Find(size_t index) const {
 
 base::Status RedactSchedEvents::Transform(const Context& context,
                                           std::string* packet) const {
-  PERFETTO_DCHECK(modifier_);
-  PERFETTO_DCHECK(waking_filter_);
+  DEJAVIEW_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(waking_filter_);
 
   if (!context.timeline) {
     return base::ErrStatus("RedactSchedEvents: missing timeline.");
@@ -145,7 +145,7 @@ base::Status RedactSchedEvents::OnFtraceEvents(
     const Context& context,
     protozero::Field ftrace_events,
     protos::pbzero::FtraceEventBundle* message) const {
-  PERFETTO_DCHECK(ftrace_events.id() ==
+  DEJAVIEW_DCHECK(ftrace_events.id() ==
                   protos::pbzero::TracePacket::kFtraceEventsFieldNumber);
 
   protozero::ProtoDecoder decoder(ftrace_events.as_bytes());
@@ -185,7 +185,7 @@ base::Status RedactSchedEvents::OnFtraceEvent(
     int32_t cpu,
     protozero::Field ftrace_event,
     protos::pbzero::FtraceEvent* message) const {
-  PERFETTO_DCHECK(ftrace_event.id() ==
+  DEJAVIEW_DCHECK(ftrace_event.id() ==
                   protos::pbzero::FtraceEventBundle::kEventFieldNumber);
 
   protozero::ProtoDecoder decoder(ftrace_event.as_bytes());
@@ -236,9 +236,9 @@ base::Status RedactSchedEvents::OnFtraceEventSwitch(
     protos::pbzero::SchedSwitchFtraceEvent::Decoder& sched_switch,
     std::string* scratch_str,
     protos::pbzero::SchedSwitchFtraceEvent* message) const {
-  PERFETTO_DCHECK(modifier_);
-  PERFETTO_DCHECK(scratch_str);
-  PERFETTO_DCHECK(message);
+  DEJAVIEW_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(scratch_str);
+  DEJAVIEW_DCHECK(message);
 
   std::array<bool, 7> has_fields = {
       sched_switch.has_prev_comm(), sched_switch.has_prev_pid(),
@@ -302,9 +302,9 @@ base::Status RedactSchedEvents::OnFtraceEventWaking(
     protos::pbzero::SchedWakingFtraceEvent::Decoder& sched_waking,
     std::string* scratch_str,
     protos::pbzero::FtraceEvent* parent_message) const {
-  PERFETTO_DCHECK(modifier_);
-  PERFETTO_DCHECK(scratch_str);
-  PERFETTO_DCHECK(parent_message);
+  DEJAVIEW_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(scratch_str);
+  DEJAVIEW_DCHECK(parent_message);
 
   std::array<bool, 5> has_fields = {
       sched_waking.has_comm(), sched_waking.has_pid(), sched_waking.has_prio(),
@@ -400,8 +400,8 @@ base::Status RedactSchedEvents::OnCompSchedSwitch(
     protos::pbzero::FtraceEventBundle::CompactSched::Decoder& comp_sched,
     InternTable* intern_table,
     protos::pbzero::FtraceEventBundle::CompactSched* message) const {
-  PERFETTO_DCHECK(modifier_);
-  PERFETTO_DCHECK(message);
+  DEJAVIEW_DCHECK(modifier_);
+  DEJAVIEW_DCHECK(message);
 
   std::array<bool, 6> has_fields = {
       comp_sched.has_intern_table(),
@@ -623,4 +623,4 @@ base::Status RedactSchedEvents::OnCompactSchedWaking(
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

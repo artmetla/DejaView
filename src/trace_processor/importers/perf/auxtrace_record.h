@@ -18,9 +18,9 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PERF_AUXTRACE_RECORD_H_
 
 #include <cstdint>
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 struct Record;
 
@@ -38,6 +38,6 @@ struct AuxtraceRecord {
   base::Status Parse(const Record& record);
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_AUXTRACE_RECORD_H_

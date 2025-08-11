@@ -16,7 +16,7 @@
 
 #include "src/profiling/memory/sampler.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 std::default_random_engine& GetGlobalRandomEngineLocked() {
@@ -25,4 +25,4 @@ std::default_random_engine& GetGlobalRandomEngineLocked() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

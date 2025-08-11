@@ -13,5 +13,5 @@
 // limitations under the License.
 
 export interface IdleDetectorWindow {
-  waitForPerfettoIdle: (minIdleMs?: number) => Promise<void>;
+  waitForDejaViewIdle: (minIdleMs?: number) => Promise<void>;
 }

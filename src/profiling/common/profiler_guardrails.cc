@@ -20,11 +20,11 @@
 #include <algorithm>
 #include <optional>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/watchdog_posix.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/watchdog_posix.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 std::optional<uint64_t> GetCputimeSecForCurrentProcess() {
@@ -38,7 +38,7 @@ std::optional<uint64_t> GetCputimeSecForCurrentProcess(
     return std::nullopt;
   base::ProcStat stat;
   if (!ReadProcStat(stat_fd.get(), &stat)) {
-    PERFETTO_ELOG("Failed to read stat file to enforce guardrails.");
+    DEJAVIEW_ELOG("Failed to read stat file to enforce guardrails.");
     return std::nullopt;
   }
   return (stat.utime + stat.stime) /
@@ -54,7 +54,7 @@ ProfilerMemoryGuardrails::ProfilerMemoryGuardrails(base::ScopedFile status_fd) {
     anon_and_swap_ = GetRssAnonAndSwap(status);
 
   if (!anon_and_swap_) {
-    PERFETTO_ELOG("Failed to read memory usage.");
+    DEJAVIEW_ELOG("Failed to read memory usage.");
     return;
   }
 }
@@ -66,7 +66,7 @@ bool ProfilerMemoryGuardrails::IsOverMemoryThreshold(
     return false;
 
   if (ds_max_mem > 0 && *anon_and_swap_ > ds_max_mem) {
-    PERFETTO_ELOG("Exceeded data-source memory guardrail (%" PRIu32
+    DEJAVIEW_ELOG("Exceeded data-source memory guardrail (%" PRIu32
                   " > %" PRIu32 "). Shutting down.",
                   *anon_and_swap_, ds_max_mem);
     return true;
@@ -77,7 +77,7 @@ bool ProfilerMemoryGuardrails::IsOverMemoryThreshold(
 ProfilerCpuGuardrails::ProfilerCpuGuardrails() {
   opt_cputime_sec_ = GetCputimeSecForCurrentProcess();
   if (!opt_cputime_sec_) {
-    PERFETTO_ELOG("Failed to get CPU time.");
+    DEJAVIEW_ELOG("Failed to get CPU time.");
   }
 }
 
@@ -85,7 +85,7 @@ ProfilerCpuGuardrails::ProfilerCpuGuardrails() {
 ProfilerCpuGuardrails::ProfilerCpuGuardrails(base::ScopedFile stat_fd) {
   opt_cputime_sec_ = GetCputimeSecForCurrentProcess(std::move(stat_fd));
   if (!opt_cputime_sec_) {
-    PERFETTO_ELOG("Failed to get CPU time.");
+    DEJAVIEW_ELOG("Failed to get CPU time.");
   }
 }
 
@@ -98,10 +98,10 @@ bool ProfilerCpuGuardrails::IsOverCpuThreshold(const GuardrailConfig& ds) {
   auto start_cputime_sec = ds.cpu_start_secs;
   // We reject data-sources with CPU guardrails if we cannot read the
   // initial value, which means we get a non-nullopt value here.
-  PERFETTO_CHECK(start_cputime_sec);
+  DEJAVIEW_CHECK(start_cputime_sec);
   uint64_t cpu_diff = cputime_sec - *start_cputime_sec;
   if (cputime_sec > *start_cputime_sec && cpu_diff > ds_max_cpu) {
-    PERFETTO_ELOG("Exceeded data-source CPU guardrail (%" PRIu64 " > %" PRIu64
+    DEJAVIEW_ELOG("Exceeded data-source CPU guardrail (%" PRIu64 " > %" PRIu64
                   "). Shutting down.",
                   cpu_diff, ds_max_cpu);
     return true;
@@ -110,4 +110,4 @@ bool ProfilerCpuGuardrails::IsOverCpuThreshold(const GuardrailConfig& ds) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

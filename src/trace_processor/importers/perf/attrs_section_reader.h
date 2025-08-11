@@ -20,13 +20,13 @@
 #include <cstddef>
 #include <utility>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/perf_file.h"
 #include "src/trace_processor/importers/perf/reader.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 // Helper to read the attrs section of a perf file. Provides an iterator like
 // interface over the perf_event_attr entries.
@@ -55,6 +55,6 @@ class AttrsSectionReader {
   const size_t attr_size_;
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_ATTRS_SECTION_READER_H_

@@ -21,7 +21,7 @@
 #include <android/hardware/health/2.0/IHealth.h>
 #include <healthhalutils/HealthHalUtils.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 using HidlHealth = ::android::hardware::health::V2_0::IHealth;
@@ -170,4 +170,4 @@ bool GetBatteryCounter(BatteryCounter counter, int64_t* value) {
 }
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview

@@ -16,12 +16,12 @@
 
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
 
 #include "src/trace_processor/importers/common/machine_tracker.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 CpuTracker::CpuTracker(TraceProcessorContext* context) : context_(context) {
   // Preallocate ucpu of this machine for maintaining the relative order between
@@ -48,7 +48,7 @@ tables::CpuTable::Id CpuTracker::SetCpuInfo(uint32_t cpu,
   auto cpu_id = GetOrCreateCpu(cpu);
 
   auto cpu_row = context_->storage->mutable_cpu_table()->FindById(cpu_id);
-  PERFETTO_DCHECK(cpu_row.has_value());
+  DEJAVIEW_DCHECK(cpu_row.has_value());
 
   if (!processor.empty()) {
     auto string_id = context_->storage->InternString(processor);
@@ -61,4 +61,4 @@ tables::CpuTable::Id CpuTracker::SetCpuInfo(uint32_t cpu,
   return cpu_id;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

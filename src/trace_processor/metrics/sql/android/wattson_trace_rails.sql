@@ -13,12 +13,12 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
 
 -- The power calculations need to use the same time period in which energy
 -- calculations were made for consistency
 DROP VIEW IF EXISTS _wattson_period_windows;
-CREATE PERFETTO VIEW _wattson_period_windows AS
+CREATE DEJAVIEW VIEW _wattson_period_windows AS
 SELECT
   MIN(ts) as ts,
   MAX(ts) - MIN(ts) as dur,
@@ -31,7 +31,7 @@ SELECT RUN_METRIC(
 );
 
 DROP VIEW IF EXISTS wattson_trace_rails_output;
-CREATE PERFETTO VIEW wattson_trace_rails_output AS
+CREATE DEJAVIEW VIEW wattson_trace_rails_output AS
 SELECT AndroidWattsonTimePeriodMetric(
   'metric_version', 3,
   'period_info', (

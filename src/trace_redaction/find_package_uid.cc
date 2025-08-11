@@ -15,13 +15,13 @@
  */
 
 #include "src/trace_redaction/find_package_uid.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status FindPackageUid::Begin(Context* context) const {
   if (context->package_name.empty()) {
@@ -84,4 +84,4 @@ base::Status FindPackageUid::End(Context* context) const {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

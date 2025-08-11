@@ -21,12 +21,12 @@ RUN pip3 install oauth2client httplib2 google-auth google-cloud requests;
 
 # Unfortunately Docker doesn't allow to copy a file from ../. So we copy instead
 # the config files into tmp/ from the Makefile that runs docker build.
-COPY tmp/config.py /home/perfetto/config.py
-COPY tmp/common_utils.py /home/perfetto/common_utils.py
-COPY artifacts_uploader.py /home/perfetto/
-COPY perf_metrics_uploader.py /home/perfetto/
-COPY run_job.py /home/perfetto/
-COPY worker.py /home/perfetto/
+COPY tmp/config.py /home/dejaview/config.py
+COPY tmp/common_utils.py /home/dejaview/common_utils.py
+COPY artifacts_uploader.py /home/dejaview/
+COPY perf_metrics_uploader.py /home/dejaview/
+COPY run_job.py /home/dejaview/
+COPY worker.py /home/dejaview/
 
 # Allow the worker to spawn new docker containers (for the jobs' sandboxes).
 # This makes the worker container highly priviledged (effectiveely can run  any
@@ -34,14 +34,14 @@ COPY worker.py /home/perfetto/
 # code from a tryjob (which instead is run into the sandbox containers).
 RUN set -e; \
     echo 'root ALL=(ALL) ALL' /etc/sudoers; \
-    echo 'perfetto ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers; \
-    addgroup -S --gid 1337 perfetto; \
-    adduser -S --uid 1337 -h /home/perfetto perfetto perfetto; \
-    chown perfetto.perfetto -R /home/perfetto; \
-    chmod -R 755 /home/perfetto;
+    echo 'dejaview ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers; \
+    addgroup -S --gid 1337 dejaview; \
+    adduser -S --uid 1337 -h /home/dejaview dejaview dejaview; \
+    chown dejaview.dejaview -R /home/dejaview; \
+    chmod -R 755 /home/dejaview;
 
-USER perfetto:perfetto
-WORKDIR /home/perfetto
+USER dejaview:dejaview
+WORKDIR /home/dejaview
 
 ENTRYPOINT [ "tini", "--" ]
-CMD [ "python3", "/home/perfetto/worker.py" ]
+CMD [ "python3", "/home/dejaview/worker.py" ]

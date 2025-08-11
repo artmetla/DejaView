@@ -24,11 +24,11 @@
 #include <string_view>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/importers/common/virtual_memory_mapping.h"
@@ -39,7 +39,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor::gecko_importer {
+namespace dejaview::trace_processor::gecko_importer {
 namespace {
 
 struct Callsite {
@@ -159,4 +159,4 @@ base::Status GeckoTraceTokenizer::NotifyEndOfFile() {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::gecko_importer
+}  // namespace dejaview::trace_processor::gecko_importer

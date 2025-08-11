@@ -24,7 +24,7 @@ enum AdbShellState {
   RECORDING,
   FETCHING,
 }
-const DEFAULT_DESTINATION_FILE = '/data/misc/perfetto-traces/trace-by-ui';
+const DEFAULT_DESTINATION_FILE = '/data/misc/dejaview-traces/trace-by-ui';
 
 export class AdbConsumerPort extends AdbBaseConsumerPort {
   traceDestFile = DEFAULT_DESTINATION_FILE;
@@ -118,13 +118,13 @@ export class AdbConsumerPort extends AdbBaseConsumerPort {
 
   async getPidFromShellAsString() {
     const pidStr = await this.adb.shellOutputAsString(
-      `ps -u shell | grep perfetto`,
+      `ps -u shell | grep dejaview`,
     );
     // We used to use awk '{print $2}' but older phones/Go phones don't have
     // awk installed. Instead we implement similar functionality here.
     const awk = pidStr.split(' ').filter((str) => str !== '');
     if (awk.length < 1) {
-      throw Error(`Unabled to find perfetto pid in string "${pidStr}"`);
+      throw Error(`Unabled to find dejaview pid in string "${pidStr}"`);
     }
     return awk[1];
   }
@@ -132,23 +132,23 @@ export class AdbConsumerPort extends AdbBaseConsumerPort {
   async disableTracing() {
     if (!this.recordShell) return;
     try {
-      // We are not using 'pidof perfetto' so that we can use more filters. 'ps
+      // We are not using 'pidof dejaview' so that we can use more filters. 'ps
       // -u shell' is meant to catch processes started from shell, so if there
       // are other ongoing tracing sessions started by others, we are not
       // killing them.
       const pid = await this.getPidFromShellAsString();
 
       if (pid.length === 0 || isNaN(Number(pid))) {
-        throw Error(`Perfetto pid not found. Impossible to stop/cancel the
+        throw Error(`DejaView pid not found. Impossible to stop/cancel the
      recording. Command output: ${pid}`);
       }
-      // Perfetto stops and finalizes the tracing session on SIGINT.
+      // DejaView stops and finalizes the tracing session on SIGINT.
       const killOutput = await this.adb.shellOutputAsString(
         `kill -SIGINT ${pid}`,
       );
 
       if (killOutput.length !== 0) {
-        throw Error(`Unable to kill perfetto: ${killOutput}`);
+        throw Error(`Unable to kill dejaview: ${killOutput}`);
       }
     } catch (e) {
       this.sendErrorMessage(e.message);
@@ -175,16 +175,16 @@ export class AdbConsumerPort extends AdbBaseConsumerPort {
 
   generateReadTraceCommand(): string {
     // We attempt to delete the trace file after tracing. On a non-root shell,
-    // this will fail (due to selinux denial), but perfetto cmd will be able to
+    // this will fail (due to selinux denial), but dejaview cmd will be able to
     // override the file later. However, on a root shell, we need to clean up
-    // the file since perfetto cmd might otherwise fail to override it in a
+    // the file since dejaview cmd might otherwise fail to override it in a
     // future session.
     return `gzip -c ${this.traceDestFile} && rm -f ${this.traceDestFile}`;
   }
 
   generateStartTracingCommand(tracingConfig: Uint8Array) {
     const configBase64 = base64Encode(tracingConfig);
-    const perfettoCmd = `perfetto -c - -o ${this.traceDestFile}`;
-    return `echo '${configBase64}' | base64 -d | ${perfettoCmd}`;
+    const dejaviewCmd = `dejaview -c - -o ${this.traceDestFile}`;
+    return `echo '${configBase64}' | base64 -d | ${dejaviewCmd}`;
   }
 }

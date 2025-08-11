@@ -23,19 +23,19 @@
 #include <array>
 #include <optional>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/tracing/core/data_source_config.h"
 
-#include "protos/perfetto/config/process_stats/process_stats_config.pbzero.h"
-#include "protos/perfetto/trace/ps/process_stats.pbzero.h"
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/config/process_stats/process_stats_config.pbzero.h"
+#include "protos/dejaview/trace/ps/process_stats.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 // The notion of PID in the Linux kernel is a bit confusing.
 // - PID: is really the thread id (for the main thread: PID == TID).
@@ -57,7 +57,7 @@
 // inaccurate in edge cases like wanting to know the primary thread's name
 // (comm) based on procfs alone.
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 int32_t ReadNextNumericDir(DIR* dirp) {
@@ -99,7 +99,7 @@ bool ParseNamespacedTids(const std::string& proc_status, Callback callback) {
   while (ss.Next()) {
     namespaced = true;
     std::optional<int32_t> nstid = base::CStringToInt32(ss.cur_token());
-    PERFETTO_DCHECK(nstid.has_value());
+    DEJAVIEW_DCHECK(nstid.has_value());
     callback(nstid.value_or(0));
   }
   return namespaced;
@@ -125,7 +125,7 @@ std::optional<ProcessRuntimes> ParseProcessRuntimes(
              "%*u %*u %*u %" SCNu64 " %" SCNu64 " %*d %*d %*d %*d %*d "
              "%*d %" SCNu64 "",
              &ret.utime, &ret.stime, &ret.starttime) != 3) {
-     PERFETTO_DLOG("empty or unexpected /proc/pid/stat contents");
+     DEJAVIEW_DLOG("empty or unexpected /proc/pid/stat contents");
      return std::nullopt;
    }
   // clang-format on
@@ -187,7 +187,7 @@ ProcessStatsDataSource::ProcessStatsDataSource(
 
   poll_period_ms_ = cfg.proc_stats_poll_ms();
   if (poll_period_ms_ > 0 && poll_period_ms_ < 100) {
-    PERFETTO_ILOG("proc_stats_poll_ms %" PRIu32
+    DEJAVIEW_ILOG("proc_stats_poll_ms %" PRIu32
                   " is less than minimum of 100ms. Increasing to 100ms.",
                   poll_period_ms_);
     poll_period_ms_ = 100;
@@ -219,8 +219,8 @@ base::WeakPtr<ProcessStatsDataSource> ProcessStatsDataSource::GetWeakPtr()
 }
 
 void ProcessStatsDataSource::WriteAllProcesses() {
-  PERFETTO_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_WRITE_ALL_PROCESSES);
-  PERFETTO_DCHECK(!cur_ps_tree_);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_WRITE_ALL_PROCESSES);
+  DEJAVIEW_DCHECK(!cur_ps_tree_);
 
   CacheProcFsScanStartTimestamp();
 
@@ -270,8 +270,8 @@ void ProcessStatsDataSource::OnPids(const base::FlatSet<int32_t>& pids) {
 
 void ProcessStatsDataSource::WriteProcessTree(
     const base::FlatSet<int32_t>& pids) {
-  PERFETTO_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_ON_PIDS);
-  PERFETTO_DCHECK(!cur_ps_tree_);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_ON_PIDS);
+  DEJAVIEW_DCHECK(!cur_ps_tree_);
   int pids_scanned = 0;
   for (int32_t pid : pids) {
     if (seen_pids_.count(pid) || pid == 0)
@@ -280,14 +280,14 @@ void ProcessStatsDataSource::WriteProcessTree(
     pids_scanned++;
   }
   FinalizeCurPacket();
-  PERFETTO_METATRACE_COUNTER(TAG_PROC_POLLERS, PS_PIDS_SCANNED, pids_scanned);
+  DEJAVIEW_METATRACE_COUNTER(TAG_PROC_POLLERS, PS_PIDS_SCANNED, pids_scanned);
 }
 
 void ProcessStatsDataSource::OnRenamePids(const base::FlatSet<int32_t>& pids) {
-  PERFETTO_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_ON_RENAME_PIDS);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_ON_RENAME_PIDS);
   if (!enable_on_demand_dumps_)
     return;
-  PERFETTO_DCHECK(!cur_ps_tree_);
+  DEJAVIEW_DCHECK(!cur_ps_tree_);
   for (int32_t pid : pids)
     seen_pids_.erase(pid);
 }
@@ -322,9 +322,9 @@ void ProcessStatsDataSource::OnFds(
 void ProcessStatsDataSource::Flush(FlushRequestID,
                                    std::function<void()> callback) {
   // We shouldn't get this in the middle of WriteAllProcesses() or OnPids().
-  PERFETTO_DCHECK(!cur_ps_tree_);
-  PERFETTO_DCHECK(!cur_ps_stats_);
-  PERFETTO_DCHECK(!cur_ps_stats_process_);
+  DEJAVIEW_DCHECK(!cur_ps_tree_);
+  DEJAVIEW_DCHECK(!cur_ps_stats_);
+  DEJAVIEW_DCHECK(!cur_ps_stats_process_);
   writer_->Flush(callback);
 }
 
@@ -349,7 +349,7 @@ void ProcessStatsDataSource::WriteProcessOrThread(int32_t pid) {
     WriteProcess(tgid, proc_status_tgid, proc_stat);
   }
   if (pid != tgid) {
-    PERFETTO_DCHECK(!seen_pids_.count(pid));
+    DEJAVIEW_DCHECK(!seen_pids_.count(pid));
     WriteDetailedThread(pid, tgid, proc_status);
   }
 }
@@ -358,10 +358,10 @@ void ProcessStatsDataSource::WriteProcessOrThread(int32_t pid) {
 bool ProcessStatsDataSource::WriteProcess(int32_t pid,
                                           const std::string& proc_status,
                                           const std::string& proc_stat) {
-  PERFETTO_DCHECK(ToInt32(ProcStatusEntry(proc_status, "Pid:")) == pid);
+  DEJAVIEW_DCHECK(ToInt32(ProcStatusEntry(proc_status, "Pid:")) == pid);
 
   // pid might've been reused for a non-main thread before our procfs read
-  if (PERFETTO_UNLIKELY(pid != ToInt32(ProcStatusEntry(proc_status, "Tgid:"))))
+  if (DEJAVIEW_UNLIKELY(pid != ToInt32(ProcStatusEntry(proc_status, "Tgid:"))))
     return false;
 
   protos::pbzero::ProcessTree::Process* proc =
@@ -435,7 +435,7 @@ const char* ProcessStatsDataSource::GetProcMountpoint() {
 base::ScopedDir ProcessStatsDataSource::OpenProcDir() {
   base::ScopedDir proc_dir(opendir(GetProcMountpoint()));
   if (!proc_dir)
-    PERFETTO_PLOG("Failed to opendir(%s)", GetProcMountpoint());
+    DEJAVIEW_PLOG("Failed to opendir(%s)", GetProcMountpoint());
   return proc_dir;
 }
 
@@ -489,8 +489,8 @@ ProcessStatsDataSource::GetOrCreateStatsProcess(int32_t pid) {
 }
 
 void ProcessStatsDataSource::FinalizeCurPacket() {
-  PERFETTO_DCHECK(!cur_ps_tree_ || cur_packet_);
-  PERFETTO_DCHECK(!cur_ps_stats_ || cur_packet_);
+  DEJAVIEW_DCHECK(!cur_ps_tree_ || cur_packet_);
+  DEJAVIEW_DCHECK(!cur_ps_stats_ || cur_packet_);
   uint64_t now = static_cast<uint64_t>(base::GetBootTimeNs().count());
   if (cur_ps_tree_) {
     cur_ps_tree_->set_collection_end_timestamp(now);
@@ -528,7 +528,7 @@ void ProcessStatsDataSource::Tick(
 
 void ProcessStatsDataSource::WriteAllProcessStats() {
   CacheProcFsScanStartTimestamp();
-  PERFETTO_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_WRITE_ALL_PROCESS_STATS);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PROC_POLLERS, PS_WRITE_ALL_PROCESS_STATS);
   base::ScopedDir proc_dir = OpenProcDir();
   if (!proc_dir)
     return;
@@ -766,7 +766,7 @@ void ProcessStatsDataSource::WriteFds(int32_t pid) {
   base::StackString<256> path("%s/%" PRId32 "/fd", GetProcMountpoint(), pid);
   base::ScopedDir proc_dir(opendir(path.c_str()));
   if (!proc_dir) {
-    PERFETTO_DPLOG("Failed to opendir(%s)", path.c_str());
+    DEJAVIEW_DPLOG("Failed to opendir(%s)", path.c_str());
     return;
   }
   while (struct dirent* dir_ent = readdir(*proc_dir)) {
@@ -794,7 +794,7 @@ void ProcessStatsDataSource::WriteSingleFd(int32_t pid, uint64_t fd) {
     fd_info->set_path(path.data(), static_cast<size_t>(actual));
     cached.seen_fds.insert(fd);
   } else if (ENOENT != errno) {
-    PERFETTO_DPLOG("Failed to readlink '%s'", proc_fd.c_str());
+    DEJAVIEW_DPLOG("Failed to readlink '%s'", proc_fd.c_str());
   }
 }
 
@@ -806,7 +806,7 @@ uint64_t ProcessStatsDataSource::CacheProcFsScanStartTimestamp() {
 }
 
 void ProcessStatsDataSource::ClearIncrementalState() {
-  PERFETTO_DLOG("ProcessStatsDataSource clearing incremental state.");
+  DEJAVIEW_DLOG("ProcessStatsDataSource clearing incremental state.");
   seen_pids_.clear();
   skip_mem_for_pids_.clear();
 
@@ -817,4 +817,4 @@ void ProcessStatsDataSource::ClearIncrementalState() {
   did_clear_incremental_state_ = true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

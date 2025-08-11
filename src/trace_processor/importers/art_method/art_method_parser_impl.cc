@@ -28,7 +28,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto::trace_processor::art_method {
+namespace dejaview::trace_processor::art_method {
 
 ArtMethodParserImpl::ArtMethodParserImpl(TraceProcessorContext* context)
     : context_(context),
@@ -59,4 +59,4 @@ void ArtMethodParserImpl::ParseArtMethodEvent(int64_t ts, ArtMethodEvent e) {
   }
 }
 
-}  // namespace perfetto::trace_processor::art_method
+}  // namespace dejaview::trace_processor::art_method

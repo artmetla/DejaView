@@ -12,19 +12,19 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
-import("../../../gn/perfetto_component.gni")
+import("../../../gn/dejaview.gni")
+import("../../../gn/dejaview_component.gni")
 import("../../../gn/test.gni")
 
-perfetto_component("http") {
+dejaview_component("http") {
   deps = [
     "..:base",
     "..:unix_socket",
     "../../../gn:default_deps",
   ]
   public_deps = [
-    "../../../include/perfetto/base",
-    "../../../include/perfetto/ext/base/http",
+    "../../../include/dejaview/base",
+    "../../../include/dejaview/ext/base/http",
   ]
   sources = [
     "http_server.cc",
@@ -32,7 +32,7 @@ perfetto_component("http") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":http",

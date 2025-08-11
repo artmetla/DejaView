@@ -25,26 +25,26 @@ import tempfile
 SOURCE_FILES = [
   {
     'files': [
-      'protos/perfetto/common/builtin_clock.proto',
-      'protos/perfetto/common/data_source_descriptor.proto',
-      'protos/perfetto/config/data_source_config.proto',
-      'protos/perfetto/config/trace_config.proto',
-      'protos/perfetto/config/track_event/track_event_config.proto',
-      'protos/perfetto/trace/android/android_track_event.proto',
-      'protos/perfetto/trace/clock_snapshot.proto',
-      'protos/perfetto/trace/interned_data/interned_data.proto',
-      'protos/perfetto/trace/test_event.proto',
-      'protos/perfetto/trace/trace.proto',
-      'protos/perfetto/trace/trace_packet.proto',
-      'protos/perfetto/trace/track_event/counter_descriptor.proto',
-      'protos/perfetto/trace/track_event/debug_annotation.proto',
-      'protos/perfetto/trace/track_event/track_descriptor.proto',
-      'protos/perfetto/trace/track_event/track_event.proto',
+      'protos/dejaview/common/builtin_clock.proto',
+      'protos/dejaview/common/data_source_descriptor.proto',
+      'protos/dejaview/config/data_source_config.proto',
+      'protos/dejaview/config/trace_config.proto',
+      'protos/dejaview/config/track_event/track_event_config.proto',
+      'protos/dejaview/trace/android/android_track_event.proto',
+      'protos/dejaview/trace/clock_snapshot.proto',
+      'protos/dejaview/trace/interned_data/interned_data.proto',
+      'protos/dejaview/trace/test_event.proto',
+      'protos/dejaview/trace/trace.proto',
+      'protos/dejaview/trace/trace_packet.proto',
+      'protos/dejaview/trace/track_event/counter_descriptor.proto',
+      'protos/dejaview/trace/track_event/debug_annotation.proto',
+      'protos/dejaview/trace/track_event/track_descriptor.proto',
+      'protos/dejaview/trace/track_event/track_event.proto',
     ],
-    'guard_strip_prefix': 'PROTOS_PERFETTO_',
-    'guard_add_prefix':'INCLUDE_PERFETTO_PUBLIC_PROTOS_',
-    'path_strip_prefix': 'protos/perfetto',
-    'path_add_prefix': 'perfetto/public/protos',
+    'guard_strip_prefix': 'PROTOS_DEJAVIEW_',
+    'guard_add_prefix':'INCLUDE_DEJAVIEW_PUBLIC_PROTOS_',
+    'path_strip_prefix': 'protos/dejaview',
+    'path_add_prefix': 'dejaview/public/protos',
     'include_prefix': 'include/',
   },
   {
@@ -139,10 +139,10 @@ def generate(source, outdir, protoc_path, protozero_c_plugin_path, guard_strip_p
 # returns the path where the header should go in the public include directory.
 # Example
 #
-# include_path_for("protos/perfetto/trace/trace.pzc.h") ==
-# "include/perfetto/public/protos/trace/trace.pzc.h"
+# include_path_for("protos/dejaview/trace/trace.pzc.h") ==
+# "include/dejaview/public/protos/trace/trace.pzc.h"
 def include_path_for(filename):
-  return os.path.join('include', 'perfetto', 'public', 'protos',
+  return os.path.join('include', 'dejaview', 'public', 'protos',
                       *pathlib.Path(transform_extension(filename)).parts[2:])
 
 

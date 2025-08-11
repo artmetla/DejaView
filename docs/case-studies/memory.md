@@ -168,13 +168,13 @@ NOTE: For detailed instructions about the memory trace points see the
       [Data sources > Memory > Counters and events](
       /docs/data-sources/memory-counters.md) page.
 
-We can use Perfetto to get information about memory management events from the
+We can use DejaView to get information about memory management events from the
 kernel.
 
 ```bash
-$ adb shell perfetto \
+$ adb shell dejaview \
   -c - --txt \
-  -o /data/misc/perfetto-traces/trace \
+  -o /data/misc/dejaview-traces/trace \
 <<EOF
 
 buffers: {
@@ -212,8 +212,8 @@ EOF
 
 While it is running, take a photo if you are following along.
 
-Pull the file using `adb pull /data/misc/perfetto-traces/trace ~/mem-trace`
-and upload to the [Perfetto UI](https://ui.perfetto.dev). This will show
+Pull the file using `adb pull /data/misc/dejaview-traces/trace ~/mem-trace`
+and upload to the [DejaView UI](https://ui.perfetto.dev). This will show
 overall stats about system [ION](#ion) usage, and per-process stats to
 expand. Scroll down (or Ctrl-F for) to `com.google.android.GoogleCamera` and
 expand. This will show a timeline for various memory stats for camera.
@@ -253,12 +253,12 @@ remain *cached* even after the user finishes using them. This is to make
 subsequent starts of the app faster. Such apps will generally be killed
 first (because they have a higher `oom_score_adj`).
 
-We can collect information about LMKs and `oom_score_adj` using Perfetto.
+We can collect information about LMKs and `oom_score_adj` using DejaView.
 
 ```protobuf
-$ adb shell perfetto \
+$ adb shell dejaview \
   -c - --txt \
-  -o /data/misc/perfetto-traces/trace \
+  -o /data/misc/dejaview-traces/trace \
 <<EOF
 
 buffers: {
@@ -294,8 +294,8 @@ duration_ms: 60000
 EOF
 ```
 
-Pull the file using `adb pull /data/misc/perfetto-traces/trace ~/oom-trace`
-and upload to the [Perfetto UI](https://ui.perfetto.dev).
+Pull the file using `adb pull /data/misc/dejaview-traces/trace ~/oom-trace`
+and upload to the [DejaView UI](https://ui.perfetto.dev).
 
 ![OOM Score](/docs/images/oom-score.png)
 
@@ -346,7 +346,7 @@ couple of apps.
 ### Viewing the data
 
 Then upload the `raw-trace` file from the output directory to the
-[Perfetto UI](https://ui.perfetto.dev) and click on diamond marker that
+[DejaView UI](https://ui.perfetto.dev) and click on diamond marker that
 shows.
 
 ![Profile Diamond](/docs/images/profile-diamond.png)
@@ -402,7 +402,7 @@ This can be viewed using https://ui.perfetto.dev.
 
 ### Viewing the Data
 
-Upload the trace to the [Perfetto UI](https://ui.perfetto.dev) and click on
+Upload the trace to the [DejaView UI](https://ui.perfetto.dev) and click on
 diamond marker that shows.
 
 ![Profile Diamond](/docs/images/profile-diamond.png)

@@ -21,11 +21,11 @@
 #include <cstdint>
 #include <memory>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/util/gzip_utils.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -53,6 +53,6 @@ class GzipTraceParser : public ChunkedTraceReader {
   enum { kStreamBoundary, kMidStream } output_state_ = kStreamBoundary;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_GZIP_GZIP_TRACE_PARSER_H_

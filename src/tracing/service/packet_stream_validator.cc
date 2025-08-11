@@ -20,13 +20,13 @@
 
 #include <cinttypes>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/proto_utils.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -44,7 +44,7 @@ const uint32_t kReservedFieldIds[] = {
 };
 
 // This translation unit is quite subtle and perf-sensitive. Remember to check
-// BM_PacketStreamValidator in perfetto_benchmarks when making changes.
+// BM_PacketStreamValidator in dejaview_benchmarks when making changes.
 
 // Checks that a packet, spread over several slices, is well-formed and doesn't
 // contain reserved top-level fields.
@@ -188,9 +188,9 @@ bool PacketStreamValidator::Validate(const Slices& slices) {
   if (skip_bytes == 0 && parser.valid())
     return true;
 
-  PERFETTO_DLOG("Packet validation error (state %d, skip = %zu)",
+  DEJAVIEW_DLOG("Packet validation error (state %d, skip = %zu)",
                 parser.state(), skip_bytes);
   return false;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

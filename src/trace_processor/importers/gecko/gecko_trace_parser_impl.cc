@@ -18,7 +18,7 @@
 
 #include <cstdint>
 
-#include "perfetto/base/compiler.h"
+#include "dejaview/base/compiler.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/importers/gecko/gecko_event.h"
@@ -26,7 +26,7 @@
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::gecko_importer {
+namespace dejaview::trace_processor::gecko_importer {
 
 namespace {
 
@@ -64,4 +64,4 @@ void GeckoTraceParserImpl::ParseGeckoEvent(int64_t ts, GeckoEvent evt) {
   }
 }
 
-}  // namespace perfetto::trace_processor::gecko_importer
+}  // namespace dejaview::trace_processor::gecko_importer

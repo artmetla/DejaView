@@ -15,7 +15,7 @@
 import {Trace} from '../../public/trace';
 import {App} from '../../public/app';
 import {MetricVisualisation} from '../../public/plugin';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {createStore, Store} from '../../base/store';
 
 interface State {
@@ -23,7 +23,7 @@ interface State {
 }
 
 // SKELETON: Rename this class to match your plugin.
-class Skeleton implements PerfettoPlugin {
+class Skeleton implements DejaViewPlugin {
   private store: Store<State> = createStore({foo: 'foo'});
 
   /**

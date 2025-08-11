@@ -21,7 +21,7 @@
 
 #include "src/traceconv/trace_to_systrace.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 int TraceToJson(std::istream* input,
@@ -31,6 +31,6 @@ int TraceToJson(std::istream* input,
                 bool full_sort);
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_TRACE_TO_JSON_H_

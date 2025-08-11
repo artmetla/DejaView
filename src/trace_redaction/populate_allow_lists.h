@@ -17,10 +17,10 @@
 #ifndef SRC_TRACE_REDACTION_POPULATE_ALLOW_LISTS_H_
 #define SRC_TRACE_REDACTION_POPULATE_ALLOW_LISTS_H_
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Populates the different allow-lists needed to remove data from the trace.
 // Configuration data in the context can be used to change the contents of the
@@ -30,6 +30,6 @@ class PopulateAllowlists final : public BuildPrimitive {
   base::Status Build(Context* context) const override;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_POPULATE_ALLOW_LISTS_H_

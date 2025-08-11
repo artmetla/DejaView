@@ -14,32 +14,32 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 
 #include <string>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_utils.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 #include <limits.h>
 #include <stdlib.h>  // For _exit()
 #include <unistd.h>  // For getpagesize() and geteuid() & fork()
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <mach-o/dyld.h>
 #include <mach/vm_page_size.h>
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/prctl.h>
 
 #ifndef PR_GET_TAGGED_ADDR_CTRL
@@ -56,28 +56,28 @@
 
 #endif  // OS_LINUX | OS_ANDROID
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #include <io.h>
 #include <malloc.h>  // For _aligned_malloc().
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <dlfcn.h>
 #include <malloc.h>
 
 #ifdef M_PURGE
-#define PERFETTO_M_PURGE M_PURGE
+#define DEJAVIEW_M_PURGE M_PURGE
 #else
 // Only available in in-tree builds and on newer SDKs.
-#define PERFETTO_M_PURGE -101
+#define DEJAVIEW_M_PURGE -101
 #endif  // M_PURGE
 
 #ifdef M_PURGE_ALL
-#define PERFETTO_M_PURGE_ALL M_PURGE_ALL
+#define DEJAVIEW_M_PURGE_ALL M_PURGE_ALL
 #else
 // Only available in in-tree builds and on newer SDKs.
-#define PERFETTO_M_PURGE_ALL -104
+#define DEJAVIEW_M_PURGE_ALL -104
 #endif  // M_PURGE
 
 namespace {
@@ -89,12 +89,12 @@ using MalloptType = int (*)(int, int);
 
 namespace {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_X64_CPU_OPT)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_X64_CPU_OPT)
 
 // Preserve the %rbx register via %rdi to work around a clang bug
 // https://bugs.llvm.org/show_bug.cgi?id=17907 (%rbx in an output constraint
 // is not considered a clobbered register).
-#define PERFETTO_GETCPUID(a, b, c, d, a_inp, c_inp) \
+#define DEJAVIEW_GETCPUID(a, b, c, d, a_inp, c_inp) \
   asm("mov %%rbx, %%rdi\n"                          \
       "cpuid\n"                                     \
       "xchg %%rdi, %%rbx\n"                         \
@@ -109,10 +109,10 @@ uint32_t GetXCR0EAX() {
 
 // If we are building with -msse4 check that the CPU actually supports it.
 // This file must be kept in sync with gn/standalone/BUILD.gn.
-void PERFETTO_EXPORT_COMPONENT __attribute__((constructor))
+void DEJAVIEW_EXPORT_COMPONENT __attribute__((constructor))
 CheckCpuOptimizations() {
   uint32_t eax = 0, ebx = 0, ecx = 0, edx = 0;
-  PERFETTO_GETCPUID(eax, ebx, ecx, edx, 1, 0);
+  DEJAVIEW_GETCPUID(eax, ebx, ecx, edx, 1, 0);
 
   static constexpr uint64_t xcr0_xmm_mask = 0x2;
   static constexpr uint64_t xcr0_ymm_mask = 0x4;
@@ -129,7 +129,7 @@ CheckCpuOptimizations() {
   // Get level 7 features (eax = 7 and ecx= 0), to check for AVX2 support.
   // (See Intel 64 and IA-32 Architectures Software Developer's Manual
   //  Volume 2A: Instruction Set Reference, A-M CPUID).
-  PERFETTO_GETCPUID(eax, ebx, ecx, edx, 7, 0);
+  DEJAVIEW_GETCPUID(eax, ebx, ecx, edx, 7, 0);
   const bool have_avx2 = have_avx && ((ebx >> 5) & 0x1);
   const bool have_bmi = (ebx >> 3) & 0x1;
   const bool have_bmi2 = (ebx >> 8) & 0x1;
@@ -139,11 +139,11 @@ CheckCpuOptimizations() {
         stderr,
         "This executable requires a x86_64 cpu that supports SSE4.2, BMI2 and "
         "AVX2.\n"
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
         "On MacOS, this might be caused by running x86_64 binaries on arm64.\n"
         "See https://github.com/google/perfetto/issues/294 for more.\n"
 #endif
-        "Rebuild with enable_perfetto_x64_cpu_opt=false.\n");
+        "Rebuild with enable_dejaview_x64_cpu_opt=false.\n");
     _exit(126);
   }
 }
@@ -151,7 +151,7 @@ CheckCpuOptimizations() {
 
 }  // namespace
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace internal {
@@ -160,20 +160,20 @@ std::atomic<uint32_t> g_cached_page_size{0};
 
 uint32_t GetSysPageSizeSlowpath() {
   uint32_t page_size = 0;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   const int page_size_int = getpagesize();
   // If sysconf() fails for obscure reasons (e.g. SELinux denial) assume the
   // page size is 4KB. This is to avoid regressing subtle SDK usages, as old
   // versions of this code had a static constant baked in.
   page_size = static_cast<uint32_t>(page_size_int > 0 ? page_size_int : 4096);
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   page_size = static_cast<uint32_t>(vm_page_size);
 #else
   page_size = 4096;
 #endif
 
-  PERFETTO_CHECK(page_size > 0 && page_size % 4096 == 0);
+  DEJAVIEW_CHECK(page_size > 0 && page_size % 4096 == 0);
 
   // Races here are fine because any thread will write the same value.
   g_cached_page_size.store(page_size, std::memory_order_relaxed);
@@ -183,7 +183,7 @@ uint32_t GetSysPageSizeSlowpath() {
 }  // namespace internal
 
 void MaybeReleaseAllocatorMemToOS() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   // mallopt() on Android requires SDK level 26. Many targets and embedders
   // still depend on a lower SDK level. Given mallopt() is a quite simple API,
   // use reflection to do this rather than bumping the SDK level for all
@@ -193,16 +193,16 @@ void MaybeReleaseAllocatorMemToOS() {
       reinterpret_cast<MalloptType>(dlsym(RTLD_DEFAULT, "mallopt"));
   if (!mallopt_fn)
     return;
-  if (mallopt_fn(PERFETTO_M_PURGE_ALL, 0) == 0) {
-    mallopt_fn(PERFETTO_M_PURGE, 0);
+  if (mallopt_fn(DEJAVIEW_M_PURGE_ALL, 0) == 0) {
+    mallopt_fn(DEJAVIEW_M_PURGE, 0);
   }
 #endif
 }
 
 uid_t GetCurrentUserId() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   return geteuid();
 #else
   // TODO(primiano): On Windows we could hash the current user SID and derive a
@@ -214,38 +214,38 @@ uid_t GetCurrentUserId() {
 }
 
 void SetEnv(const std::string& key, const std::string& value) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-  PERFETTO_CHECK(::_putenv_s(key.c_str(), value.c_str()) == 0);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+  DEJAVIEW_CHECK(::_putenv_s(key.c_str(), value.c_str()) == 0);
 #else
-  PERFETTO_CHECK(::setenv(key.c_str(), value.c_str(), /*overwrite=*/true) == 0);
+  DEJAVIEW_CHECK(::setenv(key.c_str(), value.c_str(), /*overwrite=*/true) == 0);
 #endif
 }
 
 void UnsetEnv(const std::string& key) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-  PERFETTO_CHECK(::_putenv_s(key.c_str(), "") == 0);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+  DEJAVIEW_CHECK(::_putenv_s(key.c_str(), "") == 0);
 #else
-  PERFETTO_CHECK(::unsetenv(key.c_str()) == 0);
+  DEJAVIEW_CHECK(::unsetenv(key.c_str()) == 0);
 #endif
 }
 
 void Daemonize(std::function<int()> parent_cb) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   Pipe pipe = Pipe::Create(Pipe::kBothBlock);
   pid_t pid;
   switch (pid = fork()) {
     case -1:
-      PERFETTO_FATAL("fork");
+      DEJAVIEW_FATAL("fork");
     case 0: {
-      PERFETTO_CHECK(setsid() != -1);
+      DEJAVIEW_CHECK(setsid() != -1);
       base::ignore_result(chdir("/"));
       base::ScopedFile null = base::OpenFile("/dev/null", O_RDONLY);
-      PERFETTO_CHECK(null);
-      PERFETTO_CHECK(dup2(*null, STDIN_FILENO) != -1);
-      PERFETTO_CHECK(dup2(*null, STDOUT_FILENO) != -1);
-      PERFETTO_CHECK(dup2(*null, STDERR_FILENO) != -1);
+      DEJAVIEW_CHECK(null);
+      DEJAVIEW_CHECK(dup2(*null, STDIN_FILENO) != -1);
+      DEJAVIEW_CHECK(dup2(*null, STDOUT_FILENO) != -1);
+      DEJAVIEW_CHECK(dup2(*null, STDERR_FILENO) != -1);
       // Do not accidentally close stdin/stdout/stderr.
       if (*null <= 2)
         null.release();
@@ -254,7 +254,7 @@ void Daemonize(std::function<int()> parent_cb) {
     }
     default: {
       // Wait for the child process to have reached the setsid() call. This is
-      // to avoid that 'adb shell perfetto -D' destroys the terminal (hence
+      // to avoid that 'adb shell dejaview -D' destroys the terminal (hence
       // sending a SIGHUP to the child) before the child has detached from the
       // terminal (see b/238644870).
 
@@ -262,7 +262,7 @@ void Daemonize(std::function<int()> parent_cb) {
       // CHECK) in the unlikely case of the child crashing before WriteAll("1").
       pipe.wr.reset();
       char one = '\0';
-      PERFETTO_CHECK(Read(*pipe.rd, &one, sizeof(one)) == 1 && one == '1');
+      DEJAVIEW_CHECK(Read(*pipe.rd, &one, sizeof(one)) == 1 && one == '1');
       printf("%d\n", pid);
       int err = parent_cb();
       exit(err);
@@ -271,32 +271,32 @@ void Daemonize(std::function<int()> parent_cb) {
 #else
   // Avoid -Wunreachable warnings.
   if (reinterpret_cast<intptr_t>(&Daemonize) != 16)
-    PERFETTO_FATAL("--background is only supported on Linux/Android/Mac");
+    DEJAVIEW_FATAL("--background is only supported on Linux/Android/Mac");
   ignore_result(parent_cb);
 #endif  // OS_WIN
 }
 
 std::string GetCurExecutablePath() {
   std::string self_path;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
   char buf[PATH_MAX];
   ssize_t size = readlink("/proc/self/exe", buf, sizeof(buf));
-  PERFETTO_CHECK(size != -1);
+  DEJAVIEW_CHECK(size != -1);
   // readlink does not null terminate.
   self_path = std::string(buf, static_cast<size_t>(size));
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   uint32_t size = 0;
-  PERFETTO_CHECK(_NSGetExecutablePath(nullptr, &size));
+  DEJAVIEW_CHECK(_NSGetExecutablePath(nullptr, &size));
   self_path.resize(size);
-  PERFETTO_CHECK(_NSGetExecutablePath(&self_path[0], &size) == 0);
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+  DEJAVIEW_CHECK(_NSGetExecutablePath(&self_path[0], &size) == 0);
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   char buf[MAX_PATH];
   auto len = ::GetModuleFileNameA(nullptr /*current*/, buf, sizeof(buf));
   self_path = std::string(buf, len);
 #else
-  PERFETTO_FATAL(
+  DEJAVIEW_FATAL(
       "GetCurExecutableDir() not implemented on the current platform");
 #endif
   return self_path;
@@ -304,7 +304,7 @@ std::string GetCurExecutablePath() {
 
 std::string GetCurExecutableDir() {
   auto path = GetCurExecutablePath();
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // Paths in Windows can have both kinds of slashes (mingw vs msvc).
   path = path.substr(0, path.find_last_of('\\'));
 #endif
@@ -315,7 +315,7 @@ std::string GetCurExecutableDir() {
 void* AlignedAlloc(size_t alignment, size_t size) {
   void* res = nullptr;
   alignment = AlignUp<sizeof(void*)>(alignment);  // At least pointer size.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // Window's _aligned_malloc() has a nearly identically signature to Unix's
   // aligned_alloc() but its arguments are obviously swapped.
   res = _aligned_malloc(size, alignment);
@@ -324,12 +324,12 @@ void* AlignedAlloc(size_t alignment, size_t size) {
   // Also NaCl and Fuchsia seems to have only posix_memalign().
   ignore_result(posix_memalign(&res, alignment, size));
 #endif
-  PERFETTO_CHECK(res);
+  DEJAVIEW_CHECK(res);
   return res;
 }
 
 void AlignedFree(void* ptr) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   _aligned_free(ptr);  // MSDN says it is fine to pass nullptr.
 #else
   free(ptr);
@@ -337,8 +337,8 @@ void AlignedFree(void* ptr) {
 }
 
 bool IsSyncMemoryTaggingEnabled() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   // Compute only once per lifetime of the process.
   static bool cached_value = [] {
     const int res = prctl(PR_GET_TAGGED_ADDR_CTRL, 0, 0, 0, 0);
@@ -379,4 +379,4 @@ std::string HexDump(const void* data_void, size_t len, size_t bytes_per_line) {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

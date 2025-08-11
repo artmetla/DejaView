@@ -21,7 +21,7 @@
 #include "src/trace_processor/importers/json/json_utils.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -274,4 +274,4 @@ TEST(JsonTraceTokenizerTest, ExtractValueForJsonKey) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

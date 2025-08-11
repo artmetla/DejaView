@@ -21,13 +21,13 @@
 #include <optional>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos::pbzero {
 class TraceConfig_Decoder;
@@ -79,7 +79,7 @@ class ModuleResult {
   const std::string& message() const { return *error_; }
 
   base::Status ToStatus() const {
-    PERFETTO_DCHECK(!ignored_);
+    DEJAVIEW_DCHECK(!ignored_);
     if (error_)
       return base::Status(*error_);
     return base::OkStatus();
@@ -149,6 +149,6 @@ class ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROTO_IMPORTER_MODULE_H_

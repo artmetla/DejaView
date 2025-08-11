@@ -21,16 +21,16 @@
 
 #include <algorithm>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/traced/probes/ftrace/event_info.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/generic.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/generic.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -49,7 +49,7 @@ ProtoTranslationTable::FtracePageHeaderSpec MakeFtracePageHeaderSpec(
     else if (name == "overwrite")
       spec.overwrite = field;
     else if (name != "data")
-      PERFETTO_DFATAL("Invalid field in header spec: %s", name.c_str());
+      DEJAVIEW_DFATAL("Invalid field in header spec: %s", name.c_str());
   }
   return spec;
 }
@@ -61,7 +61,7 @@ ProtoTranslationTable::FtracePageHeaderSpec MakeFtracePageHeaderSpec(
 // matches the userspace bitness.
 ProtoTranslationTable::FtracePageHeaderSpec GuessFtracePageHeaderSpec() {
   ProtoTranslationTable::FtracePageHeaderSpec spec{};
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && defined(__i386__)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && defined(__i386__)
   // local_t is arch-specific and models the largest size of an integer that is
   // still atomic across bus transactions, exceptions and IRQ. On android x86
   // this is always size 8
@@ -115,16 +115,16 @@ const std::deque<Event> BuildEventsDeque(const std::vector<Event>& events) {
 bool MergeFieldInfo(const FtraceEvent::Field& ftrace_field,
                     Field* field,
                     const char* event_name_for_debug) {
-  PERFETTO_DCHECK(field->ftrace_name);
-  PERFETTO_DCHECK(field->proto_field_id);
-  PERFETTO_DCHECK(static_cast<int>(field->proto_field_type));
-  PERFETTO_DCHECK(!field->ftrace_offset);
-  PERFETTO_DCHECK(!field->ftrace_size);
-  PERFETTO_DCHECK(!field->ftrace_type);
+  DEJAVIEW_DCHECK(field->ftrace_name);
+  DEJAVIEW_DCHECK(field->proto_field_id);
+  DEJAVIEW_DCHECK(static_cast<int>(field->proto_field_type));
+  DEJAVIEW_DCHECK(!field->ftrace_offset);
+  DEJAVIEW_DCHECK(!field->ftrace_size);
+  DEJAVIEW_DCHECK(!field->ftrace_type);
 
   if (!InferFtraceType(ftrace_field.type_and_name, ftrace_field.size,
                        ftrace_field.is_signed, &field->ftrace_type)) {
-    PERFETTO_DFATAL(
+    DEJAVIEW_DFATAL(
         "Failed to infer ftrace field type for \"%s.%s\" (type:\"%s\" "
         "size:%d "
         "signed:%d)",
@@ -139,13 +139,13 @@ bool MergeFieldInfo(const FtraceEvent::Field& ftrace_field,
 
   if (!SetTranslationStrategy(field->ftrace_type, field->proto_field_type,
                               &field->strategy)) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Failed to find translation strategy for ftrace field \"%s.%s\" (%s -> "
         "%s)",
         event_name_for_debug, field->ftrace_name, ToString(field->ftrace_type),
         protozero::proto_utils::ProtoSchemaToString(field->proto_field_type));
     // TODO(hjd): Uncomment DCHECK when proto generation is fixed.
-    // PERFETTO_DFATAL("Failed to find translation strategy");
+    // DEJAVIEW_DFATAL("Failed to find translation strategy");
     return false;
   }
 
@@ -202,7 +202,7 @@ bool Match(const char* string, const char* pattern) {
   regex_t re;
   int ret = regcomp(&re, pattern, REG_EXTENDED | REG_NOSUB);
   if (ret != 0) {
-    PERFETTO_FATAL("regcomp: %s", RegexError(ret, &re).c_str());
+    DEJAVIEW_FATAL("regcomp: %s", RegexError(ret, &re).c_str());
   }
   ret = regexec(&re, string, 0, nullptr, 0);
   regfree(&re);
@@ -245,7 +245,7 @@ void SetProtoType(FtraceFieldType ftrace_type,
       *proto_field_id = GenericFtraceEvent::Field::kUintValueFieldNumber;
       break;
     case kInvalidFtraceFieldType:
-      PERFETTO_FATAL("Unexpected ftrace field type");
+      DEJAVIEW_FATAL("Unexpected ftrace field type");
   }
 }
 
@@ -280,7 +280,7 @@ bool InferFtraceType(const std::string& type_and_name,
   // TODO(fmayer): Handle u32[], u8[], __u8[] as well.
   if (Contains(type_and_name, "__data_loc char[] ")) {
     if (size != 4) {
-      PERFETTO_ELOG("__data_loc with incorrect size: %s (%zd)",
+      DEJAVIEW_ELOG("__data_loc with incorrect size: %s (%zd)",
                     type_and_name.c_str(), size);
       return false;
     }
@@ -393,7 +393,7 @@ bool InferFtraceType(const std::string& type_and_name,
     return true;
   }
 
-  PERFETTO_DLOG("Could not infer ftrace type for '%s'", type_and_name.c_str());
+  DEJAVIEW_DLOG("Could not infer ftrace type for '%s'", type_and_name.c_str());
   return false;
 }
 
@@ -406,7 +406,7 @@ ProtoTranslationTable::DefaultPageHeaderSpecForTesting() {
 	field: int overwrite;	offset:8;	size:1;	signed:1;
 	field: char data;	offset:16;	size:4080;	signed:0;)";
   std::vector<FtraceEvent::Field> page_header_fields;
-  PERFETTO_CHECK(ParseFtraceEventBody(std::move(page_header), nullptr,
+  DEJAVIEW_CHECK(ParseFtraceEventBody(std::move(page_header), nullptr,
                                       &page_header_fields));
   return MakeFtracePageHeaderSpec(page_header_fields);
 }
@@ -430,7 +430,7 @@ std::unique_ptr<ProtoTranslationTable> ProtoTranslationTable::Create(
   }
 
   if (!ftrace_header_parsed) {
-    PERFETTO_LOG("Failed to parse ftrace page header, using fallback layout");
+    DEJAVIEW_LOG("Failed to parse ftrace page header, using fallback layout");
     header_spec = GuessFtracePageHeaderSpec();
   }
 
@@ -439,10 +439,10 @@ std::unique_ptr<ProtoTranslationTable> ProtoTranslationTable::Create(
         protos::pbzero::FtraceEvent::kGenericFieldNumber) {
       continue;
     }
-    PERFETTO_DCHECK(event.name);
-    PERFETTO_DCHECK(event.group);
-    PERFETTO_DCHECK(event.proto_field_id);
-    PERFETTO_DCHECK(!event.ftrace_event_id);
+    DEJAVIEW_DCHECK(event.name);
+    DEJAVIEW_DCHECK(event.group);
+    DEJAVIEW_DCHECK(event.proto_field_id);
+    DEJAVIEW_DCHECK(!event.ftrace_event_id);
 
     std::string contents =
         ftrace_procfs->ReadEventFormat(event.group, event.name);
@@ -595,7 +595,7 @@ uint16_t ProtoTranslationTable::CreateGenericEventField(
   uint16_t field_end = ftrace_field.offset + ftrace_field.size;
   std::string field_name = GetNameFromTypeAndName(ftrace_field.type_and_name);
   if (field_name.empty()) {
-    PERFETTO_DLOG("Field: %s could not be added to the generic event.",
+    DEJAVIEW_DLOG("Field: %s could not be added to the generic event.",
                   ftrace_field.type_and_name.c_str());
     return field_end;
   }
@@ -604,7 +604,7 @@ uint16_t ProtoTranslationTable::CreateGenericEventField(
   field->ftrace_name = InternString(field_name);
   if (!InferFtraceType(ftrace_field.type_and_name, ftrace_field.size,
                        ftrace_field.is_signed, &field->ftrace_type)) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Failed to infer ftrace field type for \"%s.%s\" (type:\"%s\" "
         "size:%d "
         "signed:%d)",
@@ -621,7 +621,7 @@ uint16_t ProtoTranslationTable::CreateGenericEventField(
   // translation strategy.
   bool success = SetTranslationStrategy(
       field->ftrace_type, field->proto_field_type, &field->strategy);
-  PERFETTO_DCHECK(success);
+  DEJAVIEW_DCHECK(success);
   return field_end;
 }
 
@@ -667,4 +667,4 @@ void EventFilter::EnableEventsFrom(const EventFilter& other) {
 
 ProtoTranslationTable::~ProtoTranslationTable() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

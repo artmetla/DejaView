@@ -223,7 +223,7 @@ class ColumnSerializer:
     if self.is_ancestor:
       return None
     return f'''
-    PERFETTO_DCHECK({self.name}.size() == parent_overlay.size());
+    DEJAVIEW_DCHECK({self.name}.size() == parent_overlay.size());
     {self.name}_ = std::move({self.name});
     '''
 
@@ -430,7 +430,7 @@ class TableSerializer(object):
     return columns;
   }}
 
-  PERFETTO_NO_INLINE explicit {self.table_name}(StringPool* pool{parent_param})
+  DEJAVIEW_NO_INLINE explicit {self.table_name}(StringPool* pool{parent_param})
       : macros_internal::MacroTable(
           pool,
           GetColumns(this, {parent_arg}),
@@ -738,9 +738,9 @@ def serialize_header(ifdef_guard: str, tables: List[ParsedTable],
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
@@ -764,11 +764,11 @@ def serialize_header(ifdef_guard: str, tables: List[ParsedTable],
 
 {include_paths_str}
 
-namespace perfetto::trace_processor::tables {{
+namespace dejaview::trace_processor::tables {{
 
 {tables_str.strip()}
 
-}}  // namespace perfetto
+}}  // namespace dejaview
 
 #endif  // {ifdef_guard}
   '''.strip()

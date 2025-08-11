@@ -16,7 +16,7 @@
 
 DROP VIEW IF EXISTS chrome_slice_names_output;
 
-CREATE PERFETTO VIEW chrome_slice_names_output AS
+CREATE DEJAVIEW VIEW chrome_slice_names_output AS
 SELECT ChromeSliceNames(
   'chrome_version_code', (
     SELECT RepeatedField(int_value)

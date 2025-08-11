@@ -23,11 +23,11 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/profiler_util.h"
 
-#include "protos/perfetto/trace/profiling/deobfuscation.pbzero.h"
-#include "protos/perfetto/trace/profiling/heap_graph.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/profiling/deobfuscation.pbzero.h"
+#include "protos/dejaview/trace/profiling/heap_graph.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -60,7 +60,7 @@ bool ForEachVarInt(const T& decoder, F fn) {
 
 }  // namespace
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 HeapGraphModule::HeapGraphModule(TraceProcessorContext* context)
     : context_(context) {
@@ -254,7 +254,7 @@ void HeapGraphModule::DeobfuscateClass(
       class_ref.set_deobfuscated_name(deobfuscated_type_name_id);
     }
   } else {
-    PERFETTO_DLOG("Class %s not found",
+    DEJAVIEW_DLOG("Class %s not found",
                   cls.obfuscated_name().ToStdString().c_str());
   }
 }
@@ -277,7 +277,7 @@ void HeapGraphModule::ParseDeobfuscationMapping(protozero::ConstBytes blob) {
     auto obfuscated_class_name_id =
         context_->storage->string_pool().GetId(cls.obfuscated_name());
     if (!obfuscated_class_name_id) {
-      PERFETTO_DLOG("Class string %s not found",
+      DEJAVIEW_DLOG("Class string %s not found",
                     cls.obfuscated_name().ToStdString().c_str());
     } else {
       // TODO(b/153552977): Remove this work-around for legacy traces.
@@ -300,7 +300,7 @@ void HeapGraphModule::ParseDeobfuscationMapping(protozero::ConstBytes blob) {
       auto obfuscated_field_name_id = context_->storage->string_pool().GetId(
           base::StringView(merged_obfuscated));
       if (!obfuscated_field_name_id) {
-        PERFETTO_DLOG("Field string %s not found", merged_obfuscated.c_str());
+        DEJAVIEW_DLOG("Field string %s not found", merged_obfuscated.c_str());
         continue;
       }
 
@@ -314,7 +314,7 @@ void HeapGraphModule::ParseDeobfuscationMapping(protozero::ConstBytes blob) {
           row_ref.set_deobfuscated_field_name(interned_deobfuscated_name);
         }
       } else {
-        PERFETTO_DLOG("Field %s not found", merged_obfuscated.c_str());
+        DEJAVIEW_DLOG("Field %s not found", merged_obfuscated.c_str());
       }
     }
   }
@@ -326,4 +326,4 @@ void HeapGraphModule::NotifyEndOfFile() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

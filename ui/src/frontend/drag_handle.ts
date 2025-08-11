@@ -118,7 +118,7 @@ export class DragHandle implements m.ClassComponent<DragHandleAttrs> {
       ),
     );
     const cmd = globals.commandManager.registerCommand({
-      id: 'perfetto.ToggleDrawer',
+      id: 'dejaview.ToggleDrawer',
       name: 'Toggle drawer',
       defaultHotkey: 'Q',
       callback: () => {

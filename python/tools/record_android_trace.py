@@ -28,9 +28,9 @@ import sys
 import time
 import webbrowser
 
-from perfetto.prebuilts.manifests.tracebox import *
-from perfetto.prebuilts.perfetto_prebuilts import *
-from perfetto.common.repo_utils import *
+from dejaview.prebuilts.manifests.tracebox import *
+from dejaview.prebuilts.dejaview_prebuilts import *
+from dejaview.common.repo_utils import *
 
 # This is not required. It's only used as a fallback if no adb is found on the
 # PATH. It's fine if it doesn't exist so this script can be copied elsewhere.
@@ -168,8 +168,8 @@ def setup_arguments():
 
   help = ('Pass the trace through the trace reporter API. Only works when '
           'using the full trace config (-c) with the reporter package name '
-          "'android.perfetto.cts.reporter' and the reporter class name "
-          "'android.perfetto.cts.reporter.PerfettoReportService' with the "
+          "'android.dejaview.cts.reporter' and the reporter class name "
+          "'android.dejaview.cts.reporter.DejaViewReportService' with the "
           'reporter installed on the device (see '
           'tools/install_test_reporter_app.py).')
   grp.add_argument('--reporter-api', action='store_true', help=help)
@@ -226,11 +226,11 @@ signal.signal(signal.SIGTERM, signal_handler)
 
 
 def start_trace(args, print_log=True):
-  perfetto_cmd = 'perfetto'
-  device_dir = '/data/misc/perfetto-traces/'
+  dejaview_cmd = 'dejaview'
+  device_dir = '/data/misc/dejaview-traces/'
 
   # Check the version of android. If too old (< Q) sideload tracebox. Also use
-  # use /data/local/tmp as /data/misc/perfetto-traces was introduced only later.
+  # use /data/local/tmp as /data/misc/dejaview-traces was introduced only later.
   probe_cmd = 'getprop ro.build.version.sdk; getprop ro.product.cpu.abi; whoami'
   probe = adb('shell', probe_cmd, stdout=subprocess.PIPE)
   lines = probe.communicate()[0].decode().strip().split('\n')
@@ -248,11 +248,11 @@ def start_trace(args, print_log=True):
   if api_level < 29 or args.sideload:  # 29: Android Q.
     tracebox_bin = args.sideload_path
     if tracebox_bin is None:
-      tracebox_bin = get_perfetto_prebuilt(
+      tracebox_bin = get_dejaview_prebuilt(
           TRACEBOX_MANIFEST, arch='android-' + arch)
-    perfetto_cmd = '/data/local/tmp/tracebox'
-    exit_code = adb('push', '--sync', tracebox_bin, perfetto_cmd).wait()
-    exit_code |= adb('shell', 'chmod 755 ' + perfetto_cmd).wait()
+    dejaview_cmd = '/data/local/tmp/tracebox'
+    exit_code = adb('push', '--sync', tracebox_bin, dejaview_cmd).wait()
+    exit_code |= adb('shell', 'chmod 755 ' + dejaview_cmd).wait()
     if exit_code != 0:
       prt('ADB push failed', ANSI.RED)
       sys.exit(1)
@@ -267,7 +267,7 @@ def start_trace(args, print_log=True):
   fname = '%s-%s.pftrace' % (tstamp, os.urandom(3).hex())
   device_file = device_dir + fname
 
-  cmd = [perfetto_cmd, '--background']
+  cmd = [dejaview_cmd, '--background']
   if not args.bin:
     cmd.append('--txt')
 
@@ -278,7 +278,7 @@ def start_trace(args, print_log=True):
     # Remove all old reporter files to avoid polluting the file we will extract
     # later.
     adb('shell',
-        'rm /sdcard/Android/data/android.perfetto.cts.reporter/files/*').wait()
+        'rm /sdcard/Android/data/android.dejaview.cts.reporter/files/*').wait()
     cmd.append('--upload')
   else:
     cmd.extend(['-o', device_file])
@@ -340,21 +340,21 @@ def start_trace(args, print_log=True):
     #   1234  <-- The actual pid we want.
     match = re.search(r'^(\d+)$', proc_out, re.M)
     if match is None:
-      prt('Failed to read the pid from perfetto --background', ANSI.RED)
+      prt('Failed to read the pid from dejaview --background', ANSI.RED)
       prt(proc_out)
       sys.exit(1)
     bg_pid = match.group(1)
     exit_code = proc.wait()
 
   if exit_code != 0:
-    prt('Perfetto invocation failed', ANSI.RED)
+    prt('DejaView invocation failed', ANSI.RED)
     sys.exit(1)
 
   prt('Trace started. Press CTRL+C to stop', ANSI.BLACK + ANSI.BG_BLUE)
   log_level = "-v"
   if not print_log:
     log_level = "-e"
-  logcat = adb('logcat', log_level, 'brief', '-s', 'perfetto', '-b', 'main',
+  logcat = adb('logcat', log_level, 'brief', '-s', 'dejaview', '-b', 'main',
                '-T', '1')
 
   ctrl_c_count = 0
@@ -371,7 +371,7 @@ def start_trace(args, print_log=True):
       if poll_res == 'TERM':
         break  # Process terminated
       if poll_res == 'RUN':
-        # The 'perfetto' cmdline client is still running. If previously we had
+        # The 'dejaview' cmdline client is still running. If previously we had
         # an ADB error, tell the user now it's all right again.
         if adb_failure_count > 0:
           adb_failure_count = 0
@@ -403,7 +403,7 @@ def start_trace(args, print_log=True):
 
     ret = adb(
         'shell',
-        'cp /sdcard/Android/data/android.perfetto.cts.reporter/files/* ' +
+        'cp /sdcard/Android/data/android.dejaview.cts.reporter/files/* ' +
         device_file).wait()
     if ret != 0:
       prt('Failed to extract reporter trace', ANSI.RED)

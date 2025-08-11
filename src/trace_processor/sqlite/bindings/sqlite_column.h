@@ -22,7 +22,7 @@
 
 #include "src/trace_processor/sqlite/bindings/sqlite_type.h"
 
-namespace perfetto::trace_processor::sqlite::column {
+namespace dejaview::trace_processor::sqlite::column {
 
 // This file contains wraps the SQLite functions which operate on stmt
 // columns and start with sqlite3_column_*.
@@ -66,6 +66,6 @@ inline int BindPointer(sqlite3_stmt* stmt,
   return sqlite3_bind_pointer(stmt, static_cast<int>(N), ptr, name, destructor);
 }
 
-}  // namespace perfetto::trace_processor::sqlite::column
+}  // namespace dejaview::trace_processor::sqlite::column
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_COLUMN_H_

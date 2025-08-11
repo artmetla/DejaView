@@ -14,7 +14,7 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.startup.startups;
+INCLUDE DEJAVIEW MODULE android.startup.startups;
 
 -- Create the base CPU span join table.
 SELECT RUN_METRIC('android/android_cpu_agg.sql');
@@ -24,12 +24,12 @@ SELECT RUN_METRIC('android/cpu_info.sql');
 -- being span joined have an "id" column, we need to rename
 -- the id column for launches to disambiguate the two.
 DROP VIEW IF EXISTS android_launches_span_join_safe;
-CREATE PERFETTO VIEW android_launches_span_join_safe AS
+CREATE DEJAVIEW VIEW android_launches_span_join_safe AS
 SELECT ts, dur, startup_id
 FROM android_startups;
 
 DROP VIEW IF EXISTS launches_span_join_safe;
-CREATE PERFETTO VIEW launches_span_join_safe AS
+CREATE DEJAVIEW VIEW launches_span_join_safe AS
 SELECT startup_id AS launch_id, * FROM android_launches_span_join_safe;
 
 -- Span join the CPU table with the launches table to get the
@@ -43,7 +43,7 @@ USING SPAN_JOIN(
 
 -- Materialized to avoid span-joining once per core type.
 DROP TABLE IF EXISTS mcycles_per_core_type_per_launch;
-CREATE PERFETTO TABLE mcycles_per_core_type_per_launch AS
+CREATE DEJAVIEW TABLE mcycles_per_core_type_per_launch AS
 SELECT
   startup_id,
   IFNULL(core_type_per_cpu.core_type, 'unknown') AS core_type,
@@ -55,7 +55,7 @@ GROUP BY 1, 2;
 
 -- Given a launch id and core type, returns the number of mcycles consumed
 -- on CPUs of that core type during the launch.
-CREATE OR REPLACE PERFETTO FUNCTION mcycles_for_launch_and_core_type(startup_id INT, core_type STRING)
+CREATE OR REPLACE DEJAVIEW FUNCTION mcycles_for_launch_and_core_type(startup_id INT, core_type STRING)
 RETURNS INT AS
 SELECT mcycles
 FROM mcycles_per_core_type_per_launch m
@@ -65,7 +65,7 @@ WHERE m.startup_id = $startup_id AND m.core_type = $core_type;
 -- *excluding the process being started*.
 -- Materialized to avoid span-joining once per launch.
 DROP TABLE IF EXISTS top_mcyles_process_excluding_started_per_launch;
-CREATE PERFETTO TABLE top_mcyles_process_excluding_started_per_launch AS
+CREATE DEJAVIEW TABLE top_mcyles_process_excluding_started_per_launch AS
 WITH mcycles_per_launch_and_process AS MATERIALIZED (
   SELECT
     startup_id,
@@ -93,7 +93,7 @@ WHERE mcycles_rank <= 5;
 
 -- Given a launch id, returns the name of the processes consuming the most
 -- mcycles during the launch excluding the process being started.
-CREATE OR REPLACE PERFETTO FUNCTION n_most_active_process_names_for_launch(startup_id INT)
+CREATE OR REPLACE DEJAVIEW FUNCTION n_most_active_process_names_for_launch(startup_id INT)
 RETURNS STRING AS
 SELECT RepeatedField(process_name)
 FROM (
@@ -105,7 +105,7 @@ FROM (
 );
 
 -- Given a launch id, returns the most active process name.
-CREATE OR REPLACE PERFETTO FUNCTION most_active_process_for_launch(startup_id INT)
+CREATE OR REPLACE DEJAVIEW FUNCTION most_active_process_for_launch(startup_id INT)
 RETURNS STRING AS
 SELECT process.name AS process_name
 FROM top_mcyles_process_excluding_started_per_launch

@@ -19,13 +19,13 @@ from python.generators.diff_tests.testing import DiffTestBlueprint
 from python.generators.diff_tests.testing import TestSuite
 
 
-class PerfettoView(TestSuite):
+class DejaViewView(TestSuite):
 
   def test_create_view(self):
     return DiffTestBlueprint(
         trace=TextProto(r''),
         query="""
-        CREATE PERFETTO VIEW foo AS SELECT 42 as a;
+        CREATE DEJAVIEW VIEW foo AS SELECT 42 as a;
 
         SELECT * FROM foo;
         """,
@@ -38,8 +38,8 @@ class PerfettoView(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(r''),
         query="""
-        CREATE PERFETTO VIEW Foo AS SELECT 42 as a;
-        CREATE OR REPLACE PERFETTO VIEW Foo AS SELECT 43 as a;
+        CREATE DEJAVIEW VIEW Foo AS SELECT 42 as a;
+        CREATE OR REPLACE DEJAVIEW VIEW Foo AS SELECT 43 as a;
 
         SELECT * FROM foo;
         """,

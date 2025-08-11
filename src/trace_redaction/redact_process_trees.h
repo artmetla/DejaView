@@ -17,14 +17,14 @@
 #ifndef SRC_TRACE_REDACTION_REDACT_PROCESS_TREES_H_
 #define SRC_TRACE_REDACTION_REDACT_PROCESS_TREES_H_
 
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_redaction/redact_sched_events.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class ProcessTreeModifier {
  public:
@@ -85,6 +85,6 @@ class RedactProcessTrees : public TransformPrimitive {
   std::unique_ptr<ProcessTreeModifier> modifier_;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_REDACT_PROCESS_TREES_H_

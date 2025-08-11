@@ -1,18 +1,18 @@
-# Perfetto Stress Test
+# DejaView Stress Test
 
 This is a test harness that to stress test the client library (DataSource-level
 only for now).
 
 The test is based on a number of configs in /test/stress_test/configs/*.cfg
 (NOTE: they must be listed in configs/BUILD.gn).
-The config is a /protos/perfetto/config/stress_test_config.proto message, which
+The config is a /protos/dejaview/config/stress_test_config.proto message, which
 embeds the configuration of the test and a whole trace config.
 
 Each configs defines a testing scenario, determining the general trace config
 and all the settings of the test (e.g., how many producer processes to spawn,
 the write timings).
 
-The test is based on exec()-ing `traced` (the tracing service), `perfetto` (the
+The test is based on exec()-ing `traced` (the tracing service), `dejaview` (the
 consumer cmdline client) and a variable number of `stress_producer` instances.
 
 `stress_producer` emits events at a configurable rate, writing predictable
@@ -37,7 +37,7 @@ the resulting trace.
 ## Building and running the test
 
 ```bash
-# This will recursively build traced, perfetto and stress_producer.
+# This will recursively build traced, dejaview and stress_producer.
 ninja -C out/default stress_test
 
 out/default/stress_test
@@ -46,7 +46,7 @@ out/default/stress_test
 will output:
 
 ```txt
-[307.909] stress_test.cc:116      Saving test results in /tmp/perfetto-ltIBJgA0
+[307.909] stress_test.cc:116      Saving test results in /tmp/dejaview-ltIBJgA0
 
 ===============================================================
 Config: simple
@@ -84,36 +84,36 @@ Prod #ctxswitch      ---        421 / 1
 ```
 
 ```bash
-$ ls -Rlh /tmp/perfetto-ltIBJgA0
+$ ls -Rlh /tmp/dejaview-ltIBJgA0
 total 0
 drwxr-xr-x  16 primiano  wheel   512B  5 Aug 09:16 bursts
 drwxr-xr-x   9 primiano  wheel   288B  5 Aug 09:16 simple
 drwxr-xr-x  38 primiano  wheel   1.2K  5 Aug 09:16 the_storm
 
-/tmp/perfetto-ltIBJgA0/bursts:
+/tmp/dejaview-ltIBJgA0/bursts:
 total 22752
 -rw-r--r--  1 primiano  wheel     0B  5 Aug 09:16 errors.log
--rw-r--r--  1 primiano  wheel   180B  5 Aug 09:16 perfetto.log
+-rw-r--r--  1 primiano  wheel   180B  5 Aug 09:16 dejaview.log
 -rw-r--r--  1 primiano  wheel   441B  5 Aug 09:16 producer.0.log
 ...
 -rw-r--r--  1 primiano  wheel   441B  5 Aug 09:16 producer.9.log
 -rw-------  1 primiano  wheel    11M  5 Aug 09:16 trace
 -rw-r--r--  1 primiano  wheel   407B  5 Aug 09:16 traced.log
 
-/tmp/perfetto-ltIBJgA0/simple:
+/tmp/dejaview-ltIBJgA0/simple:
 total 400
 srwxr-xr-x  1 primiano  wheel     0B  5 Aug 09:16 consumer.sock
 -rw-r--r--  1 primiano  wheel     0B  5 Aug 09:16 errors.log
--rw-r--r--  1 primiano  wheel   178B  5 Aug 09:16 perfetto.log
+-rw-r--r--  1 primiano  wheel   178B  5 Aug 09:16 dejaview.log
 -rw-r--r--  1 primiano  wheel     0B  5 Aug 09:16 producer.0.log
 srwxr-xr-x  1 primiano  wheel     0B  5 Aug 09:16 producer.sock
 -rw-------  1 primiano  wheel   167K  5 Aug 09:16 trace
 -rw-r--r--  1 primiano  wheel   406B  5 Aug 09:16 traced.log
 
-/tmp/perfetto-ltIBJgA0/the_storm:
+/tmp/dejaview-ltIBJgA0/the_storm:
 total 524432
 -rw-r--r--  1 primiano  wheel     0B  5 Aug 09:16 errors.log
--rw-r--r--  1 primiano  wheel   184B  5 Aug 09:16 perfetto.log
+-rw-r--r--  1 primiano  wheel   184B  5 Aug 09:16 dejaview.log
 -rw-r--r--  1 primiano  wheel     0B  5 Aug 09:16 producer.0.log
 ...
 -rw-r--r--  1 primiano  wheel     0B  5 Aug 09:16 producer.127.log

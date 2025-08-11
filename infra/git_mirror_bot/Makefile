@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-PROJECT="perfetto-aosp-to-github-bot"
-VM_NAME="perfetto-aosp-to-github-bot"
+PROJECT="dejaview-aosp-to-github-bot"
+VM_NAME="dejaview-aosp-to-github-bot"
 ZONE="us-central1-c"
 
 ssh:
@@ -38,7 +38,7 @@ start:
 		--image-project "eip-images" \
 		--boot-disk-size "10" \
 		--boot-disk-type "pd-standard" \
-		--boot-disk-device-name "perfetto-ci-git-mirror-bot" \
+		--boot-disk-device-name "dejaview-ci-git-mirror-bot" \
 		--metadata-from-file=startup-script=startup-script.sh,main=mirror_aosp_to_ghub_repo.py
 
 .PHONY: ssh stop start

@@ -23,7 +23,7 @@ import tempfile
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ADB_PATH = os.path.join(ROOT_DIR, 'buildtools/android_sdk/platform-tools/adb')
 
-TEMPLATED_PERFETTO_CFG = '''
+TEMPLATED_DEJAVIEW_CFG = '''
 buffers {{
   size_kb: 65536
   fill_policy: RING_BUFFER
@@ -42,7 +42,7 @@ data_sources {{
 duration_ms: 15000
 '''
 
-PERFETTO_PER_CPU_BUFFER_SIZE_KB_PARAMS = [
+DEJAVIEW_PER_CPU_BUFFER_SIZE_KB_PARAMS = [
     128,
     256,
     512,
@@ -51,7 +51,7 @@ PERFETTO_PER_CPU_BUFFER_SIZE_KB_PARAMS = [
     4 * 1024,  # 4 MB
 ]
 
-PERFETTO_DRAIN_RATE_MS_PARAMS = [
+DEJAVIEW_DRAIN_RATE_MS_PARAMS = [
     100,
     240,
     500,
@@ -108,7 +108,7 @@ def SingleTraceRun(out_dir, prio_name, buffer_size_kb, drain_rate_ms,
                               '--threads={}'.format(num_threads),
                               '--duty_cycle={}'.format(duty_cycle),
                               '--period_us={}'.format(period_us))
-  perfetto_args = AdbArgs('shell', 'perfetto', '--txt', '-c', '-', '-o', '-')
+  dejaview_args = AdbArgs('shell', 'dejaview', '--txt', '-c', '-', '-o', '-')
 
   # Create a file object to read the trace into.
   with tempfile.NamedTemporaryFile() as trace_file:
@@ -120,26 +120,26 @@ def SingleTraceRun(out_dir, prio_name, buffer_size_kb, drain_rate_ms,
     # Start the busy threads running.
     busy_threads_handle = subprocess.Popen(busy_threads_args)
 
-    # Start the Perfetto trace.
-    perfetto_handle = subprocess.Popen(
-        perfetto_args, stdin=subprocess.PIPE, stdout=trace_file)
+    # Start the DejaView trace.
+    dejaview_handle = subprocess.Popen(
+        dejaview_args, stdin=subprocess.PIPE, stdout=trace_file)
 
     # Create the config with the parameters
-    config = TEMPLATED_PERFETTO_CFG.format(
+    config = TEMPLATED_DEJAVIEW_CFG.format(
         buffer_size_kb=buffer_size_kb, drain_period_ms=drain_rate_ms)
 
-    # Send the config to the Perfetto binary and wait for response.
-    perfetto_handle.stdin.write(config.encode())
-    perfetto_handle.stdin.close()
-    perfetto_ret = perfetto_handle.wait()
+    # Send the config to the DejaView binary and wait for response.
+    dejaview_handle.stdin.write(config.encode())
+    dejaview_handle.stdin.close()
+    dejaview_ret = dejaview_handle.wait()
 
     # Stop busy threads from running.
     busy_threads_handle.terminate()
 
-    # Return any errors from Perfetto.
-    if perfetto_ret:
+    # Return any errors from DejaView.
+    if dejaview_ret:
       raise subprocess.CalledProcessError(
-          cmd=perfetto_args, returncode=perfetto_ret)
+          cmd=dejaview_args, returncode=dejaview_ret)
 
     # TODO(lalitm): allow trace processor to take the query file from stdin
     # to prevent this hack from being required.
@@ -162,8 +162,8 @@ def SingleTraceRun(out_dir, prio_name, buffer_size_kb, drain_rate_ms,
 
 
 def SinglePriorityRun(out_dir, prio_name):
-  for buffer_size_kb in PERFETTO_PER_CPU_BUFFER_SIZE_KB_PARAMS:
-    for drain_rate_ms in PERFETTO_DRAIN_RATE_MS_PARAMS:
+  for buffer_size_kb in DEJAVIEW_PER_CPU_BUFFER_SIZE_KB_PARAMS:
+    for drain_rate_ms in DEJAVIEW_DRAIN_RATE_MS_PARAMS:
       for num_threads in BUSY_THREADS_NUM_THREADS_PARAMS:
         for duty_cycle in BUSY_THREADS_DUTY_CYCLE_PARAMS:
           for period_us in BUSY_THREADS_PERIOD_US_PARAMS:
@@ -197,9 +197,9 @@ def Main():
 
   # Push busy threads to device
   busy_threads_path = os.path.join(args.android_out_dir, 'busy_threads')
-  AdbCall('shell', 'rm', '-rf', '/data/local/tmp/perfetto_load_test')
-  AdbCall('shell', 'mkdir', '/data/local/tmp/perfetto_load_test')
-  AdbCall('push', busy_threads_path, '/data/local/tmp/perfetto_load_test/')
+  AdbCall('shell', 'rm', '-rf', '/data/local/tmp/dejaview_load_test')
+  AdbCall('shell', 'mkdir', '/data/local/tmp/dejaview_load_test')
+  AdbCall('push', busy_threads_path, '/data/local/tmp/dejaview_load_test/')
 
   # Stop and start traced and traced_probes
   (traced_pid, probes_pid) = CycleTracedAndProbes()
@@ -241,7 +241,7 @@ def Main():
 
   # Cleanup any pushed files, priorities etc.
   logging.info("Cleaning up test")
-  AdbCall('shell', 'rm', '-rf', '/data/local/tmp/perfetto_load_test')
+  AdbCall('shell', 'rm', '-rf', '/data/local/tmp/dejaview_load_test')
   logging.debug(AdbCall('shell', 'cat', '/proc/{}/stat'.format(traced_pid)))
   logging.debug(AdbCall('shell', 'cat', '/proc/{}/stat'.format(probes_pid)))
   AdbCall('unroot')

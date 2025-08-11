@@ -1,5 +1,5 @@
 #!/bin/sh
 set -e
-rm -rf /run/perfetto
+rm -rf /run/dejaview
 
 #DEBHELPER#

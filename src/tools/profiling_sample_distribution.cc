@@ -42,9 +42,9 @@
 
 #include "src/profiling/memory/sampler.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -62,8 +62,8 @@ int ProfilingSampleDistributionMain(int argc, char** argv) {
         char* end;
         long long sampling_interval_arg = strtoll(optarg, &end, 10);
         if (*end != '\0' || *optarg == '\0')
-          PERFETTO_FATAL("Invalid sampling interval: %s", optarg);
-        PERFETTO_CHECK(sampling_interval_arg > 0);
+          DEJAVIEW_FATAL("Invalid sampling interval: %s", optarg);
+        DEJAVIEW_CHECK(sampling_interval_arg > 0);
         sampling_interval = static_cast<uint64_t>(sampling_interval_arg);
         break;
       }
@@ -71,8 +71,8 @@ int ProfilingSampleDistributionMain(int argc, char** argv) {
         char* end;
         long long times_arg = strtoll(optarg, &end, 10);
         if (*end != '\0' || *optarg == '\0')
-          PERFETTO_FATAL("Invalid times: %s", optarg);
-        PERFETTO_CHECK(times_arg > 0);
+          DEJAVIEW_FATAL("Invalid times: %s", optarg);
+        DEJAVIEW_CHECK(times_arg > 0);
         times = static_cast<uint64_t>(times_arg);
         break;
       }
@@ -80,12 +80,12 @@ int ProfilingSampleDistributionMain(int argc, char** argv) {
         char* end;
         init_seed = static_cast<uint64_t>(strtoll(optarg, &end, 10));
         if (*end != '\0' || *optarg == '\0')
-          PERFETTO_FATAL("Invalid seed: %s", optarg);
+          DEJAVIEW_FATAL("Invalid seed: %s", optarg);
         break;
       }
 
       default:
-        PERFETTO_FATAL("%s [-t times] [-i interval] [-s seed]", argv[0]);
+        DEJAVIEW_FATAL("%s [-t times] [-i interval] [-s seed]", argv[0]);
     }
   }
 
@@ -99,11 +99,11 @@ int ProfilingSampleDistributionMain(int argc, char** argv) {
       // Skip trailing newline.
       if (std::cin.eof())
         break;
-      PERFETTO_FATAL("Could not read callsite");
+      DEJAVIEW_FATAL("Could not read callsite");
     }
     std::cin >> size;
     if (std::cin.fail())
-      PERFETTO_FATAL("Could not read size");
+      DEJAVIEW_FATAL("Could not read size");
     allocations.emplace_back(std::move(callsite), size);
   }
   std::map<std::string, uint64_t> total_ground_truth;
@@ -134,8 +134,8 @@ int ProfilingSampleDistributionMain(int argc, char** argv) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  return perfetto::profiling::ProfilingSampleDistributionMain(argc, argv);
+  return dejaview::profiling::ProfilingSampleDistributionMain(argc, argv);
 }

@@ -33,10 +33,10 @@ export interface PageAttrs {
 //
 // location.search = 'foo=1&bar=2'.
 //   This is seen by the HTTP server. We really don't use querystrings as the
-//   perfetto UI is client only.
+//   dejaview UI is client only.
 //
 // location.hash = '#!/page/subpage?local_cache_key=a0b1'.
-//   This is client-only. All the routing logic in the Perfetto UI uses only
+//   This is client-only. All the routing logic in the DejaView UI uses only
 //   this.
 
 function safeParseRoute(rawRoute: unknown): RouteArgs {

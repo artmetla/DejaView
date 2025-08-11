@@ -16,7 +16,7 @@
 
 #include "src/traced/probes/ftrace/test/cpu_reader_support.h"
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/base/test/utils.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 
@@ -25,7 +25,7 @@
 #include <sys/types.h>
 #include <unistd.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 std::map<std::string, std::unique_ptr<ProtoTranslationTable>>* g_tables;
@@ -62,11 +62,11 @@ std::unique_ptr<uint8_t[]> PageFromXxd(const std::string& text) {
     if (*(ptr++) != ':')
       continue;
     for (int i = 0; i < 8; i++) {
-      PERFETTO_CHECK(text.size() >=
+      DEJAVIEW_CHECK(text.size() >=
                      static_cast<size_t>((ptr - text.data()) + 5));
-      PERFETTO_CHECK(*(ptr++) == ' ');
+      DEJAVIEW_CHECK(*(ptr++) == ' ');
       int n = sscanf(ptr, "%02hhx%02hhx", out, out + 1);
-      PERFETTO_CHECK(n == 2);
+      DEJAVIEW_CHECK(n == 2);
       out += n;
       ptr += 4;
     }
@@ -76,4 +76,4 @@ std::unique_ptr<uint8_t[]> PageFromXxd(const std::string& text) {
   return buffer;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

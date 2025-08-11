@@ -1,6 +1,6 @@
 # CPU Scheduling events
 
-On Android and Linux Perfetto can gather scheduler traces via the Linux Kernel
+On Android and Linux DejaView can gather scheduler traces via the Linux Kernel
 [ftrace](https://www.kernel.org/doc/Documentation/trace/ftrace.txt)
 infrastructure.
 

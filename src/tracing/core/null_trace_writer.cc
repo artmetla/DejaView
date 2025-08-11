@@ -16,13 +16,13 @@
 
 #include "src/tracing/core/null_trace_writer.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/message.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/message.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 NullTraceWriter::NullTraceWriter() : delegate_(4096), stream_(&delegate_) {
   cur_packet_.reset(new protozero::RootMessage<protos::pbzero::TracePacket>());
@@ -33,7 +33,7 @@ NullTraceWriter::~NullTraceWriter() {}
 
 void NullTraceWriter::Flush(std::function<void()> callback) {
   // Flush() cannot be called in the middle of a TracePacket.
-  PERFETTO_CHECK(cur_packet_->is_finalized());
+  DEJAVIEW_CHECK(cur_packet_->is_finalized());
 
   if (callback)
     callback();
@@ -42,7 +42,7 @@ void NullTraceWriter::Flush(std::function<void()> callback) {
 NullTraceWriter::TracePacketHandle NullTraceWriter::NewTracePacket() {
   // If we hit this, the caller is calling NewTracePacket() without having
   // finalized the previous packet.
-  PERFETTO_DCHECK(cur_packet_->is_finalized());
+  DEJAVIEW_DCHECK(cur_packet_->is_finalized());
   cur_packet_->Reset(&stream_);
   return TraceWriter::TracePacketHandle(cur_packet_.get());
 }
@@ -59,4 +59,4 @@ uint64_t NullTraceWriter::written() const {
   return 0;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

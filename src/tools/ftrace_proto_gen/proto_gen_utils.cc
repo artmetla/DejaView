@@ -20,14 +20,14 @@
 #include <fstream>
 #include <regex>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/subprocess.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/subprocess.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -36,7 +36,7 @@ std::string RunClangFmt(const std::string& input) {
   clang_fmt.args.stdout_mode = base::Subprocess::OutputMode::kBuffer;
   clang_fmt.args.stderr_mode = base::Subprocess::OutputMode::kInherit;
   clang_fmt.args.input = input;
-  PERFETTO_CHECK(clang_fmt.Call());
+  DEJAVIEW_CHECK(clang_fmt.Call());
   return std::move(clang_fmt.output());
 }
 
@@ -49,7 +49,7 @@ using base::Uppercase;
 
 VerifyStream::VerifyStream(std::string filename)
     : filename_(std::move(filename)) {
-  PERFETTO_CHECK(base::ReadFile(filename_, &expected_));
+  DEJAVIEW_CHECK(base::ReadFile(filename_, &expected_));
 }
 
 VerifyStream::~VerifyStream() {
@@ -57,7 +57,7 @@ VerifyStream::~VerifyStream() {
   if (EndsWith(filename_, "cc") || EndsWith(filename_, "proto"))
     tidied = RunClangFmt(str());
   if (expected_ != tidied) {
-    PERFETTO_FATAL("%s is out of date. Please run tools/run_ftrace_proto_gen.",
+    DEJAVIEW_FATAL("%s is out of date. Please run tools/run_ftrace_proto_gen.",
                    filename_.c_str());
   }
 }
@@ -77,12 +77,12 @@ bool FtraceEventName::valid() const {
 }
 
 const std::string& FtraceEventName::name() const {
-  PERFETTO_CHECK(valid_);
+  DEJAVIEW_CHECK(valid_);
   return name_;
 }
 
 const std::string& FtraceEventName::group() const {
-  PERFETTO_CHECK(valid_);
+  DEJAVIEW_CHECK(valid_);
   return group_;
 }
 
@@ -106,7 +106,7 @@ std::string ToCamelCase(const std::string& s) {
 }
 
 ProtoType ProtoType::GetSigned() const {
-  PERFETTO_CHECK(type == NUMERIC);
+  DEJAVIEW_CHECK(type == NUMERIC);
   if (is_signed)
     return *this;
 
@@ -120,7 +120,7 @@ ProtoType ProtoType::GetSigned() const {
 std::string ProtoType::ToString() const {
   switch (type) {
     case INVALID:
-      PERFETTO_CHECK(false);
+      DEJAVIEW_CHECK(false);
     case STRING:
       return "string";
     case NUMERIC: {
@@ -132,7 +132,7 @@ std::string ProtoType::ToString() const {
       return s;
     }
   }
-  PERFETTO_CHECK(false);  // for GCC.
+  DEJAVIEW_CHECK(false);  // for GCC.
 }
 
 // static
@@ -147,7 +147,7 @@ ProtoType ProtoType::Invalid() {
 
 // static
 ProtoType ProtoType::Numeric(uint16_t size, bool is_signed, bool is_repeated) {
-  PERFETTO_CHECK(size == 32 || size == 64);
+  DEJAVIEW_CHECK(size == 32 || size == 64);
   return {NUMERIC, size, is_signed, is_repeated};
 }
 
@@ -240,7 +240,7 @@ Proto::Proto(std::string evt_name, const google::protobuf::Descriptor& desc)
     : name(desc.name()), event_name(evt_name) {
   for (int i = 0; i < desc.field_count(); ++i) {
     const google::protobuf::FieldDescriptor* field = desc.field(i);
-    PERFETTO_CHECK(field);
+    DEJAVIEW_CHECK(field);
     AddField(Field{ProtoType::FromDescriptor(field->type()), field->name(),
                    uint32_t(field->number())});
   }
@@ -293,4 +293,4 @@ void Proto::AddField(Proto::Field other) {
   fields.emplace(other.name, std::move(other));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

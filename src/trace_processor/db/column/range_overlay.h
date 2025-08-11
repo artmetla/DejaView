@@ -23,12 +23,12 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/overlay_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 class RangeOverlay final : public OverlayLayer {
  public:
@@ -79,6 +79,6 @@ class RangeOverlay final : public OverlayLayer {
   const Range* range_;
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_RANGE_OVERLAY_H_

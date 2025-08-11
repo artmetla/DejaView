@@ -20,19 +20,19 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/config/process_stats/process_stats_config.gen.h"
-#include "protos/perfetto/trace/ps/process_stats.gen.h"
-#include "protos/perfetto/trace/ps/process_tree.gen.h"
+#include "protos/dejaview/config/process_stats/process_stats_config.gen.h"
+#include "protos/dejaview/trace/ps/process_stats.gen.h"
+#include "protos/dejaview/trace/ps/process_tree.gen.h"
 
-using ::perfetto::protos::gen::ProcessStatsConfig;
+using ::dejaview::protos::gen::ProcessStatsConfig;
 using ::testing::_;
 using ::testing::Contains;
 using ::testing::ElementsAre;
@@ -42,7 +42,7 @@ using ::testing::Mock;
 using ::testing::Return;
 using ::testing::Truly;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 std::string ToProcStatString(uint64_t utime_ticks,
@@ -61,7 +61,7 @@ std::string ToProcStatString(uint64_t utime_ticks,
 
 uint64_t NsPerClockTick() {
   int64_t tickrate = sysconf(_SC_CLK_TCK);
-  PERFETTO_CHECK(tickrate > 0);
+  DEJAVIEW_CHECK(tickrate > 0);
   return 1'000'000'000ULL / static_cast<uint64_t>(tickrate);
 }
 
@@ -682,4 +682,4 @@ TEST_F(ProcessStatsDataSourceTest, WriteProcessStartFromBoot) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

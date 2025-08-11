@@ -25,7 +25,7 @@ source_set("common") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":common",
@@ -37,7 +37,7 @@ perfetto_unittest_source_set("unittests") {
   sources = [ "cpu_freq_info_unittest.cc" ]
 }
 
-perfetto_unittest_source_set("test_support") {
+dejaview_unittest_source_set("test_support") {
   testonly = true
   deps = [
     ":common",

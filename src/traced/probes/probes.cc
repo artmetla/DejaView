@@ -19,22 +19,22 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/version.h"
-#include "perfetto/ext/traced/traced.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/version.h"
+#include "dejaview/ext/traced/traced.h"
+#include "dejaview/tracing/default_socket.h"
 
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "src/traced/probes/kmem_activity_trigger.h"
 #include "src/traced/probes/probes_producer.h"
 
-namespace perfetto {
+namespace dejaview {
 
-int PERFETTO_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
+int DEJAVIEW_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
   enum LongOption {
     OPT_CLEANUP_AFTER_CRASH = 1000,
     OPT_VERSION,
@@ -61,8 +61,8 @@ int PERFETTO_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
         background = true;
         break;
       case OPT_CLEANUP_AFTER_CRASH:
-        // Used by perfetto.rc in Android.
-        PERFETTO_LOG("Hard resetting ftrace state.");
+        // Used by dejaview.rc in Android.
+        DEJAVIEW_LOG("Hard resetting ftrace state.");
         HardResetFtraceState();
         return 0;
       case OPT_RESET_FTRACE:
@@ -83,7 +83,7 @@ int PERFETTO_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
   }
 
   if (reset_ftrace && !HardResetFtraceState()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Failed to reset ftrace. Either run this as root or run "
         "`sudo chown -R $USER /sys/kernel/tracing`");
   }
@@ -101,10 +101,10 @@ int PERFETTO_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
                         base::kWatchdogDefaultCpuWindow);
   watchdog->Start();
 
-  PERFETTO_LOG("Starting %s service", argv[0]);
+  DEJAVIEW_LOG("Starting %s service", argv[0]);
 
   // This environment variable is set by Android's init to a fd to /dev/kmsg
-  // opened for writing (see perfetto.rc). We cannot open the file directly
+  // opened for writing (see dejaview.rc). We cannot open the file directly
   // due to permissions.
   const char* env = getenv("ANDROID_FILE__dev_kmsg");
   if (env) {
@@ -112,7 +112,7 @@ int PERFETTO_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
     // The file descriptor passed by init doesn't have the FD_CLOEXEC bit set.
     // Set it so we don't leak this fd while invoking atrace.
     int res = fcntl(FtraceProcfs::g_kmesg_fd, F_SETFD, FD_CLOEXEC);
-    PERFETTO_DCHECK(res == 0);
+    DEJAVIEW_DCHECK(res == 0);
   }
 
   base::UnixTaskRunner task_runner;
@@ -125,13 +125,13 @@ int PERFETTO_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
   if (env_notif) {
     int notif_fd = atoi(env_notif);
     producer.SetAllDataSourcesRegisteredCb([notif_fd] {
-      PERFETTO_CHECK(base::WriteAll(notif_fd, "1", 1) == 1);
-      PERFETTO_CHECK(base::CloseFile(notif_fd) == 0);
+      DEJAVIEW_CHECK(base::WriteAll(notif_fd, "1", 1) == 1);
+      DEJAVIEW_CHECK(base::CloseFile(notif_fd) == 0);
     });
   }
   producer.ConnectWithRetries(GetProducerSocket(), &task_runner);
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   // Start the thread that polls mm_event instance and triggers
   KmemActivityTrigger kmem_activity_trigger;
 #endif
@@ -140,4 +140,4 @@ int PERFETTO_EXPORT_ENTRYPOINT ProbesMain(int argc, char** argv) {
   return 0;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

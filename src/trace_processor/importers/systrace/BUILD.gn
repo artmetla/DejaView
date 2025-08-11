@@ -59,7 +59,7 @@ source_set("full") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [ "systrace_parser_unittest.cc" ]
   deps = [

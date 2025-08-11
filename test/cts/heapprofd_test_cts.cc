@@ -23,23 +23,23 @@
 #include <string>
 #include <string_view>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/tmp_dir_tree.h"
 #include "test/android_test_utils.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/process_stats/process_stats_config.gen.h"
-#include "protos/perfetto/config/profiling/heapprofd_config.gen.h"
-#include "protos/perfetto/trace/profiling/profile_common.gen.h"
-#include "protos/perfetto/trace/profiling/profile_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/config/process_stats/process_stats_config.gen.h"
+#include "protos/dejaview/config/profiling/heapprofd_config.gen.h"
+#include "protos/dejaview/trace/profiling/profile_common.gen.h"
+#include "protos/dejaview/trace/profiling/profile_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 // Size of individual (repeated) allocations done by the test apps (must be kept
@@ -329,7 +329,7 @@ void AssertNoProfileContents(
 }
 
 TEST(HeapprofdCtsTest, DebuggableAppRuntime) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets =
       ProfileRuntime(app_name, kMallocActivity, /*heap_names=*/{});
   AssertExpectedMallocsPresent(packets);
@@ -337,7 +337,7 @@ TEST(HeapprofdCtsTest, DebuggableAppRuntime) {
 }
 
 TEST(HeapprofdCtsTest, DebuggableAppStartup) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets =
       ProfileStartup(app_name, kMallocActivity, /*heap_names=*/{});
   AssertExpectedMallocsPresent(packets);
@@ -345,7 +345,7 @@ TEST(HeapprofdCtsTest, DebuggableAppStartup) {
 }
 
 TEST(HeapprofdCtsTest, ProfileableAppRuntime) {
-  std::string app_name = "android.perfetto.cts.app.profileable";
+  std::string app_name = "android.dejaview.cts.app.profileable";
   const auto& packets =
       ProfileRuntime(app_name, kMallocActivity, /*heap_names=*/{});
   AssertExpectedMallocsPresent(packets);
@@ -353,7 +353,7 @@ TEST(HeapprofdCtsTest, ProfileableAppRuntime) {
 }
 
 TEST(HeapprofdCtsTest, ProfileableAppStartup) {
-  std::string app_name = "android.perfetto.cts.app.profileable";
+  std::string app_name = "android.dejaview.cts.app.profileable";
   const auto& packets =
       ProfileStartup(app_name, kMallocActivity, /*heap_names=*/{});
   AssertExpectedMallocsPresent(packets);
@@ -361,7 +361,7 @@ TEST(HeapprofdCtsTest, ProfileableAppStartup) {
 }
 
 TEST(HeapprofdCtsTest, ReleaseAppRuntime) {
-  std::string app_name = "android.perfetto.cts.app.release";
+  std::string app_name = "android.dejaview.cts.app.release";
   const auto& packets =
       ProfileRuntime(app_name, kMallocActivity, /*heap_names=*/{});
 
@@ -373,7 +373,7 @@ TEST(HeapprofdCtsTest, ReleaseAppRuntime) {
 }
 
 TEST(HeapprofdCtsTest, ReleaseAppStartup) {
-  std::string app_name = "android.perfetto.cts.app.release";
+  std::string app_name = "android.dejaview.cts.app.release";
   const auto& packets =
       ProfileStartup(app_name, kMallocActivity, /*heap_names=*/{});
 
@@ -385,7 +385,7 @@ TEST(HeapprofdCtsTest, ReleaseAppStartup) {
 }
 
 TEST(HeapprofdCtsTest, NonProfileableAppRuntime) {
-  std::string app_name = "android.perfetto.cts.app.nonprofileable";
+  std::string app_name = "android.dejaview.cts.app.nonprofileable";
   const auto& packets =
       ProfileRuntime(app_name, kMallocActivity, /*heap_names=*/{});
   if (IsUserBuild())
@@ -396,7 +396,7 @@ TEST(HeapprofdCtsTest, NonProfileableAppRuntime) {
 }
 
 TEST(HeapprofdCtsTest, NonProfileableAppStartup) {
-  std::string app_name = "android.perfetto.cts.app.nonprofileable";
+  std::string app_name = "android.dejaview.cts.app.nonprofileable";
   const auto& packets =
       ProfileStartup(app_name, kMallocActivity, /*heap_names=*/{});
   if (IsUserBuild())
@@ -407,7 +407,7 @@ TEST(HeapprofdCtsTest, NonProfileableAppStartup) {
 }
 
 TEST(HeapprofdCtsTest, JavaHeapRuntime) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets = ProfileRuntime(app_name, kJavaAllocActivity,
                                        /*heap_names=*/{"com.android.art"});
   AssertHasSampledAllocs(packets);
@@ -415,7 +415,7 @@ TEST(HeapprofdCtsTest, JavaHeapRuntime) {
 }
 
 TEST(HeapprofdCtsTest, JavaHeapStartup) {
-  std::string app_name = "android.perfetto.cts.app.debuggable";
+  std::string app_name = "android.dejaview.cts.app.debuggable";
   const auto& packets = ProfileStartup(app_name, kJavaAllocActivity,
                                        /*heap_names=*/{"com.android.art"});
   AssertHasSampledAllocs(packets);
@@ -474,4 +474,4 @@ TEST(HeapprofdCtsTest, ProfilePlatformProcess) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

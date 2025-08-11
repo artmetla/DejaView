@@ -1,13 +1,13 @@
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 import("../../../gn/proto_library.gni")
 import("sources.gni")
 
-perfetto_proto_library("@TYPE@") {
+dejaview_proto_library("@TYPE@") {
   sources = chrome_track_event_sources
-  public_deps = [ "../../perfetto/trace/track_event:@TYPE@" ]
+  public_deps = [ "../../dejaview/trace/track_event:@TYPE@" ]
 }
 
-perfetto_proto_library("@TYPE@") {
+dejaview_proto_library("@TYPE@") {
   proto_generators = [ "descriptor" ]
   sources = chrome_track_event_sources
   generate_descriptor = "chrome_track_event.descriptor"

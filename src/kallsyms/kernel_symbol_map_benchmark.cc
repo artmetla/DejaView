@@ -18,9 +18,9 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/base/test/utils.h"
 #include "src/kallsyms/kernel_symbol_map.h"
 
@@ -91,23 +91,23 @@ ExpectedSym kExpectedSyms[] = {
 }  // namespace
 
 static void BM_KallSymsFind(benchmark::State& state) {
-  perfetto::KernelSymbolMap::kTokenIndexSampling =
+  dejaview::KernelSymbolMap::kTokenIndexSampling =
       static_cast<size_t>(state.range(0));
-  perfetto::KernelSymbolMap::kSymIndexSampling =
+  dejaview::KernelSymbolMap::kSymIndexSampling =
       static_cast<size_t>(state.range(1));
-  perfetto::KernelSymbolMap kallsyms;
+  dejaview::KernelSymbolMap kallsyms;
 
   // Don't run the benchmark on the CI as it requires pushing all test data,
   // which slows down significantly the CI.
   const bool skip = IsBenchmarkFunctionalOnly();
   if (!skip) {
-    kallsyms.Parse(perfetto::base::GetTestDataPath("test/data/kallsyms.txt"));
+    kallsyms.Parse(dejaview::base::GetTestDataPath("test/data/kallsyms.txt"));
   }
 
   for (auto _ : state) {
-    for (size_t i = 0; i < perfetto::base::ArraySize(kExpectedSyms); i++) {
+    for (size_t i = 0; i < dejaview::base::ArraySize(kExpectedSyms); i++) {
       const auto& exp = kExpectedSyms[i];
-      PERFETTO_CHECK(skip || kallsyms.Lookup(exp.addr) == exp.name);
+      DEJAVIEW_CHECK(skip || kallsyms.Lookup(exp.addr) == exp.name);
     }
   }
 
@@ -117,9 +117,9 @@ static void BM_KallSymsFind(benchmark::State& state) {
 BENCHMARK(BM_KallSymsFind)->Apply(BenchmarkArgs);
 
 static void BM_KallSymsLoad(benchmark::State& state) {
-  perfetto::KernelSymbolMap::kTokenIndexSampling =
+  dejaview::KernelSymbolMap::kTokenIndexSampling =
       static_cast<size_t>(state.range(0));
-  perfetto::KernelSymbolMap::kSymIndexSampling =
+  dejaview::KernelSymbolMap::kSymIndexSampling =
       static_cast<size_t>(state.range(1));
 
   // Don't run the benchmark on the CI as it requires pushing all test data,
@@ -127,15 +127,15 @@ static void BM_KallSymsLoad(benchmark::State& state) {
   const bool skip = IsBenchmarkFunctionalOnly();
 
   const std::string kallsyms_path =
-      perfetto::base::GetTestDataPath("test/data/kallsyms.txt");
+      dejaview::base::GetTestDataPath("test/data/kallsyms.txt");
   if (!skip) {
     std::string tmp;
     // Read the whole file once, so that it's cached.
-    PERFETTO_CHECK(perfetto::base::ReadFile(kallsyms_path, &tmp));
+    DEJAVIEW_CHECK(dejaview::base::ReadFile(kallsyms_path, &tmp));
   }
 
   for (auto _ : state) {
-    perfetto::KernelSymbolMap kallsyms;
+    dejaview::KernelSymbolMap kallsyms;
     if (!skip) {
       kallsyms.Parse(kallsyms_path);
     }

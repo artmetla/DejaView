@@ -81,7 +81,7 @@ the paths of any extensions. Then, in the REPL shell, the commands
 `.run-metrics` (to run the metrics and print the result).
 
 For example, suppose we want to iterate on the `android_startup` metric. We
-can run the following commands from a Perfetto checkout:
+can run the following commands from a DejaView checkout:
 ```python
 > ./tools/trace_processor --interactive \
   --run-metrics android_startup \
@@ -136,7 +136,7 @@ needing to recompile trace processor. To do this, the flag `--metric-extension`
 needs to be specified with the disk path where the built-metrics live and the
 special string `/` for the virtual path.
 
-For example, from inside a Perfetto checkout:
+For example, from inside a DejaView checkout:
 ```python
 > ./tools/trace_processor \
   --run-metrics android_cpu \
@@ -301,9 +301,9 @@ Putting everything together, along with some boilerplate preamble gives:
 ```protobuf
 syntax = "proto2";
 
-package perfetto.protos;
+package dejaview.protos;
 
-import "protos/perfetto/metrics/metrics.proto";
+import "protos/dejaview/metrics/metrics.proto";
 
 message ProcessInfo {
   optional string process_name = 1;
@@ -347,14 +347,14 @@ Let's break this query down:
 
 1. The first table used is the `sched` table. This contains all the scheduling
    data available in the trace. Each scheduling "slice" is associated with a
-   thread which is uniquely identified in Perfetto traces using its `utid`. The
+   thread which is uniquely identified in DejaView traces using its `utid`. The
    two pieces of information needed from the sched table are the `dur` -
    short for duration, this is the amount of time the slice lasted - and the
    `utid` which will be used to join with the thread table.
 2. The next table is the thread table. This gives us a lot of information which
    is not particularly interesting (including its thread name) but it does give
    us the `upid`. Similar to `utid`, `upid` is the unique identifier for a
-   process in a Perfetto trace. In this case, `upid` will refer to the process
+   process in a DejaView trace. In this case, `upid` will refer to the process
    which hosts the thread given by `utid`.
 3. The final table is the process table. This gives the name of the process
    associated with the original sched slice.
@@ -480,13 +480,13 @@ By passing the SQL file for the metric to be computed, trace processor uses the 
 _Notes:_
 
 - If something doesn't work as intended, check that the workspace looks the same as the contents of this [GitHub gist](https://gist.github.com/LalitMaganti/c221cf0cae17e298dfa82b118edf9080).
-- A good example trace for this metric is the Android example trace used by the Perfetto UI found [here](https://storage.googleapis.com/perfetto-misc/example_android_trace_30s_1).
+- A good example trace for this metric is the Android example trace used by the DejaView UI found [here](https://storage.googleapis.com/perfetto-misc/example_android_trace_30s_1).
 - stderr is redirected to remove any noise from parsing the trace that trace processor generates.
 
 If everything went successfully, the following output should be visible (specifically this is the output for the Android example trace linked above):
 
 ```
-[perfetto.protos.top_five_processes] {
+[dejaview.protos.top_five_processes] {
   process_info {
     process_name: "com.google.android.GoogleCamera"
     cpu_time_ms: 15154
@@ -525,8 +525,8 @@ If everything went successfully, the following output should be visible (specifi
 NOTE: Googlers: for internal usage of metrics in Google3 (i.e. metrics which are
 confidential), please see [this internal page](https://goto.google.com/viecd).
 
-Authors are strongly encouraged to add all metrics derived on Perfetto traces to
-the Perfetto repo unless there is a clear usecase (e.g. confidentiality) why
+Authors are strongly encouraged to add all metrics derived on DejaView traces to
+the DejaView repo unless there is a clear usecase (e.g. confidentiality) why
 these metrics should not be publicly available.
 
 In return for upstreaming metrics, authors will have first class support for
@@ -540,5 +540,5 @@ trace can be downloaded and the same metric can be run locally in trace
 processor.
 
 Since the same code is running locally and remotely, developers can be confident
-in reproducing the issue and use the trace processor and/or the Perfetto UI to
+in reproducing the issue and use the trace processor and/or the DejaView UI to
 identify the problem.

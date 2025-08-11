@@ -20,14 +20,14 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos::pbzero {
 class ChromeThreadDescriptor_Decoder;
@@ -91,6 +91,6 @@ class TrackEventTokenizer {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_TRACK_EVENT_TOKENIZER_H_

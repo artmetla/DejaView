@@ -22,13 +22,13 @@
 #include <memory>
 #include <string>
 
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TestTaskRunner;
@@ -121,6 +121,6 @@ class MockProducer : public Producer {
   std::map<std::string, EnabledDataSource> data_source_instances_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_MOCK_PRODUCER_H_

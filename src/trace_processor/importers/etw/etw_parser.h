@@ -17,13 +17,13 @@
 #ifndef SRC_TRACE_PROCESSOR_IMPORTERS_ETW_ETW_PARSER_H_
 #define SRC_TRACE_PROCESSOR_IMPORTERS_ETW_ETW_PARSER_H_
 
-#include "perfetto/protozero/field.h"
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/trace_processor/status.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/common/sched_event_state.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class EtwParser {
@@ -51,6 +51,6 @@ class EtwParser {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ETW_ETW_PARSER_H_

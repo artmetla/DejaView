@@ -19,11 +19,11 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/trace_processor/stack.pbzero.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/trace_processor/stack.pbzero.h"
 #include "protos/third_party/pprof/profile.pbzero.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/storage/trace_storage.h"
@@ -36,7 +36,7 @@
 #include <unordered_map>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -126,7 +126,7 @@ class GProfileBuilder {
   struct AnnotatedFrameId {
     struct Hash {
       size_t operator()(const AnnotatedFrameId& id) const {
-        return static_cast<size_t>(perfetto::base::Hasher::Combine(
+        return static_cast<size_t>(dejaview::base::Hasher::Combine(
             id.frame_id.value, static_cast<int>(id.annotation)));
       }
     };
@@ -155,7 +155,7 @@ class GProfileBuilder {
   struct Location {
     struct Hash {
       size_t operator()(const Location& loc) const {
-        perfetto::base::Hasher hasher;
+        dejaview::base::Hasher hasher;
         hasher.UpdateAll(loc.mapping_id, loc.rel_pc, loc.lines.size());
         for (const auto& line : loc.lines) {
           hasher.UpdateAll(line.function_id, line.line);
@@ -182,7 +182,7 @@ class GProfileBuilder {
   struct MappingKey {
     struct Hash {
       size_t operator()(const MappingKey& mapping) const {
-        perfetto::base::Hasher hasher;
+        dejaview::base::Hasher hasher;
         hasher.UpdateAll(mapping.size, mapping.file_offset,
                          mapping.build_id_or_filename);
         return static_cast<size_t>(hasher.digest());
@@ -239,7 +239,7 @@ class GProfileBuilder {
   struct Function {
     struct Hash {
       size_t operator()(const Function& func) const {
-        return static_cast<size_t>(perfetto::base::Hasher::Combine(
+        return static_cast<size_t>(dejaview::base::Hasher::Combine(
             func.name, func.system_name, func.filename));
       }
     };
@@ -352,7 +352,7 @@ class GProfileBuilder {
     struct Hash {
       size_t operator()(const MaybeAnnotatedCallsiteId& id) const {
         return static_cast<size_t>(
-            perfetto::base::Hasher::Combine(id.callsite_id.value, id.annotate));
+            dejaview::base::Hasher::Combine(id.callsite_id.value, id.annotate));
       }
     };
 
@@ -391,6 +391,6 @@ class GProfileBuilder {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_PROFILE_BUILDER_H_

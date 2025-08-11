@@ -20,14 +20,14 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 EventTracker::EventTracker(TraceProcessorContext* context)
     : context_(context) {}
@@ -55,7 +55,7 @@ std::optional<CounterId> EventTracker::PushCounter(int64_t timestamp,
                                                    double value,
                                                    TrackId track_id) {
   if (timestamp < max_timestamp_) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "counter event (ts: %" PRId64 ") out of order by %.4f ms, skipping",
         timestamp, static_cast<double>(max_timestamp_ - timestamp) / 1e6);
     context_->storage->IncrementStats(stats::counter_events_out_of_order);
@@ -103,4 +103,4 @@ void EventTracker::FlushPendingEvents() {
   pending_upid_resolution_counter_.clear();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

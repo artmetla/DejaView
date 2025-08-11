@@ -1,21 +1,21 @@
 # Quickstart: Record traces on Chrome desktop
 
-Perfetto can capture traces right from the Chrome browser on desktop. It captures traces across all open tabs.
+DejaView can capture traces right from the Chrome browser on desktop. It captures traces across all open tabs.
 
 > To record traces from Chrome on Android, follow the [instructions for recording Android system traces](/docs/quickstart/android-tracing.md) and enable the Chrome probe.
 
->> If you are using [user build of Android](https://source.android.com/docs/setup/build/building#lunch), you'll have to enable integration with system Perfetto by switching chrome://flags#enable-perfetto-system-tracing to "Enabled" and restarting Chrome.
+>> If you are using [user build of Android](https://source.android.com/docs/setup/build/building#lunch), you'll have to enable integration with system DejaView by switching chrome://flags#enable-dejaview-system-tracing to "Enabled" and restarting Chrome.
 
 ## Recording a trace
 
 1. Navigate to [ui.perfetto.dev](https://ui.perfetto.dev/) and select **"Record new trace"** from the left menu.
-    > If you are using the Perfetto UI for the first time, you have to install the [Perfetto UI Chrome extension](https://chrome.google.com/webstore/detail/perfetto-ui/lfmkphfpdbjijhpomgecfikhfohaoine).
+    > If you are using the DejaView UI for the first time, you have to install the [DejaView UI Chrome extension](https://chrome.google.com/webstore/detail/perfetto-ui/lfmkphfpdbjijhpomgecfikhfohaoine).
 2. Select **"Chrome"** as **"Target platform"** in the drop-down.
 
    On Chrome OS, you can also record system traces by selecting the "Chrome OS (system trace)" target platform.
 3. Сonfigure settings in **"Recording settings"**.
 
-   ![Record page of the Perfetto UI](/docs/images/record-trace-chrome.png)
+   ![Record page of the DejaView UI](/docs/images/record-trace-chrome.png)
 
     >Note: "Long trace" mode is not yet available for Chrome desktop.
 
@@ -34,7 +34,7 @@ Perfetto can capture traces right from the Chrome browser on desktop. It capture
 5. Now you can start the trace recording. Press the **"Start recording"** button when ready.
 6. Proceed to use the browser to capture the action you want to trace, and wait for the trace to finish. You can also stop the trace manually by pressing the "Stop" button.
 
-   **Do not close the perfetto UI tab!** Otherwise, tracing will stop and the trace data will be lost.
+   **Do not close the dejaview UI tab!** Otherwise, tracing will stop and the trace data will be lost.
 
 7. Once the trace is ready, you can find and analyze it in the left menu **"Current Trace"**.
 

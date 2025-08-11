@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/ext/base/unix_socket.h"
 
 #include <signal.h>
 #include <sys/types.h>
 #include <list>
 #include <thread>
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <sys/mman.h>
 #include <sys/socket.h>
 #include <sys/un.h>
 #endif
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/periodic_task.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/periodic_task.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/ipc/test/test_socket.h"
 #include "test/gtest_and_gmock.h"
 
-#if (PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-     PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID))
+#if (DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+     DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID))
 #define SKIP_IF_VSOCK_LOOPBACK_NOT_SUPPORTED()                                 \
   do {                                                                         \
     if (!UnixSocketRaw::CreateMayFail(SockFamily::kVsock, SockType::kStream)   \
@@ -51,7 +51,7 @@
   } while (0)
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -465,9 +465,9 @@ TEST_F(UnixSocketTest, GetSockAddrTcp6) {
   task_runner_.RunUntilCheckpoint("connected");
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_MAC)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_MAC)
 TEST_F(UnixSocketTest, GetSockAddrUnixLinked) {
   TempDir tmp_dir = TempDir::Create();
   std::string sock_path = tmp_dir.path() + "/test.sock";
@@ -487,10 +487,10 @@ TEST_F(UnixSocketTest, GetSockAddrUnixLinked) {
 }
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 TEST_F(UnixSocketTest, GetSockAddrUnixAbstract) {
-  StackString<128> sock_name("@perfetto_sock_%d_%d", getpid(), rand() % 100000);
+  StackString<128> sock_name("@dejaview_sock_%d_%d", getpid(), rand() % 100000);
 
   auto srv =
       UnixSocket::Listen(sock_name.ToStdString(), &event_listener_,
@@ -506,8 +506,8 @@ TEST_F(UnixSocketTest, GetSockAddrUnixAbstract) {
 }
 #endif
 
-#if (PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-     PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID))
+#if (DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+     DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID))
 TEST_F(UnixSocketTest, GetSockAddrVsock) {
   SKIP_IF_VSOCK_LOOPBACK_NOT_SUPPORTED();
 
@@ -571,7 +571,7 @@ TEST_F(UnixSocketTest, TcpStream) {
 // Posix-only tests below this point
 // ---------------------------------
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 // Tests the SockPeerCredMode::kIgnore logic.
 TEST_F(UnixSocketTest, IgnorePeerCredentials) {
@@ -598,8 +598,8 @@ TEST_F(UnixSocketTest, IgnorePeerCredentials) {
 
   ASSERT_EQ(cli1->peer_uid_posix(/*skip_check_for_testing=*/true), kInvalidUid);
   ASSERT_EQ(cli2->peer_uid_posix(), geteuid());
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   ASSERT_EQ(cli1->peer_pid_linux(/*skip_check_for_testing=*/true), kInvalidPid);
   ASSERT_EQ(cli2->peer_pid_linux(), getpid());
 #endif
@@ -620,8 +620,8 @@ TEST_F(UnixSocketTest, PeerCredentialsRetainedAfterDisconnect) {
                                                          UnixSocket* srv_conn) {
         srv_client_conn = srv_conn;
         EXPECT_EQ(geteuid(), static_cast<uint32_t>(srv_conn->peer_uid_posix()));
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
         EXPECT_EQ(getpid(), static_cast<pid_t>(srv_conn->peer_pid_linux()));
 #endif
         srv_connected();
@@ -653,8 +653,8 @@ TEST_F(UnixSocketTest, PeerCredentialsRetainedAfterDisconnect) {
   ASSERT_FALSE(srv_client_conn->is_connected());
   EXPECT_EQ(geteuid(),
             static_cast<uint32_t>(srv_client_conn->peer_uid_posix()));
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   EXPECT_EQ(getpid(), static_cast<pid_t>(srv_client_conn->peer_pid_linux()));
 #endif
 }
@@ -792,7 +792,7 @@ TEST_F(UnixSocketTest, SharedMemory) {
     _exit(0);
   } else {
     char sync_cmd = '\0';
-    ASSERT_EQ(1, PERFETTO_EINTR(read(*pipe.rd, &sync_cmd, 1)));
+    ASSERT_EQ(1, DEJAVIEW_EINTR(read(*pipe.rd, &sync_cmd, 1)));
     ASSERT_EQ('.', sync_cmd);
     auto cli =
         UnixSocket::Connect(kTestSocket.name(), &event_listener_, &task_runner_,
@@ -819,7 +819,7 @@ TEST_F(UnixSocketTest, SharedMemory) {
         }));
     task_runner_.RunUntilCheckpoint("change_seen_by_client");
     int st = 0;
-    PERFETTO_EINTR(waitpid(pid, &st, 0));
+    DEJAVIEW_EINTR(waitpid(pid, &st, 0));
     ASSERT_FALSE(WIFSIGNALED(st)) << "Server died with signal " << WTERMSIG(st);
     EXPECT_TRUE(WIFEXITED(st));
     ASSERT_EQ(0, WEXITSTATUS(st));
@@ -952,14 +952,14 @@ TEST_F(UnixSocketTest, PartialSendMsgAll) {
 
   auto blocked_thread = pthread_self();
   std::thread th([blocked_thread, &recv_sock, &recv_buf] {
-    ssize_t rd = PERFETTO_EINTR(read(recv_sock.fd(), &recv_buf[0], 1));
+    ssize_t rd = DEJAVIEW_EINTR(read(recv_sock.fd(), &recv_buf[0], 1));
     ASSERT_EQ(rd, 1);
     // We are now sure the other thread is in sendmsg, interrupt send.
     ASSERT_EQ(pthread_kill(blocked_thread, SIGWINCH), 0);
     // Drain the socket to allow SendMsgAllPosix to succeed.
     size_t offset = 1;
     while (offset < recv_buf.size()) {
-      rd = PERFETTO_EINTR(
+      rd = DEJAVIEW_EINTR(
           read(recv_sock.fd(), &recv_buf[offset], recv_buf.size() - offset));
       ASSERT_GE(rd, 0);
       offset += static_cast<size_t>(rd);
@@ -1036,7 +1036,7 @@ TEST_F(UnixSocketTest, BlockingSendTimeout) {
   tx_thread.join();
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 TEST_F(UnixSocketTest, SetsCloexec) {
   // CLOEXEC set when constructing sockets through helper:
   {
@@ -1061,9 +1061,9 @@ TEST_F(UnixSocketTest, SetsCloexec) {
 
 #endif  // !OS_WIN
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_MAC)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_MAC)
 
 // Regression test for b/239725760.
 TEST_F(UnixSocketTest, Sockaddr_FilesystemLinked) {
@@ -1087,12 +1087,12 @@ TEST_F(UnixSocketTest, Sockaddr_FilesystemLinked) {
 }
 #endif  // OS_LINUX || OS_ANDROID || OS_MAC
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 // Regression test for b/239725760.
 // Abstract sockets are not supported on Mac OS.
 TEST_F(UnixSocketTest, Sockaddr_AbstractUnix) {
-  StackString<128> sock_name("@perfetto_test_%d_%d", getpid(), rand() % 100000);
+  StackString<128> sock_name("@dejaview_test_%d_%d", getpid(), rand() % 100000);
   auto srv =
       UnixSocket::Listen(sock_name.ToStdString(), &event_listener_,
                          &task_runner_, SockFamily::kUnix, SockType::kStream);
@@ -1159,16 +1159,16 @@ TEST_F(UnixSocketTest, GetSockFamily) {
   ASSERT_EQ(GetSockFamily("127.0.0.1:80"), SockFamily::kInet);
   ASSERT_EQ(GetSockFamily("[effe::acca]:1234"), SockFamily::kInet6);
   ASSERT_EQ(GetSockFamily("[::1]:123456"), SockFamily::kInet6);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   ASSERT_EQ(GetSockFamily("vsock://-1:10000"), SockFamily::kVsock);
 #endif
 }
 
 TEST_F(UnixSocketTest, ShmemSupported) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   ASSERT_EQ(SockShmemSupported(""), true);
-#else  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#else  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   ASSERT_EQ(SockShmemSupported(""), false);
   ASSERT_EQ(SockShmemSupported("/path/to/sock"), true);
   ASSERT_EQ(SockShmemSupported("local_dir_sock"), true);
@@ -1177,13 +1177,13 @@ TEST_F(UnixSocketTest, ShmemSupported) {
   ASSERT_EQ(SockShmemSupported("127.0.0.1:80"), false);
   ASSERT_EQ(SockShmemSupported("[effe::acca]:1234"), false);
   ASSERT_EQ(SockShmemSupported("[::1]:123456"), false);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   ASSERT_EQ(SockShmemSupported("vsock://-1:10000"), false);
 #endif
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 }
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

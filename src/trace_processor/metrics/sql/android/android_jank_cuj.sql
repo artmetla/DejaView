@@ -83,7 +83,7 @@ SELECT RUN_METRIC('android/jank/internal/derived_events.sql');
 
 
 DROP VIEW IF EXISTS android_jank_cuj_output;
-CREATE PERFETTO VIEW android_jank_cuj_output AS
+CREATE DEJAVIEW VIEW android_jank_cuj_output AS
 SELECT
   AndroidJankCujMetric(
     'cuj', (

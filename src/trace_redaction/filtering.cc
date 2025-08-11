@@ -16,15 +16,15 @@
 
 #include "src/trace_redaction/filtering.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 PidFilter::~PidFilter() = default;
 
 bool ConnectedToPackage::Includes(const Context& context,
                                   uint64_t ts,
                                   int32_t pid) const {
-  PERFETTO_DCHECK(context.timeline);
-  PERFETTO_DCHECK(context.package_uid.has_value());
+  DEJAVIEW_DCHECK(context.timeline);
+  DEJAVIEW_DCHECK(context.package_uid.has_value());
   return context.timeline->PidConnectsToUid(ts, pid, *context.package_uid);
 }
 
@@ -36,4 +36,4 @@ bool AllowAll::Includes(const Context&, protozero::Field) const {
   return true;
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

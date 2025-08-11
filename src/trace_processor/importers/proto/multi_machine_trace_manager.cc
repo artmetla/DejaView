@@ -38,13 +38,13 @@
 #include "src/trace_processor/sorter/trace_sorter.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 MultiMachineTraceManager::MultiMachineTraceManager(
     TraceProcessorContext* default_context)
     : default_context_(default_context) {
-  PERFETTO_DCHECK(default_context && !default_context_->machine_id());
+  DEJAVIEW_DCHECK(default_context && !default_context_->machine_id());
 }
 MultiMachineTraceManager::~MultiMachineTraceManager() = default;
 
@@ -88,4 +88,4 @@ ProtoTraceReader* MultiMachineTraceManager::GetOrCreateReader(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

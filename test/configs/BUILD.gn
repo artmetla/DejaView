@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 protoc_target = "../../gn:protoc($host_toolchain)"
 
@@ -21,7 +21,7 @@ action_foreach("configs") {
   script = "../../tools/protoc_helper.py"
 
   deps = [
-    "../../protos/perfetto/trace:non_minimal_source_set",
+    "../../protos/dejaview/trace:non_minimal_source_set",
     protoc_target,
   ]
 

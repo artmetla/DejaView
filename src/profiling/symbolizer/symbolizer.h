@@ -21,7 +21,7 @@
 #include <string>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 struct SymbolizedFrame {
@@ -46,6 +46,6 @@ class Symbolizer {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_SYMBOLIZER_H_

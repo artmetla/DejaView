@@ -22,7 +22,7 @@
 
 #include "src/trace_processor/sqlite/bindings/sqlite_type.h"
 
-namespace perfetto::trace_processor::sqlite::value {
+namespace dejaview::trace_processor::sqlite::value {
 
 // This file contains wraps the sqlite3_value_* functions which extract values
 // from sqlite3_value structs.
@@ -52,6 +52,6 @@ inline T* Pointer(sqlite3_value* value, const char* type) {
   return static_cast<T*>(sqlite3_value_pointer(value, type));
 }
 
-}  // namespace perfetto::trace_processor::sqlite::value
+}  // namespace dejaview::trace_processor::sqlite::value
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_VALUE_H_

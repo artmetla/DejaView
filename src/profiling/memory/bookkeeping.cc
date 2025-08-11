@@ -22,12 +22,12 @@
 
 #include <cinttypes>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
 #include "src/profiling/common/callstack_trie.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 void HeapTracker::RecordMalloc(
@@ -38,7 +38,7 @@ void HeapTracker::RecordMalloc(
     uint64_t alloc_size,
     uint64_t sequence_number,
     uint64_t timestamp) {
-  PERFETTO_CHECK(callstack.size() == build_ids.size());
+  DEJAVIEW_CHECK(callstack.size() == build_ids.size());
   std::vector<Interned<Frame>> frames;
   frames.reserve(callstack.size());
   for (size_t i = 0; i < callstack.size(); ++i) {
@@ -56,7 +56,7 @@ void HeapTracker::RecordMalloc(
   auto it = allocations_.find(address);
   if (it != allocations_.end()) {
     Allocation& alloc = it->second;
-    PERFETTO_DCHECK(alloc.sequence_number != sequence_number);
+    DEJAVIEW_DCHECK(alloc.sequence_number != sequence_number);
     if (alloc.sequence_number < sequence_number) {
       // As we are overwriting the previous allocation, the previous allocation
       // must have been freed.
@@ -139,7 +139,7 @@ void HeapTracker::CommitOperation(uint64_t sequence_number,
 uint64_t HeapTracker::GetSizeForTesting(
     const std::vector<unwindstack::FrameData>& stack,
     std::vector<std::string> build_ids) {
-  PERFETTO_DCHECK(!dump_at_max_mode_);
+  DEJAVIEW_DCHECK(!dump_at_max_mode_);
   GlobalCallstackTrie::Node* node =
       callsites_->CreateCallsite(stack, build_ids);
   // Hack to make it go away again if it wasn't used before.
@@ -157,7 +157,7 @@ uint64_t HeapTracker::GetSizeForTesting(
 uint64_t HeapTracker::GetMaxForTesting(
     const std::vector<unwindstack::FrameData>& stack,
     std::vector<std::string> build_ids) {
-  PERFETTO_DCHECK(dump_at_max_mode_);
+  DEJAVIEW_DCHECK(dump_at_max_mode_);
   GlobalCallstackTrie::Node* node =
       callsites_->CreateCallsite(stack, build_ids);
   // Hack to make it go away again if it wasn't used before.
@@ -175,7 +175,7 @@ uint64_t HeapTracker::GetMaxForTesting(
 uint64_t HeapTracker::GetMaxCountForTesting(
     const std::vector<unwindstack::FrameData>& stack,
     std::vector<std::string> build_ids) {
-  PERFETTO_DCHECK(dump_at_max_mode_);
+  DEJAVIEW_DCHECK(dump_at_max_mode_);
   GlobalCallstackTrie::Node* node =
       callsites_->CreateCallsite(stack, build_ids);
   // Hack to make it go away again if it wasn't used before.
@@ -191,4 +191,4 @@ uint64_t HeapTracker::GetMaxCountForTesting(
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

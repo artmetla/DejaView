@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/trace_writer_base.h"
+#include "dejaview/tracing/trace_writer_base.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // This destructor needs to be defined in a dedicated translation unit and
 // cannot be merged together with the other ones in virtual_destructors.cc.
@@ -25,4 +25,4 @@ namespace perfetto {
 
 TraceWriterBase::~TraceWriterBase() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

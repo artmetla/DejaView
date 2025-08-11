@@ -14,19 +14,19 @@
 
 import {HEAP_PROFILE_TRACK_KIND} from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {LONG, NUM, STR} from '../../trace_processor/query_result';
 import {HeapProfileTrack} from './heap_profile_track';
 import {getOrCreateGroupForProcess} from '../../public/standard_groups';
 import {TrackNode} from '../../public/workspace';
-import {createPerfettoTable} from '../../trace_processor/sql_utils';
+import {createDejaViewTable} from '../../trace_processor/sql_utils';
 import {HeapProfileFlamegraphDetailsPanel} from './heap_profile_details_panel';
 
 function getUriForTrack(upid: number): string {
   return `/process_${upid}/heap_profile`;
 }
 
-class HeapProfilePlugin implements PerfettoPlugin {
+class HeapProfilePlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const it = await ctx.engine.query(`
       select value from stats
@@ -45,7 +45,7 @@ class HeapProfilePlugin implements PerfettoPlugin {
       const title = 'Heap Profile';
       const tableName = `_heap_profile_${upid}`;
 
-      createPerfettoTable(
+      createDejaViewTable(
         ctx.engine,
         tableName,
         `
@@ -138,6 +138,6 @@ async function selectFirstHeapProfile(ctx: Trace) {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.HeapProfile',
+  pluginId: 'dejaview.HeapProfile',
   plugin: HeapProfilePlugin,
 };

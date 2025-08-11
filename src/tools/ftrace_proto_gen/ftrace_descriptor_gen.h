@@ -17,7 +17,7 @@
 #ifndef SRC_TOOLS_FTRACE_PROTO_GEN_FTRACE_DESCRIPTOR_GEN_H_
 #define SRC_TOOLS_FTRACE_PROTO_GEN_FTRACE_DESCRIPTOR_GEN_H_
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/tools/ftrace_proto_gen/ftrace_proto_gen.h"
 
 namespace google {
@@ -26,7 +26,7 @@ class DescriptorPool;
 }
 }  // namespace google
 
-namespace perfetto {
+namespace dejaview {
 
 // Uses the ftrace event descriptor file to generate a
 // file with just the names and field types for each ftrace event.
@@ -34,5 +34,5 @@ void GenerateFtraceDescriptors(
     const google::protobuf::DescriptorPool& descriptor_pool,
     std::ostream* fout);
 
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // SRC_TOOLS_FTRACE_PROTO_GEN_FTRACE_DESCRIPTOR_GEN_H_

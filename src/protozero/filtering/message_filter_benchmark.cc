@@ -17,21 +17,21 @@
 #include <algorithm>
 #include <string>
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 #include "src/base/test/utils.h"
 #include "src/protozero/filtering/message_filter.h"
 
 static void BM_ProtozeroMessageFilter(benchmark::State& state) {
   std::string trace_data;
   static const char kTestTrace[] = "test/data/example_android_trace_30s.pb";
-  perfetto::base::ReadFile(perfetto::base::GetTestDataPath(kTestTrace),
+  dejaview::base::ReadFile(dejaview::base::GetTestDataPath(kTestTrace),
                            &trace_data);
-  PERFETTO_CHECK(!trace_data.empty());
+  DEJAVIEW_CHECK(!trace_data.empty());
 
   std::string filter;
   static const char kFullTraceFilter[] = "test/data/full_trace_filter.bytecode";
-  perfetto::base::ReadFile(kFullTraceFilter, &filter);
-  PERFETTO_CHECK(!filter.empty());
+  dejaview::base::ReadFile(kFullTraceFilter, &filter);
+  DEJAVIEW_CHECK(!filter.empty());
 
   protozero::MessageFilter filt;
   filt.LoadFilterBytecode(filter.data(), filter.size());

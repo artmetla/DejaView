@@ -14,23 +14,23 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/track_event_state_tracker.h"
+#include "dejaview/tracing/track_event_state_tracker.h"
 
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/tracing/internal/track_event_internal.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/tracing/internal/track_event_internal.h"
 
-#include "protos/perfetto/common/interceptor_descriptor.gen.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/common/interceptor_descriptor.gen.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using internal::TrackEventIncrementalState;
 
@@ -46,7 +46,7 @@ void TrackEventStateTracker::ProcessTracePacket(
 
   if (!packet.has_track_event())
     return;
-  perfetto::protos::pbzero::TrackEvent::Decoder track_event(
+  dejaview::protos::pbzero::TrackEvent::Decoder track_event(
       packet.track_event());
 
   auto clock_id = packet.timestamp_clock_id();
@@ -165,19 +165,19 @@ void TrackEventStateTracker::UpdateIncrementalState(
     Delegate& delegate,
     SequenceState& sequence_state,
     const protos::pbzero::TracePacket_Decoder& packet) {
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   if (!sequence_state.sequence_id) {
     sequence_state.sequence_id = packet.trusted_packet_sequence_id();
   } else {
-    PERFETTO_DCHECK(sequence_state.sequence_id ==
+    DEJAVIEW_DCHECK(sequence_state.sequence_id ==
                     packet.trusted_packet_sequence_id());
   }
 #endif
 
-  perfetto::protos::pbzero::ClockSnapshot::Decoder snapshot(
+  dejaview::protos::pbzero::ClockSnapshot::Decoder snapshot(
       packet.clock_snapshot());
   for (auto it = snapshot.clocks(); it; ++it) {
-    perfetto::protos::pbzero::ClockSnapshot::Clock::Decoder clock(*it);
+    dejaview::protos::pbzero::ClockSnapshot::Clock::Decoder clock(*it);
     // TODO(mohitms) : Handle the incremental clock other than default one.
     if (clock.is_incremental() &&
         clock.clock_id() ==
@@ -189,7 +189,7 @@ void TrackEventStateTracker::UpdateIncrementalState(
   }
 
   if (packet.sequence_flags() &
-      perfetto::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
+      dejaview::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
     // Convert any existing event names and categories on the stack to
     // non-interned strings so we can look up their names even after the
     // incremental state is gone.
@@ -210,27 +210,27 @@ void TrackEventStateTracker::UpdateIncrementalState(
     sequence_state.track.index = 0u;
   }
   if (packet.has_interned_data()) {
-    perfetto::protos::pbzero::InternedData::Decoder interned_data(
+    dejaview::protos::pbzero::InternedData::Decoder interned_data(
         packet.interned_data());
     for (auto it = interned_data.event_names(); it; it++) {
-      perfetto::protos::pbzero::EventName::Decoder entry(*it);
+      dejaview::protos::pbzero::EventName::Decoder entry(*it);
       sequence_state.event_names[entry.iid()] = entry.name().ToStdString();
     }
     for (auto it = interned_data.event_categories(); it; it++) {
-      perfetto::protos::pbzero::EventCategory::Decoder entry(*it);
+      dejaview::protos::pbzero::EventCategory::Decoder entry(*it);
       sequence_state.event_categories[entry.iid()] = entry.name().ToStdString();
     }
     for (auto it = interned_data.debug_annotation_names(); it; it++) {
-      perfetto::protos::pbzero::DebugAnnotationName::Decoder entry(*it);
+      dejaview::protos::pbzero::DebugAnnotationName::Decoder entry(*it);
       sequence_state.debug_annotation_names[entry.iid()] =
           entry.name().ToStdString();
     }
   }
   if (packet.has_trace_packet_defaults()) {
-    perfetto::protos::pbzero::TracePacketDefaults::Decoder defaults(
+    dejaview::protos::pbzero::TracePacketDefaults::Decoder defaults(
         packet.trace_packet_defaults());
     if (defaults.has_track_event_defaults()) {
-      perfetto::protos::pbzero::TrackEventDefaults::Decoder
+      dejaview::protos::pbzero::TrackEventDefaults::Decoder
           track_event_defaults(defaults.track_event_defaults());
       sequence_state.track.uuid = track_event_defaults.track_uuid();
       if (defaults.has_timestamp_clock_id())
@@ -238,7 +238,7 @@ void TrackEventStateTracker::UpdateIncrementalState(
     }
   }
   if (packet.has_track_descriptor()) {
-    perfetto::protos::pbzero::TrackDescriptor::Decoder track_descriptor(
+    dejaview::protos::pbzero::TrackDescriptor::Decoder track_descriptor(
         packet.track_descriptor());
     auto* session_state = delegate.GetSessionState();
     auto& track = session_state->tracks[track_descriptor.uuid()];
@@ -254,13 +254,13 @@ void TrackEventStateTracker::UpdateIncrementalState(
     track.pid = 0;
     track.tid = 0;
     if (track_descriptor.has_process()) {
-      perfetto::protos::pbzero::ProcessDescriptor::Decoder process(
+      dejaview::protos::pbzero::ProcessDescriptor::Decoder process(
           track_descriptor.process());
       track.pid = process.pid();
       if (track.name.empty())
         track.name = process.process_name().ToStdString();
     } else if (track_descriptor.has_thread()) {
-      perfetto::protos::pbzero::ThreadDescriptor::Decoder thread(
+      dejaview::protos::pbzero::ThreadDescriptor::Decoder thread(
           track_descriptor.thread());
       track.pid = thread.pid();
       track.tid = thread.tid();
@@ -283,7 +283,7 @@ void TrackEventStateTracker::UpdateIncrementalState(
 }
 
 TrackEventStateTracker::ParsedTrackEvent::ParsedTrackEvent(
-    const perfetto::protos::pbzero::TrackEvent::Decoder& track_event_)
+    const dejaview::protos::pbzero::TrackEvent::Decoder& track_event_)
     : track_event(track_event_) {}
 
-}  // namespace perfetto
+}  // namespace dejaview

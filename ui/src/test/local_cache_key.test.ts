@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {test, expect} from '@playwright/test';
-import {PerfettoTestHelper} from './perfetto_ui_test_helper';
+import {DejaViewTestHelper} from './dejaview_ui_test_helper';
 
 test('multiple traces via url and local_cache_key', async ({browser}) => {
   const page = await browser.newPage();
-  const pth = new PerfettoTestHelper(page);
+  const pth = new DejaViewTestHelper(page);
 
   // Open first trace.
   await pth.navigate(
@@ -39,6 +39,6 @@ test('multiple traces via url and local_cache_key', async ({browser}) => {
   await expect(page).toHaveScreenshot('confirmation_dialog.png');
 
   await page.locator('button.modal-btn-primary').click();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await expect(page).toHaveScreenshot('back_to_trace_1.png');
 });

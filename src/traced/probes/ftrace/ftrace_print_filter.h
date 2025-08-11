@@ -23,7 +23,7 @@
 
 #include "src/traced/probes/ftrace/proto_translation_table.h"
 
-namespace perfetto {
+namespace dejaview {
 
 struct Event;
 
@@ -84,6 +84,6 @@ class FtracePrintFilterConfig {
   uint16_t buf_field_offset_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FTRACE_PRINT_FILTER_H_

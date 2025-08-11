@@ -23,12 +23,12 @@
 #include <variant>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 using Range = RowMap::Range;
 
@@ -59,11 +59,11 @@ class RangeOrBitVector {
   bool IsBitVector() const { return std::holds_alternative<BitVector>(val); }
 
   BitVector TakeIfBitVector() && {
-    PERFETTO_DCHECK(IsBitVector());
+    DEJAVIEW_DCHECK(IsBitVector());
     return std::move(*std::get_if<BitVector>(&val));
   }
   Range TakeIfRange() && {
-    PERFETTO_DCHECK(IsRange());
+    DEJAVIEW_DCHECK(IsRange());
     return *std::get_if<Range>(&val);
   }
 
@@ -192,6 +192,6 @@ enum class SortDirection {
   kDescending,
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_TYPES_H_

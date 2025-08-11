@@ -24,7 +24,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 struct Value {
@@ -73,4 +73,4 @@ TEST(ImplicitSegmentTree, Stress) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

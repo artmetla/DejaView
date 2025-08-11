@@ -26,15 +26,15 @@
 #include <type_traits>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
 #include "src/trace_processor/sqlite/bindings/sqlite_module.h"
 #include "src/trace_processor/sqlite/scoped_db.h"
 #include "src/trace_processor/sqlite/sql_source.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Wrapper class around SQLite C API.
 //
@@ -158,13 +158,13 @@ class SqliteEngine {
   ScopedDb db_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 // The rest of this file is just implementation details which we need
 // in the header file because it is templated code. We separate it out
 // like this to keep the API people actually care about easy to read.
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 template <typename Module>
 void SqliteEngine::RegisterVirtualTableModule(const std::string& module_name,
@@ -173,7 +173,7 @@ void SqliteEngine::RegisterVirtualTableModule(const std::string& module_name,
                 "Must subclass sqlite::Module");
   int res = sqlite3_create_module_v2(db_.get(), module_name.c_str(),
                                      &Module::kModule, ctx, nullptr);
-  PERFETTO_CHECK(res == SQLITE_OK);
+  DEJAVIEW_CHECK(res == SQLITE_OK);
 }
 
 template <typename Module>
@@ -185,9 +185,9 @@ void SqliteEngine::RegisterVirtualTableModule(
   int res = sqlite3_create_module_v2(
       db_.get(), module_name.c_str(), &Module::kModule, ctx.release(),
       [](void* arg) { delete static_cast<typename Module::Context*>(arg); });
-  PERFETTO_CHECK(res == SQLITE_OK);
+  DEJAVIEW_CHECK(res == SQLITE_OK);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_SQLITE_ENGINE_H_

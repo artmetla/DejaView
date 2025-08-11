@@ -21,13 +21,13 @@
 #include <string>
 #include <vector>
 
-#include "protos/perfetto/trace/android/protolog.pbzero.h"
+#include "protos/dejaview/trace/android/protolog.pbzero.h"
 #include "src/trace_processor/importers/proto/winscope/protolog_message_decoder.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -59,6 +59,6 @@ class ProtoLogParser {
   const StringId log_level_wtf_string_id_;
   const StringId log_level_unknown_string_id_;
 };
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_PROTOLOG_PARSER_H_

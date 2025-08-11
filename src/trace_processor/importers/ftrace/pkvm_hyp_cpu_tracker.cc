@@ -16,15 +16,15 @@
 
 #include "src/trace_processor/importers/ftrace/pkvm_hyp_cpu_tracker.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/hyp.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/hyp.pbzero.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 PkvmHypervisorCpuTracker::PkvmHypervisorCpuTracker(
@@ -72,7 +72,7 @@ void PkvmHypervisorCpuTracker::ParseHypEvent(uint32_t cpu,
       break;
     // TODO(b/249050813): add remaining hypervisor events
     default:
-      PERFETTO_FATAL("Not a hypervisor event %d", event_id);
+      DEJAVIEW_FATAL("Not a hypervisor event %d", event_id);
   }
 }
 
@@ -146,4 +146,4 @@ void PkvmHypervisorCpuTracker::ParseHostMemAbort(uint32_t cpu,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

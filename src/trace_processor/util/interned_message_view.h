@@ -17,19 +17,19 @@
 #ifndef SRC_TRACE_PROCESSOR_UTIL_INTERNED_MESSAGE_VIEW_H_
 #define SRC_TRACE_PROCESSOR_UTIL_INTERNED_MESSAGE_VIEW_H_
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
 // When called from GetOrCreateDecoder(), should include the stringified name of
 // the MessageType.
-#define PERFETTO_TYPE_IDENTIFIER PERFETTO_DEBUG_FUNCTION_IDENTIFIER()
-#else  // PERFETTO_DCHECK_IS_ON()
-#define PERFETTO_TYPE_IDENTIFIER nullptr
-#endif  // PERFETTO_DCHECK_IS_ON()
+#define DEJAVIEW_TYPE_IDENTIFIER DEJAVIEW_DEBUG_FUNCTION_IDENTIFIER()
+#else  // DEJAVIEW_DCHECK_IS_ON()
+#define DEJAVIEW_TYPE_IDENTIFIER nullptr
+#endif  // DEJAVIEW_DCHECK_IS_ON()
 
 // Entry in an interning index, refers to the interned message.
 class InternedMessageView {
@@ -65,19 +65,19 @@ class InternedMessageView {
           [](void* obj) {
             delete reinterpret_cast<typename MessageType::Decoder*>(obj);
           });
-      decoder_type_ = PERFETTO_TYPE_IDENTIFIER;
+      decoder_type_ = DEJAVIEW_TYPE_IDENTIFIER;
     }
     // Verify that the type of the decoder didn't change.
-    if (PERFETTO_TYPE_IDENTIFIER &&
+    if (DEJAVIEW_TYPE_IDENTIFIER &&
         strcmp(decoder_type_,
                // GCC complains if this arg can be null.
-               static_cast<bool>(PERFETTO_TYPE_IDENTIFIER)
-                   ? PERFETTO_TYPE_IDENTIFIER
+               static_cast<bool>(DEJAVIEW_TYPE_IDENTIFIER)
+                   ? DEJAVIEW_TYPE_IDENTIFIER
                    : "") != 0) {
-      PERFETTO_FATAL(
+      DEJAVIEW_FATAL(
           "Interning entry accessed under different types! previous type: "
           "%s. new type: %s.",
-          decoder_type_, PERFETTO_DEBUG_FUNCTION_IDENTIFIER());
+          decoder_type_, DEJAVIEW_DEBUG_FUNCTION_IDENTIFIER());
     }
     return reinterpret_cast<typename MessageType::Decoder*>(decoder_.get());
   }
@@ -133,6 +133,6 @@ class InternedMessageView {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_INTERNED_MESSAGE_VIEW_H_

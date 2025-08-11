@@ -64,7 +64,7 @@ class AndroidStdlib(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.battery_stats;
+        INCLUDE DEJAVIEW MODULE android.battery_stats;
         SELECT * FROM android_battery_stats_event_slices
         ORDER BY str_value;
         """,
@@ -101,7 +101,7 @@ class AndroidStdlib(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.battery_stats;
+        INCLUDE DEJAVIEW MODULE android.battery_stats;
         SELECT * FROM android_battery_stats_state
         ORDER BY ts, track_name;
         """,
@@ -116,7 +116,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=Path('../../metrics/android/android_anr_metric.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.anrs;
+        INCLUDE DEJAVIEW MODULE android.anrs;
         SELECT *
         FROM android_anrs;
       """,
@@ -131,7 +131,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder;
+        INCLUDE DEJAVIEW MODULE android.binder;
         SELECT
           aidl_name,
           binder_txn_id,
@@ -167,7 +167,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.binder;
+      INCLUDE DEJAVIEW MODULE android.binder;
       SELECT
         binder_txn_id,
         client_ts,
@@ -198,7 +198,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.binder;
+      INCLUDE DEJAVIEW MODULE android.binder;
       SELECT
         binder_txn_id,
         client_ts,
@@ -223,7 +223,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=Path('android_slice_standardization.py'),
         query="""
-        INCLUDE PERFETTO MODULE android.slices;
+        INCLUDE DEJAVIEW MODULE android.slices;
         SELECT ANDROID_STANDARDIZE_SLICE_NAME(slice.name) name
         FROM slice
         """,
@@ -255,7 +255,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.monitor_contention;
+      INCLUDE DEJAVIEW MODULE android.monitor_contention;
       SELECT
         blocking_method,
         blocked_method,
@@ -275,7 +275,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.monitor_contention;
+      INCLUDE DEJAVIEW MODULE android.monitor_contention;
       SELECT
         *
       FROM android_monitor_contention_chain_blocked_functions_by_txn
@@ -291,7 +291,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.monitor_contention;
+      INCLUDE DEJAVIEW MODULE android.monitor_contention;
       SELECT
         *
       FROM android_monitor_contention_chain_thread_state_by_txn
@@ -310,7 +310,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.monitor_contention;
+      INCLUDE DEJAVIEW MODULE android.monitor_contention;
       SELECT * FROM android_monitor_contention_chain
         WHERE parent_id IS NOT NULL
       ORDER BY dur DESC
@@ -325,12 +325,12 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.monitor_contention;
+        INCLUDE DEJAVIEW MODULE android.monitor_contention;
 
         SELECT HEX(pprof) FROM android_monitor_contention_graph(303)
       """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
         Sample:
@@ -356,7 +356,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.thread;
+      INCLUDE DEJAVIEW MODULE android.thread;
       SELECT * FROM _android_thread_creation_spam(1e9, 1e9);
       """,
         out=Csv("""
@@ -391,7 +391,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.io;
+      INCLUDE DEJAVIEW MODULE android.io;
       SELECT * FROM _android_io_f2fs_counter_stats;
       """,
         out=Csv("""
@@ -451,7 +451,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE android.io;
+      INCLUDE DEJAVIEW MODULE android.io;
       SELECT tid, thread_name, pid, process_name, ino, dev, bytes, write_count FROM _android_io_f2fs_write_stats;
       """,
         out=Csv("""
@@ -476,7 +476,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.io;
+        INCLUDE DEJAVIEW MODULE android.io;
         SELECT total_write_count, distinct_processes, total_bytes_written,
                distinct_device_count, distinct_inode_count, distinct_thread_count
         FROM _android_io_f2fs_aggregate_write_stats
@@ -490,7 +490,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder;
+        INCLUDE DEJAVIEW MODULE android.binder;
         SELECT
           aidl_name,
           client_process,
@@ -528,7 +528,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder;
+        INCLUDE DEJAVIEW MODULE android.binder;
         SELECT
           aidl_name,
           client_process,
@@ -575,11 +575,11 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder;
+        INCLUDE DEJAVIEW MODULE android.binder;
         SELECT HEX(pprof) FROM ANDROID_BINDER_OUTGOING_GRAPH(259)
       """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
         Sample:
@@ -601,11 +601,11 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder;
+        INCLUDE DEJAVIEW MODULE android.binder;
         SELECT HEX(pprof) FROM ANDROID_BINDER_INCOMING_GRAPH(296)
       """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
         Sample:
@@ -655,11 +655,11 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder;
+        INCLUDE DEJAVIEW MODULE android.binder;
         SELECT HEX(pprof) FROM ANDROID_BINDER_GRAPH(2000, 2000, 2000, 2000)
       """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
         """))
@@ -668,11 +668,11 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_binder_metric_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder;
+        INCLUDE DEJAVIEW MODULE android.binder;
         SELECT HEX(pprof) FROM ANDROID_BINDER_GRAPH(-1000, 1000, -1000, 1000)
       """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
             Sample:
@@ -916,7 +916,7 @@ class AndroidStdlib(TestSuite):
           }
          """),
         query="""
-         INCLUDE PERFETTO MODULE android.dvfs;
+         INCLUDE DEJAVIEW MODULE android.dvfs;
          SELECT * FROM android_dvfs_counters;
          """,
         out=Csv("""
@@ -986,7 +986,7 @@ class AndroidStdlib(TestSuite):
           }
          """),
         query="""
-         INCLUDE PERFETTO MODULE android.dvfs;
+         INCLUDE DEJAVIEW MODULE android.dvfs;
          SELECT * FROM android_dvfs_counter_stats;
          """,
         out=Csv("""
@@ -1031,7 +1031,7 @@ class AndroidStdlib(TestSuite):
           }
          """),
         query="""
-         INCLUDE PERFETTO MODULE android.dvfs;
+         INCLUDE DEJAVIEW MODULE android.dvfs;
          SELECT * FROM android_dvfs_counter_residency;
          """,
         out=Csv("""
@@ -1044,7 +1044,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.app_process_starts;
+        INCLUDE DEJAVIEW MODULE android.app_process_starts;
         SELECT
         process_name,
         pid,
@@ -1070,7 +1070,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.garbage_collection;
+        INCLUDE DEJAVIEW MODULE android.garbage_collection;
         SELECT
         tid,
         pid,
@@ -1103,7 +1103,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('post_boot_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.input;
+        INCLUDE DEJAVIEW MODULE android.input;
         SELECT
         total_latency_dur,
         handling_latency_dur,
@@ -1141,7 +1141,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('post_boot_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.job_scheduler;
+        INCLUDE DEJAVIEW MODULE android.job_scheduler;
         SELECT job_id, uid, package_name, job_service_name, ts, dur FROM android_job_scheduler_events ORDER BY ts
       """,
         out=Csv("""
@@ -1163,7 +1163,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('freezer_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.freezer;
+        INCLUDE DEJAVIEW MODULE android.freezer;
         SELECT pid, ts, dur, unfreeze_reason_int, unfreeze_reason_str FROM android_freezer_events ORDER BY ts
       """,
         out=Csv("""
@@ -1182,7 +1182,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('post_boot_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.services;
+        INCLUDE DEJAVIEW MODULE android.services;
         SELECT
         client_oom_score,
         client_process,
@@ -1225,7 +1225,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.oom_adjuster;
+        INCLUDE DEJAVIEW MODULE android.oom_adjuster;
         SELECT
         ts,
         dur,
@@ -1260,7 +1260,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('freezer_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.broadcasts;
+        INCLUDE DEJAVIEW MODULE android.broadcasts;
         SELECT intent_action, process_name, pid, queue_id, ts, dur FROM _android_broadcasts_minsdk_u
         ORDER BY ts LIMIT 10
       """,
@@ -1283,7 +1283,7 @@ class AndroidStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.binder_breakdown;
+        INCLUDE DEJAVIEW MODULE android.binder_breakdown;
         WITH x AS (
           SELECT reason, dur FROM android_binder_server_breakdown
           UNION ALL

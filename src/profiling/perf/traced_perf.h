@@ -17,10 +17,10 @@
 #ifndef SRC_PROFILING_PERF_TRACED_PERF_H_
 #define SRC_PROFILING_PERF_TRACED_PERF_H_
 
-namespace perfetto {
+namespace dejaview {
 
 int TracedPerfMain(int argc, char** argv);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_TRACED_PERF_H_

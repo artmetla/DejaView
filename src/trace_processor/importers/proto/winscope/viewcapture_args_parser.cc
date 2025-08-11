@@ -15,13 +15,13 @@
  */
 
 #include "src/trace_processor/importers/proto/winscope/viewcapture_args_parser.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ViewCaptureArgsParser::ViewCaptureArgsParser(
@@ -125,4 +125,4 @@ std::optional<protozero::ConstChars> ViewCaptureArgsParser::TryDeinternString(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,7 +21,7 @@
 
 #include <cinttypes>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 void* wrap_malloc(uint32_t heap_id, void* (*fn)(size_t), size_t size);
@@ -53,6 +53,6 @@ void* wrap_reallocarray(uint32_t heap_id,
                         size_t size);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_WRAP_ALLOCATORS_H_

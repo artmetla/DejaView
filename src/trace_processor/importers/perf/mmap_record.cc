@@ -18,11 +18,11 @@
 
 #include <optional>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_processor/importers/perf/reader.h"
 #include "src/trace_processor/importers/perf/record.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 base::Status MmapRecord::Parse(const Record& record) {
   Reader reader(record.payload.copy());
@@ -63,4 +63,4 @@ std::optional<BuildId> Mmap2Record::GetBuildId() const {
                       : std::nullopt;
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

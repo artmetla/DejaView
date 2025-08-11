@@ -19,7 +19,7 @@
 
 #include <stdint.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 extern "C" {
@@ -38,5 +38,5 @@ ReportTrace(const char* reporter_package_name,
 }  // extern "C"
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // SRC_ANDROID_INTERNAL_TRACING_SERVICE_PROXY_H_

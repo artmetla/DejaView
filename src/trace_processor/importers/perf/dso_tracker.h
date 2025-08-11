@@ -20,8 +20,8 @@
 #include <cstdint>
 #include <string>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "protos/third_party/simpleperf/record_file.pbzero.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/storage/trace_storage.h"
@@ -29,7 +29,7 @@
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 // Keeps track of DSO symbols to symbolize frames at the end of the trace
 // parsing.
@@ -73,6 +73,6 @@ class DsoTracker : public Destructible {
   AddressRangeMap<std::string> kernel_symbols_;
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_DSO_TRACKER_H_

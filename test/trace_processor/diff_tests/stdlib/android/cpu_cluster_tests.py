@@ -36,7 +36,7 @@ class CpuClusters(TestSuite):
           }
           """),
         query="""
-          INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+          INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
           SELECT
             ucpu,
@@ -71,7 +71,7 @@ class CpuClusters(TestSuite):
           }
           """),
         query="""
-          INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+          INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
           SELECT
             ucpu,
@@ -113,7 +113,7 @@ class CpuClusters(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+        INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
         SELECT
           ucpu,
@@ -162,7 +162,7 @@ class CpuClusters(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+        INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
         SELECT
           ucpu,
@@ -218,7 +218,7 @@ class CpuClusters(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+        INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
         SELECT
           ucpu,
@@ -260,7 +260,7 @@ class CpuClusters(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+        INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
         SELECT
           ucpu,
@@ -297,7 +297,7 @@ class CpuClusters(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+        INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
         SELECT
           ucpu,
@@ -331,7 +331,7 @@ class CpuClusters(TestSuite):
         }
         """),
         query="""
-        INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+        INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
 
         SELECT
           ucpu,

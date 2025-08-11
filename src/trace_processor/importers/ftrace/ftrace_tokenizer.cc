@@ -21,15 +21,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/machine_tracker.h"
 #include "src/trace_processor/importers/common/metadata_tracker.h"
@@ -42,13 +42,13 @@
 #include "src/trace_processor/types/variadic.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.pbzero.h"
-#include "protos/perfetto/trace/ftrace/thermal_exynos.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.pbzero.h"
+#include "protos/dejaview/trace/ftrace/thermal_exynos.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using protozero::ProtoDecoder;
@@ -72,7 +72,7 @@ uint64_t TryFastParseFtraceEventId(const uint8_t* start, const uint8_t* end) {
 
   // If the next byte is not the common pid's tag, just skip the field.
   constexpr uint32_t kMaxPidLength = 5;
-  if (PERFETTO_UNLIKELY(static_cast<uint32_t>(end - start) <= kMaxPidLength ||
+  if (DEJAVIEW_UNLIKELY(static_cast<uint32_t>(end - start) <= kMaxPidLength ||
                         start[0] != kPidFieldTag)) {
     return 0;
   }
@@ -80,7 +80,7 @@ uint64_t TryFastParseFtraceEventId(const uint8_t* start, const uint8_t* end) {
   // Skip the common pid.
   uint64_t common_pid = 0;
   const uint8_t* common_pid_end = ParseVarInt(start + 1, end, &common_pid);
-  if (PERFETTO_UNLIKELY(common_pid_end == start + 1)) {
+  if (DEJAVIEW_UNLIKELY(common_pid_end == start + 1)) {
     return 0;
   }
 
@@ -106,7 +106,7 @@ uint64_t TryFastParseFtraceEventId(const uint8_t* start, const uint8_t* end) {
 
 }  // namespace
 
-PERFETTO_ALWAYS_INLINE
+DEJAVIEW_ALWAYS_INLINE
 base::Status FtraceTokenizer::TokenizeFtraceBundle(
     TraceBlobView bundle,
     RefPtr<PacketSequenceStateGeneration> state,
@@ -114,22 +114,22 @@ base::Status FtraceTokenizer::TokenizeFtraceBundle(
   protos::pbzero::FtraceEventBundle::Decoder decoder(bundle.data(),
                                                      bundle.length());
 
-  if (PERFETTO_UNLIKELY(!decoder.has_cpu())) {
-    PERFETTO_ELOG("CPU field not found in FtraceEventBundle");
+  if (DEJAVIEW_UNLIKELY(!decoder.has_cpu())) {
+    DEJAVIEW_ELOG("CPU field not found in FtraceEventBundle");
     context_->storage->IncrementStats(stats::ftrace_bundle_tokenizer_errors);
     return base::OkStatus();
   }
 
   uint32_t cpu = decoder.cpu();
   static constexpr uint32_t kMaxCpuCount = 1024;
-  if (PERFETTO_UNLIKELY(cpu >= kMaxCpuCount)) {
+  if (DEJAVIEW_UNLIKELY(cpu >= kMaxCpuCount)) {
     return base::ErrStatus(
         "CPU %u is greater than maximum allowed of %u. This is likely because "
         "of trace corruption",
         cpu, kMaxCpuCount);
   }
 
-  if (PERFETTO_UNLIKELY(decoder.lost_events())) {
+  if (DEJAVIEW_UNLIKELY(decoder.lost_events())) {
     // If set, it means that the kernel overwrote an unspecified number of
     // events since our last read from the per-cpu buffer.
     context_->storage->SetIndexedStats(stats::ftrace_cpu_has_data_loss,
@@ -156,7 +156,7 @@ base::Status FtraceTokenizer::TokenizeFtraceBundle(
   }
 
   if (decoder.has_ftrace_timestamp()) {
-    PERFETTO_DCHECK(clock_id != BuiltinClock::BUILTIN_CLOCK_BOOTTIME);
+    DEJAVIEW_DCHECK(clock_id != BuiltinClock::BUILTIN_CLOCK_BOOTTIME);
     HandleFtraceClockSnapshot(decoder.ftrace_timestamp(),
                               decoder.boot_timestamp(), packet_sequence_id);
   }
@@ -171,7 +171,7 @@ base::Status FtraceTokenizer::TokenizeFtraceBundle(
   }
 
   // First bundle on each cpu is special since ftrace is recorded in per-cpu
-  // buffers. In traces written by perfetto v44+ we know the timestamp from
+  // buffers. In traces written by dejaview v44+ we know the timestamp from
   // which this cpu's data stream is valid. This is important for parsing ring
   // buffer traces, as not all per-cpu data streams will be valid from the same
   // timestamp.
@@ -183,7 +183,7 @@ base::Status FtraceTokenizer::TokenizeFtraceBundle(
 
     // If this cpu's timestamp is the new max, update the metadata table entry.
     // previous_bundle_end_timestamp is the replacement for
-    // last_read_event_timestamp on perfetto v47+, at most one will be set.
+    // last_read_event_timestamp on dejaview v47+, at most one will be set.
     if (decoder.has_previous_bundle_end_timestamp() ||
         decoder.has_last_read_event_timestamp()) {
       uint64_t raw_ts = decoder.has_previous_bundle_end_timestamp()
@@ -208,7 +208,7 @@ base::Status FtraceTokenizer::TokenizeFtraceBundle(
   return base::OkStatus();
 }
 
-PERFETTO_ALWAYS_INLINE
+DEJAVIEW_ALWAYS_INLINE
 void FtraceTokenizer::TokenizeFtraceEvent(
     uint32_t cpu,
     ClockTracker::ClockId clock_id,
@@ -230,30 +230,30 @@ void FtraceTokenizer::TokenizeFtraceEvent(
   uint64_t raw_timestamp = 0;
   bool timestamp_found = false;
   uint64_t event_id = 0;
-  if (PERFETTO_LIKELY(length > 10 && data[0] == kTimestampFieldTag)) {
+  if (DEJAVIEW_LIKELY(length > 10 && data[0] == kTimestampFieldTag)) {
     // Fastpath.
     const uint8_t* ts_end = ParseVarInt(data + 1, data + 11, &raw_timestamp);
     timestamp_found = ts_end != data + 1;
-    if (PERFETTO_LIKELY(timestamp_found)) {
+    if (DEJAVIEW_LIKELY(timestamp_found)) {
       event_id = TryFastParseFtraceEventId(ts_end, data + length);
     }
   }
 
   // Slowpath for finding the timestamp.
-  if (PERFETTO_UNLIKELY(!timestamp_found)) {
+  if (DEJAVIEW_UNLIKELY(!timestamp_found)) {
     ProtoDecoder decoder(data, length);
     if (auto ts_field = decoder.FindField(kTimestampFieldNumber)) {
       timestamp_found = true;
       raw_timestamp = ts_field.as_uint64();
     }
-    if (PERFETTO_UNLIKELY(!timestamp_found)) {
+    if (DEJAVIEW_UNLIKELY(!timestamp_found)) {
       context_->storage->IncrementStats(stats::ftrace_bundle_tokenizer_errors);
       return;
     }
   }
 
   // Slowpath for finding the event id.
-  if (PERFETTO_UNLIKELY(event_id == 0)) {
+  if (DEJAVIEW_UNLIKELY(event_id == 0)) {
     ProtoDecoder decoder(data, length);
     for (auto f = decoder.ReadField(); f.valid(); f = decoder.ReadField()) {
       // Find the first length-delimited tag as this corresponds to the ftrace
@@ -263,17 +263,17 @@ void FtraceTokenizer::TokenizeFtraceEvent(
         break;
       }
     }
-    if (PERFETTO_UNLIKELY(event_id == 0)) {
+    if (DEJAVIEW_UNLIKELY(event_id == 0)) {
       context_->storage->IncrementStats(stats::ftrace_missing_event_id);
       return;
     }
   }
 
-  if (PERFETTO_UNLIKELY(
+  if (DEJAVIEW_UNLIKELY(
           event_id == protos::pbzero::FtraceEvent::kGpuWorkPeriodFieldNumber)) {
     TokenizeFtraceGpuWorkPeriod(cpu, std::move(event), std::move(state));
     return;
-  } else if (PERFETTO_UNLIKELY(event_id ==
+  } else if (DEJAVIEW_UNLIKELY(event_id ==
                                protos::pbzero::FtraceEvent::
                                    kThermalExynosAcpmBulkFieldNumber)) {
     TokenizeFtraceThermalExynosAcpmBulk(cpu, std::move(event),
@@ -294,7 +294,7 @@ void FtraceTokenizer::TokenizeFtraceEvent(
                                     std::move(state), context_->machine_id());
 }
 
-PERFETTO_ALWAYS_INLINE
+DEJAVIEW_ALWAYS_INLINE
 void FtraceTokenizer::TokenizeFtraceCompactSched(uint32_t cpu,
                                                  ClockTracker::ClockId clock_id,
                                                  protozero::ConstBytes packet) {
@@ -338,7 +338,7 @@ void FtraceTokenizer::TokenizeFtraceCompactSchedSwitch(
     int64_t event_timestamp = timestamp_acc;
 
     // index into the interned string table
-    if (PERFETTO_UNLIKELY(*comm_it >= string_table.size())) {
+    if (DEJAVIEW_UNLIKELY(*comm_it >= string_table.size())) {
       parse_error = true;
       break;
     }
@@ -393,7 +393,7 @@ void FtraceTokenizer::TokenizeFtraceCompactSchedWaking(
     int64_t event_timestamp = timestamp_acc;
 
     // index into the interned string table
-    if (PERFETTO_UNLIKELY(*comm_it >= string_table.size())) {
+    if (DEJAVIEW_UNLIKELY(*comm_it >= string_table.size())) {
       parse_error = true;
       break;
     }
@@ -514,4 +514,4 @@ void FtraceTokenizer::TokenizeFtraceThermalExynosAcpmBulk(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../gn/perfetto_python.gni")
+import("../gn/dejaview_python.gni")
 
-perfetto_py_library("trace_processor_table_generator") {
+dejaview_py_library("trace_processor_table_generator") {
   sources = [
     "generators/trace_processor_table/public.py",
     "generators/trace_processor_table/serialize.py",
@@ -22,7 +22,7 @@ perfetto_py_library("trace_processor_table_generator") {
   ]
 }
 
-perfetto_py_library("trace_processor_stdlib_docs") {
+dejaview_py_library("trace_processor_stdlib_docs") {
   sources = [
     "generators/sql_processing/docs_extractor.py",
     "generators/sql_processing/docs_parse.py",
@@ -30,7 +30,7 @@ perfetto_py_library("trace_processor_stdlib_docs") {
   ]
 }
 
-perfetto_py_library("trace_processor_diff_tests") {
+dejaview_py_library("trace_processor_diff_tests") {
   sources = [
     "generators/diff_tests/runner.py",
     "generators/diff_tests/testing.py",
@@ -38,7 +38,7 @@ perfetto_py_library("trace_processor_diff_tests") {
   ]
 }
 
-perfetto_py_binary("trace_processor_py_example") {
+dejaview_py_binary("trace_processor_py_example") {
   sources = [ "example.py" ]
   deps = [
     ":trace_processor_py",
@@ -47,25 +47,25 @@ perfetto_py_binary("trace_processor_py_example") {
   main = "example.py"
 }
 
-perfetto_py_library("common") {
+dejaview_py_library("common") {
   sources = [
-    "perfetto/common/exceptions.py",
-    "perfetto/common/query_result_iterator.py",
+    "dejaview/common/exceptions.py",
+    "dejaview/common/query_result_iterator.py",
   ]
 }
 
-perfetto_py_library("trace_processor_py_no_resolvers") {
+dejaview_py_library("trace_processor_py_no_resolvers") {
   sources = [
-    "perfetto/trace_processor/__init__.py",
-    "perfetto/trace_processor/api.py",
-    "perfetto/trace_processor/http.py",
-    "perfetto/trace_processor/platform.py",
-    "perfetto/trace_processor/protos.py",
-    "perfetto/trace_processor/shell.py",
+    "dejaview/trace_processor/__init__.py",
+    "dejaview/trace_processor/api.py",
+    "dejaview/trace_processor/http.py",
+    "dejaview/trace_processor/platform.py",
+    "dejaview/trace_processor/protos.py",
+    "dejaview/trace_processor/shell.py",
   ]
   data = [
-    "perfetto/trace_processor/trace_processor.descriptor",
-    "perfetto/trace_processor/metrics.descriptor",
+    "dejaview/trace_processor/trace_processor.descriptor",
+    "dejaview/trace_processor/metrics.descriptor",
     "..:trace_processor_shell",
   ]
   deps = [
@@ -77,32 +77,32 @@ perfetto_py_library("trace_processor_py_no_resolvers") {
   ]
 }
 
-perfetto_py_library("trace_processor_py") {
+dejaview_py_library("trace_processor_py") {
   deps = [
     ":trace_processor_py_no_resolvers",
     "../gn:tp_resolvers_py",
   ]
 }
 
-perfetto_py_library("trace_uri_resolver") {
+dejaview_py_library("trace_uri_resolver") {
   sources = [
-    "perfetto/trace_uri_resolver/__init__.py",
-    "perfetto/trace_uri_resolver/path.py",
-    "perfetto/trace_uri_resolver/registry.py",
-    "perfetto/trace_uri_resolver/resolver.py",
-    "perfetto/trace_uri_resolver/util.py",
+    "dejaview/trace_uri_resolver/__init__.py",
+    "dejaview/trace_uri_resolver/path.py",
+    "dejaview/trace_uri_resolver/registry.py",
+    "dejaview/trace_uri_resolver/resolver.py",
+    "dejaview/trace_uri_resolver/util.py",
   ]
 }
 
-perfetto_py_library("experimental_slice_breakdown_lib") {
+dejaview_py_library("experimental_slice_breakdown_lib") {
   sources = [
-    "perfetto/experimental/slice_breakdown/__init__.py",
-    "perfetto/experimental/slice_breakdown/breakdown.py",
+    "dejaview/experimental/slice_breakdown/__init__.py",
+    "dejaview/experimental/slice_breakdown/breakdown.py",
   ]
   deps = [ ":trace_processor_py" ]
 }
 
-perfetto_py_binary("experimental_slice_breakdown_bin") {
+dejaview_py_binary("experimental_slice_breakdown_bin") {
   sources = [ "tools/slice_breakdown.py" ]
   main = "tools/slice_breakdown.py"
   deps = [
@@ -112,11 +112,11 @@ perfetto_py_binary("experimental_slice_breakdown_bin") {
   ]
 }
 
-perfetto_py_library("batch_trace_processor") {
+dejaview_py_library("batch_trace_processor") {
   sources = [
-    "perfetto/batch_trace_processor/__init__.py",
-    "perfetto/batch_trace_processor/api.py",
-    "perfetto/batch_trace_processor/platform.py",
+    "dejaview/batch_trace_processor/__init__.py",
+    "dejaview/batch_trace_processor/api.py",
+    "dejaview/batch_trace_processor/platform.py",
   ]
   deps = [
     ":trace_processor_py",
@@ -125,7 +125,7 @@ perfetto_py_library("batch_trace_processor") {
   ]
 }
 
-perfetto_py_library("sql_processing") {
+dejaview_py_library("sql_processing") {
   sources = [
     "generators/sql_processing/docs_extractor.py",
     "generators/sql_processing/docs_parse.py",

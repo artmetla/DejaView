@@ -14,70 +14,70 @@
  * limitations under the License.
  */
 
-#include "perfetto/public/abi/data_source_abi.h"
+#include "dejaview/public/abi/data_source_abi.h"
 
 #include <bitset>
 
-#include "perfetto/tracing/buffer_exhausted_policy.h"
-#include "perfetto/tracing/data_source.h"
-#include "perfetto/tracing/internal/basic_types.h"
-#include "protos/perfetto/common/data_source_descriptor.gen.h"
-#include "protos/perfetto/config/data_source_config.gen.h"
+#include "dejaview/tracing/buffer_exhausted_policy.h"
+#include "dejaview/tracing/data_source.h"
+#include "dejaview/tracing/internal/basic_types.h"
+#include "protos/dejaview/common/data_source_descriptor.gen.h"
+#include "protos/dejaview/config/data_source_config.gen.h"
 #include "src/shared_lib/reset_for_testing.h"
 #include "src/shared_lib/stream_writer.h"
 
 namespace {
 
-using ::perfetto::internal::DataSourceInstanceThreadLocalState;
-using ::perfetto::internal::DataSourceThreadLocalState;
-using ::perfetto::internal::DataSourceType;
+using ::dejaview::internal::DataSourceInstanceThreadLocalState;
+using ::dejaview::internal::DataSourceThreadLocalState;
+using ::dejaview::internal::DataSourceType;
 
 thread_local DataSourceThreadLocalState*
-    g_tls_cache[perfetto::internal::kMaxDataSources];
+    g_tls_cache[dejaview::internal::kMaxDataSources];
 
 }  // namespace
 
 // Implementation of a shared library data source type (there's one of these per
 // type, not per instance).
 //
-// Returned to the C side when invoking PerfettoDsCreateImpl(). The C side only
+// Returned to the C side when invoking DejaViewDsCreateImpl(). The C side only
 // has an opaque pointer to this.
-struct PerfettoDsImpl {
+struct DejaViewDsImpl {
   // Instance lifecycle callbacks.
-  PerfettoDsOnSetupCb on_setup_cb = nullptr;
-  PerfettoDsOnStartCb on_start_cb = nullptr;
-  PerfettoDsOnStopCb on_stop_cb = nullptr;
-  PerfettoDsOnDestroyCb on_destroy_cb = nullptr;
-  PerfettoDsOnFlushCb on_flush_cb = nullptr;
+  DejaViewDsOnSetupCb on_setup_cb = nullptr;
+  DejaViewDsOnStartCb on_start_cb = nullptr;
+  DejaViewDsOnStopCb on_stop_cb = nullptr;
+  DejaViewDsOnDestroyCb on_destroy_cb = nullptr;
+  DejaViewDsOnFlushCb on_flush_cb = nullptr;
 
   // These are called to create/delete custom thread-local instance state.
-  PerfettoDsOnCreateCustomState on_create_tls_cb = nullptr;
-  PerfettoDsOnDeleteCustomState on_delete_tls_cb = nullptr;
+  DejaViewDsOnCreateCustomState on_create_tls_cb = nullptr;
+  DejaViewDsOnDeleteCustomState on_delete_tls_cb = nullptr;
 
   // These are called to create/delete custom thread-local instance incremental
   // state.
-  PerfettoDsOnCreateCustomState on_create_incr_cb = nullptr;
-  PerfettoDsOnDeleteCustomState on_delete_incr_cb = nullptr;
+  DejaViewDsOnCreateCustomState on_create_incr_cb = nullptr;
+  DejaViewDsOnDeleteCustomState on_delete_incr_cb = nullptr;
 
   // Passed to all the callbacks as the `user_arg` param.
   void* cb_user_arg;
 
-  perfetto::BufferExhaustedPolicy buffer_exhausted_policy =
-      perfetto::BufferExhaustedPolicy::kDrop;
+  dejaview::BufferExhaustedPolicy buffer_exhausted_policy =
+      dejaview::BufferExhaustedPolicy::kDrop;
 
   DataSourceType cpp_type;
   std::atomic<bool> enabled{false};
   std::mutex mu;
   // Guarded by mu
-  std::bitset<perfetto::internal::kMaxDataSourceInstances> enabled_instances;
+  std::bitset<dejaview::internal::kMaxDataSourceInstances> enabled_instances;
 
   bool IsRegistered() {
     return cpp_type.static_state()->index !=
-           perfetto::internal::kMaxDataSources;
+           dejaview::internal::kMaxDataSources;
   }
 };
 
-namespace perfetto {
+namespace dejaview {
 namespace shlib {
 
 // These are only exposed to tests.
@@ -86,20 +86,20 @@ void ResetDataSourceTls() {
   memset(g_tls_cache, 0, sizeof(g_tls_cache));
 }
 
-void DsImplDestroy(struct PerfettoDsImpl* ds_impl) {
+void DsImplDestroy(struct DejaViewDsImpl* ds_impl) {
   delete ds_impl;
 }
 
 }  // namespace shlib
-}  // namespace perfetto
+}  // namespace dejaview
 
 namespace {
 
 // Represents a global data source instance (there can be more than one of these
 // for a single data source type).
-class ShlibDataSource : public perfetto::DataSourceBase {
+class ShlibDataSource : public dejaview::DataSourceBase {
  public:
-  explicit ShlibDataSource(PerfettoDsImpl* type) : type_(*type) {}
+  explicit ShlibDataSource(DejaViewDsImpl* type) : type_(*type) {}
 
   void OnSetup(const SetupArgs& args) override {
     if (type_.on_setup_cb) {
@@ -127,8 +127,8 @@ class ShlibDataSource : public perfetto::DataSourceBase {
     if (type_.on_stop_cb) {
       type_.on_stop_cb(
           &type_, args.internal_instance_index, type_.cb_user_arg, inst_ctx_,
-          const_cast<PerfettoDsOnStopArgs*>(
-              reinterpret_cast<const PerfettoDsOnStopArgs*>(&args)));
+          const_cast<DejaViewDsOnStopArgs*>(
+              reinterpret_cast<const DejaViewDsOnStopArgs*>(&args)));
     }
 
     std::lock_guard<std::mutex> lock(type_.mu);
@@ -148,24 +148,24 @@ class ShlibDataSource : public perfetto::DataSourceBase {
     if (type_.on_flush_cb) {
       type_.on_flush_cb(
           &type_, args.internal_instance_index, type_.cb_user_arg, inst_ctx_,
-          const_cast<PerfettoDsOnFlushArgs*>(
-              reinterpret_cast<const PerfettoDsOnFlushArgs*>(&args)));
+          const_cast<DejaViewDsOnFlushArgs*>(
+              reinterpret_cast<const DejaViewDsOnFlushArgs*>(&args)));
     }
   }
 
-  const PerfettoDsImpl& type() const { return type_; }
+  const DejaViewDsImpl& type() const { return type_; }
 
   void* inst_ctx() const { return inst_ctx_; }
 
  private:
-  PerfettoDsImpl& type_;
+  DejaViewDsImpl& type_;
   void* inst_ctx_ = nullptr;
 };
 
 struct DataSourceTraits {
   static DataSourceThreadLocalState* GetDataSourceTLS(
-      perfetto::internal::DataSourceStaticState* static_state,
-      perfetto::internal::TracingTLS* root_tls) {
+      dejaview::internal::DataSourceStaticState* static_state,
+      dejaview::internal::TracingTLS* root_tls) {
     auto* ds_tls = &root_tls->data_sources_tls[static_state->index];
     // ds_tls->static_state can be:
     // * nullptr
@@ -189,10 +189,10 @@ DataSourceInstanceThreadLocalState::ObjectWithDeleter CreateShlibTls(
     DataSourceInstanceThreadLocalState* tls_inst,
     uint32_t inst_idx,
     void* ctx) {
-  auto* ds_impl = reinterpret_cast<PerfettoDsImpl*>(ctx);
+  auto* ds_impl = reinterpret_cast<DejaViewDsImpl*>(ctx);
 
   void* custom_state = ds_impl->on_create_tls_cb(
-      ds_impl, inst_idx, reinterpret_cast<PerfettoDsTracerImpl*>(tls_inst),
+      ds_impl, inst_idx, reinterpret_cast<DejaViewDsTracerImpl*>(tls_inst),
       ds_impl->cb_user_arg);
   return DataSourceInstanceThreadLocalState::ObjectWithDeleter(
       custom_state, ds_impl->on_delete_tls_cb);
@@ -202,10 +202,10 @@ DataSourceInstanceThreadLocalState::ObjectWithDeleter
 CreateShlibIncrementalState(DataSourceInstanceThreadLocalState* tls_inst,
                             uint32_t inst_idx,
                             void* ctx) {
-  auto* ds_impl = reinterpret_cast<PerfettoDsImpl*>(ctx);
+  auto* ds_impl = reinterpret_cast<DejaViewDsImpl*>(ctx);
 
   void* custom_state = ds_impl->on_create_incr_cb(
-      ds_impl, inst_idx, reinterpret_cast<PerfettoDsTracerImpl*>(tls_inst),
+      ds_impl, inst_idx, reinterpret_cast<DejaViewDsTracerImpl*>(tls_inst),
       ds_impl->cb_user_arg);
   return DataSourceInstanceThreadLocalState::ObjectWithDeleter(
       custom_state, ds_impl->on_delete_incr_cb);
@@ -214,100 +214,100 @@ CreateShlibIncrementalState(DataSourceInstanceThreadLocalState* tls_inst,
 }  // namespace
 
 // Exposed through data_source_abi.h
-std::atomic<bool> perfetto_atomic_false{false};
+std::atomic<bool> dejaview_atomic_false{false};
 
-struct PerfettoDsImpl* PerfettoDsImplCreate() {
-  return new PerfettoDsImpl();
+struct DejaViewDsImpl* DejaViewDsImplCreate() {
+  return new DejaViewDsImpl();
 }
 
-void PerfettoDsSetOnSetupCallback(struct PerfettoDsImpl* ds_impl,
-                                  PerfettoDsOnSetupCb cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnSetupCallback(struct DejaViewDsImpl* ds_impl,
+                                  DejaViewDsOnSetupCb cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_setup_cb = cb;
 }
 
-void PerfettoDsSetOnStartCallback(struct PerfettoDsImpl* ds_impl,
-                                  PerfettoDsOnStartCb cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnStartCallback(struct DejaViewDsImpl* ds_impl,
+                                  DejaViewDsOnStartCb cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_start_cb = cb;
 }
 
-void PerfettoDsSetOnStopCallback(struct PerfettoDsImpl* ds_impl,
-                                 PerfettoDsOnStopCb cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnStopCallback(struct DejaViewDsImpl* ds_impl,
+                                 DejaViewDsOnStopCb cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_stop_cb = cb;
 }
 
-void PerfettoDsSetOnDestroyCallback(struct PerfettoDsImpl* ds_impl,
-                                    PerfettoDsOnDestroyCb cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnDestroyCallback(struct DejaViewDsImpl* ds_impl,
+                                    DejaViewDsOnDestroyCb cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_destroy_cb = cb;
 }
 
-void PerfettoDsSetOnFlushCallback(struct PerfettoDsImpl* ds_impl,
-                                  PerfettoDsOnFlushCb cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnFlushCallback(struct DejaViewDsImpl* ds_impl,
+                                  DejaViewDsOnFlushCb cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_flush_cb = cb;
 }
 
-void PerfettoDsSetOnCreateTls(struct PerfettoDsImpl* ds_impl,
-                              PerfettoDsOnCreateCustomState cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnCreateTls(struct DejaViewDsImpl* ds_impl,
+                              DejaViewDsOnCreateCustomState cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_create_tls_cb = cb;
 }
 
-void PerfettoDsSetOnDeleteTls(struct PerfettoDsImpl* ds_impl,
-                              PerfettoDsOnDeleteCustomState cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnDeleteTls(struct DejaViewDsImpl* ds_impl,
+                              DejaViewDsOnDeleteCustomState cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_delete_tls_cb = cb;
 }
 
-void PerfettoDsSetOnCreateIncr(struct PerfettoDsImpl* ds_impl,
-                               PerfettoDsOnCreateCustomState cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnCreateIncr(struct DejaViewDsImpl* ds_impl,
+                               DejaViewDsOnCreateCustomState cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_create_incr_cb = cb;
 }
 
-void PerfettoDsSetOnDeleteIncr(struct PerfettoDsImpl* ds_impl,
-                               PerfettoDsOnDeleteCustomState cb) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetOnDeleteIncr(struct DejaViewDsImpl* ds_impl,
+                               DejaViewDsOnDeleteCustomState cb) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->on_delete_incr_cb = cb;
 }
 
-void PerfettoDsSetCbUserArg(struct PerfettoDsImpl* ds_impl, void* user_arg) {
-  PERFETTO_CHECK(!ds_impl->IsRegistered());
+void DejaViewDsSetCbUserArg(struct DejaViewDsImpl* ds_impl, void* user_arg) {
+  DEJAVIEW_CHECK(!ds_impl->IsRegistered());
   ds_impl->cb_user_arg = user_arg;
 }
 
-bool PerfettoDsSetBufferExhaustedPolicy(struct PerfettoDsImpl* ds_impl,
+bool DejaViewDsSetBufferExhaustedPolicy(struct DejaViewDsImpl* ds_impl,
                                         uint32_t policy) {
   if (ds_impl->IsRegistered()) {
     return false;
   }
 
   switch (policy) {
-    case PERFETTO_DS_BUFFER_EXHAUSTED_POLICY_DROP:
-      ds_impl->buffer_exhausted_policy = perfetto::BufferExhaustedPolicy::kDrop;
+    case DEJAVIEW_DS_BUFFER_EXHAUSTED_POLICY_DROP:
+      ds_impl->buffer_exhausted_policy = dejaview::BufferExhaustedPolicy::kDrop;
       return true;
-    case PERFETTO_DS_BUFFER_EXHAUSTED_POLICY_STALL_AND_ABORT:
+    case DEJAVIEW_DS_BUFFER_EXHAUSTED_POLICY_STALL_AND_ABORT:
       ds_impl->buffer_exhausted_policy =
-          perfetto::BufferExhaustedPolicy::kStall;
+          dejaview::BufferExhaustedPolicy::kStall;
       return true;
   }
   return false;
 }
 
-bool PerfettoDsImplRegister(struct PerfettoDsImpl* ds_impl,
-                            PERFETTO_ATOMIC(bool) * *enabled_ptr,
+bool DejaViewDsImplRegister(struct DejaViewDsImpl* ds_impl,
+                            DEJAVIEW_ATOMIC(bool) * *enabled_ptr,
                             const void* descriptor,
                             size_t descriptor_size) {
-  std::unique_ptr<PerfettoDsImpl> data_source_type(ds_impl);
+  std::unique_ptr<DejaViewDsImpl> data_source_type(ds_impl);
 
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.ParseFromArray(descriptor, descriptor_size);
 
   auto factory = [ds_impl]() {
-    return std::unique_ptr<perfetto::DataSourceBase>(
+    return std::unique_ptr<dejaview::DataSourceBase>(
         new ShlibDataSource(ds_impl));
   };
 
@@ -326,7 +326,7 @@ bool PerfettoDsImplRegister(struct PerfettoDsImpl* ds_impl,
     cb_ctx = data_source_type.get();
   }
 
-  perfetto::internal::DataSourceParams params;
+  dejaview::internal::DataSourceParams params;
   params.supports_multiple_instances = true;
   params.requires_callbacks_under_lock = false;
   bool success = data_source_type->cpp_type.Register(
@@ -337,49 +337,49 @@ bool PerfettoDsImplRegister(struct PerfettoDsImpl* ds_impl,
     return false;
   }
   *enabled_ptr = &data_source_type->enabled;
-  perfetto::base::ignore_result(data_source_type.release());
+  dejaview::base::ignore_result(data_source_type.release());
   return true;
 }
 
-void PerfettoDsImplUpdateDescriptor(struct PerfettoDsImpl* ds_impl,
+void DejaViewDsImplUpdateDescriptor(struct DejaViewDsImpl* ds_impl,
                                     const void* descriptor,
                                     size_t descriptor_size) {
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.ParseFromArray(descriptor, descriptor_size);
 
   ds_impl->cpp_type.UpdateDescriptor(dsd);
 }
 
-PerfettoDsAsyncStopper* PerfettoDsOnStopArgsPostpone(
-    PerfettoDsOnStopArgs* args) {
+DejaViewDsAsyncStopper* DejaViewDsOnStopArgsPostpone(
+    DejaViewDsOnStopArgs* args) {
   auto* cb = new std::function<void()>();
   *cb = reinterpret_cast<const ShlibDataSource::StopArgs*>(args)
             ->HandleStopAsynchronously();
-  return reinterpret_cast<PerfettoDsAsyncStopper*>(cb);
+  return reinterpret_cast<DejaViewDsAsyncStopper*>(cb);
 }
 
-void PerfettoDsStopDone(PerfettoDsAsyncStopper* stopper) {
+void DejaViewDsStopDone(DejaViewDsAsyncStopper* stopper) {
   auto* cb = reinterpret_cast<std::function<void()>*>(stopper);
   (*cb)();
   delete cb;
 }
 
-PerfettoDsAsyncFlusher* PerfettoDsOnFlushArgsPostpone(
-    PerfettoDsOnFlushArgs* args) {
+DejaViewDsAsyncFlusher* DejaViewDsOnFlushArgsPostpone(
+    DejaViewDsOnFlushArgs* args) {
   auto* cb = new std::function<void()>();
   *cb = reinterpret_cast<const ShlibDataSource::FlushArgs*>(args)
             ->HandleFlushAsynchronously();
-  return reinterpret_cast<PerfettoDsAsyncFlusher*>(cb);
+  return reinterpret_cast<DejaViewDsAsyncFlusher*>(cb);
 }
 
-void PerfettoDsFlushDone(PerfettoDsAsyncFlusher* stopper) {
+void DejaViewDsFlushDone(DejaViewDsAsyncFlusher* stopper) {
   auto* cb = reinterpret_cast<std::function<void()>*>(stopper);
   (*cb)();
   delete cb;
 }
 
-void* PerfettoDsImplGetInstanceLocked(struct PerfettoDsImpl* ds_impl,
-                                      PerfettoDsInstanceIndex idx) {
+void* DejaViewDsImplGetInstanceLocked(struct DejaViewDsImpl* ds_impl,
+                                      DejaViewDsInstanceIndex idx) {
   auto* internal_state = ds_impl->cpp_type.static_state()->TryGet(idx);
   if (!internal_state) {
     return nullptr;
@@ -399,8 +399,8 @@ void* PerfettoDsImplGetInstanceLocked(struct PerfettoDsImpl* ds_impl,
   return inst_ctx;
 }
 
-void PerfettoDsImplReleaseInstanceLocked(struct PerfettoDsImpl* ds_impl,
-                                         PerfettoDsInstanceIndex idx) {
+void DejaViewDsImplReleaseInstanceLocked(struct DejaViewDsImpl* ds_impl,
+                                         DejaViewDsInstanceIndex idx) {
   // The `valid_instances` bitmap might have changed since the lock has been
   // taken, but the instance must still be alive (we were holding the lock on
   // it).
@@ -408,31 +408,31 @@ void PerfettoDsImplReleaseInstanceLocked(struct PerfettoDsImpl* ds_impl,
   internal_state->lock.unlock();
 }
 
-void* PerfettoDsImplGetCustomTls(struct PerfettoDsImpl*,
-                                 struct PerfettoDsTracerImpl* tracer,
-                                 PerfettoDsInstanceIndex) {
+void* DejaViewDsImplGetCustomTls(struct DejaViewDsImpl*,
+                                 struct DejaViewDsTracerImpl* tracer,
+                                 DejaViewDsInstanceIndex) {
   auto* tls_inst =
       reinterpret_cast<DataSourceInstanceThreadLocalState*>(tracer);
 
-  PERFETTO_DCHECK(tls_inst->data_source_custom_tls);
+  DEJAVIEW_DCHECK(tls_inst->data_source_custom_tls);
   return tls_inst->data_source_custom_tls.get();
 }
 
-void* PerfettoDsImplGetIncrementalState(struct PerfettoDsImpl* ds_impl,
-                                        struct PerfettoDsTracerImpl* tracer,
-                                        PerfettoDsInstanceIndex idx) {
+void* DejaViewDsImplGetIncrementalState(struct DejaViewDsImpl* ds_impl,
+                                        struct DejaViewDsTracerImpl* tracer,
+                                        DejaViewDsInstanceIndex idx) {
   auto* tls_inst =
       reinterpret_cast<DataSourceInstanceThreadLocalState*>(tracer);
 
   return ds_impl->cpp_type.GetIncrementalState(tls_inst, idx);
 }
 
-struct PerfettoDsImplTracerIterator PerfettoDsImplTraceIterateBegin(
-    struct PerfettoDsImpl* ds_impl) {
+struct DejaViewDsImplTracerIterator DejaViewDsImplTraceIterateBegin(
+    struct DejaViewDsImpl* ds_impl) {
   DataSourceThreadLocalState** tls =
       &g_tls_cache[ds_impl->cpp_type.static_state()->index];
 
-  struct PerfettoDsImplTracerIterator ret = {0, nullptr, nullptr};
+  struct DejaViewDsImplTracerIterator ret = {0, nullptr, nullptr};
   uint32_t cached_instances =
       ds_impl->cpp_type.valid_instances()->load(std::memory_order_relaxed);
   if (!cached_instances) {
@@ -449,18 +449,18 @@ struct PerfettoDsImplTracerIterator PerfettoDsImplTraceIterateBegin(
                                                          &ds_impl->cpp_type);
   ret.inst_id = it.i;
   (*tls)->root_tls->cached_instances = it.cached_instances;
-  ret.tracer = reinterpret_cast<struct PerfettoDsTracerImpl*>(it.instance);
+  ret.tracer = reinterpret_cast<struct DejaViewDsTracerImpl*>(it.instance);
   if (!ret.tracer) {
     ds_impl->cpp_type.TraceEpilogue(*tls);
   }
 
-  ret.tls = reinterpret_cast<struct PerfettoDsTlsImpl*>(*tls);
+  ret.tls = reinterpret_cast<struct DejaViewDsTlsImpl*>(*tls);
   return ret;
 }
 
-void PerfettoDsImplTraceIterateNext(
-    struct PerfettoDsImpl* ds_impl,
-    struct PerfettoDsImplTracerIterator* iterator) {
+void DejaViewDsImplTraceIterateNext(
+    struct DejaViewDsImpl* ds_impl,
+    struct DejaViewDsImplTracerIterator* iterator) {
   auto* tls = reinterpret_cast<DataSourceThreadLocalState*>(iterator->tls);
 
   DataSourceType::InstancesIterator it;
@@ -475,36 +475,36 @@ void PerfettoDsImplTraceIterateNext(
   iterator->inst_id = it.i;
   tls->root_tls->cached_instances = it.cached_instances;
   iterator->tracer =
-      reinterpret_cast<struct PerfettoDsTracerImpl*>(it.instance);
+      reinterpret_cast<struct DejaViewDsTracerImpl*>(it.instance);
 
   if (!iterator->tracer) {
     ds_impl->cpp_type.TraceEpilogue(tls);
   }
 }
 
-void PerfettoDsImplTraceIterateBreak(
-    struct PerfettoDsImpl* ds_impl,
-    struct PerfettoDsImplTracerIterator* iterator) {
+void DejaViewDsImplTraceIterateBreak(
+    struct DejaViewDsImpl* ds_impl,
+    struct DejaViewDsImplTracerIterator* iterator) {
   auto* tls = reinterpret_cast<DataSourceThreadLocalState*>(iterator->tls);
 
   ds_impl->cpp_type.TraceEpilogue(tls);
 }
 
-struct PerfettoStreamWriter PerfettoDsTracerImplPacketBegin(
-    struct PerfettoDsTracerImpl* tracer) {
+struct DejaViewStreamWriter DejaViewDsTracerImplPacketBegin(
+    struct DejaViewDsTracerImpl* tracer) {
   auto* tls_inst =
       reinterpret_cast<DataSourceInstanceThreadLocalState*>(tracer);
 
   auto message_handle = tls_inst->trace_writer->NewTracePacket();
-  struct PerfettoStreamWriter ret;
+  struct DejaViewStreamWriter ret;
   protozero::ScatteredStreamWriter* sw = message_handle.TakeStreamWriter();
-  ret.impl = reinterpret_cast<PerfettoStreamWriterImpl*>(sw);
-  perfetto::UpdateStreamWriter(*sw, &ret);
+  ret.impl = reinterpret_cast<DejaViewStreamWriterImpl*>(sw);
+  dejaview::UpdateStreamWriter(*sw, &ret);
   return ret;
 }
 
-void PerfettoDsTracerImplPacketEnd(struct PerfettoDsTracerImpl* tracer,
-                                   struct PerfettoStreamWriter* w) {
+void DejaViewDsTracerImplPacketEnd(struct DejaViewDsTracerImpl* tracer,
+                                   struct DejaViewStreamWriter* w) {
   auto* tls_inst =
       reinterpret_cast<DataSourceInstanceThreadLocalState*>(tracer);
   auto* sw = reinterpret_cast<protozero::ScatteredStreamWriter*>(w->impl);
@@ -513,8 +513,8 @@ void PerfettoDsTracerImplPacketEnd(struct PerfettoDsTracerImpl* tracer,
   tls_inst->trace_writer->FinishTracePacket();
 }
 
-void PerfettoDsTracerImplFlush(struct PerfettoDsTracerImpl* tracer,
-                               PerfettoDsTracerOnFlushCb cb,
+void DejaViewDsTracerImplFlush(struct DejaViewDsTracerImpl* tracer,
+                               DejaViewDsTracerOnFlushCb cb,
                                void* user_arg) {
   auto* tls_inst =
       reinterpret_cast<DataSourceInstanceThreadLocalState*>(tracer);

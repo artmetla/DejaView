@@ -16,13 +16,13 @@ FROM debian:12
 
 RUN apt update && apt install -y git python3 curl build-essential
 RUN  git clone --depth 1 https://android.googlesource.com/platform/external/perfetto/
-WORKDIR /perfetto
+WORKDIR /dejaview
 RUN tools/install-build-deps --grpc
-RUN tools/gn gen out/dist '--args=is_clang=true enable_perfetto_grpc=true'
+RUN tools/gn gen out/dist '--args=is_clang=true enable_dejaview_grpc=true'
 RUN tools/ninja -C out/dist orchestrator_main
 
 CMD [ \
-"/perfetto/out/dist/orchestrator_main", \
+"/dejaview/out/dist/orchestrator_main", \
 "-l", "worker:5052", \
 "-r", "dns:///", \
 "-s", "0.0.0.0:5051" \

@@ -22,9 +22,9 @@
 #include <string>
 #include <tuple>
 
-#include "perfetto/ext/traced/data_source_types.h"
+#include "dejaview/ext/traced/data_source_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // LRUInodeCache keeps up to |capacity| entries in a mapping from InodeKey
 // to InodeMapValue. This is used to map <block device, inode> tuples to file
@@ -50,6 +50,6 @@ class LRUInodeCache {
   std::list<ItemType> list_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FILESYSTEM_LRU_INODE_CACHE_H_

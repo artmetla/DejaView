@@ -113,11 +113,11 @@ def main():
     check_call(('make', '-C', os.path.join(REPO_ROOT, 'infra', 'ci'),
                 'BUILDER=%s' % args.runner, 'build-sandbox'))
 
-  bundle_path = '/tmp/perfetto-ci.bundle'
+  bundle_path = '/tmp/dejaview-ci.bundle'
   check_call(['git', '-C', REPO_ROOT, 'bundle', 'create', bundle_path, 'HEAD'])
   os.chmod(bundle_path, 0o664)
   env = {
-      'PERFETTO_TEST_GIT_REF': bundle_path,
+      'DEJAVIEW_TEST_GIT_REF': bundle_path,
   }
   env.update(JOB_CONFIGS[args.config])
 
@@ -126,7 +126,7 @@ def main():
   if args.runner == 'docker' and not user_in_docker_group():
     cmd += ['sudo', '--']
   cmd += [
-      args.runner, 'run', '-it', '--name', 'perfetto_ci', '--cap-add',
+      args.runner, 'run', '-it', '--name', 'dejaview_ci', '--cap-add',
       'SYS_PTRACE', '--rm', '--volume',
       '%s:/ci/ramdisk' % workdir, '--tmpfs', '/tmp:exec',
       '--volume=%s:%s:ro' % (bundle_path, bundle_path)
@@ -136,7 +136,7 @@ def main():
   cmd += [SANDBOX_IMG]
   cmd += [
       'bash', '-c',
-      'cd /ci/ramdisk; bash /ci/init.sh || sudo -u perfetto -EH bash -i'
+      'cd /ci/ramdisk; bash /ci/init.sh || sudo -u dejaview -EH bash -i'
   ]
 
   print(

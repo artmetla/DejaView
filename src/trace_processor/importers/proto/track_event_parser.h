@@ -22,7 +22,7 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
@@ -35,7 +35,7 @@ namespace Json {
 class Value;
 }
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Field numbers to be added to args table automatically via reflection
 //
@@ -132,6 +132,6 @@ class TrackEventParser {
   ActiveChromeProcessesTracker active_chrome_processes_tracker_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_TRACK_EVENT_PARSER_H_

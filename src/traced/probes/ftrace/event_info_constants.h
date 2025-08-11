@@ -22,10 +22,10 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/proto_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 enum FtraceFieldType {
   kInvalidFtraceFieldType = 0,
@@ -135,7 +135,7 @@ inline const char* ToString(FtraceFieldType v) {
     case kInvalidFtraceFieldType:
       break;
   }
-  PERFETTO_FATAL("Unexpected ftrace field type.");
+  DEJAVIEW_FATAL("Unexpected ftrace field type.");
 }
 
 struct Field {
@@ -174,6 +174,6 @@ bool SetTranslationStrategy(FtraceFieldType ftrace,
                             protozero::proto_utils::ProtoSchemaType proto,
                             TranslationStrategy* out);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_EVENT_INFO_CONSTANTS_H_

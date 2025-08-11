@@ -19,8 +19,8 @@
 
 #include <cstdint>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
@@ -28,10 +28,10 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/android/network_trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/android/network_trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class NetworkTraceModule : public ProtoImporterModule {
@@ -96,6 +96,6 @@ class NetworkTraceModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_NETWORK_TRACE_MODULE_H_

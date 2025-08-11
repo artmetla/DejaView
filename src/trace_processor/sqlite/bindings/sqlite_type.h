@@ -19,7 +19,7 @@
 
 #include <sqlite3.h>  // IWYU pragma: export
 
-namespace perfetto::trace_processor::sqlite {
+namespace dejaview::trace_processor::sqlite {
 
 enum class Type : int {
   kNull = SQLITE_NULL,
@@ -29,6 +29,6 @@ enum class Type : int {
   kBlob = SQLITE_BLOB,
 };
 
-}  // namespace perfetto::trace_processor::sqlite
+}  // namespace dejaview::trace_processor::sqlite
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_TYPE_H_

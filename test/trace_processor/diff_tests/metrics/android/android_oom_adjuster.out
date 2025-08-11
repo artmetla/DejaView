@@ -1300,7 +1300,7 @@ dest_bucket: "foreground_app"
 count: 1
 }
 oom_adjuster_transition_counts_by_process {
-name: "perfetto"
+name: "dejaview"
 dest_bucket: "native"
 count: 1
 }
@@ -2650,7 +2650,7 @@ bucket: "foreground_app"
 total_dur: 361526235
 }
 oom_adj_bucket_duration_agg_by_process {
-name: "perfetto"
+name: "dejaview"
 bucket: "native"
 total_dur: 2251300162
 }

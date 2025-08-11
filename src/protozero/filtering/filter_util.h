@@ -44,12 +44,12 @@ class FilterUtil {
   // Loads a message schema from a .proto file, recursing into nested types.
   // Args:
   // proto_file: path to the .proto file.
-  // root_message: fully qualified message name (e.g., perfetto.protos.Trace).
+  // root_message: fully qualified message name (e.g., dejaview.protos.Trace).
   //     If empty, the first message in the file will be used.
   // proto_dir_path: the root for .proto includes. If empty uses CWD.
   // passthrough: an optional set of fields that should be transparently passed
   //     through without recursing further.
-  //     Syntax: "perfetto.protos.TracePacket:trace_config"
+  //     Syntax: "dejaview.protos.TracePacket:trace_config"
   // filter_string_fields: an optional set of fields that should be treated as
   //     string fields which need to be filtered.
   //     Syntax: same as passthrough
@@ -68,7 +68,7 @@ class FilterUtil {
   // Generates the filter bytecode for the root message previously loaded by
   // LoadMessageDefinition() using FilterBytecodeGenerator.
   // The returned string is a binary-encoded proto message of type
-  // perfetto.protos.ProtoFilter (see proto_filter.proto).
+  // dejaview.protos.ProtoFilter (see proto_filter.proto).
   std::string GenerateFilterBytecode();
 
   // Prints the list of messages and fields onto stdout in a diff-friendly text
@@ -104,7 +104,7 @@ class FilterUtil {
         return nested_type == nullptr && !filter_string;
       }
     };
-    std::string full_name;  // e.g., "perfetto.protos.Foo.Bar";
+    std::string full_name;  // e.g., "dejaview.protos.Foo.Bar";
     std::map<uint32_t /*field_id*/, Field> fields;
 
     // True if at least one field has a non-null |nestd_type|.

@@ -21,18 +21,18 @@ from typing import Optional
 
 import pandas as pd
 
-from perfetto.batch_trace_processor.api import BatchTraceProcessor
-from perfetto.batch_trace_processor.api import BatchTraceProcessorConfig
-from perfetto.batch_trace_processor.api import FailureHandling
-from perfetto.batch_trace_processor.api import Metadata
-from perfetto.batch_trace_processor.api import TraceListReference
-from perfetto.trace_processor.api import PLATFORM_DELEGATE
-from perfetto.trace_processor.api import TraceProcessor
-from perfetto.trace_processor.api import TraceProcessorException
-from perfetto.trace_processor.api import TraceProcessorConfig
-from perfetto.trace_processor.api import TraceReference
-from perfetto.trace_uri_resolver.resolver import TraceUriResolver
-from perfetto.trace_uri_resolver.path import PathUriResolver
+from dejaview.batch_trace_processor.api import BatchTraceProcessor
+from dejaview.batch_trace_processor.api import BatchTraceProcessorConfig
+from dejaview.batch_trace_processor.api import FailureHandling
+from dejaview.batch_trace_processor.api import Metadata
+from dejaview.batch_trace_processor.api import TraceListReference
+from dejaview.trace_processor.api import PLATFORM_DELEGATE
+from dejaview.trace_processor.api import TraceProcessor
+from dejaview.trace_processor.api import TraceProcessorException
+from dejaview.trace_processor.api import TraceProcessorConfig
+from dejaview.trace_processor.api import TraceReference
+from dejaview.trace_uri_resolver.resolver import TraceUriResolver
+from dejaview.trace_uri_resolver.path import PathUriResolver
 
 
 class SimpleResolver(TraceUriResolver):

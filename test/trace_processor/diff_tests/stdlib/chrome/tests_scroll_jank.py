@@ -15,7 +15,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           cause_of_jank,
@@ -34,7 +34,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view_new.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           cause_of_jank,
@@ -49,7 +49,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           delayed_frame_percentage
@@ -61,7 +61,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.chrome_scrolls;
+        INCLUDE DEJAVIEW MODULE chrome.chrome_scrolls;
 
         SELECT
           id,
@@ -84,7 +84,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('scroll_offsets_trace_2.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_offsets;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_offsets;
 
         SELECT
           scroll_update_id,
@@ -109,7 +109,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_intervals;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_intervals;
 
         SELECT
           ts,
@@ -137,7 +137,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_intervals;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_intervals;
 
         SELECT
           id,
@@ -163,7 +163,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_intervals;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_intervals;
 
         SELECT
           scroll_id,
@@ -187,7 +187,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_input_with_frame_view.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_intervals;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_intervals;
 
         SELECT
           id,
@@ -209,7 +209,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('scroll_offsets_trace_2.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_offsets;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_offsets;
 
         SELECT
           scroll_update_id,
@@ -234,7 +234,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('scroll_offsets_trace_2.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.predictor_error;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.predictor_error;
 
         SELECT
           scroll_update_id,
@@ -262,8 +262,8 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(''),
         query="""
-        INCLUDE PERFETTO MODULE chrome.event_latency_description;
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_cause_map;
+        INCLUDE DEJAVIEW MODULE chrome.event_latency_description;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_cause_map;
 
         SELECT
           DISTINCT event_latency_stage
@@ -285,7 +285,7 @@ class ChromeScrollJankStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('scroll_jank_with_pinch.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.scroll_jank.scroll_jank_v3;
+        INCLUDE DEJAVIEW MODULE chrome.scroll_jank.scroll_jank_v3;
 
         SELECT
           janks.cause_of_jank,

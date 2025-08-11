@@ -20,12 +20,12 @@
 
 #include <thread>
 
-#include "perfetto/base/thread_utils.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/base/thread_utils.h"
+#include "dejaview/ext/base/unix_socket.h"
 #include "src/profiling/memory/wire_protocol.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -72,8 +72,8 @@ TEST(ClientTest, MAYBE_GetSigaltStackRange) {
 
   raise(SIGUSR1);
 
-  PERFETTO_CHECK(sigaction(SIGUSR1, &oldact, nullptr) != -1);
-  PERFETTO_CHECK(sigaltstack(&old_altstack, nullptr) != -1);
+  DEJAVIEW_CHECK(sigaction(SIGUSR1, &oldact, nullptr) != -1);
+  DEJAVIEW_CHECK(sigaltstack(&old_altstack, nullptr) != -1);
 
   ASSERT_EQ(stackrange.begin, stack);
   ASSERT_EQ(stackrange.end, &stack[4096]);
@@ -144,4 +144,4 @@ TEST(ClientTest, GetMaxTriesNoBlock) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

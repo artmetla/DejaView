@@ -20,11 +20,11 @@
 #include <array>
 #include <forward_list>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Used to handle the backfilling of the headers (the |size_field|) of nested
 // messages when a proto is fragmented over several chunks. These patches are
@@ -76,19 +76,19 @@ class PatchList {
   }
 
   void pop_front() {
-    PERFETTO_DCHECK(!list_.empty());
+    DEJAVIEW_DCHECK(!list_.empty());
     list_.pop_front();
     if (empty())
       last_ = list_.before_begin();
   }
 
   const Patch& front() const {
-    PERFETTO_DCHECK(!list_.empty());
+    DEJAVIEW_DCHECK(!list_.empty());
     return list_.front();
   }
 
   const Patch& back() const {
-    PERFETTO_DCHECK(!list_.empty());
+    DEJAVIEW_DCHECK(!list_.empty());
     return *last_;
   }
 
@@ -101,6 +101,6 @@ class PatchList {
   ListType::iterator last_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_CORE_PATCH_LIST_H_

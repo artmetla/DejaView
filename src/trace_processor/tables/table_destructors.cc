@@ -29,7 +29,7 @@
 #include "src/trace_processor/tables/v8_tables_py.h"
 #include "src/trace_processor/tables/winscope_tables_py.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace macros_internal {
 // macros_internal.h
@@ -164,4 +164,4 @@ WindowManagerShellTransitionHandlersTable::
 }  // namespace tables
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

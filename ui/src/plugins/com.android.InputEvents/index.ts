@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {LONG} from '../../trace_processor/query_result';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {Trace} from '../../public/trace';
 import {
   SimpleSliceTrack,
@@ -23,7 +23,7 @@ import {TrackNode} from '../../public/workspace';
 import {getOrCreateUserInteractionGroup} from '../../public/standard_groups';
 import {DebugSliceDetailsPanel} from '../../public/lib/debug_tracks/details_tab';
 
-class InputEvents implements PerfettoPlugin {
+class InputEvents implements DejaViewPlugin {
   private readonly SQL_SOURCE = `
     SELECT
       read_time as ts,
@@ -52,7 +52,7 @@ class InputEvents implements PerfettoPlugin {
       columns: {ts: 'ts', dur: 'dur', name: 'name'},
       argColumns: [],
     };
-    await ctx.engine.query('INCLUDE PERFETTO MODULE android.input;');
+    await ctx.engine.query('INCLUDE DEJAVIEW MODULE android.input;');
     const uri = 'com.android.InputEvents#InputEventsTrack';
     const title = 'Input Events';
     const track = new SimpleSliceTrack(ctx, {trackUri: uri}, config);

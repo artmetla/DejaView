@@ -16,13 +16,13 @@
 
 #include "src/trace_processor/importers/proto/memory_tracker_snapshot_parser.h"
 
-#include "perfetto/ext/base/string_view.h"
-#include "protos/perfetto/trace/memory_graph.pbzero.h"
+#include "dejaview/ext/base/string_view.h"
+#include "protos/dejaview/trace/memory_graph.pbzero.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/tables/memory_tables_py.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 MemoryTrackerSnapshotParser::MemoryTrackerSnapshotParser(
@@ -39,7 +39,7 @@ MemoryTrackerSnapshotParser::MemoryTrackerSnapshotParser(
 
 void MemoryTrackerSnapshotParser::ParseMemoryTrackerSnapshot(int64_t ts,
                                                              ConstBytes blob) {
-  PERFETTO_DCHECK(last_snapshot_timestamp_ <= ts);
+  DEJAVIEW_DCHECK(last_snapshot_timestamp_ <= ts);
   if (!aggregate_raw_nodes_.empty() && ts != last_snapshot_timestamp_) {
     GenerateGraphFromRawNodesAndEmitRows();
   }
@@ -320,4 +320,4 @@ void MemoryTrackerSnapshotParser::GenerateGraphFromRawNodesAndEmitRows() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

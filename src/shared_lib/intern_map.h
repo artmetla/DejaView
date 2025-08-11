@@ -17,10 +17,10 @@
 #ifndef SRC_SHARED_LIB_INTERN_MAP_H_
 #define SRC_SHARED_LIB_INTERN_MAP_H_
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/public/fnv1a.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/public/fnv1a.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Assigns and maintains the mapping between "interned" data and iids (small
 // integers that can be used to refer to the same data without repeating it)
@@ -128,7 +128,7 @@ class InternMap {
     struct Hash {
       size_t operator()(const Key& obj) const {
         return std::hash<int32_t>()(obj.type_) ^
-               static_cast<size_t>(PerfettoFnv1a(obj.value(), obj.value_size_));
+               static_cast<size_t>(DejaViewFnv1a(obj.value(), obj.value_size_));
       }
     };
 
@@ -155,6 +155,6 @@ class InternMap {
   base::FlatHashMap<int32_t, uint64_t> last_iid_by_type_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_SHARED_LIB_INTERN_MAP_H_

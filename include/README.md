@@ -1,18 +1,18 @@
-# Perfetto public API surface
+# DejaView public API surface
 
 **This API surface is not stable yet, don't depend on it**
 
-This folder contains the public perfetto API headers. This allows an app to
-inject trace events into perfetto with ~10 lines of code (see examples in
+This folder contains the public dejaview API headers. This allows an app to
+inject trace events into dejaview with ~10 lines of code (see examples in
 examples/sdk/).
 
 The ext/ subdirectory expose the API-unstable classes and types that are
 exposed to emvbedders that have exceptional requirements in terms of interposing
 their own custom IPC layer. To the day the only case is chromium. Nothing else
-should depend on ext/. Contact perfetto-dev@ if you think you need to
+should depend on ext/. Contact dejaview-dev@ if you think you need to
 depend on an ext/ header.
 
-Headers in this folder must be hermetic. No ext/ perfetto header must be
+Headers in this folder must be hermetic. No ext/ dejaview header must be
 leaked from the includes.
 
 What is a client supposed to do to use tracing? See example below in this page.
@@ -21,7 +21,7 @@ What is a client supposed to do to use tracing? See example below in this page.
 Source code layout: what goes where?
 ------------------------------------
 
-**include/perfetto:**
+**include/dejaview:**
 Embedders are allowed to access and depend on any folder of this but ext/.
 This contains classes to: (i) use tracing; (ii) extend the tracing internals
 (i.e. implement the Platform).
@@ -29,10 +29,10 @@ This contains classes to: (i) use tracing; (ii) extend the tracing internals
 Rules:
 - This directory should contain only .h files and no .cc files.
 - Corresponding .cc files go into `src/`.
-- .h files in here can depend only on `include/perfetto/` but not on
-  `include/perfetto/ext/`,
+- .h files in here can depend only on `include/dejaview/` but not on
+  `include/dejaview/ext/`,
 
-**include/perfetto/tracing/internal:**
+**include/dejaview/tracing/internal:**
 This directory contains headers that are required to implement the public-facing
 tracing API efficiently but that are not part of the API surface.
 In an ideal world there would be no need of these headers and everything would
@@ -43,12 +43,12 @@ of structs/classes.
 
 Rules:
 - All classes / types declared in this folder must be wrapped in the
-  ::perfetto::internal namespace.
-- Both public and internal .h headers must not pull other perfetto headers
+  ::dejaview::internal namespace.
+- Both public and internal .h headers must not pull other dejaview headers
   from ext/.
-- .cc files instead can depend on other perfetto classes, as well as .h headers
+- .cc files instead can depend on other dejaview classes, as well as .h headers
   located in src/.
-- Embedders must not depend on the perfetto::internal namespace.
+- Embedders must not depend on the dejaview::internal namespace.
 - Internal types cannot be used as input, output or return arguments of public
   API functions.
 - Internal types cannot be directly exposed to virtual methods that are
@@ -59,24 +59,24 @@ Rules:
   library can only be statically linked) but we guarantee source-level
   compatibility and ABI of the UNIX socket and shared memory buffers.
 
-**include/perfetto/public:**
-This contains headers that can be used when dynamic linking with the perfetto
+**include/dejaview/public:**
+This contains headers that can be used when dynamic linking with the dejaview
 shared library.
 
 These headers are not supposed to be exposed as part of the shared library ABI.
 
-All symbols, macros and types here start with the `perfetto_`, `PERFETTO_` or
-`Perfetto` prefix. These prefixes are reserved and should not be used elsewhere
-when linking with the perfetto shared library.
+All symbols, macros and types here start with the `dejaview_`, `DEJAVIEW_` or
+`DejaView` prefix. These prefixes are reserved and should not be used elsewhere
+when linking with the dejaview shared library.
 
-**include/perfetto/public/abi:**
+**include/dejaview/public/abi:**
 Subset of headers that are part of the shared library ABI (**not stable yet**).
 These headers are supposed to be hermetic (i.e. they should not include anything
 outside the abi directory).
 
 Usage example
 -------------
-1. Call `perfetto::Tracing::Initialize(...)` once, when starting the app.
+1. Call `dejaview::Tracing::Initialize(...)` once, when starting the app.
   While doing so the app can chose the tracing model:
   - Fully in-process: the service runs in a thread within the same process.
   - System: connects to the traced system daemon via a UNIX socket. This allows
@@ -87,21 +87,21 @@ Usage example
     stability and security isolation. Also, this is not implemented yet.
   - Custom backend: this is for peculiar cases (mainly chromium) where the
     embedder is multi-process but wants to use a different IPC mechanism. The
-    embedder needs to deal with the larger and clunkier set of perfetto APIs.
+    embedder needs to deal with the larger and clunkier set of dejaview APIs.
     Reach out to the team before using this mode. It's very unlikely you need
     this unless you are a project rolled into chromium.
 
 2. Define and register one or more data sources, like this:
 ```cpp
-  #include "perfetto/tracing.h"
+  #include "dejaview/tracing.h"
 
-  class MyDataSource : public perfetto::DataSource<MyDataSource> {
+  class MyDataSource : public dejaview::DataSource<MyDataSource> {
     void OnSetup(const SetupArgs&) override {}
     void OnStart(const StartArgs&) override {}
     void OnStop(const StopArgs&) override {}
   };
   ...
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("my_data_source");
   MyDataSource::Register(dsd);
 ```

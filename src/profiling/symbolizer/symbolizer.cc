@@ -16,10 +16,10 @@
 
 #include "src/profiling/symbolizer/symbolizer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 Symbolizer::~Symbolizer() = default;
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

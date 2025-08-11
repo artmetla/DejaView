@@ -22,8 +22,8 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/global_args_tracker.h"
@@ -32,7 +32,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Tracks and stores tracks based on track types, ids and scopes.
@@ -376,7 +376,7 @@ class TrackTracker {
 
   struct MapHasher {
     size_t operator()(const TrackMapKey& l) const {
-      perfetto::base::Hasher hasher;
+      dejaview::base::Hasher hasher;
       hasher.Update(static_cast<uint32_t>(l.classification));
       hasher.Update(l.dimensions.has_value());
       if (l.dimensions.has_value()) {
@@ -482,7 +482,7 @@ class TrackTracker {
       case TrackClassification::kUnknown:
         return "N/A";
     }
-    PERFETTO_FATAL("For GCC");
+    DEJAVIEW_FATAL("For GCC");
   }
 
   TrackId InternTrackForGroup(Group);
@@ -517,6 +517,6 @@ class TrackTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_TRACK_TRACKER_H_

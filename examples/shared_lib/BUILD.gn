@@ -20,7 +20,7 @@ executable("example_shlib_data_source") {
   testonly = true
   deps = [
     "../../gn:default_deps",
-    "../../src/shared_lib:libperfetto_c",
+    "../../src/shared_lib:libdejaview_c",
   ]
   sources = [ "example_shlib_data_source.c" ]
 }
@@ -29,7 +29,7 @@ executable("example_shlib_track_event") {
   testonly = true
   deps = [
     "../../gn:default_deps",
-    "../../src/shared_lib:libperfetto_c",
+    "../../src/shared_lib:libdejaview_c",
   ]
   sources = [ "example_shlib_track_event.c" ]
 }

@@ -22,10 +22,10 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/perf/aux_data_tokenizer.h"
 #include "src/trace_processor/importers/perf/aux_record.h"
@@ -35,7 +35,7 @@
 #include "src/trace_processor/storage/stats.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 void SpeTokenizer::OnDataLoss(uint64_t) {
   // Clear any inflight parsing.
@@ -103,7 +103,7 @@ bool SpeTokenizer::ProcessRecord() {
 }
 
 uint64_t SpeTokenizer::ReadTimestamp(const TraceBlobView& record) {
-  PERFETTO_CHECK(record.size() >= 8);
+  DEJAVIEW_CHECK(record.size() >= 8);
   uint64_t timestamp;
   memcpy(&timestamp, record.data() + record.size() - 8, 8);
   return timestamp;
@@ -114,7 +114,7 @@ base::Status SpeTokenizer::NotifyEndOfStream() {
 }
 
 void SpeTokenizer::Emit(TraceBlobView record, std::optional<uint64_t> cycles) {
-  PERFETTO_CHECK(last_aux_record_);
+  DEJAVIEW_CHECK(last_aux_record_);
 
   std::optional<uint64_t> perf_time;
 
@@ -143,4 +143,4 @@ void SpeTokenizer::Emit(TraceBlobView record, std::optional<uint64_t> cycles) {
   context_->sorter->PushSpeRecord(*trace_time, std::move(record));
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

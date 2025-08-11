@@ -26,19 +26,19 @@
 #include <unwindstack/Error.h>
 #include <unwindstack/Unwinder.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
 #include "src/profiling/common/callstack_trie.h"
 #include "src/profiling/common/proc_cmdline.h"
 #include "src/profiling/common/producer_support.h"
@@ -47,15 +47,15 @@
 #include "src/profiling/perf/common_types.h"
 #include "src/profiling/perf/event_reader.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/common/perf_events.gen.h"
-#include "protos/perfetto/common/perf_events.pbzero.h"
-#include "protos/perfetto/config/profiling/perf_event_config.gen.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/common/perf_events.gen.h"
+#include "protos/dejaview/common/perf_events.pbzero.h"
+#include "protos/dejaview/config/profiling/perf_event_config.gen.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -77,7 +77,7 @@ constexpr uint32_t kMemoryLimitCheckPeriodMs = 1000;
 constexpr uint32_t kInitialConnectionBackoffMs = 100;
 constexpr uint32_t kMaxConnectionBackoffMs = 30 * 1000;
 
-constexpr char kProducerName[] = "perfetto.traced_perf";
+constexpr char kProducerName[] = "dejaview.traced_perf";
 constexpr char kDataSourceName[] = "linux.perf";
 
 size_t NumberOfCpus() {
@@ -312,7 +312,7 @@ bool PerfProducer::ShouldRejectDueToFilter(
     bool skip_cmdline,
     base::FlatSet<std::string>* additional_cmdlines,
     std::function<bool(std::string*)> read_proc_pid_cmdline) {
-  PERFETTO_CHECK(additional_cmdlines);
+  DEJAVIEW_CHECK(additional_cmdlines);
 
   std::string cmdline;
   bool have_cmdline = false;
@@ -336,12 +336,12 @@ bool PerfProducer::ShouldRejectDueToFilter(
 
   if (have_cmdline &&
       has_matching_pattern(filter.exclude_cmdlines, cmdline.c_str(), binname)) {
-    PERFETTO_DLOG("Explicitly rejecting samples for pid [%d] due to cmdline",
+    DEJAVIEW_DLOG("Explicitly rejecting samples for pid [%d] due to cmdline",
                   static_cast<int>(pid));
     return true;
   }
   if (filter.exclude_pids.count(pid)) {
-    PERFETTO_DLOG("Explicitly rejecting samples for pid [%d] due to pid",
+    DEJAVIEW_DLOG("Explicitly rejecting samples for pid [%d] due to pid",
                   static_cast<int>(pid));
     return true;
   }
@@ -367,11 +367,11 @@ bool PerfProducer::ShouldRejectDueToFilter(
     uint32_t upid = static_cast<uint32_t>(pid);
     if (upid % filter.process_sharding->shard_count ==
         filter.process_sharding->chosen_shard) {
-      PERFETTO_DLOG("Process sharding: keeping pid [%d]",
+      DEJAVIEW_DLOG("Process sharding: keeping pid [%d]",
                     static_cast<int>(pid));
       return false;
     } else {
-      PERFETTO_DLOG("Process sharding: rejecting pid [%d]",
+      DEJAVIEW_DLOG("Process sharding: rejecting pid [%d]",
                     static_cast<int>(pid));
       return true;
     }
@@ -389,7 +389,7 @@ bool PerfProducer::ShouldRejectDueToFilter(
     }
   }
 
-  PERFETTO_DLOG("Rejecting samples for pid [%d]", static_cast<int>(pid));
+  DEJAVIEW_DLOG("Rejecting samples for pid [%d]", static_cast<int>(pid));
   return true;
 }
 
@@ -408,7 +408,7 @@ void PerfProducer::SetupDataSource(DataSourceInstanceID,
 void PerfProducer::StartDataSource(DataSourceInstanceID ds_id,
                                    const DataSourceConfig& config) {
   uint64_t tracing_session_id = config.tracing_session_id();
-  PERFETTO_LOG("StartDataSource(ds %zu, session %" PRIu64 ", name %s)",
+  DEJAVIEW_LOG("StartDataSource(ds %zu, session %" PRIu64 ", name %s)",
                static_cast<size_t>(ds_id), tracing_session_id,
                config.name().c_str());
 
@@ -433,7 +433,7 @@ void PerfProducer::StartDataSource(DataSourceInstanceID ds_id,
 
   protos::gen::PerfEventConfig event_config_pb;
   if (!event_config_pb.ParseFromString(config.perf_event_config_raw())) {
-    PERFETTO_ELOG("PerfEventConfig could not be parsed.");
+    DEJAVIEW_ELOG("PerfEventConfig could not be parsed.");
     return;
   }
 
@@ -451,13 +451,13 @@ void PerfProducer::StartDataSource(DataSourceInstanceID ds_id,
   std::optional<EventConfig> event_config = EventConfig::Create(
       event_config_pb, config, process_sharding, tracepoint_id_lookup);
   if (!event_config.has_value()) {
-    PERFETTO_ELOG("PerfEventConfig rejected.");
+    DEJAVIEW_ELOG("PerfEventConfig rejected.");
     return;
   }
 
   std::vector<uint32_t> online_cpus = GetOnlineCpus();
   if (online_cpus.empty()) {
-    PERFETTO_ELOG("No online CPUs found.");
+    DEJAVIEW_ELOG("No online CPUs found.");
     return;
   }
 
@@ -466,7 +466,7 @@ void PerfProducer::StartDataSource(DataSourceInstanceID ds_id,
     std::optional<EventReader> event_reader =
         EventReader::ConfigureEvents(cpu, event_config.value());
     if (!event_reader.has_value()) {
-      PERFETTO_ELOG("Failed to set up perf events for cpu%" PRIu32
+      DEJAVIEW_ELOG("Failed to set up perf events for cpu%" PRIu32
                     ", discarding data source.",
                     cpu);
       return;
@@ -484,7 +484,7 @@ void PerfProducer::StartDataSource(DataSourceInstanceID ds_id,
       std::piecewise_construct, std::forward_as_tuple(ds_id),
       std::forward_as_tuple(event_config.value(), tracing_session_id,
                             std::move(writer), std::move(per_cpu_readers)));
-  PERFETTO_CHECK(inserted);
+  DEJAVIEW_CHECK(inserted);
   DataSourceState& ds = ds_it->second;
 
   // Start the configured events.
@@ -556,7 +556,7 @@ void PerfProducer::CheckMemoryFootprintPeriodic(DataSourceInstanceID ds_id,
 }
 
 void PerfProducer::StopDataSource(DataSourceInstanceID ds_id) {
-  PERFETTO_LOG("StopDataSource(%zu)", static_cast<size_t>(ds_id));
+  DEJAVIEW_LOG("StopDataSource(%zu)", static_cast<size_t>(ds_id));
 
   // Metatrace: stop immediately (will miss the events from the
   // asynchronous shutdown of the primary data source).
@@ -594,7 +594,7 @@ void PerfProducer::Flush(FlushRequestID flush_id,
   // Flush metatracing if requested.
   for (size_t i = 0; i < num_data_sources; i++) {
     auto ds_id = data_source_ids[i];
-    PERFETTO_DLOG("Flush(%zu)", static_cast<size_t>(ds_id));
+    DEJAVIEW_DLOG("Flush(%zu)", static_cast<size_t>(ds_id));
 
     auto meta_it = metatrace_writers_.find(ds_id);
     if (meta_it != metatrace_writers_.end()) {
@@ -610,14 +610,14 @@ void PerfProducer::ClearIncrementalState(
     size_t num_data_sources) {
   for (size_t i = 0; i < num_data_sources; i++) {
     auto ds_id = data_source_ids[i];
-    PERFETTO_DLOG("ClearIncrementalState(%zu)", static_cast<size_t>(ds_id));
+    DEJAVIEW_DLOG("ClearIncrementalState(%zu)", static_cast<size_t>(ds_id));
 
     if (metatrace_writers_.find(ds_id) != metatrace_writers_.end())
       continue;
 
     auto ds_it = data_sources_.find(ds_id);
     if (ds_it == data_sources_.end()) {
-      PERFETTO_DLOG("ClearIncrementalState(%zu): did not find matching entry",
+      DEJAVIEW_DLOG("ClearIncrementalState(%zu): did not find matching entry",
                     static_cast<size_t>(ds_id));
       continue;
     }
@@ -646,13 +646,13 @@ void PerfProducer::ClearIncrementalState(
 void PerfProducer::TickDataSourceRead(DataSourceInstanceID ds_id) {
   auto it = data_sources_.find(ds_id);
   if (it == data_sources_.end()) {
-    PERFETTO_DLOG("TickDataSourceRead(%zu): source gone",
+    DEJAVIEW_DLOG("TickDataSourceRead(%zu): source gone",
                   static_cast<size_t>(ds_id));
     return;
   }
   DataSourceState& ds = it->second;
 
-  PERFETTO_METATRACE_SCOPED(TAG_PRODUCER, PROFILER_READ_TICK);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PRODUCER, PROFILER_READ_TICK);
 
   // Make a pass over all per-cpu readers.
   uint64_t max_samples = ds.event_config.samples_per_tick_limit();
@@ -666,7 +666,7 @@ void PerfProducer::TickDataSourceRead(DataSourceInstanceID ds_id) {
   // Wake up the unwinder as we've (likely) pushed samples into its queue.
   unwinding_worker_->PostProcessQueue();
 
-  if (PERFETTO_UNLIKELY(ds.status == DataSourceState::Status::kShuttingDown) &&
+  if (DEJAVIEW_UNLIKELY(ds.status == DataSourceState::Status::kShuttingDown) &&
       !more_records_available) {
     unwinding_worker_->PostInitiateDataSourceStop(ds_id);
   } else {
@@ -686,7 +686,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
                                             uint64_t max_samples,
                                             DataSourceInstanceID ds_id,
                                             DataSourceState* ds) {
-  PERFETTO_METATRACE_SCOPED(TAG_PRODUCER, PROFILER_READ_CPU);
+  DEJAVIEW_METATRACE_SCOPED(TAG_PRODUCER, PROFILER_READ_CPU);
 
   // If the kernel ring buffer dropped data, record it in the trace.
   size_t cpu = reader->cpu();
@@ -721,7 +721,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
 
     // Asynchronous proc-fd lookup timed out.
     if (process_state == ProcessTrackingStatus::kFdsTimedOut) {
-      PERFETTO_DLOG("Skipping sample for pid [%d]: kFdsTimedOut",
+      DEJAVIEW_DLOG("Skipping sample for pid [%d]: kFdsTimedOut",
                     static_cast<int>(pid));
       EmitSkippedSample(ds_id, std::move(sample.value()),
                         SampleSkipReason::kReadStage);
@@ -730,7 +730,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
 
     // Previously excluded, e.g. due to failing the target filter check.
     if (process_state == ProcessTrackingStatus::kRejected) {
-      PERFETTO_DLOG("Skipping sample for pid [%d]: kRejected",
+      DEJAVIEW_DLOG("Skipping sample for pid [%d]: kRejected",
                     static_cast<int>(pid));
       continue;
     }
@@ -748,7 +748,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
     //                      -> kthreads: accept without proc-fds
     //
     if (process_state == ProcessTrackingStatus::kInitial) {
-      PERFETTO_DLOG("New pid: [%d]", static_cast<int>(pid));
+      DEJAVIEW_DLOG("New pid: [%d]", static_cast<int>(pid));
 
       // Kernel threads (which have no userspace state) are never relevant if
       // we're not recording kernel callchains.
@@ -786,7 +786,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
       }
     }
 
-    PERFETTO_CHECK(process_state == ProcessTrackingStatus::kAccepted ||
+    DEJAVIEW_CHECK(process_state == ProcessTrackingStatus::kAccepted ||
                    process_state == ProcessTrackingStatus::kFdsResolving);
 
     // If we're only interested in the kernel callchains, then userspace
@@ -794,7 +794,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
     // context.
     if (!event_config.user_frames() &&
         sample->common.cpu_mode == PERF_RECORD_MISC_USER) {
-      PERFETTO_DLOG("Skipping usermode sample for kernel-only config");
+      DEJAVIEW_DLOG("Skipping usermode sample for kernel-only config");
       continue;
     }
 
@@ -805,7 +805,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
     if (max_footprint_bytes) {
       uint64_t footprint_bytes = unwinding_worker_->GetEnqueuedFootprint();
       if (footprint_bytes + sample_stack_size >= max_footprint_bytes) {
-        PERFETTO_DLOG("Skipping sample enqueueing due to footprint limit.");
+        DEJAVIEW_DLOG("Skipping sample enqueueing due to footprint limit.");
         EmitSkippedSample(ds_id, std::move(sample.value()),
                           SampleSkipReason::kUnwindEnqueue);
         continue;
@@ -821,7 +821,7 @@ bool PerfProducer::ReadAndParsePerCpuBuffer(EventReader* reader,
       queue.CommitWrite();
       unwinding_worker_->IncrementEnqueuedFootprint(sample_stack_size);
     } else {
-      PERFETTO_DLOG("Unwinder queue full, skipping sample");
+      DEJAVIEW_DLOG("Unwinder queue full, skipping sample");
       EmitSkippedSample(ds_id, std::move(sample.value()),
                         SampleSkipReason::kUnwindEnqueue);
     }
@@ -849,7 +849,7 @@ void PerfProducer::OnProcDescriptors(pid_t pid,
     // CanProfile.
     if (!CanProfile(ds.event_config.raw_ds_config(), uid,
                     ds.event_config.target_installed_by())) {
-      PERFETTO_DLOG("Not profileable: pid [%d], uid [%d] for DS [%zu]",
+      DEJAVIEW_DLOG("Not profileable: pid [%d], uid [%d] for DS [%zu]",
                     static_cast<int>(pid), static_cast<int>(uid),
                     static_cast<size_t>(it.first));
       continue;
@@ -861,7 +861,7 @@ void PerfProducer::OnProcDescriptors(pid_t pid,
     auto proc_status = proc_status_it->second;
     if (proc_status == ProcessTrackingStatus::kFdsResolving ||
         proc_status == ProcessTrackingStatus::kFdsTimedOut) {
-      PERFETTO_DLOG("Handing off proc-fds for pid [%d] to DS [%zu]",
+      DEJAVIEW_DLOG("Handing off proc-fds for pid [%d] to DS [%zu]",
                     static_cast<int>(pid), static_cast<size_t>(it.first));
 
       proc_status_it->second = ProcessTrackingStatus::kAccepted;
@@ -870,7 +870,7 @@ void PerfProducer::OnProcDescriptors(pid_t pid,
       return;  // done
     }
   }
-  PERFETTO_DLOG(
+  DEJAVIEW_DLOG(
       "Discarding proc-fds for pid [%d] as found no outstanding requests.",
       static_cast<int>(pid));
 }
@@ -922,7 +922,7 @@ void PerfProducer::EvaluateDescriptorLookupTimeout(DataSourceInstanceID ds_id,
   // outstanding and future samples to be discarded).
   auto proc_status = proc_status_it->second;
   if (proc_status == ProcessTrackingStatus::kFdsResolving) {
-    PERFETTO_DLOG("Descriptor lookup timeout of pid [%d] for DS [%zu]",
+    DEJAVIEW_DLOG("Descriptor lookup timeout of pid [%d] for DS [%zu]",
                   static_cast<int>(pid), static_cast<size_t>(ds_it->first));
 
     proc_status_it->second = ProcessTrackingStatus::kFdsTimedOut;
@@ -948,7 +948,7 @@ void PerfProducer::EmitSample(DataSourceInstanceID ds_id,
                               CompletedSample sample) {
   auto ds_it = data_sources_.find(ds_id);
   if (ds_it == data_sources_.end()) {
-    PERFETTO_DLOG("EmitSample(ds: %zu): source gone",
+    DEJAVIEW_DLOG("EmitSample(ds: %zu): source gone",
                   static_cast<size_t>(ds_id));
     return;
   }
@@ -993,7 +993,7 @@ void PerfProducer::EmitRingBufferLoss(DataSourceInstanceID ds_id,
   if (ds_it == data_sources_.end())
     return;
   DataSourceState& ds = ds_it->second;
-  PERFETTO_DLOG("DataSource(%zu): cpu%zu lost [%" PRIu64 "] records",
+  DEJAVIEW_DLOG("DataSource(%zu): cpu%zu lost [%" PRIu64 "] records",
                 static_cast<size_t>(ds_id), cpu, records_lost);
 
   // The data loss record relates to a single ring buffer, and indicates loss
@@ -1071,8 +1071,8 @@ void PerfProducer::EmitSkippedSample(DataSourceInstanceID ds_id,
 }
 
 void PerfProducer::InitiateReaderStop(DataSourceState* ds) {
-  PERFETTO_DLOG("InitiateReaderStop");
-  PERFETTO_CHECK(ds->status != DataSourceState::Status::kShuttingDown);
+  DEJAVIEW_DLOG("InitiateReaderStop");
+  DEJAVIEW_CHECK(ds->status != DataSourceState::Status::kShuttingDown);
 
   ds->status = DataSourceState::Status::kShuttingDown;
   for (auto& event_reader : ds->per_cpu_readers) {
@@ -1089,15 +1089,15 @@ void PerfProducer::PostFinishDataSourceStop(DataSourceInstanceID ds_id) {
 }
 
 void PerfProducer::FinishDataSourceStop(DataSourceInstanceID ds_id) {
-  PERFETTO_LOG("FinishDataSourceStop(%zu)", static_cast<size_t>(ds_id));
+  DEJAVIEW_LOG("FinishDataSourceStop(%zu)", static_cast<size_t>(ds_id));
   auto ds_it = data_sources_.find(ds_id);
   if (ds_it == data_sources_.end()) {
-    PERFETTO_DLOG("FinishDataSourceStop(%zu): source gone",
+    DEJAVIEW_DLOG("FinishDataSourceStop(%zu): source gone",
                   static_cast<size_t>(ds_id));
     return;
   }
   DataSourceState& ds = ds_it->second;
-  PERFETTO_CHECK(ds.status == DataSourceState::Status::kShuttingDown);
+  DEJAVIEW_CHECK(ds.status == DataSourceState::Status::kShuttingDown);
 
   ds.trace_writer->Flush();
   data_sources_.erase(ds_it);
@@ -1126,7 +1126,7 @@ void PerfProducer::PurgeDataSource(DataSourceInstanceID ds_id) {
     return;
   DataSourceState& ds = ds_it->second;
 
-  PERFETTO_LOG("Stopping DataSource(%zu) prematurely",
+  DEJAVIEW_LOG("Stopping DataSource(%zu) prematurely",
                static_cast<size_t>(ds_id));
 
   unwinding_worker_->PostPurgeDataSource(ds_id);
@@ -1170,7 +1170,7 @@ std::optional<ProcessSharding> PerfProducer::GetOrChooseCallstackProcessShard(
     // Found existing data source, reuse its decision while doing best-effort
     // error reporting (logging) if the shard count is not the same.
     if (sharding->shard_count != shard_count) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "Mismatch of process_shard_count between data sources in tracing "
           "session %" PRIu64 ". Overriding shard count to match.",
           tracing_session_id);
@@ -1188,7 +1188,7 @@ std::optional<ProcessSharding> PerfProducer::GetOrChooseCallstackProcessShard(
   ret.shard_count = shard_count;
   ret.chosen_shard = chosen_shard;
 
-  PERFETTO_DCHECK(ret.shard_count && ret.chosen_shard < ret.shard_count);
+  DEJAVIEW_DCHECK(ret.shard_count && ret.chosen_shard < ret.shard_count);
   return ret;
 }
 
@@ -1198,14 +1198,14 @@ void PerfProducer::StartMetatraceSource(DataSourceInstanceID ds_id,
 
   auto it_and_inserted = metatrace_writers_.emplace(
       std::piecewise_construct, std::make_tuple(ds_id), std::make_tuple());
-  PERFETTO_DCHECK(it_and_inserted.second);
+  DEJAVIEW_DCHECK(it_and_inserted.second);
   // Note: only the first concurrent writer will actually be active.
   metatrace_writers_[ds_id].Enable(task_runner_, std::move(writer),
                                    metatrace::TAG_ANY);
 }
 
 void PerfProducer::ConnectWithRetries(const char* socket_name) {
-  PERFETTO_DCHECK(state_ == kNotStarted);
+  DEJAVIEW_DCHECK(state_ == kNotStarted);
   state_ = kNotConnected;
 
   ResetConnectionBackoff();
@@ -1214,7 +1214,7 @@ void PerfProducer::ConnectWithRetries(const char* socket_name) {
 }
 
 void PerfProducer::ConnectService() {
-  PERFETTO_DCHECK(state_ == kNotConnected);
+  DEJAVIEW_DCHECK(state_ == kNotConnected);
   state_ = kConnecting;
   endpoint_ = ProducerIPCClient::Connect(
       producer_socket_name_, this, kProducerName, task_runner_,
@@ -1232,10 +1232,10 @@ void PerfProducer::ResetConnectionBackoff() {
 }
 
 void PerfProducer::OnConnect() {
-  PERFETTO_DCHECK(state_ == kConnecting);
+  DEJAVIEW_DCHECK(state_ == kConnecting);
   state_ = kConnected;
   ResetConnectionBackoff();
-  PERFETTO_LOG("Connected to the service");
+  DEJAVIEW_LOG("Connected to the service");
 
   {
     // linux.perf
@@ -1258,8 +1258,8 @@ void PerfProducer::OnConnect() {
 }
 
 void PerfProducer::OnDisconnect() {
-  PERFETTO_DCHECK(state_ == kConnected || state_ == kConnecting);
-  PERFETTO_LOG("Disconnected from tracing service");
+  DEJAVIEW_DCHECK(state_ == kConnected || state_ == kConnecting);
+  DEJAVIEW_LOG("Disconnected from tracing service");
 
   auto weak_producer = weak_factory_.GetWeakPtr();
   if (state_ == kConnected)
@@ -1295,4 +1295,4 @@ void PerfProducer::Restart() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

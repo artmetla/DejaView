@@ -22,12 +22,12 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace_processor/serialization.pbzero.h"
+#include "protos/dejaview/trace_processor/serialization.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 using testing::ElementsAre;
 using testing::IsEmpty;
@@ -818,4 +818,4 @@ TEST(BitVectorUnittest, SerializeDeserializeSimple) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

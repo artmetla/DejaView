@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/circular_queue.h"
+#include "dejaview/ext/base/circular_queue.h"
 
 #include <random>
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -283,4 +283,4 @@ TEST(CircularQueueTest, ObjectLifetime) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

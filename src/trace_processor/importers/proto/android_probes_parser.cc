@@ -18,8 +18,8 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/traced/sys_stats_counters.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/traced/sys_stats_counters.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
@@ -30,26 +30,26 @@
 #include "src/trace_processor/types/tcp_state.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/common/android_energy_consumer_descriptor.pbzero.h"
-#include "protos/perfetto/common/android_log_constants.pbzero.h"
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/android/android_game_intervention_list.pbzero.h"
-#include "protos/perfetto/trace/android/android_log.pbzero.h"
-#include "protos/perfetto/trace/android/android_system_property.pbzero.h"
-#include "protos/perfetto/trace/android/initial_display_state.pbzero.h"
-#include "protos/perfetto/trace/power/android_energy_estimation_breakdown.pbzero.h"
-#include "protos/perfetto/trace/power/android_entity_state_residency.pbzero.h"
-#include "protos/perfetto/trace/power/battery_counters.pbzero.h"
-#include "protos/perfetto/trace/power/power_rails.pbzero.h"
-#include "protos/perfetto/trace/ps/process_stats.pbzero.h"
-#include "protos/perfetto/trace/ps/process_tree.pbzero.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.pbzero.h"
-#include "protos/perfetto/trace/system_info.pbzero.h"
+#include "protos/dejaview/common/android_energy_consumer_descriptor.pbzero.h"
+#include "protos/dejaview/common/android_log_constants.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/android/android_game_intervention_list.pbzero.h"
+#include "protos/dejaview/trace/android/android_log.pbzero.h"
+#include "protos/dejaview/trace/android/android_system_property.pbzero.h"
+#include "protos/dejaview/trace/android/initial_display_state.pbzero.h"
+#include "protos/dejaview/trace/power/android_energy_estimation_breakdown.pbzero.h"
+#include "protos/dejaview/trace/power/android_entity_state_residency.pbzero.h"
+#include "protos/dejaview/trace/power/battery_counters.pbzero.h"
+#include "protos/dejaview/trace/power/power_rails.pbzero.h"
+#include "protos/dejaview/trace/ps/process_stats.pbzero.h"
+#include "protos/dejaview/trace/ps/process_tree.pbzero.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.pbzero.h"
+#include "protos/dejaview/trace/system_info.pbzero.h"
 
 #include "src/trace_processor/importers/proto/android_probes_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 AndroidProbesParser::AndroidProbesParser(TraceProcessorContext* context)
@@ -148,7 +148,7 @@ void AndroidProbesParser::ParsePowerRails(int64_t ts,
   protos::pbzero::PowerRails::Decoder evt(blob.data, blob.size);
 
   // Descriptors should have been processed at tokenization time.
-  PERFETTO_DCHECK(evt.has_energy_data());
+  DEJAVIEW_DCHECK(evt.has_energy_data());
 
   // Because we have some special code in the tokenization phase, we
   // will only every get one EnergyData message per packet. Therefore,
@@ -161,8 +161,8 @@ void AndroidProbesParser::ParsePowerRails(int64_t ts,
   if (opt_track.has_value()) {
     // The tokenization makes sure that this field is always present and
     // is equal to the packet's timestamp that was passed to us via the sorter.
-    PERFETTO_DCHECK(desc.has_timestamp_ms());
-    PERFETTO_DCHECK(ts / 1000000 == static_cast<int64_t>(desc.timestamp_ms()));
+    DEJAVIEW_DCHECK(desc.has_timestamp_ms());
+    DEJAVIEW_DCHECK(ts / 1000000 == static_cast<int64_t>(desc.timestamp_ms()));
     auto maybe_counter_id = context_->event_tracker->PushCounter(
         ts, static_cast<double>(desc.energy()), *opt_track);
     if (maybe_counter_id) {
@@ -175,7 +175,7 @@ void AndroidProbesParser::ParsePowerRails(int64_t ts,
   }
 
   // DCHECK that we only got one message.
-  PERFETTO_DCHECK(!++it);
+  DEJAVIEW_DCHECK(!++it);
 }
 
 void AndroidProbesParser::ParseEnergyBreakdown(int64_t ts, ConstBytes blob) {
@@ -282,7 +282,7 @@ void AndroidProbesParser::ParseAndroidLogEvent(ConstBytes blob) {
   *arg_str = '\0';
   auto arg_avail = [&arg_msg, &arg_str]() {
     size_t used = static_cast<size_t>(arg_str - arg_msg);
-    PERFETTO_CHECK(used <= sizeof(arg_msg));
+    DEJAVIEW_CHECK(used <= sizeof(arg_msg));
     return sizeof(arg_msg) - used;
   };
   for (auto it = evt.args(); it; ++it) {
@@ -309,7 +309,7 @@ void AndroidProbesParser::ParseAndroidLogEvent(ConstBytes blob) {
     prio = protos::pbzero::AndroidLogPriority::PRIO_INFO;
 
   if (arg_str != &arg_msg[0]) {
-    PERFETTO_DCHECK(msg_id.is_null());
+    DEJAVIEW_DCHECK(msg_id.is_null());
     // Skip the first space char (" foo=1 bar=2" -> "foo=1 bar=2").
     msg_id = context_->storage->InternString(&arg_msg[1]);
   }
@@ -319,7 +319,7 @@ void AndroidProbesParser::ParseAndroidLogEvent(ConstBytes blob) {
   if (!trace_time.ok()) {
     static std::atomic<uint32_t> dlog_count(0);
     if (dlog_count++ < 10)
-      PERFETTO_DLOG("%s", trace_time.status().c_message());
+      DEJAVIEW_DLOG("%s", trace_time.status().c_message());
     return;
   }
 
@@ -483,4 +483,4 @@ void AndroidProbesParser::ParseAndroidSystemProperty(int64_t ts,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -19,7 +19,7 @@
 #include <string_view>
 #include <vector>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_redaction/find_package_uid.h"
 #include "src/trace_redaction/prune_package_list.h"
@@ -28,13 +28,13 @@
 #include "src/trace_redaction/trace_redactor.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/android/packages_list.gen.h"
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/android/packages_list.gen.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 
@@ -161,4 +161,4 @@ TEST_F(PrunePackageListIntegrationTest, RetainsAllInstancesOfUid) {
                          expected_package_names.end()));
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

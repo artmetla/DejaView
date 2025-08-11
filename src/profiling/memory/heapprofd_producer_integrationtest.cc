@@ -16,12 +16,12 @@
 
 #include "src/profiling/memory/heapprofd_producer.h"
 
-#include "perfetto/base/proc_utils.h"
-#include "perfetto/ext/base/thread_task_runner.h"
-#include "perfetto/ext/tracing/ipc/consumer_ipc_client.h"
-#include "perfetto/ext/tracing/ipc/service_ipc_host.h"
-#include "protos/perfetto/common/data_source_descriptor.gen.h"
-#include "protos/perfetto/config/trace_config.gen.h"
+#include "dejaview/base/proc_utils.h"
+#include "dejaview/ext/base/thread_task_runner.h"
+#include "dejaview/ext/tracing/ipc/consumer_ipc_client.h"
+#include "dejaview/ext/tracing/ipc/service_ipc_host.h"
+#include "protos/dejaview/common/data_source_descriptor.gen.h"
+#include "protos/dejaview/config/trace_config.gen.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/tmp_dir_tree.h"
 #include "src/profiling/memory/client.h"
@@ -29,7 +29,7 @@
 #include "src/tracing/test/mock_consumer.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -40,7 +40,7 @@ class TracingServiceThread {
  public:
   TracingServiceThread(const std::string& producer_socket,
                        const std::string& consumer_socket)
-      : runner_(base::ThreadTaskRunner::CreateAndStart("perfetto.svc")),
+      : runner_(base::ThreadTaskRunner::CreateAndStart("dejaview.svc")),
         producer_socket_(producer_socket),
         consumer_socket_(consumer_socket) {
     runner_.PostTaskAndWaitForTesting([this]() {
@@ -48,7 +48,7 @@ class TracingServiceThread {
       bool res =
           svc_->Start(producer_socket_.c_str(), consumer_socket_.c_str());
       if (!res) {
-        PERFETTO_FATAL("Failed to start service listening on %s and %s",
+        DEJAVIEW_FATAL("Failed to start service listening on %s and %s",
                        producer_socket_.c_str(), consumer_socket_.c_str());
       }
     });
@@ -219,14 +219,14 @@ class HeapprofdProducerIntegrationTest : public testing::Test {
 
   std::shared_ptr<Client> CreateHeapprofdClient() const {
     std::optional<base::UnixSocketRaw> client_sock =
-        perfetto::profiling::Client::ConnectToHeapprofd(HeapprofdSockPath());
+        dejaview::profiling::Client::ConnectToHeapprofd(HeapprofdSockPath());
     if (!client_sock.has_value()) {
       return nullptr;
     }
 
-    return perfetto::profiling::Client::CreateAndHandshake(
+    return dejaview::profiling::Client::CreateAndHandshake(
         std::move(client_sock.value()),
-        UnhookedAllocator<perfetto::profiling::Client>(malloc, free));
+        UnhookedAllocator<dejaview::profiling::Client>(malloc, free));
   }
 
   base::TmpDirTree tmpdir_;
@@ -269,4 +269,4 @@ TEST_F(HeapprofdProducerIntegrationTest, Restart) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

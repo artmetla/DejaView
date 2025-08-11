@@ -18,10 +18,10 @@
 
 #include <stdlib.h>
 
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
 
-namespace perfetto {
+namespace dejaview {
 
 bool ReadPackagesListLine(char* line, Package* package) {
   size_t idx = 0;
@@ -34,7 +34,7 @@ bool ReadPackagesListLine(char* line, Package* package) {
         char* end;
         long long uid = strtoll(ss.cur_token(), &end, 10);
         if ((*end != '\0' && *end != '\n') || *ss.cur_token() == '\0') {
-          PERFETTO_ELOG("Failed to parse packages.list uid.");
+          DEJAVIEW_ELOG("Failed to parse packages.list uid.");
           return false;
         }
         package->uid = static_cast<uint64_t>(uid);
@@ -44,7 +44,7 @@ bool ReadPackagesListLine(char* line, Package* package) {
         char* end;
         long long debuggable = strtoll(ss.cur_token(), &end, 10);
         if ((*end != '\0' && *end != '\n') || *ss.cur_token() == '\0') {
-          PERFETTO_ELOG("Failed to parse packages.list debuggable.");
+          DEJAVIEW_ELOG("Failed to parse packages.list debuggable.");
           return false;
         }
         package->debuggable = debuggable != 0;
@@ -54,7 +54,7 @@ bool ReadPackagesListLine(char* line, Package* package) {
         char* end;
         long long profilable_from_shell = strtoll(ss.cur_token(), &end, 10);
         if ((*end != '\0' && *end != '\n') || *ss.cur_token() == '\0') {
-          PERFETTO_ELOG("Failed to parse packages.list profilable_from_shell.");
+          DEJAVIEW_ELOG("Failed to parse packages.list profilable_from_shell.");
           return false;
         }
         package->profileable_from_shell = profilable_from_shell != 0;
@@ -64,7 +64,7 @@ bool ReadPackagesListLine(char* line, Package* package) {
         char* end;
         long long version_code = strtoll(ss.cur_token(), &end, 10);
         if ((*end != '\0' && *end != '\n') || *ss.cur_token() == '\0') {
-          PERFETTO_ELOG("Failed to parse packages.list version_code: %s.",
+          DEJAVIEW_ELOG("Failed to parse packages.list version_code: %s.",
                         ss.cur_token());
           return false;
         }
@@ -75,7 +75,7 @@ bool ReadPackagesListLine(char* line, Package* package) {
         char* end;
         long long profileable = strtoll(ss.cur_token(), &end, 10);
         if ((*end != '\0' && *end != '\n') || *ss.cur_token() == '\0') {
-          PERFETTO_ELOG("Failed to parse packages.list profileable.");
+          DEJAVIEW_ELOG("Failed to parse packages.list profileable.");
           return false;
         }
         package->profileable = profileable != 0;
@@ -91,4 +91,4 @@ bool ReadPackagesListLine(char* line, Package* package) {
   return true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -18,12 +18,12 @@
 
 #include <string.h>
 
-#include "protos/perfetto/config/ftrace/ftrace_config.gen.h"
+#include "protos/dejaview/config/ftrace/ftrace_config.gen.h"
 #include "src/traced/probes/ftrace/event_info_constants.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
-using ::perfetto::protos::gen::FtraceConfig;
+using ::dejaview::protos::gen::FtraceConfig;
 
 bool PrefixMatches(const std::string& prefix, const char* start, size_t size) {
   if (prefix.size() > size) {
@@ -141,12 +141,12 @@ FtracePrintFilterConfig::FtracePrintFilterConfig(FtracePrintFilter filter)
 
 bool FtracePrintFilterConfig::IsEventInteresting(const uint8_t* start,
                                                  const uint8_t* end) const {
-  PERFETTO_DCHECK(start < end);
+  DEJAVIEW_DCHECK(start < end);
   const size_t length = static_cast<size_t>(end - start);
 
   // If the end of the buffer is before the end of the event, give up.
   if (event_size_ >= length) {
-    PERFETTO_DFATAL("Buffer overflowed.");
+    DEJAVIEW_DFATAL("Buffer overflowed.");
     return true;
   }
 
@@ -155,4 +155,4 @@ bool FtracePrintFilterConfig::IsEventInteresting(const uint8_t* start,
                            static_cast<size_t>(end - field_start));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

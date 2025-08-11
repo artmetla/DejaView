@@ -19,11 +19,11 @@
 #include <limits>
 #include <optional>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -33,7 +33,7 @@ namespace {
 base::AlignedUniquePtr<uint8_t[]> Allocate(uint32_t size) {
   uint8_t* ptr = static_cast<uint8_t*>(base::AlignedAlloc(8, size));
   // Poison the region to try and catch out of bound accesses.
-  PERFETTO_ASAN_POISON(ptr, size);
+  DEJAVIEW_ASAN_POISON(ptr, size);
   return base::AlignedUniquePtr<uint8_t[]>(ptr);
 }
 
@@ -43,7 +43,7 @@ BumpAllocator::BumpAllocator() = default;
 
 BumpAllocator::~BumpAllocator() {
   for (const auto& chunk : chunks_) {
-    PERFETTO_CHECK(chunk.unfreed_allocations == 0);
+    DEJAVIEW_CHECK(chunk.unfreed_allocations == 0);
   }
 }
 
@@ -51,8 +51,8 @@ BumpAllocator::AllocId BumpAllocator::Alloc(uint32_t size) {
   // Size is required to be a multiple of 8 to avoid needing to deal with
   // alignment. It must also be at most kChunkSize as we do not support cross
   // chunk spanning allocations.
-  PERFETTO_DCHECK(size % 8 == 0);
-  PERFETTO_DCHECK(size <= kChunkSize);
+  DEJAVIEW_DCHECK(size % 8 == 0);
+  DEJAVIEW_DCHECK(size <= kChunkSize);
 
   // Fast path: check if we have space to service this allocation in the current
   // chunk.
@@ -67,26 +67,26 @@ BumpAllocator::AllocId BumpAllocator::Alloc(uint32_t size) {
   chunks_.emplace_back(std::move(chunk));
 
   // Ensure that we haven't exceeded the maximum number of chunks.
-  PERFETTO_CHECK(LastChunkIndex() < kMaxChunkCount);
+  DEJAVIEW_CHECK(LastChunkIndex() < kMaxChunkCount);
 
   // This time the allocation should definitely succeed in the last chunk (which
   // we just added).
   alloc_id = TryAllocInLastChunk(size);
-  PERFETTO_CHECK(alloc_id);
+  DEJAVIEW_CHECK(alloc_id);
   return *alloc_id;
 }
 
 void BumpAllocator::Free(AllocId id) {
   uint64_t queue_index = ChunkIndexToQueueIndex(id.chunk_index);
-  PERFETTO_DCHECK(queue_index <= std::numeric_limits<size_t>::max());
+  DEJAVIEW_DCHECK(queue_index <= std::numeric_limits<size_t>::max());
   Chunk& chunk = chunks_.at(static_cast<size_t>(queue_index));
-  PERFETTO_DCHECK(chunk.unfreed_allocations > 0);
+  DEJAVIEW_DCHECK(chunk.unfreed_allocations > 0);
   chunk.unfreed_allocations--;
 }
 
 void* BumpAllocator::GetPointer(AllocId id) {
   uint64_t queue_index = ChunkIndexToQueueIndex(id.chunk_index);
-  PERFETTO_CHECK(queue_index <= std::numeric_limits<size_t>::max());
+  DEJAVIEW_CHECK(queue_index <= std::numeric_limits<size_t>::max());
   return chunks_.at(static_cast<size_t>(queue_index)).allocation.get() +
          id.chunk_offset;
 }
@@ -127,8 +127,8 @@ std::optional<BumpAllocator::AllocId> BumpAllocator::TryAllocInLastChunk(
   // Verify some invariants:
   // 1) The allocation must exist
   // 2) The bump must be in the bounds of the chunk.
-  PERFETTO_DCHECK(chunk.allocation);
-  PERFETTO_DCHECK(chunk.bump_offset <= kChunkSize);
+  DEJAVIEW_DCHECK(chunk.allocation);
+  DEJAVIEW_DCHECK(chunk.bump_offset <= kChunkSize);
 
   // If the end of the allocation ends up after this chunk, we cannot service it
   // in this chunk.
@@ -144,10 +144,10 @@ std::optional<BumpAllocator::AllocId> BumpAllocator::TryAllocInLastChunk(
   chunk.unfreed_allocations++;
 
   // Unpoison the allocation range to allow access to it on ASAN builds.
-  PERFETTO_ASAN_UNPOISON(chunk.allocation.get() + alloc_offset, size);
+  DEJAVIEW_ASAN_UNPOISON(chunk.allocation.get() + alloc_offset, size);
 
   return AllocId{LastChunkIndex(), alloc_offset};
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -89,10 +89,10 @@ CONTINUOUS_DUMP = """
 """
 
 UUID = str(uuid.uuid4())[-6:]
-PROFILE_PATH = '/data/misc/perfetto-traces/java-profile-' + UUID
+PROFILE_PATH = '/data/misc/dejaview-traces/java-profile-' + UUID
 
-PERFETTO_CMD = ('CFG=\'{cfg}\'; echo ${{CFG}} | '
-                'perfetto --txt -c - -o ' + PROFILE_PATH + ' -d')
+DEJAVIEW_CMD = ('CFG=\'{cfg}\'; echo ${{CFG}} | '
+                'dejaview --txt -c - -o ' + PROFILE_PATH + ' -d')
 
 SDK = {
     'S': 31,
@@ -311,13 +311,13 @@ def main(argv):
 
   user = subprocess.check_output(['adb', 'shell',
                                   'whoami']).strip().decode('utf8')
-  perfetto_pid = subprocess.check_output(
+  dejaview_pid = subprocess.check_output(
       ['adb', 'exec-out',
-       PERFETTO_CMD.format(cfg=cfg, user=user)]).strip().decode('utf8')
+       DEJAVIEW_CMD.format(cfg=cfg, user=user)]).strip().decode('utf8')
   try:
-    int(perfetto_pid.strip())
+    int(dejaview_pid.strip())
   except ValueError:
-    print("Failed to invoke perfetto: {}".format(perfetto_pid), file=sys.stderr)
+    print("Failed to invoke dejaview: {}".format(dejaview_pid), file=sys.stderr)
     return 1
 
   if args.wait_for_oom:
@@ -327,18 +327,18 @@ def main(argv):
 
   exists = True
   ctrl_c_count = 0
-  # Wait for perfetto cmd to return.
+  # Wait for dejaview cmd to return.
   while exists:
     try:
       exists = subprocess.call(
-          ['adb', 'shell', '[ -d /proc/{} ]'.format(perfetto_pid)]) == 0
+          ['adb', 'shell', '[ -d /proc/{} ]'.format(dejaview_pid)]) == 0
       time.sleep(1)
     except KeyboardInterrupt as e:
       ctrl_c_count += 1
       subprocess.check_call(
-          ['adb', 'shell', 'kill -TERM {}'.format(perfetto_pid)])
+          ['adb', 'shell', 'kill -TERM {}'.format(dejaview_pid)])
       if ctrl_c_count == 1:
-        print("Stopping perfetto and waiting for data...")
+        print("Stopping dejaview and waiting for data...")
       else:
         raise e
 

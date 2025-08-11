@@ -18,19 +18,19 @@
 #include <random>
 #include "test/gtest_and_gmock.h"
 
-#include "perfetto/ext/base/android_utils.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/ext/base/android_utils.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/android_test_utils.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
-class PerfettoCtsTest : public ::testing::Test {
+class DejaViewCtsTest : public ::testing::Test {
  protected:
   void TestMockProducer(const std::string& producer_name) {
     // Filter out watches; they do not have the required infrastructure to run
@@ -43,7 +43,7 @@ class PerfettoCtsTest : public ::testing::Test {
 
     base::TestTaskRunner task_runner;
 
-    const std::string app_name = "android.perfetto.producer";
+    const std::string app_name = "android.dejaview.producer";
     const std::string activity = "ProducerActivity";
     if (IsAppRunning(app_name)) {
       StopApp(app_name, "old.app.stopped", &task_runner);
@@ -54,7 +54,7 @@ class PerfettoCtsTest : public ::testing::Test {
     task_runner.RunUntilCheckpoint("target.app.running");
 
     const std::string isolated_process_name =
-        "android.perfetto.producer:android.perfetto.producer."
+        "android.dejaview.producer:android.dejaview.producer."
         "ProducerIsolatedService";
     WaitForProcess(isolated_process_name, "isolated.service.running",
                    &task_runner, 1000 /*ms*/);
@@ -97,16 +97,16 @@ class PerfettoCtsTest : public ::testing::Test {
   }
 };
 
-TEST_F(PerfettoCtsTest, TestProducerActivity) {
-  TestMockProducer("android.perfetto.cts.ProducerActivity");
+TEST_F(DejaViewCtsTest, TestProducerActivity) {
+  TestMockProducer("android.dejaview.cts.ProducerActivity");
 }
 
-TEST_F(PerfettoCtsTest, TestProducerService) {
-  TestMockProducer("android.perfetto.cts.ProducerService");
+TEST_F(DejaViewCtsTest, TestProducerService) {
+  TestMockProducer("android.dejaview.cts.ProducerService");
 }
 
-TEST_F(PerfettoCtsTest, TestProducerIsolatedService) {
-  TestMockProducer("android.perfetto.cts.ProducerIsolatedService");
+TEST_F(DejaViewCtsTest, TestProducerIsolatedService) {
+  TestMockProducer("android.dejaview.cts.ProducerIsolatedService");
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

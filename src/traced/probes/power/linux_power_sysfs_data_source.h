@@ -19,11 +19,11 @@
 
 #include <optional>
 
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 class BatteryInfo;
 class TraceWriter;
 
@@ -97,6 +97,6 @@ class LinuxPowerSysfsDataSource : public ProbesDataSource {
   base::WeakPtrFactory<LinuxPowerSysfsDataSource> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_POWER_LINUX_POWER_SYSFS_DATA_SOURCE_H_

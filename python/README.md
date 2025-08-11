@@ -1,6 +1,6 @@
-# Perfetto - System profiling, app tracing and trace analysis
+# DejaView - System profiling, app tracing and trace analysis
 
-Perfetto is a production-grade open-source stack for performance
+DejaView is a production-grade open-source stack for performance
 instrumentation and trace analysis. It offers services and libraries and for
 recording system-level and app-level traces, native + java heap profiling, a
 library for analyzing traces using SQL and a web-based UI to visualize and

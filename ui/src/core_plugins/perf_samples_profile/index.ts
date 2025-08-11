@@ -16,7 +16,7 @@ import m from 'mithril';
 import {TrackData} from '../../common/track_data';
 import {PERF_SAMPLES_PROFILE_TRACK_KIND} from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {NUM, NUM_NULL, STR_NULL} from '../../trace_processor/query_result';
 import {
   QueryFlamegraph,
@@ -46,7 +46,7 @@ function makeUriForProc(upid: number) {
   return `/process_${upid}/perf_samples_profile`;
 }
 
-class PerfSamplesProfilePlugin implements PerfettoPlugin {
+class PerfSamplesProfilePlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const pResult = await ctx.engine.query(`
       select distinct upid
@@ -107,7 +107,7 @@ class PerfSamplesProfilePlugin implements PerfettoPlugin {
                     columnName: 'self_count',
                   },
                 ],
-                'include perfetto module linux.perf.samples',
+                'include dejaview module linux.perf.samples',
                 [{name: 'mapping_name', displayName: 'Mapping'}],
                 [
                   {
@@ -209,7 +209,7 @@ class PerfSamplesProfilePlugin implements PerfettoPlugin {
                     columnName: 'self_count',
                   },
                 ],
-                'include perfetto module linux.perf.samples',
+                'include dejaview module linux.perf.samples',
                 [{name: 'mapping_name', displayName: 'Mapping'}],
                 [
                   {
@@ -296,6 +296,6 @@ function renderDetailsPanel(flamegraphAttrs: QueryFlamegraphAttrs, ts: time) {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.PerfSamplesProfile',
+  pluginId: 'dejaview.PerfSamplesProfile',
   plugin: PerfSamplesProfilePlugin,
 };

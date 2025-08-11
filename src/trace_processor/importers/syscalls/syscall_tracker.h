@@ -20,7 +20,7 @@
 #include <limits>
 #include <tuple>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/kernel_utils/syscall_table.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
@@ -30,7 +30,7 @@
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class SyscallTracker : public Destructible {
  public:
@@ -136,6 +136,6 @@ class SyscallTracker : public Destructible {
   BitVector in_sys_write_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_SYSCALLS_SYSCALL_TRACKER_H_

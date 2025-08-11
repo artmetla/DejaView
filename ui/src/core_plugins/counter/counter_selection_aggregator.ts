@@ -37,7 +37,7 @@ export class CounterSelectionAggregator implements AreaSelectionAggregator {
     let query;
     if (trackIds.length === 1) {
       // Optimized query for the special case where there is only 1 track id.
-      query = `CREATE OR REPLACE PERFETTO TABLE ${this.id} AS
+      query = `CREATE OR REPLACE DEJAVIEW TABLE ${this.id} AS
       WITH aggregated AS (
         SELECT
           COUNT(1) AS count,
@@ -67,7 +67,7 @@ export class CounterSelectionAggregator implements AreaSelectionAggregator {
       FROM aggregated`;
     } else {
       // Slower, but general purspose query that can aggregate multiple tracks
-      query = `CREATE OR REPLACE PERFETTO TABLE ${this.id} AS
+      query = `CREATE OR REPLACE DEJAVIEW TABLE ${this.id} AS
       WITH aggregated AS (
         SELECT track_id,
           COUNT(1) AS count,

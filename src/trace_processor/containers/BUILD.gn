@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto_component.gni")
+import("../../../gn/dejaview_component.gni")
 import("../../../gn/test.gni")
 
 # Used by two static libs - trace_processor and libpprofbuilder, hence using
-# perfetto_component to turn this into a cc_library in bazel builds.
+# dejaview_component to turn this into a cc_library in bazel builds.
 # The 'public' section gets converted to 'hdrs', and is necessary for the bazel
 # build to pass strict header checks.
-perfetto_component("containers") {
+dejaview_component("containers") {
   public = [
     "bit_vector.h",
     "implicit_segment_forest.h",
@@ -37,13 +37,13 @@ perfetto_component("containers") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/protozero",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../include/dejaview/protozero",
+    "../../../protos/dejaview/trace_processor:zero",
     "../../base",
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [
     "bit_vector_unittest.cc",
@@ -58,12 +58,12 @@ perfetto_unittest_source_set("unittests") {
     ":containers",
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../include/perfetto/protozero",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../include/dejaview/protozero",
+    "../../../protos/dejaview/trace_processor:zero",
   ]
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [

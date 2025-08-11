@@ -21,7 +21,7 @@
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class FtraceModule : public ProtoImporterModule {
@@ -40,6 +40,6 @@ class FtraceModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_FTRACE_MODULE_H_

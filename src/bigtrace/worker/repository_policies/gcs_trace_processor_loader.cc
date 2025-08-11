@@ -19,11 +19,11 @@
 #include <httplib.h>
 #include <json/json.h>
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/bigtrace/worker/repository_policies/gcs_trace_processor_loader.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 namespace {
 
@@ -93,4 +93,4 @@ GcsTraceProcessorLoader::LoadTraceProcessor(const std::string& path) {
 
   return tp;
 }
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace

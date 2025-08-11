@@ -17,23 +17,23 @@
 #ifndef SRC_TRACING_CORE_TRACE_WRITER_IMPL_H_
 #define SRC_TRACING_CORE_TRACE_WRITER_IMPL_H_
 
-#include "perfetto/base/proc_utils.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/shared_memory_arbiter.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/protozero/message_handle.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/root_message.h"
-#include "perfetto/protozero/scattered_stream_writer.h"
-#include "perfetto/tracing/buffer_exhausted_policy.h"
+#include "dejaview/base/proc_utils.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/shared_memory_arbiter.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/protozero/message_handle.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/root_message.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
+#include "dejaview/tracing/buffer_exhausted_policy.h"
 #include "src/tracing/core/patch_list.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class SharedMemoryArbiterImpl;
 
-// See //include/perfetto/ext/tracing/core/trace_writer.h for docs.
+// See //include/dejaview/ext/tracing/core/trace_writer.h for docs.
 //
 // Locking will happen only when a chunk is exhausted and a new one is
 // acquired from the arbiter.
@@ -168,7 +168,7 @@ class TraceWriterImpl : public TraceWriter,
   // |nullptr|. If the fragment is finalized, this is reset to |nullptr|.
   //
   // Note: for nested messages the field is tracked somewhere else
-  // (protozero::Message::size_field_ or PerfettoPbMsg::size_field). For the
+  // (protozero::Message::size_field_ or DejaViewPbMsg::size_field). For the
   // root message, protozero::Message::size_field_ is nullptr and this is used
   // instead. This is because at the root level we deal with fragments, not
   // logical messages.
@@ -191,6 +191,6 @@ class TraceWriterImpl : public TraceWriter,
   bool first_packet_on_sequence_ = true;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_CORE_TRACE_WRITER_IMPL_H_

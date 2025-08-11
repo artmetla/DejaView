@@ -23,9 +23,9 @@ class Startups(TestSuite):
 
   def test_hot_startups(self):
     return DiffTestBlueprint(
-        trace=DataPath('api31_startup_hot.perfetto-trace'),
+        trace=DataPath('api31_startup_hot.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.startups;
+        INCLUDE DEJAVIEW MODULE android.startup.startups;
         SELECT * FROM android_startups;
         """,
         out=Csv("""
@@ -35,9 +35,9 @@ class Startups(TestSuite):
 
   def test_warm_startups(self):
     return DiffTestBlueprint(
-        trace=DataPath('api31_startup_warm.perfetto-trace'),
+        trace=DataPath('api31_startup_warm.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.startups;
+        INCLUDE DEJAVIEW MODULE android.startup.startups;
         SELECT * FROM android_startups;
         """,
         out=Csv("""
@@ -47,9 +47,9 @@ class Startups(TestSuite):
 
   def test_cold_startups(self):
     return DiffTestBlueprint(
-        trace=DataPath('api31_startup_cold.perfetto-trace'),
+        trace=DataPath('api31_startup_cold.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.startups;
+        INCLUDE DEJAVIEW MODULE android.startup.startups;
         SELECT * FROM android_startups;
         """,
         out=Csv("""
@@ -59,9 +59,9 @@ class Startups(TestSuite):
 
   def test_hot_startups_maxsdk28(self):
     return DiffTestBlueprint(
-        trace=DataPath('api24_startup_hot.perfetto-trace'),
+        trace=DataPath('api24_startup_hot.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.startups;
+        INCLUDE DEJAVIEW MODULE android.startup.startups;
         SELECT * FROM android_startups;
         """,
         out=Csv("""
@@ -72,9 +72,9 @@ class Startups(TestSuite):
 
   def test_warm_startups_maxsdk28(self):
     return DiffTestBlueprint(
-        trace=DataPath('api24_startup_warm.perfetto-trace'),
+        trace=DataPath('api24_startup_warm.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.startups;
+        INCLUDE DEJAVIEW MODULE android.startup.startups;
         SELECT * FROM android_startups;
         """,
         out=Csv("""
@@ -85,9 +85,9 @@ class Startups(TestSuite):
 
   def test_cold_startups_maxsdk28(self):
     return DiffTestBlueprint(
-        trace=DataPath('api24_startup_cold.perfetto-trace'),
+        trace=DataPath('api24_startup_cold.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.startups;
+        INCLUDE DEJAVIEW MODULE android.startup.startups;
         SELECT * FROM android_startups;
         """,
         out=Csv("""
@@ -97,9 +97,9 @@ class Startups(TestSuite):
 
   def test_android_startup_time_to_display_hot_maxsdk28(self):
     return DiffTestBlueprint(
-        trace=DataPath('api24_startup_hot.perfetto-trace'),
+        trace=DataPath('api24_startup_hot.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.time_to_display;
+        INCLUDE DEJAVIEW MODULE android.startup.time_to_display;
         SELECT * FROM android_startup_time_to_display;
         """,
         out=Csv("""
@@ -110,9 +110,9 @@ class Startups(TestSuite):
 
   def test_android_startup_time_to_display_warm_maxsdk28(self):
     return DiffTestBlueprint(
-        trace=DataPath('api24_startup_warm.perfetto-trace'),
+        trace=DataPath('api24_startup_warm.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.time_to_display;
+        INCLUDE DEJAVIEW MODULE android.startup.time_to_display;
         SELECT * FROM android_startup_time_to_display;
         """,
         out=Csv("""
@@ -123,9 +123,9 @@ class Startups(TestSuite):
 
   def test_android_startup_time_to_display_cold_maxsdk28(self):
     return DiffTestBlueprint(
-        trace=DataPath('api24_startup_cold.perfetto-trace'),
+        trace=DataPath('api24_startup_cold.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.time_to_display;
+        INCLUDE DEJAVIEW MODULE android.startup.time_to_display;
         SELECT * FROM android_startup_time_to_display;
         """,
         out=Csv("""
@@ -135,9 +135,9 @@ class Startups(TestSuite):
 
   def test_android_startup_time_to_display_hot(self):
     return DiffTestBlueprint(
-        trace=DataPath('api31_startup_hot.perfetto-trace'),
+        trace=DataPath('api31_startup_hot.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.time_to_display;
+        INCLUDE DEJAVIEW MODULE android.startup.time_to_display;
         SELECT * FROM android_startup_time_to_display;
         """,
         out=Csv("""
@@ -147,9 +147,9 @@ class Startups(TestSuite):
 
   def test_android_startup_time_to_display_warm(self):
     return DiffTestBlueprint(
-        trace=DataPath('api31_startup_warm.perfetto-trace'),
+        trace=DataPath('api31_startup_warm.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.time_to_display;
+        INCLUDE DEJAVIEW MODULE android.startup.time_to_display;
         SELECT * FROM android_startup_time_to_display;
         """,
         out=Csv("""
@@ -159,9 +159,9 @@ class Startups(TestSuite):
 
   def test_android_startup_time_to_display_cold(self):
     return DiffTestBlueprint(
-        trace=DataPath('api31_startup_cold.perfetto-trace'),
+        trace=DataPath('api31_startup_cold.dejaview-trace'),
         query="""
-        INCLUDE PERFETTO MODULE android.startup.time_to_display;
+        INCLUDE DEJAVIEW MODULE android.startup.time_to_display;
         SELECT * FROM android_startup_time_to_display;
         """,
         out=Csv("""

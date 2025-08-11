@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/core/clock_snapshots.h"
+#include "dejaview/tracing/core/clock_snapshots.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/time.h"
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/time.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 ClockSnapshotVector CaptureClockSnapshots() {
   ClockSnapshotVector snapshot_data;
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) &&   \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_NACL)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) &&   \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_NACL)
   struct {
     clockid_t id;
     protos::pbzero::BuiltinClock type;
@@ -48,7 +48,7 @@ ClockSnapshotVector CaptureClockSnapshots() {
   // First snapshot all the clocks as atomically as we can.
   for (auto& clock : clocks) {
     if (clock_gettime(clock.id, &clock.ts) == -1)
-      PERFETTO_DLOG("clock_gettime failed for clock %d", clock.id);
+      DEJAVIEW_DLOG("clock_gettime failed for clock %d", clock.id);
   }
   for (auto& clock : clocks) {
     snapshot_data.push_back(ClockReading(
@@ -66,13 +66,13 @@ ClockSnapshotVector CaptureClockSnapshots() {
       ClockReading(protos::pbzero::BUILTIN_CLOCK_MONOTONIC, wall_time_ns));
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_X86_64)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_X86_64)
   // X86-specific but OS-independent TSC clocksource
   snapshot_data.push_back(
       ClockReading(protos::pbzero::BUILTIN_CLOCK_TSC, base::Rdtsc()));
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_X86_64)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_X86_64)
 
   return snapshot_data;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

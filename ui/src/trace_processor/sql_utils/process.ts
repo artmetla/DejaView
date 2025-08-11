@@ -34,7 +34,7 @@ export async function getProcessInfo(
   upid: Upid,
 ): Promise<ProcessInfo> {
   const res = await engine.query(`
-    include perfetto module android.process_metadata;
+    include dejaview module android.process_metadata;
     select
       p.upid,
       p.pid,

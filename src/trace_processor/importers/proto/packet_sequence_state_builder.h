@@ -19,11 +19,11 @@
 
 #include <cstdint>
 
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Helper class to generate a stream of PacketSequenceStateGeneration as we
@@ -77,6 +77,6 @@ class PacketSequenceStateBuilder {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PACKET_SEQUENCE_STATE_BUILDER_H_

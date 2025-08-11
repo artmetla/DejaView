@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/public/abi/track_event_abi.h"
-#include "perfetto/public/abi/track_event_hl_abi.h"
-#include "perfetto/public/abi/track_event_ll_abi.h"
+#include "dejaview/public/abi/track_event_abi.h"
+#include "dejaview/public/abi/track_event_hl_abi.h"
+#include "dejaview/public/abi/track_event_ll_abi.h"
 
 #include <algorithm>
 #include <atomic>
@@ -24,54 +24,54 @@
 #include <mutex>
 #include <optional>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/no_destructor.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/thread_utils.h"
-#include "perfetto/protozero/contiguous_memory_range.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/tracing/data_source.h"
-#include "perfetto/tracing/internal/basic_types.h"
-#include "perfetto/tracing/internal/data_source_internal.h"
-#include "perfetto/tracing/internal/track_event_internal.h"
-#include "perfetto/tracing/track.h"
-#include "protos/perfetto/common/data_source_descriptor.gen.h"
-#include "protos/perfetto/common/track_event_descriptor.pbzero.h"
-#include "protos/perfetto/config/data_source_config.gen.h"
-#include "protos/perfetto/config/track_event/track_event_config.gen.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/no_destructor.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/thread_utils.h"
+#include "dejaview/protozero/contiguous_memory_range.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/tracing/data_source.h"
+#include "dejaview/tracing/internal/basic_types.h"
+#include "dejaview/tracing/internal/data_source_internal.h"
+#include "dejaview/tracing/internal/track_event_internal.h"
+#include "dejaview/tracing/track.h"
+#include "protos/dejaview/common/data_source_descriptor.gen.h"
+#include "protos/dejaview/common/track_event_descriptor.pbzero.h"
+#include "protos/dejaview/config/data_source_config.gen.h"
+#include "protos/dejaview/config/track_event/track_event_config.gen.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 #include "src/shared_lib/intern_map.h"
 #include "src/shared_lib/reset_for_testing.h"
 
-struct PerfettoTeCategoryImpl* perfetto_te_any_categories;
+struct DejaViewTeCategoryImpl* dejaview_te_any_categories;
 
-PERFETTO_ATOMIC(bool) * perfetto_te_any_categories_enabled;
+DEJAVIEW_ATOMIC(bool) * dejaview_te_any_categories_enabled;
 
-uint64_t perfetto_te_process_track_uuid;
+uint64_t dejaview_te_process_track_uuid;
 
-struct PerfettoTeCategoryImpl {
+struct DejaViewTeCategoryImpl {
   std::atomic<bool> flag{false};
   std::atomic<uint8_t> instances{0};
-  PerfettoTeCategoryDescriptor* desc = nullptr;
+  DejaViewTeCategoryDescriptor* desc = nullptr;
   uint64_t cat_iid = 0;
-  PerfettoTeCategoryImplCallback cb = nullptr;
+  DejaViewTeCategoryImplCallback cb = nullptr;
   void* cb_user_arg = nullptr;
 };
 
 enum class MatchType { kExact, kPattern };
 
 static bool NameMatchesPattern(const std::string& pattern,
-                               const perfetto::base::StringView& name,
+                               const dejaview::base::StringView& name,
                                MatchType match_type) {
   // To avoid pulling in all of std::regex, for now we only support a single "*"
   // wildcard at the end of the pattern.
@@ -80,13 +80,13 @@ static bool NameMatchesPattern(const std::string& pattern,
     if (match_type != MatchType::kPattern)
       return false;
     return name.substr(0, i) ==
-           perfetto::base::StringView(pattern).substr(0, i);
+           dejaview::base::StringView(pattern).substr(0, i);
   }
-  return name == perfetto::base::StringView(pattern);
+  return name == dejaview::base::StringView(pattern);
 }
 
 static bool NameMatchesPatternList(const std::vector<std::string>& patterns,
-                                   const perfetto::base::StringView& name,
+                                   const dejaview::base::StringView& name,
                                    MatchType match_type) {
   for (const auto& pattern : patterns) {
     if (NameMatchesPattern(pattern, name, match_type))
@@ -96,8 +96,8 @@ static bool NameMatchesPatternList(const std::vector<std::string>& patterns,
 }
 
 static bool IsSingleCategoryEnabled(
-    const PerfettoTeCategoryDescriptor& c,
-    const perfetto::protos::gen::TrackEventConfig& config) {
+    const DejaViewTeCategoryDescriptor& c,
+    const dejaview::protos::gen::TrackEventConfig& config) {
   auto has_matching_tag = [&](std::function<bool(const char*)> matcher) {
     for (size_t i = 0; i < c.num_tags; ++i) {
       if (matcher(c.tags[i]))
@@ -143,17 +143,17 @@ static bool IsSingleCategoryEnabled(
 }
 
 static bool IsRegisteredCategoryEnabled(
-    const PerfettoTeCategoryImpl& cat,
-    const perfetto::protos::gen::TrackEventConfig& config) {
+    const DejaViewTeCategoryImpl& cat,
+    const dejaview::protos::gen::TrackEventConfig& config) {
   if (!cat.desc) {
     return false;
   }
   return IsSingleCategoryEnabled(*cat.desc, config);
 }
 
-static void EnableRegisteredCategory(PerfettoTeCategoryImpl* cat,
+static void EnableRegisteredCategory(DejaViewTeCategoryImpl* cat,
                                      uint32_t instance_index) {
-  PERFETTO_DCHECK(instance_index < perfetto::internal::kMaxDataSourceInstances);
+  DEJAVIEW_DCHECK(instance_index < dejaview::internal::kMaxDataSourceInstances);
   // Matches the acquire_load in DataSource::Trace().
   uint8_t old = cat->instances.fetch_or(
       static_cast<uint8_t>(1u << instance_index), std::memory_order_release);
@@ -167,9 +167,9 @@ static void EnableRegisteredCategory(PerfettoTeCategoryImpl* cat,
   }
 }
 
-static void DisableRegisteredCategory(PerfettoTeCategoryImpl* cat,
+static void DisableRegisteredCategory(DejaViewTeCategoryImpl* cat,
                                       uint32_t instance_index) {
-  PERFETTO_DCHECK(instance_index < perfetto::internal::kMaxDataSourceInstances);
+  DEJAVIEW_DCHECK(instance_index < dejaview::internal::kMaxDataSourceInstances);
   // Matches the acquire_load in DataSource::Trace().
   cat->instances.fetch_and(static_cast<uint8_t>(~(1u << instance_index)),
                            std::memory_order_release);
@@ -185,8 +185,8 @@ static void DisableRegisteredCategory(PerfettoTeCategoryImpl* cat,
 }
 
 static void SerializeCategory(
-    const PerfettoTeCategoryDescriptor& desc,
-    perfetto::protos::pbzero::TrackEventDescriptor* ted) {
+    const DejaViewTeCategoryDescriptor& desc,
+    dejaview::protos::pbzero::TrackEventDescriptor* ted) {
   auto* c = ted->add_available_categories();
   c->set_name(desc.name);
   if (desc.desc)
@@ -196,7 +196,7 @@ static void SerializeCategory(
   }
 }
 
-namespace perfetto {
+namespace dejaview {
 namespace shlib {
 
 struct TrackEventIncrementalState {
@@ -234,32 +234,32 @@ struct TrackEventTlsState {
     }
     if (disable_incremental_timestamps) {
       if (timestamp_unit_multiplier == 1) {
-        default_clock_id = PERFETTO_I_CLOCK_INCREMENTAL_UNDERNEATH;
+        default_clock_id = DEJAVIEW_I_CLOCK_INCREMENTAL_UNDERNEATH;
       } else {
-        default_clock_id = PERFETTO_TE_TIMESTAMP_TYPE_ABSOLUTE;
+        default_clock_id = DEJAVIEW_TE_TIMESTAMP_TYPE_ABSOLUTE;
       }
     } else {
-      default_clock_id = PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL;
+      default_clock_id = DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL;
     }
   }
   uint32_t default_clock_id;
   uint64_t timestamp_unit_multiplier;
 };
 
-struct TrackEventDataSourceTraits : public perfetto::DefaultDataSourceTraits {
+struct TrackEventDataSourceTraits : public dejaview::DefaultDataSourceTraits {
   using IncrementalStateType = TrackEventIncrementalState;
   using TlsStateType = TrackEventTlsState;
 };
 
 class TrackEvent
-    : public perfetto::DataSource<TrackEvent, TrackEventDataSourceTraits> {
+    : public dejaview::DataSource<TrackEvent, TrackEventDataSourceTraits> {
  public:
   ~TrackEvent() override;
   void OnSetup(const DataSourceBase::SetupArgs& args) override {
     const std::string& config_raw = args.config->track_event_config_raw();
     bool ok = config_.ParseFromArray(config_raw.data(), config_raw.size());
     if (!ok) {
-      PERFETTO_LOG("Failed to parse config");
+      DEJAVIEW_LOG("Failed to parse config");
     }
     inst_id_ = args.internal_instance_index;
   }
@@ -272,7 +272,7 @@ class TrackEvent
     GlobalState::Instance().OnStop(inst_id_);
   }
 
-  const perfetto::protos::gen::TrackEventConfig& GetConfig() const {
+  const dejaview::protos::gen::TrackEventConfig& GetConfig() const {
     return config_;
   }
 
@@ -282,7 +282,7 @@ class TrackEvent
     Register(dsd);
   }
 
-  static void RegisterCategory(PerfettoTeCategoryImpl* cat) {
+  static void RegisterCategory(DejaViewTeCategoryImpl* cat) {
     GlobalState::Instance().RegisterCategory(cat);
   }
 
@@ -292,12 +292,12 @@ class TrackEvent
     UpdateDescriptor(dsd);
   }
 
-  static void UnregisterCategory(PerfettoTeCategoryImpl* cat) {
+  static void UnregisterCategory(DejaViewTeCategoryImpl* cat) {
     GlobalState::Instance().UnregisterCategory(cat);
   }
 
-  static void CategorySetCallback(struct PerfettoTeCategoryImpl* cat,
-                                  PerfettoTeCategoryImplCallback cb,
+  static void CategorySetCallback(struct DejaViewTeCategoryImpl* cat,
+                                  DejaViewTeCategoryImplCallback cb,
                                   void* user_arg) {
     GlobalState::Instance().CategorySetCallback(cat, cb, user_arg);
   }
@@ -313,11 +313,11 @@ class TrackEvent
       return *instance;
     }
 
-    void OnStart(const perfetto::protos::gen::TrackEventConfig& config,
+    void OnStart(const dejaview::protos::gen::TrackEventConfig& config,
                  uint32_t instance_id) {
       std::lock_guard<std::mutex> lock(mu_);
-      EnableRegisteredCategory(perfetto_te_any_categories, instance_id);
-      for (PerfettoTeCategoryImpl* cat : categories_) {
+      EnableRegisteredCategory(dejaview_te_any_categories, instance_id);
+      for (DejaViewTeCategoryImpl* cat : categories_) {
         if (IsRegisteredCategoryEnabled(*cat, config)) {
           EnableRegisteredCategory(cat, instance_id);
         }
@@ -326,13 +326,13 @@ class TrackEvent
 
     void OnStop(uint32_t instance_id) {
       std::lock_guard<std::mutex> lock(GlobalState::Instance().mu_);
-      for (PerfettoTeCategoryImpl* cat : GlobalState::Instance().categories_) {
+      for (DejaViewTeCategoryImpl* cat : GlobalState::Instance().categories_) {
         DisableRegisteredCategory(cat, instance_id);
       }
-      DisableRegisteredCategory(perfetto_te_any_categories, instance_id);
+      DisableRegisteredCategory(dejaview_te_any_categories, instance_id);
     }
 
-    void RegisterCategory(PerfettoTeCategoryImpl* cat) {
+    void RegisterCategory(DejaViewTeCategoryImpl* cat) {
       {
         std::lock_guard<std::mutex> lock(mu_);
         Trace([cat](TraceContext ctx) {
@@ -347,15 +347,15 @@ class TrackEvent
       }
     }
 
-    void UnregisterCategory(PerfettoTeCategoryImpl* cat) {
+    void UnregisterCategory(DejaViewTeCategoryImpl* cat) {
       std::lock_guard<std::mutex> lock(mu_);
       categories_.erase(
           std::remove(categories_.begin(), categories_.end(), cat),
           categories_.end());
     }
 
-    void CategorySetCallback(struct PerfettoTeCategoryImpl* cat,
-                             PerfettoTeCategoryImplCallback cb,
+    void CategorySetCallback(struct DejaViewTeCategoryImpl* cat,
+                             DejaViewTeCategoryImplCallback cb,
                              void* user_arg) {
       std::lock_guard<std::mutex> lock(mu_);
       cat->cb = cb;
@@ -366,7 +366,7 @@ class TrackEvent
 
       bool first = true;
       uint8_t active_instances = cat->instances.load(std::memory_order_relaxed);
-      for (PerfettoDsInstanceIndex i = 0; i < internal::kMaxDataSourceInstances;
+      for (DejaViewDsInstanceIndex i = 0; i < internal::kMaxDataSourceInstances;
            i++) {
         if ((active_instances & (1 << i)) == 0) {
           continue;
@@ -380,9 +380,9 @@ class TrackEvent
       DataSourceDescriptor dsd;
       dsd.set_name("track_event");
 
-      protozero::HeapBuffered<perfetto::protos::pbzero::TrackEventDescriptor>
+      protozero::HeapBuffered<dejaview::protos::pbzero::TrackEventDescriptor>
           ted;
-      for (PerfettoTeCategoryImpl* cat : categories_) {
+      for (DejaViewTeCategoryImpl* cat : categories_) {
         SerializeCategory(*cat->desc, ted.get());
       }
       dsd.set_track_event_descriptor_raw(ted.SerializeAsString());
@@ -391,18 +391,18 @@ class TrackEvent
 
    private:
     GlobalState() : interned_categories_(0) {
-      perfetto_te_any_categories = new PerfettoTeCategoryImpl;
-      perfetto_te_any_categories_enabled = &perfetto_te_any_categories->flag;
+      dejaview_te_any_categories = new DejaViewTeCategoryImpl;
+      dejaview_te_any_categories_enabled = &dejaview_te_any_categories->flag;
     }
 
     // Guards categories and interned_categories;
     std::mutex mu_;
-    std::vector<PerfettoTeCategoryImpl*> categories_;
+    std::vector<DejaViewTeCategoryImpl*> categories_;
     uint64_t interned_categories_;
   };
 
   uint32_t inst_id_;
-  perfetto::protos::gen::TrackEventConfig config_;
+  dejaview::protos::gen::TrackEventConfig config_;
 };
 
 TrackEvent::~TrackEvent() = default;
@@ -413,7 +413,7 @@ void ResetTrackEventTls() {
 
 struct TracePointTraits {
   struct TracePointData {
-    struct PerfettoTeCategoryImpl* enabled;
+    struct DejaViewTeCategoryImpl* enabled;
   };
   static constexpr std::atomic<uint8_t>* GetActiveInstances(
       TracePointData data) {
@@ -422,67 +422,67 @@ struct TracePointTraits {
 };
 
 }  // namespace shlib
-}  // namespace perfetto
+}  // namespace dejaview
 
-PERFETTO_DECLARE_DATA_SOURCE_STATIC_MEMBERS(
-    perfetto::shlib::TrackEvent,
-    perfetto::shlib::TrackEventDataSourceTraits);
+DEJAVIEW_DECLARE_DATA_SOURCE_STATIC_MEMBERS(
+    dejaview::shlib::TrackEvent,
+    dejaview::shlib::TrackEventDataSourceTraits);
 
-PERFETTO_DEFINE_DATA_SOURCE_STATIC_MEMBERS(
-    perfetto::shlib::TrackEvent,
-    perfetto::shlib::TrackEventDataSourceTraits);
+DEJAVIEW_DEFINE_DATA_SOURCE_STATIC_MEMBERS(
+    dejaview::shlib::TrackEvent,
+    dejaview::shlib::TrackEventDataSourceTraits);
 
-perfetto::internal::DataSourceType* perfetto::shlib::TrackEvent::GetType() {
-  return &perfetto::shlib::TrackEvent::Helper::type();
+dejaview::internal::DataSourceType* dejaview::shlib::TrackEvent::GetType() {
+  return &dejaview::shlib::TrackEvent::Helper::type();
 }
 
-perfetto::internal::DataSourceThreadLocalState**
-perfetto::shlib::TrackEvent::GetTlsState() {
+dejaview::internal::DataSourceThreadLocalState**
+dejaview::shlib::TrackEvent::GetTlsState() {
   return &tls_state_;
 }
 
 namespace {
 
-using perfetto::internal::TrackEventInternal;
+using dejaview::internal::TrackEventInternal;
 
-perfetto::protos::pbzero::TrackEvent::Type EventType(int32_t type) {
-  using Type = perfetto::protos::pbzero::TrackEvent::Type;
-  auto enum_type = static_cast<PerfettoTeType>(type);
+dejaview::protos::pbzero::TrackEvent::Type EventType(int32_t type) {
+  using Type = dejaview::protos::pbzero::TrackEvent::Type;
+  auto enum_type = static_cast<DejaViewTeType>(type);
   switch (enum_type) {
-    case PERFETTO_TE_TYPE_SLICE_BEGIN:
+    case DEJAVIEW_TE_TYPE_SLICE_BEGIN:
       return Type::TYPE_SLICE_BEGIN;
-    case PERFETTO_TE_TYPE_SLICE_END:
+    case DEJAVIEW_TE_TYPE_SLICE_END:
       return Type::TYPE_SLICE_END;
-    case PERFETTO_TE_TYPE_INSTANT:
+    case DEJAVIEW_TE_TYPE_INSTANT:
       return Type::TYPE_INSTANT;
-    case PERFETTO_TE_TYPE_COUNTER:
+    case DEJAVIEW_TE_TYPE_COUNTER:
       return Type::TYPE_COUNTER;
   }
   return Type::TYPE_UNSPECIFIED;
 }
 
-protozero::MessageHandle<perfetto::protos::pbzero::TracePacket>
-NewTracePacketInternal(perfetto::TraceWriterBase* trace_writer,
-                       perfetto::shlib::TrackEventIncrementalState* incr_state,
-                       const perfetto::shlib::TrackEventTlsState& tls_state,
-                       perfetto::TraceTimestamp timestamp,
+protozero::MessageHandle<dejaview::protos::pbzero::TracePacket>
+NewTracePacketInternal(dejaview::TraceWriterBase* trace_writer,
+                       dejaview::shlib::TrackEventIncrementalState* incr_state,
+                       const dejaview::shlib::TrackEventTlsState& tls_state,
+                       dejaview::TraceTimestamp timestamp,
                        uint32_t seq_flags) {
-  // PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL is the default timestamp returned
+  // DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL is the default timestamp returned
   // by TrackEventInternal::GetTraceTime(). If the configuration in `tls_state`
   // uses a different clock, we have to use that instead.
-  if (PERFETTO_UNLIKELY(tls_state.default_clock_id !=
-                            PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL &&
+  if (DEJAVIEW_UNLIKELY(tls_state.default_clock_id !=
+                            DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL &&
                         timestamp.clock_id ==
-                            PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL)) {
+                            DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL)) {
     timestamp.clock_id = tls_state.default_clock_id;
   }
   auto packet = trace_writer->NewTracePacket();
   auto ts_unit_multiplier = tls_state.timestamp_unit_multiplier;
-  if (PERFETTO_LIKELY(timestamp.clock_id ==
-                      PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL)) {
-    if (PERFETTO_LIKELY(incr_state->last_timestamp_ns <= timestamp.value)) {
+  if (DEJAVIEW_LIKELY(timestamp.clock_id ==
+                      DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL)) {
+    if (DEJAVIEW_LIKELY(incr_state->last_timestamp_ns <= timestamp.value)) {
       // No need to set the clock id here, since
-      // PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL is the clock id assumed by
+      // DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL is the clock id assumed by
       // default.
       auto time_diff_ns = timestamp.value - incr_state->last_timestamp_ns;
       auto time_diff_units = time_diff_ns / ts_unit_multiplier;
@@ -492,10 +492,10 @@ NewTracePacketInternal(perfetto::TraceWriterBase* trace_writer,
       packet->set_timestamp(timestamp.value / ts_unit_multiplier);
       packet->set_timestamp_clock_id(
           ts_unit_multiplier == 1
-              ? static_cast<uint32_t>(PERFETTO_I_CLOCK_INCREMENTAL_UNDERNEATH)
-              : static_cast<uint32_t>(PERFETTO_TE_TIMESTAMP_TYPE_ABSOLUTE));
+              ? static_cast<uint32_t>(DEJAVIEW_I_CLOCK_INCREMENTAL_UNDERNEATH)
+              : static_cast<uint32_t>(DEJAVIEW_TE_TIMESTAMP_TYPE_ABSOLUTE));
     }
-  } else if (PERFETTO_LIKELY(timestamp.clock_id ==
+  } else if (DEJAVIEW_LIKELY(timestamp.clock_id ==
                              tls_state.default_clock_id)) {
     packet->set_timestamp(timestamp.value / ts_unit_multiplier);
   } else {
@@ -506,13 +506,13 @@ NewTracePacketInternal(perfetto::TraceWriterBase* trace_writer,
   return packet;
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 std::vector<std::string> GetCmdLine() {
   std::vector<std::string> cmdline_str;
   std::string cmdline;
-  if (perfetto::base::ReadFile("/proc/self/cmdline", &cmdline)) {
-    perfetto::base::StringSplitter splitter(std::move(cmdline), '\0');
+  if (dejaview::base::ReadFile("/proc/self/cmdline", &cmdline)) {
+    dejaview::base::StringSplitter splitter(std::move(cmdline), '\0');
     while (splitter.Next()) {
       cmdline_str.emplace_back(splitter.cur_token(), splitter.cur_token_size());
     }
@@ -522,55 +522,55 @@ std::vector<std::string> GetCmdLine() {
 #endif
 
 void ResetIncrementalStateIfRequired(
-    perfetto::TraceWriterBase* trace_writer,
-    perfetto::shlib::TrackEventIncrementalState* incr_state,
-    const perfetto::shlib::TrackEventTlsState& tls_state,
-    const perfetto::TraceTimestamp& timestamp) {
+    dejaview::TraceWriterBase* trace_writer,
+    dejaview::shlib::TrackEventIncrementalState* incr_state,
+    const dejaview::shlib::TrackEventTlsState& tls_state,
+    const dejaview::TraceTimestamp& timestamp) {
   if (!incr_state->was_cleared) {
     return;
   }
   incr_state->was_cleared = false;
 
   auto sequence_timestamp = timestamp;
-  if (timestamp.clock_id != PERFETTO_I_CLOCK_INCREMENTAL_UNDERNEATH &&
-      timestamp.clock_id != PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL) {
+  if (timestamp.clock_id != DEJAVIEW_I_CLOCK_INCREMENTAL_UNDERNEATH &&
+      timestamp.clock_id != DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL) {
     sequence_timestamp = TrackEventInternal::GetTraceTime();
   }
 
   incr_state->last_timestamp_ns = sequence_timestamp.value;
-  auto tid = perfetto::base::GetThreadId();
-  auto pid = perfetto::Platform::GetCurrentProcessId();
+  auto tid = dejaview::base::GetThreadId();
+  auto pid = dejaview::Platform::GetCurrentProcessId();
   uint64_t thread_track_uuid =
-      perfetto_te_process_track_uuid ^ static_cast<uint64_t>(tid);
+      dejaview_te_process_track_uuid ^ static_cast<uint64_t>(tid);
   auto ts_unit_multiplier = tls_state.timestamp_unit_multiplier;
   {
     // Mark any incremental state before this point invalid. Also set up
     // defaults so that we don't need to repeat constant data for each packet.
     auto packet = NewTracePacketInternal(
         trace_writer, incr_state, tls_state, timestamp,
-        perfetto::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED);
+        dejaview::protos::pbzero::TracePacket::SEQ_INCREMENTAL_STATE_CLEARED);
     auto defaults = packet->set_trace_packet_defaults();
     defaults->set_timestamp_clock_id(tls_state.default_clock_id);
     // Establish the default track for this event sequence.
     auto track_defaults = defaults->set_track_event_defaults();
     track_defaults->set_track_uuid(thread_track_uuid);
 
-    if (tls_state.default_clock_id != PERFETTO_I_CLOCK_INCREMENTAL_UNDERNEATH) {
-      perfetto::protos::pbzero::ClockSnapshot* clocks =
+    if (tls_state.default_clock_id != DEJAVIEW_I_CLOCK_INCREMENTAL_UNDERNEATH) {
+      dejaview::protos::pbzero::ClockSnapshot* clocks =
           packet->set_clock_snapshot();
       // Trace clock.
-      perfetto::protos::pbzero::ClockSnapshot::Clock* trace_clock =
+      dejaview::protos::pbzero::ClockSnapshot::Clock* trace_clock =
           clocks->add_clocks();
-      trace_clock->set_clock_id(PERFETTO_I_CLOCK_INCREMENTAL_UNDERNEATH);
+      trace_clock->set_clock_id(DEJAVIEW_I_CLOCK_INCREMENTAL_UNDERNEATH);
       trace_clock->set_timestamp(sequence_timestamp.value);
 
-      if (PERFETTO_LIKELY(tls_state.default_clock_id ==
-                          PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL)) {
+      if (DEJAVIEW_LIKELY(tls_state.default_clock_id ==
+                          DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL)) {
         // Delta-encoded incremental clock in nanoseconds by default but
         // configurable by |tls_state.timestamp_unit_multiplier|.
-        perfetto::protos::pbzero::ClockSnapshot::Clock* clock_incremental =
+        dejaview::protos::pbzero::ClockSnapshot::Clock* clock_incremental =
             clocks->add_clocks();
-        clock_incremental->set_clock_id(PERFETTO_TE_TIMESTAMP_TYPE_INCREMENTAL);
+        clock_incremental->set_clock_id(DEJAVIEW_TE_TIMESTAMP_TYPE_INCREMENTAL);
         clock_incremental->set_timestamp(sequence_timestamp.value /
                                          ts_unit_multiplier);
         clock_incremental->set_is_incremental(true);
@@ -578,9 +578,9 @@ void ResetIncrementalStateIfRequired(
       }
       if (ts_unit_multiplier > 1) {
         // absolute clock with custom timestamp_unit_multiplier.
-        perfetto::protos::pbzero::ClockSnapshot::Clock* absolute_clock =
+        dejaview::protos::pbzero::ClockSnapshot::Clock* absolute_clock =
             clocks->add_clocks();
-        absolute_clock->set_clock_id(PERFETTO_TE_TIMESTAMP_TYPE_ABSOLUTE);
+        absolute_clock->set_clock_id(DEJAVIEW_TE_TIMESTAMP_TYPE_ABSOLUTE);
         absolute_clock->set_timestamp(sequence_timestamp.value /
                                       ts_unit_multiplier);
         absolute_clock->set_is_incremental(false);
@@ -596,29 +596,29 @@ void ResetIncrementalStateIfRequired(
   {
     auto packet = NewTracePacketInternal(
         trace_writer, incr_state, tls_state, timestamp,
-        perfetto::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE);
+        dejaview::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE);
     auto* track = packet->set_track_descriptor();
     track->set_uuid(thread_track_uuid);
-    track->set_parent_uuid(perfetto_te_process_track_uuid);
+    track->set_parent_uuid(dejaview_te_process_track_uuid);
     auto* td = track->set_thread();
 
     td->set_pid(static_cast<int32_t>(pid));
     td->set_tid(static_cast<int32_t>(tid));
     std::string thread_name;
-    if (perfetto::base::GetThreadName(thread_name))
+    if (dejaview::base::GetThreadName(thread_name))
       td->set_thread_name(thread_name);
   }
   {
     auto packet = NewTracePacketInternal(
         trace_writer, incr_state, tls_state, timestamp,
-        perfetto::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE);
+        dejaview::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE);
     auto* track = packet->set_track_descriptor();
-    track->set_uuid(perfetto_te_process_track_uuid);
+    track->set_uuid(dejaview_te_process_track_uuid);
     auto* pd = track->set_process();
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
-    static perfetto::base::NoDestructor<std::vector<std::string>> cmdline(
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
+    static dejaview::base::NoDestructor<std::vector<std::string>> cmdline(
         GetCmdLine());
     if (!cmdline.ref().empty()) {
       // Since cmdline is a zero-terminated list of arguments, this ends up
@@ -636,48 +636,48 @@ void ResetIncrementalStateIfRequired(
 
 // Appends the fields described by `fields` to `msg`.
 void AppendHlProtoFields(protozero::Message* msg,
-                         PerfettoTeHlProtoField* const* fields) {
-  for (PerfettoTeHlProtoField* const* p = fields; *p != nullptr; p++) {
+                         DejaViewTeHlProtoField* const* fields) {
+  for (DejaViewTeHlProtoField* const* p = fields; *p != nullptr; p++) {
     switch ((*p)->type) {
-      case PERFETTO_TE_HL_PROTO_TYPE_CSTR: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldCstr*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_CSTR: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldCstr*>(*p);
         msg->AppendString(field->header.id, field->str);
         break;
       }
-      case PERFETTO_TE_HL_PROTO_TYPE_BYTES: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldBytes*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_BYTES: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldBytes*>(*p);
         msg->AppendBytes(field->header.id, field->buf, field->len);
         break;
       }
-      case PERFETTO_TE_HL_PROTO_TYPE_NESTED: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldNested*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_NESTED: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldNested*>(*p);
         auto* nested =
             msg->BeginNestedMessage<protozero::Message>(field->header.id);
         AppendHlProtoFields(nested, field->fields);
         break;
       }
-      case PERFETTO_TE_HL_PROTO_TYPE_VARINT: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldVarInt*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_VARINT: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldVarInt*>(*p);
         msg->AppendVarInt(field->header.id, field->value);
         break;
       }
-      case PERFETTO_TE_HL_PROTO_TYPE_FIXED64: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldFixed64*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_FIXED64: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldFixed64*>(*p);
         msg->AppendFixed(field->header.id, field->value);
         break;
       }
-      case PERFETTO_TE_HL_PROTO_TYPE_FIXED32: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldFixed32*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_FIXED32: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldFixed32*>(*p);
         msg->AppendFixed(field->header.id, field->value);
         break;
       }
-      case PERFETTO_TE_HL_PROTO_TYPE_DOUBLE: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldDouble*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_DOUBLE: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldDouble*>(*p);
         msg->AppendFixed(field->header.id, field->value);
         break;
       }
-      case PERFETTO_TE_HL_PROTO_TYPE_FLOAT: {
-        auto field = reinterpret_cast<PerfettoTeHlProtoFieldFloat*>(*p);
+      case DEJAVIEW_TE_HL_PROTO_TYPE_FLOAT: {
+        auto field = reinterpret_cast<DejaViewTeHlProtoFieldFloat*>(*p);
         msg->AppendFixed(field->header.id, field->value);
         break;
       }
@@ -685,25 +685,25 @@ void AppendHlProtoFields(protozero::Message* msg,
   }
 }
 
-void WriteTrackEvent(perfetto::shlib::TrackEventIncrementalState* incr,
-                     perfetto::protos::pbzero::TrackEvent* event,
-                     PerfettoTeCategoryImpl* cat,
-                     perfetto::protos::pbzero::TrackEvent::Type type,
+void WriteTrackEvent(dejaview::shlib::TrackEventIncrementalState* incr,
+                     dejaview::protos::pbzero::TrackEvent* event,
+                     DejaViewTeCategoryImpl* cat,
+                     dejaview::protos::pbzero::TrackEvent::Type type,
                      const char* name,
-                     const PerfettoTeHlExtra* const* extra_data,
+                     const DejaViewTeHlExtra* const* extra_data,
                      std::optional<uint64_t> track_uuid,
-                     const PerfettoTeCategoryDescriptor* dynamic_cat,
+                     const DejaViewTeCategoryDescriptor* dynamic_cat,
                      bool use_interning) {
-  if (type != perfetto::protos::pbzero::TrackEvent::TYPE_UNSPECIFIED) {
+  if (type != dejaview::protos::pbzero::TrackEvent::TYPE_UNSPECIFIED) {
     event->set_type(type);
   }
 
   if (!dynamic_cat &&
-      type != perfetto::protos::pbzero::TrackEvent::TYPE_SLICE_END &&
-      type != perfetto::protos::pbzero::TrackEvent::TYPE_COUNTER) {
+      type != dejaview::protos::pbzero::TrackEvent::TYPE_SLICE_END &&
+      type != dejaview::protos::pbzero::TrackEvent::TYPE_COUNTER) {
     uint64_t iid = cat->cat_iid;
     auto res = incr->iids.FindOrAssign(
-        perfetto::protos::pbzero::InternedData::kEventCategoriesFieldNumber,
+        dejaview::protos::pbzero::InternedData::kEventCategoriesFieldNumber,
         &iid, sizeof(iid));
     if (res.newly_assigned) {
       auto* ser = incr->serialized_interned_data->add_event_categories();
@@ -713,13 +713,13 @@ void WriteTrackEvent(perfetto::shlib::TrackEventIncrementalState* incr,
     event->add_category_iids(iid);
   }
 
-  if (type != perfetto::protos::pbzero::TrackEvent::TYPE_SLICE_END) {
+  if (type != dejaview::protos::pbzero::TrackEvent::TYPE_SLICE_END) {
     if (name) {
       if (use_interning) {
         const void* str = name;
         size_t len = strlen(name);
         auto res = incr->iids.FindOrAssign(
-            perfetto::protos::pbzero::InternedData::kEventNamesFieldNumber, str,
+            dejaview::protos::pbzero::InternedData::kEventNamesFieldNumber, str,
             len);
         if (res.newly_assigned) {
           auto* ser = incr->serialized_interned_data->add_event_names();
@@ -734,8 +734,8 @@ void WriteTrackEvent(perfetto::shlib::TrackEventIncrementalState* incr,
   }
 
   if (dynamic_cat &&
-      type != perfetto::protos::pbzero::TrackEvent::TYPE_SLICE_END &&
-      type != perfetto::protos::pbzero::TrackEvent::TYPE_COUNTER) {
+      type != dejaview::protos::pbzero::TrackEvent::TYPE_SLICE_END &&
+      type != dejaview::protos::pbzero::TrackEvent::TYPE_COUNTER) {
     event->add_categories(dynamic_cat->name);
   }
 
@@ -744,62 +744,62 @@ void WriteTrackEvent(perfetto::shlib::TrackEventIncrementalState* incr,
   }
 
   for (const auto* it = extra_data; *it != nullptr; it++) {
-    const struct PerfettoTeHlExtra& extra = **it;
-    if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_COUNTER_INT64 &&
-        type == perfetto::protos::pbzero::TrackEvent::TYPE_COUNTER) {
+    const struct DejaViewTeHlExtra& extra = **it;
+    if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_COUNTER_INT64 &&
+        type == dejaview::protos::pbzero::TrackEvent::TYPE_COUNTER) {
       event->set_counter_value(
-          reinterpret_cast<const struct PerfettoTeHlExtraCounterInt64&>(extra)
+          reinterpret_cast<const struct DejaViewTeHlExtraCounterInt64&>(extra)
               .value);
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_COUNTER_DOUBLE) {
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_COUNTER_DOUBLE) {
       event->set_double_counter_value(
-          reinterpret_cast<const struct PerfettoTeHlExtraCounterDouble&>(extra)
+          reinterpret_cast<const struct DejaViewTeHlExtraCounterDouble&>(extra)
               .value);
     }
   }
 
   for (const auto* it = extra_data; *it != nullptr; it++) {
-    const struct PerfettoTeHlExtra& extra = **it;
-    if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_BOOL ||
-        extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_UINT64 ||
-        extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_INT64 ||
-        extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_DOUBLE ||
-        extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_STRING ||
-        extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_POINTER) {
+    const struct DejaViewTeHlExtra& extra = **it;
+    if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_BOOL ||
+        extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_UINT64 ||
+        extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_INT64 ||
+        extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_DOUBLE ||
+        extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_STRING ||
+        extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_POINTER) {
       auto* dbg = event->add_debug_annotations();
       const char* arg_name = nullptr;
-      if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_BOOL) {
+      if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_BOOL) {
         const auto& arg =
-            reinterpret_cast<const struct PerfettoTeHlExtraDebugArgBool&>(
+            reinterpret_cast<const struct DejaViewTeHlExtraDebugArgBool&>(
                 extra);
         dbg->set_bool_value(arg.value);
         arg_name = arg.name;
-      } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_UINT64) {
+      } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_UINT64) {
         const auto& arg =
-            reinterpret_cast<const struct PerfettoTeHlExtraDebugArgUint64&>(
+            reinterpret_cast<const struct DejaViewTeHlExtraDebugArgUint64&>(
                 extra);
         dbg->set_uint_value(arg.value);
         arg_name = arg.name;
-      } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_INT64) {
+      } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_INT64) {
         const auto& arg =
-            reinterpret_cast<const struct PerfettoTeHlExtraDebugArgInt64&>(
+            reinterpret_cast<const struct DejaViewTeHlExtraDebugArgInt64&>(
                 extra);
         dbg->set_int_value(arg.value);
         arg_name = arg.name;
-      } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_DOUBLE) {
+      } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_DOUBLE) {
         const auto& arg =
-            reinterpret_cast<const struct PerfettoTeHlExtraDebugArgDouble&>(
+            reinterpret_cast<const struct DejaViewTeHlExtraDebugArgDouble&>(
                 extra);
         dbg->set_double_value(arg.value);
         arg_name = arg.name;
-      } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_STRING) {
+      } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_STRING) {
         const auto& arg =
-            reinterpret_cast<const struct PerfettoTeHlExtraDebugArgString&>(
+            reinterpret_cast<const struct DejaViewTeHlExtraDebugArgString&>(
                 extra);
         dbg->set_string_value(arg.value);
         arg_name = arg.name;
-      } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DEBUG_ARG_POINTER) {
+      } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DEBUG_ARG_POINTER) {
         const auto& arg =
-            reinterpret_cast<const struct PerfettoTeHlExtraDebugArgPointer&>(
+            reinterpret_cast<const struct DejaViewTeHlExtraDebugArgPointer&>(
                 extra);
         dbg->set_pointer_value(arg.value);
         arg_name = arg.name;
@@ -809,7 +809,7 @@ void WriteTrackEvent(perfetto::shlib::TrackEventIncrementalState* incr,
         const void* str = arg_name;
         size_t len = strlen(arg_name);
         auto res =
-            incr->iids.FindOrAssign(perfetto::protos::pbzero::InternedData::
+            incr->iids.FindOrAssign(dejaview::protos::pbzero::InternedData::
                                         kDebugAnnotationNamesFieldNumber,
                                     str, len);
         if (res.newly_assigned) {
@@ -824,26 +824,26 @@ void WriteTrackEvent(perfetto::shlib::TrackEventIncrementalState* incr,
   }
 
   for (const auto* it = extra_data; *it != nullptr; it++) {
-    const struct PerfettoTeHlExtra& extra = **it;
-    if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_FLOW) {
+    const struct DejaViewTeHlExtra& extra = **it;
+    if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_FLOW) {
       event->add_flow_ids(
-          reinterpret_cast<const struct PerfettoTeHlExtraFlow&>(extra).id);
+          reinterpret_cast<const struct DejaViewTeHlExtraFlow&>(extra).id);
     }
   }
 
   for (const auto* it = extra_data; *it != nullptr; it++) {
-    const struct PerfettoTeHlExtra& extra = **it;
-    if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_TERMINATING_FLOW) {
+    const struct DejaViewTeHlExtra& extra = **it;
+    if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_TERMINATING_FLOW) {
       event->add_terminating_flow_ids(
-          reinterpret_cast<const struct PerfettoTeHlExtraFlow&>(extra).id);
+          reinterpret_cast<const struct DejaViewTeHlExtraFlow&>(extra).id);
     }
   }
 
   for (const auto* it = extra_data; *it != nullptr; it++) {
-    const struct PerfettoTeHlExtra& extra = **it;
-    if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_PROTO_FIELDS) {
+    const struct DejaViewTeHlExtra& extra = **it;
+    if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_PROTO_FIELDS) {
       const auto* fields =
-          reinterpret_cast<const struct PerfettoTeHlExtraProtoFields&>(extra)
+          reinterpret_cast<const struct DejaViewTeHlExtraProtoFields&>(extra)
               .fields;
       AppendHlProtoFields(event, fields);
     }
@@ -852,60 +852,60 @@ void WriteTrackEvent(perfetto::shlib::TrackEventIncrementalState* incr,
 
 }  // namespace
 
-struct PerfettoTeCategoryImpl* PerfettoTeCategoryImplCreate(
-    struct PerfettoTeCategoryDescriptor* desc) {
-  auto* cat = new PerfettoTeCategoryImpl;
+struct DejaViewTeCategoryImpl* DejaViewTeCategoryImplCreate(
+    struct DejaViewTeCategoryDescriptor* desc) {
+  auto* cat = new DejaViewTeCategoryImpl;
   cat->desc = desc;
-  perfetto::shlib::TrackEvent::RegisterCategory(cat);
+  dejaview::shlib::TrackEvent::RegisterCategory(cat);
   return cat;
 }
 
-void PerfettoTePublishCategories() {
-  perfetto::shlib::TrackEvent::UpdateDescriptorFromCategories();
+void DejaViewTePublishCategories() {
+  dejaview::shlib::TrackEvent::UpdateDescriptorFromCategories();
 }
 
-void PerfettoTeCategoryImplSetCallback(struct PerfettoTeCategoryImpl* cat,
-                                       PerfettoTeCategoryImplCallback cb,
+void DejaViewTeCategoryImplSetCallback(struct DejaViewTeCategoryImpl* cat,
+                                       DejaViewTeCategoryImplCallback cb,
                                        void* user_arg) {
-  perfetto::shlib::TrackEvent::CategorySetCallback(cat, cb, user_arg);
+  dejaview::shlib::TrackEvent::CategorySetCallback(cat, cb, user_arg);
 }
 
-PERFETTO_ATOMIC(bool) *
-    PerfettoTeCategoryImplGetEnabled(struct PerfettoTeCategoryImpl* cat) {
+DEJAVIEW_ATOMIC(bool) *
+    DejaViewTeCategoryImplGetEnabled(struct DejaViewTeCategoryImpl* cat) {
   return &cat->flag;
 }
 
-uint64_t PerfettoTeCategoryImplGetIid(struct PerfettoTeCategoryImpl* cat) {
+uint64_t DejaViewTeCategoryImplGetIid(struct DejaViewTeCategoryImpl* cat) {
   return cat->cat_iid;
 }
 
-void PerfettoTeCategoryImplDestroy(struct PerfettoTeCategoryImpl* cat) {
-  perfetto::shlib::TrackEvent::UnregisterCategory(cat);
+void DejaViewTeCategoryImplDestroy(struct DejaViewTeCategoryImpl* cat) {
+  dejaview::shlib::TrackEvent::UnregisterCategory(cat);
   delete cat;
 }
 
-void PerfettoTeInit(void) {
-  perfetto::shlib::TrackEvent::Init();
-  perfetto_te_process_track_uuid =
-      perfetto::internal::TrackRegistry::ComputeProcessUuid();
+void DejaViewTeInit(void) {
+  dejaview::shlib::TrackEvent::Init();
+  dejaview_te_process_track_uuid =
+      dejaview::internal::TrackRegistry::ComputeProcessUuid();
 }
 
-struct PerfettoTeTimestamp PerfettoTeGetTimestamp(void) {
-  struct PerfettoTeTimestamp ret;
-  ret.clock_id = PERFETTO_TE_TIMESTAMP_TYPE_BOOT;
+struct DejaViewTeTimestamp DejaViewTeGetTimestamp(void) {
+  struct DejaViewTeTimestamp ret;
+  ret.clock_id = DEJAVIEW_TE_TIMESTAMP_TYPE_BOOT;
   ret.value = TrackEventInternal::GetTimeNs();
   return ret;
 }
 
 static bool IsDynamicCategoryEnabled(
     uint32_t inst_idx,
-    perfetto::shlib::TrackEventIncrementalState* incr_state,
-    const struct PerfettoTeCategoryDescriptor& desc) {
+    dejaview::shlib::TrackEventIncrementalState* incr_state,
+    const struct DejaViewTeCategoryDescriptor& desc) {
   constexpr size_t kMaxCacheSize = 20;
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
   auto& cache = incr_state->dynamic_categories;
-  protozero::HeapBuffered<perfetto::protos::pbzero::TrackEventDescriptor> ted;
+  protozero::HeapBuffered<dejaview::protos::pbzero::TrackEventDescriptor> ted;
   SerializeCategory(desc, ted.get());
   std::string serialized = ted.SerializeAsString();
   auto* cached = cache.Find(serialized);
@@ -917,7 +917,7 @@ static bool IsDynamicCategoryEnabled(
   if (!internal_state)
     return false;
   std::unique_lock<std::recursive_mutex> lock(internal_state->lock);
-  auto* sds = static_cast<perfetto::shlib::TrackEvent*>(
+  auto* sds = static_cast<dejaview::shlib::TrackEvent*>(
       internal_state->data_source.get());
 
   bool res = IsSingleCategoryEnabled(desc, sds->GetConfig());
@@ -932,17 +932,17 @@ static bool IsDynamicCategoryEnabled(
 // where `dyn_cat` is enabled. If there's no data source instance where
 // `dyn_cat` is enabled, `ii->instance` will be nullptr.
 static void AdvanceToFirstEnabledDynamicCategory(
-    perfetto::internal::DataSourceType::InstancesIterator* ii,
-    perfetto::internal::DataSourceThreadLocalState* tls_state,
-    struct PerfettoTeCategoryImpl* cat,
-    const PerfettoTeCategoryDescriptor& dyn_cat) {
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+    dejaview::internal::DataSourceType::InstancesIterator* ii,
+    dejaview::internal::DataSourceThreadLocalState* tls_state,
+    struct DejaViewTeCategoryImpl* cat,
+    const DejaViewTeCategoryDescriptor& dyn_cat) {
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
   for (; ii->instance;
-       ds->NextIteration</*Traits=*/perfetto::shlib::TracePointTraits>(
+       ds->NextIteration</*Traits=*/dejaview::shlib::TracePointTraits>(
            ii, tls_state, {cat})) {
     auto* incr_state =
-        static_cast<perfetto::shlib::TrackEventIncrementalState*>(
+        static_cast<dejaview::shlib::TrackEventIncrementalState*>(
             ds->GetIncrementalState(ii->instance, ii->i));
     if (IsDynamicCategoryEnabled(ii->i, incr_state, dyn_cat)) {
       break;
@@ -951,64 +951,64 @@ static void AdvanceToFirstEnabledDynamicCategory(
 }
 
 static void InstanceOp(
-    perfetto::internal::DataSourceType* ds,
-    perfetto::internal::DataSourceType::InstancesIterator* ii,
-    perfetto::internal::DataSourceThreadLocalState* tls_state,
-    struct PerfettoTeCategoryImpl* cat,
-    perfetto::protos::pbzero::TrackEvent::Type type,
+    dejaview::internal::DataSourceType* ds,
+    dejaview::internal::DataSourceType::InstancesIterator* ii,
+    dejaview::internal::DataSourceThreadLocalState* tls_state,
+    struct DejaViewTeCategoryImpl* cat,
+    dejaview::protos::pbzero::TrackEvent::Type type,
     const char* name,
-    struct PerfettoTeHlExtra* const* extra_data) {
+    struct DejaViewTeHlExtra* const* extra_data) {
   if (!ii->instance) {
     return;
   }
 
-  const PerfettoTeRegisteredTrackImpl* registered_track = nullptr;
-  const PerfettoTeHlExtraNamedTrack* named_track = nullptr;
+  const DejaViewTeRegisteredTrackImpl* registered_track = nullptr;
+  const DejaViewTeHlExtraNamedTrack* named_track = nullptr;
   std::optional<uint64_t> track_uuid;
 
-  const struct PerfettoTeHlExtraTimestamp* custom_timestamp = nullptr;
-  const struct PerfettoTeCategoryDescriptor* dynamic_cat = nullptr;
+  const struct DejaViewTeHlExtraTimestamp* custom_timestamp = nullptr;
+  const struct DejaViewTeCategoryDescriptor* dynamic_cat = nullptr;
   std::optional<int64_t> int_counter;
   std::optional<double> double_counter;
   bool use_interning = true;
   bool flush = false;
 
   for (const auto* it = extra_data; *it != nullptr; it++) {
-    const struct PerfettoTeHlExtra& extra = **it;
-    if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_REGISTERED_TRACK) {
+    const struct DejaViewTeHlExtra& extra = **it;
+    if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_REGISTERED_TRACK) {
       const auto& cast =
-          reinterpret_cast<const struct PerfettoTeHlExtraRegisteredTrack&>(
+          reinterpret_cast<const struct DejaViewTeHlExtraRegisteredTrack&>(
               extra);
       registered_track = cast.track;
       named_track = nullptr;
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_NAMED_TRACK) {
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_NAMED_TRACK) {
       registered_track = nullptr;
       named_track =
-          &reinterpret_cast<const struct PerfettoTeHlExtraNamedTrack&>(extra);
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_TIMESTAMP) {
+          &reinterpret_cast<const struct DejaViewTeHlExtraNamedTrack&>(extra);
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_TIMESTAMP) {
       custom_timestamp =
-          &reinterpret_cast<const struct PerfettoTeHlExtraTimestamp&>(extra);
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_DYNAMIC_CATEGORY) {
+          &reinterpret_cast<const struct DejaViewTeHlExtraTimestamp&>(extra);
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_DYNAMIC_CATEGORY) {
       dynamic_cat =
-          reinterpret_cast<const struct PerfettoTeHlExtraDynamicCategory&>(
+          reinterpret_cast<const struct DejaViewTeHlExtraDynamicCategory&>(
               extra)
               .desc;
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_COUNTER_INT64) {
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_COUNTER_INT64) {
       int_counter =
-          reinterpret_cast<const struct PerfettoTeHlExtraCounterInt64&>(extra)
+          reinterpret_cast<const struct DejaViewTeHlExtraCounterInt64&>(extra)
               .value;
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_COUNTER_DOUBLE) {
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_COUNTER_DOUBLE) {
       double_counter =
-          reinterpret_cast<const struct PerfettoTeHlExtraCounterInt64&>(extra)
+          reinterpret_cast<const struct DejaViewTeHlExtraCounterInt64&>(extra)
               .value;
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_NO_INTERN) {
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_NO_INTERN) {
       use_interning = false;
-    } else if (extra.type == PERFETTO_TE_HL_EXTRA_TYPE_FLUSH) {
+    } else if (extra.type == DEJAVIEW_TE_HL_EXTRA_TYPE_FLUSH) {
       flush = true;
     }
   }
 
-  perfetto::TraceTimestamp ts;
+  dejaview::TraceTimestamp ts;
   if (custom_timestamp) {
     ts.clock_id = custom_timestamp->timestamp.clock_id;
     ts.value = custom_timestamp->timestamp.value;
@@ -1016,7 +1016,7 @@ static void InstanceOp(
     ts = TrackEventInternal::GetTraceTime();
   }
 
-  if (PERFETTO_UNLIKELY(dynamic_cat)) {
+  if (DEJAVIEW_UNLIKELY(dynamic_cat)) {
     AdvanceToFirstEnabledDynamicCategory(ii, tls_state, cat, *dynamic_cat);
     if (!ii->instance) {
       return;
@@ -1024,10 +1024,10 @@ static void InstanceOp(
   }
 
   const auto& track_event_tls =
-      *static_cast<perfetto::shlib::TrackEventTlsState*>(
+      *static_cast<dejaview::shlib::TrackEventTlsState*>(
           ii->instance->data_source_custom_tls.get());
 
-  auto* incr_state = static_cast<perfetto::shlib::TrackEventIncrementalState*>(
+  auto* incr_state = static_cast<dejaview::shlib::TrackEventIncrementalState*>(
       ds->GetIncrementalState(ii->instance, ii->i));
   ResetIncrementalStateIfRequired(ii->instance->trace_writer.get(), incr_state,
                                   track_event_tls, ts);
@@ -1042,7 +1042,7 @@ static void InstanceOp(
     track_uuid = registered_track->uuid;
   } else if (named_track) {
     uint64_t uuid = named_track->parent_uuid;
-    uuid ^= PerfettoFnv1a(named_track->name, strlen(named_track->name));
+    uuid ^= DejaViewFnv1a(named_track->name, strlen(named_track->name));
     uuid ^= named_track->id;
     if (incr_state->seen_track_uuids.insert(uuid).second) {
       auto packet = ii->instance->trace_writer->NewTracePacket();
@@ -1056,11 +1056,11 @@ static void InstanceOp(
     track_uuid = uuid;
   }
 
-  perfetto::TraceWriterBase* trace_writer = ii->instance->trace_writer.get();
+  dejaview::TraceWriterBase* trace_writer = ii->instance->trace_writer.get();
   {
     auto packet = NewTracePacketInternal(
         trace_writer, incr_state, track_event_tls, ts,
-        perfetto::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE);
+        dejaview::protos::pbzero::TracePacket::SEQ_NEEDS_INCREMENTAL_STATE);
     auto* track_event = packet->set_track_event();
     WriteTrackEvent(incr_state, track_event, cat, type, name, extra_data,
                     track_uuid, dynamic_cat, use_interning);
@@ -1069,45 +1069,45 @@ static void InstanceOp(
     if (!incr_state->serialized_interned_data.empty()) {
       auto ranges = incr_state->serialized_interned_data.GetRanges();
       packet->AppendScatteredBytes(
-          perfetto::protos::pbzero::TracePacket::kInternedDataFieldNumber,
+          dejaview::protos::pbzero::TracePacket::kInternedDataFieldNumber,
           ranges.data(), ranges.size());
       incr_state->serialized_interned_data.Reset();
     }
   }
 
-  if (PERFETTO_UNLIKELY(flush)) {
+  if (DEJAVIEW_UNLIKELY(flush)) {
     trace_writer->Flush();
   }
 }
 
-void PerfettoTeHlEmitImpl(struct PerfettoTeCategoryImpl* cat,
+void DejaViewTeHlEmitImpl(struct DejaViewTeCategoryImpl* cat,
                           int32_t type,
                           const char* name,
-                          struct PerfettoTeHlExtra* const* extra_data) {
+                          struct DejaViewTeHlExtra* const* extra_data) {
   uint32_t cached_instances =
-      perfetto::shlib::TracePointTraits::GetActiveInstances({cat})->load(
+      dejaview::shlib::TracePointTraits::GetActiveInstances({cat})->load(
           std::memory_order_relaxed);
   if (!cached_instances) {
     return;
   }
 
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
 
-  perfetto::internal::DataSourceThreadLocalState*& tls_state =
-      *perfetto::shlib::TrackEvent::GetTlsState();
+  dejaview::internal::DataSourceThreadLocalState*& tls_state =
+      *dejaview::shlib::TrackEvent::GetTlsState();
 
-  if (!ds->TracePrologue<perfetto::shlib::TrackEventDataSourceTraits,
-                         perfetto::shlib::TracePointTraits>(
+  if (!ds->TracePrologue<dejaview::shlib::TrackEventDataSourceTraits,
+                         dejaview::shlib::TracePointTraits>(
           &tls_state, &cached_instances, {cat})) {
     return;
   }
 
-  for (perfetto::internal::DataSourceType::InstancesIterator ii =
-           ds->BeginIteration<perfetto::shlib::TracePointTraits>(
+  for (dejaview::internal::DataSourceType::InstancesIterator ii =
+           ds->BeginIteration<dejaview::shlib::TracePointTraits>(
                cached_instances, tls_state, {cat});
        ii.instance;
-       ds->NextIteration</*Traits=*/perfetto::shlib::TracePointTraits>(
+       ds->NextIteration</*Traits=*/dejaview::shlib::TracePointTraits>(
            &ii, tls_state, {cat})) {
     InstanceOp(ds, &ii, tls_state, cat, EventType(type), name, extra_data);
   }
@@ -1115,58 +1115,58 @@ void PerfettoTeHlEmitImpl(struct PerfettoTeCategoryImpl* cat,
 }
 
 static void FillIterator(
-    const perfetto::internal::DataSourceType::InstancesIterator* ii,
-    struct PerfettoTeTimestamp ts,
-    struct PerfettoTeLlImplIterator* iterator) {
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+    const dejaview::internal::DataSourceType::InstancesIterator* ii,
+    struct DejaViewTeTimestamp ts,
+    struct DejaViewTeLlImplIterator* iterator) {
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
 
-  auto& track_event_tls = *static_cast<perfetto::shlib::TrackEventTlsState*>(
+  auto& track_event_tls = *static_cast<dejaview::shlib::TrackEventTlsState*>(
       ii->instance->data_source_custom_tls.get());
 
-  auto* incr_state = static_cast<perfetto::shlib::TrackEventIncrementalState*>(
+  auto* incr_state = static_cast<dejaview::shlib::TrackEventIncrementalState*>(
       ds->GetIncrementalState(ii->instance, ii->i));
-  perfetto::TraceTimestamp tts;
+  dejaview::TraceTimestamp tts;
   tts.clock_id = ts.clock_id;
   tts.value = ts.value;
   ResetIncrementalStateIfRequired(ii->instance->trace_writer.get(), incr_state,
                                   track_event_tls, tts);
 
-  iterator->incr = reinterpret_cast<struct PerfettoTeLlImplIncr*>(incr_state);
+  iterator->incr = reinterpret_cast<struct DejaViewTeLlImplIncr*>(incr_state);
   iterator->tls =
-      reinterpret_cast<struct PerfettoTeLlImplTls*>(&track_event_tls);
+      reinterpret_cast<struct DejaViewTeLlImplTls*>(&track_event_tls);
 }
 
-struct PerfettoTeLlImplIterator PerfettoTeLlImplBegin(
-    struct PerfettoTeCategoryImpl* cat,
-    struct PerfettoTeTimestamp ts) {
-  struct PerfettoTeLlImplIterator ret = {};
+struct DejaViewTeLlImplIterator DejaViewTeLlImplBegin(
+    struct DejaViewTeCategoryImpl* cat,
+    struct DejaViewTeTimestamp ts) {
+  struct DejaViewTeLlImplIterator ret = {};
   uint32_t cached_instances =
-      perfetto::shlib::TracePointTraits::GetActiveInstances({cat})->load(
+      dejaview::shlib::TracePointTraits::GetActiveInstances({cat})->load(
           std::memory_order_relaxed);
   if (!cached_instances) {
     return ret;
   }
 
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
 
-  perfetto::internal::DataSourceThreadLocalState*& tls_state =
-      *perfetto::shlib::TrackEvent::GetTlsState();
+  dejaview::internal::DataSourceThreadLocalState*& tls_state =
+      *dejaview::shlib::TrackEvent::GetTlsState();
 
-  if (!ds->TracePrologue<perfetto::shlib::TrackEventDataSourceTraits,
-                         perfetto::shlib::TracePointTraits>(
+  if (!ds->TracePrologue<dejaview::shlib::TrackEventDataSourceTraits,
+                         dejaview::shlib::TracePointTraits>(
           &tls_state, &cached_instances, {cat})) {
     return ret;
   }
 
-  perfetto::internal::DataSourceType::InstancesIterator ii =
-      ds->BeginIteration<perfetto::shlib::TracePointTraits>(cached_instances,
+  dejaview::internal::DataSourceType::InstancesIterator ii =
+      ds->BeginIteration<dejaview::shlib::TracePointTraits>(cached_instances,
                                                             tls_state, {cat});
 
   ret.ds.inst_id = ii.i;
   tls_state->root_tls->cached_instances = ii.cached_instances;
-  ret.ds.tracer = reinterpret_cast<struct PerfettoDsTracerImpl*>(ii.instance);
+  ret.ds.tracer = reinterpret_cast<struct DejaViewDsTracerImpl*>(ii.instance);
   if (!ret.ds.tracer) {
     ds->TraceEpilogue(tls_state);
     return ret;
@@ -1174,33 +1174,33 @@ struct PerfettoTeLlImplIterator PerfettoTeLlImplBegin(
 
   FillIterator(&ii, ts, &ret);
 
-  ret.ds.tls = reinterpret_cast<struct PerfettoDsTlsImpl*>(tls_state);
+  ret.ds.tls = reinterpret_cast<struct DejaViewDsTlsImpl*>(tls_state);
   return ret;
 }
 
-void PerfettoTeLlImplNext(struct PerfettoTeCategoryImpl* cat,
-                          struct PerfettoTeTimestamp ts,
-                          struct PerfettoTeLlImplIterator* iterator) {
-  auto* tls = reinterpret_cast<perfetto::internal::DataSourceThreadLocalState*>(
+void DejaViewTeLlImplNext(struct DejaViewTeCategoryImpl* cat,
+                          struct DejaViewTeTimestamp ts,
+                          struct DejaViewTeLlImplIterator* iterator) {
+  auto* tls = reinterpret_cast<dejaview::internal::DataSourceThreadLocalState*>(
       iterator->ds.tls);
 
-  perfetto::internal::DataSourceType::InstancesIterator ii;
+  dejaview::internal::DataSourceType::InstancesIterator ii;
   ii.i = iterator->ds.inst_id;
   ii.cached_instances = tls->root_tls->cached_instances;
   ii.instance =
-      reinterpret_cast<perfetto::internal::DataSourceInstanceThreadLocalState*>(
+      reinterpret_cast<dejaview::internal::DataSourceInstanceThreadLocalState*>(
           iterator->ds.tracer);
 
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
 
-  ds->NextIteration</*Traits=*/perfetto::shlib::TracePointTraits>(&ii, tls,
+  ds->NextIteration</*Traits=*/dejaview::shlib::TracePointTraits>(&ii, tls,
                                                                   {cat});
 
   iterator->ds.inst_id = ii.i;
   tls->root_tls->cached_instances = ii.cached_instances;
   iterator->ds.tracer =
-      reinterpret_cast<struct PerfettoDsTracerImpl*>(ii.instance);
+      reinterpret_cast<struct DejaViewDsTracerImpl*>(ii.instance);
 
   if (!iterator->ds.tracer) {
     ds->TraceEpilogue(tls);
@@ -1210,49 +1210,49 @@ void PerfettoTeLlImplNext(struct PerfettoTeCategoryImpl* cat,
   FillIterator(&ii, ts, iterator);
 }
 
-void PerfettoTeLlImplBreak(struct PerfettoTeCategoryImpl*,
-                           struct PerfettoTeLlImplIterator* iterator) {
-  auto* tls = reinterpret_cast<perfetto::internal::DataSourceThreadLocalState*>(
+void DejaViewTeLlImplBreak(struct DejaViewTeCategoryImpl*,
+                           struct DejaViewTeLlImplIterator* iterator) {
+  auto* tls = reinterpret_cast<dejaview::internal::DataSourceThreadLocalState*>(
       iterator->ds.tls);
 
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
 
   ds->TraceEpilogue(tls);
 }
 
-bool PerfettoTeLlImplDynCatEnabled(
-    struct PerfettoDsTracerImpl* tracer,
-    PerfettoDsInstanceIndex inst_id,
-    const struct PerfettoTeCategoryDescriptor* dyn_cat) {
-  perfetto::internal::DataSourceType* ds =
-      perfetto::shlib::TrackEvent::GetType();
+bool DejaViewTeLlImplDynCatEnabled(
+    struct DejaViewDsTracerImpl* tracer,
+    DejaViewDsInstanceIndex inst_id,
+    const struct DejaViewTeCategoryDescriptor* dyn_cat) {
+  dejaview::internal::DataSourceType* ds =
+      dejaview::shlib::TrackEvent::GetType();
 
   auto* tls_inst =
-      reinterpret_cast<perfetto::internal::DataSourceInstanceThreadLocalState*>(
+      reinterpret_cast<dejaview::internal::DataSourceInstanceThreadLocalState*>(
           tracer);
 
-  auto* incr_state = static_cast<perfetto::shlib::TrackEventIncrementalState*>(
+  auto* incr_state = static_cast<dejaview::shlib::TrackEventIncrementalState*>(
       ds->GetIncrementalState(tls_inst, inst_id));
 
   return IsDynamicCategoryEnabled(inst_id, incr_state, *dyn_cat);
 }
 
-bool PerfettoTeLlImplTrackSeen(struct PerfettoTeLlImplIncr* incr,
+bool DejaViewTeLlImplTrackSeen(struct DejaViewTeLlImplIncr* incr,
                                uint64_t uuid) {
   auto* incr_state =
-      reinterpret_cast<perfetto::shlib::TrackEventIncrementalState*>(incr);
+      reinterpret_cast<dejaview::shlib::TrackEventIncrementalState*>(incr);
 
   return !incr_state->seen_track_uuids.insert(uuid).second;
 }
 
-uint64_t PerfettoTeLlImplIntern(struct PerfettoTeLlImplIncr* incr,
+uint64_t DejaViewTeLlImplIntern(struct DejaViewTeLlImplIncr* incr,
                                 int32_t type,
                                 const void* data,
                                 size_t data_size,
                                 bool* seen) {
   auto* incr_state =
-      reinterpret_cast<perfetto::shlib::TrackEventIncrementalState*>(incr);
+      reinterpret_cast<dejaview::shlib::TrackEventIncrementalState*>(incr);
 
   auto res = incr_state->iids.FindOrAssign(type, data, data_size);
   *seen = !res.newly_assigned;

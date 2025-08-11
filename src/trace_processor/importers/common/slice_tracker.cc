@@ -26,7 +26,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 SliceTracker::SliceTracker(TraceProcessorContext* context)
@@ -64,9 +64,9 @@ void SliceTracker::BeginLegacyUnnestable(tables::SliceTable::Row row,
 
   // Double check that if we've seen this track in the past, it was also
   // marked as unnestable then.
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   auto* it = stacks_.Find(row.track_id);
-  PERFETTO_DCHECK(!it || it->is_legacy_unnestable);
+  DEJAVIEW_DCHECK(!it || it->is_legacy_unnestable);
 #endif
 
   // Ensure that StartSlice knows that this track is unnestable.
@@ -83,7 +83,7 @@ std::optional<SliceId> SliceTracker::Scoped(int64_t timestamp,
                                             StringId raw_name,
                                             int64_t duration,
                                             SetArgsCallback args_callback) {
-  PERFETTO_DCHECK(duration >= 0);
+  DEJAVIEW_DCHECK(duration >= 0);
 
   const StringId name =
       context_->slice_translation_table->TranslateName(raw_name);
@@ -126,7 +126,7 @@ std::optional<uint32_t> SliceTracker::AddArgs(TrackId track_id,
 
   tables::SliceTable::RowNumber num = stack[*stack_idx].row;
   tables::SliceTable::RowReference ref = num.ToRowReference(slices);
-  PERFETTO_DCHECK(ref.dur() == kPendingDuration);
+  DEJAVIEW_DCHECK(ref.dur() == kPendingDuration);
 
   // Add args to current pending slice.
   ArgsTracker* tracker = &stack[*stack_idx].args_tracker;
@@ -151,7 +151,7 @@ std::optional<SliceId> SliceTracker::StartSlice(
   auto& stack = track_info.slice_stack;
 
   if (track_info.is_legacy_unnestable) {
-    PERFETTO_DCHECK(stack.size() <= 1);
+    DEJAVIEW_DCHECK(stack.size() <= 1);
 
     track_info.legacy_unnestable_begin_count++;
     track_info.legacy_unnestable_last_begin_ts = timestamp;
@@ -182,9 +182,9 @@ std::optional<SliceId> SliceTracker::StartSlice(
         parent_ref->name().value_or(kNullStringId));
     auto name =
         context_->storage->GetString(ref.name().value_or(kNullStringId));
-    PERFETTO_DLOG("Last slice: %s", parent_name.c_str());
-    PERFETTO_DLOG("Current slice: %s", name.c_str());
-    PERFETTO_DFATAL("Slices with too large depth found.");
+    DEJAVIEW_DLOG("Last slice: %s", parent_name.c_str());
+    DEJAVIEW_DLOG("Current slice: %s", name.c_str());
+    DEJAVIEW_DFATAL("Slices with too large depth found.");
     return std::nullopt;
   }
   StackPush(track_id, ref);
@@ -237,7 +237,7 @@ std::optional<SliceId> SliceTracker::CompleteSlice(
   const auto& slice_info = stack[stack_idx.value()];
 
   tables::SliceTable::RowReference ref = slice_info.row.ToRowReference(slices);
-  PERFETTO_DCHECK(ref.dur() == kPendingDuration);
+  DEJAVIEW_DCHECK(ref.dur() == kPendingDuration);
   ref.set_dur(timestamp - ref.ts());
 
   ArgsTracker& tracker = stack[stack_idx.value()].args_tracker;
@@ -369,7 +369,7 @@ void SliceTracker::MaybeCloseStack(int64_t ts,
     }
 
     if (incomplete_descendent) {
-      PERFETTO_DCHECK(ts >= start_ts);
+      DEJAVIEW_DCHECK(ts >= start_ts);
 
       // Only process slices if the ts is past the end of the slice.
       if (ts <= end_ts)
@@ -383,7 +383,7 @@ void SliceTracker::MaybeCloseStack(int64_t ts,
       // either be nested or disjoint, never partially intersecting.
       // KI: if tracing both binder and system calls on android, "binder reply"
       // slices will try to escape the enclosing sys_ioctl.
-      PERFETTO_DLOG(
+      DEJAVIEW_DLOG(
           "Incorrect ordering of begin/end slice events. "
           "Truncating incomplete descendants to the end of slice "
           "%s[%" PRId64 ", %" PRId64 "] due to an event at ts=%" PRId64 ".",
@@ -398,7 +398,7 @@ void SliceTracker::MaybeCloseStack(int64_t ts,
       for (int j = static_cast<int>(stack.size()) - 1; j > i; --j) {
         tables::SliceTable::RowReference child_ref =
             stack[static_cast<size_t>(j)].row.ToRowReference(slices);
-        PERFETTO_DCHECK(child_ref.dur() == kPendingDuration);
+        DEJAVIEW_DCHECK(child_ref.dur() == kPendingDuration);
         child_ref.set_dur(end_ts - child_ref.ts());
         StackPop(track_id);
       }
@@ -417,7 +417,7 @@ void SliceTracker::MaybeCloseStack(int64_t ts,
 }
 
 int64_t SliceTracker::GetStackHash(const SlicesStack& stack) {
-  PERFETTO_DCHECK(!stack.empty());
+  DEJAVIEW_DCHECK(!stack.empty());
 
   const auto& slices = context_->storage->slice_table();
 
@@ -453,4 +453,4 @@ void SliceTracker::StackPush(TrackId track_id,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

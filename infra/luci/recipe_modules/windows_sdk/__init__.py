@@ -25,7 +25,7 @@ from recipe_engine.recipe_api import Property
 from recipe_engine.config import ConfigGroup, Single
 
 PROPERTIES = {
-    '$perfetto/windows_sdk':
+    '$dejaview/windows_sdk':
         Property(
             help='Properties specifically for the windows_sdk module.',
             param_name='sdk_properties',

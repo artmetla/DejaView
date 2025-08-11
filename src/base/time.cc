@@ -16,23 +16,23 @@
 
 #include <atomic>
 
-#include "perfetto/base/time.h"
+#include "dejaview/base/time.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #else
 #include <unistd.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-#if !PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_ARM64)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_ARM64)
 namespace {
 
 // Returns the current value of the performance counter.
@@ -88,7 +88,7 @@ double TSCTicksPerSecond() {
   //   https://msdn.microsoft.com/library/windows/desktop/ms644905.aspx
   LARGE_INTEGER perf_counter_frequency = {};
   ::QueryPerformanceFrequency(&perf_counter_frequency);
-  PERFETTO_CHECK(perf_counter_now >= perf_counter_initial);
+  DEJAVIEW_CHECK(perf_counter_now >= perf_counter_initial);
   const int64_t perf_counter_ticks = perf_counter_now - perf_counter_initial;
   const double elapsed_time_seconds =
       static_cast<double>(perf_counter_ticks) /
@@ -99,7 +99,7 @@ double TSCTicksPerSecond() {
     return 0;
 
   // Compute the frequency of the TSC.
-  PERFETTO_CHECK(tsc_now >= tsc_initial);
+  DEJAVIEW_CHECK(tsc_now >= tsc_initial);
   const uint64_t tsc_ticks = tsc_now - tsc_initial;
   // Racing with another thread to write |tsc_ticks_per_second| is benign
   // because both threads will write a valid result.
@@ -111,7 +111,7 @@ double TSCTicksPerSecond() {
 }
 
 }  // namespace
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_ARM64)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_ARM64)
 
 TimeNanos GetWallTimeNs() {
   LARGE_INTEGER freq;
@@ -124,7 +124,7 @@ TimeNanos GetWallTimeNs() {
 }
 
 TimeNanos GetThreadCPUTimeNs() {
-#if PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_ARM64)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_ARM64)
   // QueryThreadCycleTime versus TSCTicksPerSecond doesn't have much relation to
   // actual elapsed time on Windows on Arm, because QueryThreadCycleTime is
   // backed by the actual number of CPU cycles executed, rather than a
@@ -140,7 +140,7 @@ TimeNanos GetThreadCPUTimeNs() {
       user_ftime.dwHighDateTime * 0x100000000 + user_ftime.dwLowDateTime;
 
   return TimeNanos((kernel_time + user_time) * 100);
-#else   // !PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_ARM64)
+#else   // !DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_ARM64)
   // Get the number of TSC ticks used by the current thread.
   ULONG64 thread_cycle_time = 0;
   ::QueryThreadCycleTime(GetCurrentThread(), &thread_cycle_time);
@@ -156,7 +156,7 @@ TimeNanos GetThreadCPUTimeNs() {
   constexpr int64_t kNanosecondsPerSecond = 1000 * 1000 * 1000;
   return TimeNanos(
       static_cast<int64_t>(thread_time_seconds * kNanosecondsPerSecond));
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_ARM64)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_ARM64)
 }
 
 void SleepMicroseconds(unsigned interval_us) {
@@ -168,14 +168,14 @@ void SleepMicroseconds(unsigned interval_us) {
 }
 
 void InitializeTime() {
-#if !PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_ARM64)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_ARM64)
   // Make an early first call to TSCTicksPerSecond() to start 50 ms elapsed time
   // (see comment in TSCTicksPerSecond()).
   TSCTicksPerSecond();
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_ARCH_CPU_ARM64)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_ARCH_CPU_ARM64)
 }
 
-#else  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#else  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 void SleepMicroseconds(unsigned interval_us) {
   ::usleep(static_cast<useconds_t>(interval_us));
@@ -183,7 +183,7 @@ void SleepMicroseconds(unsigned interval_us) {
 
 void InitializeTime() {}
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 std::string GetTimeFmt(const std::string& fmt) {
   time_t raw_time;
@@ -191,7 +191,7 @@ std::string GetTimeFmt(const std::string& fmt) {
   struct tm* local_tm;
   local_tm = localtime(&raw_time);
   char buf[128];
-  PERFETTO_CHECK(strftime(buf, 80, fmt.c_str(), local_tm) > 0);
+  DEJAVIEW_CHECK(strftime(buf, 80, fmt.c_str(), local_tm) > 0);
   return buf;
 }
 
@@ -208,4 +208,4 @@ std::optional<int32_t> GetTimezoneOffsetMins() {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

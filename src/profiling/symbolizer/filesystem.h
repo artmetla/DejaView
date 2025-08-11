@@ -19,13 +19,13 @@
 
 #include "src/profiling/symbolizer/local_symbolizer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 using FileCallback = std::function<void(const char*, size_t)>;
 bool WalkDirectories(std::vector<std::string> dirs, FileCallback fn);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_FILESYSTEM_H_

@@ -21,16 +21,16 @@
 #include <time.h>
 #include <optional>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/perf_events.gen.h"
-#include "protos/perfetto/config/data_source_config.gen.h"
-#include "protos/perfetto/config/profiling/perf_event_config.gen.h"
+#include "protos/dejaview/common/perf_events.gen.h"
+#include "protos/dejaview/config/data_source_config.gen.h"
+#include "protos/dejaview/config/profiling/perf_event_config.gen.h"
 
 using ::testing::UnorderedElementsAreArray;
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -430,4 +430,4 @@ TEST(EventConfigTest, GroupMultipleType) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

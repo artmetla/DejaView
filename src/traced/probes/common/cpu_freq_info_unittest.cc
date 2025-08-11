@@ -20,7 +20,7 @@
 
 using ::testing::ElementsAre;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 class CpuFreqInfoTest : public ::testing::Test {
@@ -61,4 +61,4 @@ TEST_F(CpuFreqInfoTest, CpuFreqInfo) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

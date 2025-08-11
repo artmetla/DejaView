@@ -17,10 +17,10 @@
 #ifndef SRC_TRACING_INTERNAL_TRACING_MUXER_FAKE_H_
 #define SRC_TRACING_INTERNAL_TRACING_MUXER_FAKE_H_
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/tracing/internal/tracing_muxer.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/tracing/internal/tracing_muxer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 
 // An always-fail implementation of TracingMuxer. Before tracing has been
@@ -44,7 +44,7 @@ class TracingMuxerFake : public TracingMuxer {
   ~TracingMuxerFake() override;
 
   static constexpr TracingMuxerFake* Get() {
-#if PERFETTO_HAS_NO_DESTROY()
+#if DEJAVIEW_HAS_NO_DESTROY()
     return &instance;
 #else
     return nullptr;
@@ -76,6 +76,6 @@ class TracingMuxerFake : public TracingMuxer {
 };
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_INTERNAL_TRACING_MUXER_FAKE_H_

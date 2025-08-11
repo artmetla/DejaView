@@ -17,7 +17,7 @@ import("../../gn/test.gni")
 source_set("intern_map") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/public",
+    "../../include/dejaview/public",
     "../base",
   ]
   sources = [
@@ -30,8 +30,8 @@ source_set("shared_lib") {
   deps = [
     ":intern_map",
     "../../gn:default_deps",
-    "../../include/perfetto/protozero",
-    "../../include/perfetto/public",
+    "../../include/dejaview/protozero",
+    "../../include/dejaview/public",
     "../base",
     "../tracing:client_api",
     "../tracing:platform_impl",
@@ -48,18 +48,18 @@ source_set("shared_lib") {
     "tracing_session.cc",
     "track_event.cc",
   ]
-  defines = [ "PERFETTO_SHLIB_SDK_IMPLEMENTATION" ]
+  defines = [ "DEJAVIEW_SHLIB_SDK_IMPLEMENTATION" ]
 }
 
-shared_library("libperfetto_c") {
+shared_library("libdejaview_c") {
   deps = [
     ":shared_lib",
     "../../gn:default_deps",
   ]
-  public_deps = [ "../../include/perfetto/public" ]
+  public_deps = [ "../../include/dejaview/public" ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":intern_map",

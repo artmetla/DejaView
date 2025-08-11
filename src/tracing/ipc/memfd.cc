@@ -18,11 +18,11 @@
 
 #include <errno.h>
 
-#define PERFETTO_MEMFD_ENABLED()             \
-  PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-      PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX)
+#define DEJAVIEW_MEMFD_ENABLED()             \
+  DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+      DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
 
-#if PERFETTO_MEMFD_ENABLED()
+#if DEJAVIEW_MEMFD_ENABLED()
 
 #include <stdio.h>
 #include <string.h>
@@ -46,7 +46,7 @@
 #endif
 #endif  // !defined(__NR_memfd_create)
 
-namespace perfetto {
+namespace dejaview {
 bool HasMemfdSupport() {
   static bool kSupportsMemfd = [] {
     // Check kernel version supports memfd_create(). Some older kernels segfault
@@ -63,7 +63,7 @@ bool HasMemfdSupport() {
     }
 
     base::ScopedFile fd;
-    fd.reset(static_cast<int>(syscall(__NR_memfd_create, "perfetto_shmem",
+    fd.reset(static_cast<int>(syscall(__NR_memfd_create, "dejaview_shmem",
                                       MFD_CLOEXEC | MFD_ALLOW_SEALING)));
     return !!fd;
   }();
@@ -78,11 +78,11 @@ base::ScopedFile CreateMemfd(const char* name, unsigned int flags) {
   return base::ScopedFile(
       static_cast<int>(syscall(__NR_memfd_create, name, flags)));
 }
-}  // namespace perfetto
+}  // namespace dejaview
 
-#else  // PERFETTO_MEMFD_ENABLED()
+#else  // DEJAVIEW_MEMFD_ENABLED()
 
-namespace perfetto {
+namespace dejaview {
 bool HasMemfdSupport() {
   return false;
 }
@@ -90,6 +90,6 @@ base::ScopedFile CreateMemfd(const char*, unsigned int) {
   errno = ENOSYS;
   return base::ScopedFile();
 }
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // PERFETTO_MEMFD_ENABLED()
+#endif  // DEJAVIEW_MEMFD_ENABLED()

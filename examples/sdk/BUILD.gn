@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 executable("sdk_example") {
   sources = [
@@ -20,10 +20,10 @@ executable("sdk_example") {
     "trace_categories.cc",
     "trace_categories.h",
   ]
-  defines = [ "PERFETTO_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
+  defines = [ "DEJAVIEW_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
   testonly = true
   deps = [
-    "../..:libperfetto_client_experimental",
+    "../..:libdejaview_client_experimental",
     "../../gn:default_deps",
   ]
 }
@@ -34,10 +34,10 @@ executable("example_system_wide") {
     "trace_categories.cc",
     "trace_categories.h",
   ]
-  defines = [ "PERFETTO_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
+  defines = [ "DEJAVIEW_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
   testonly = true
   deps = [
-    "../..:libperfetto_client_experimental",
+    "../..:libdejaview_client_experimental",
     "../../gn:default_deps",
     "../../src/base",
   ]
@@ -45,10 +45,10 @@ executable("example_system_wide") {
 
 executable("example_custom_data_source") {
   sources = [ "example_custom_data_source.cc" ]
-  defines = [ "PERFETTO_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
+  defines = [ "DEJAVIEW_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
   testonly = true
   deps = [
-    "../..:libperfetto_client_experimental",
+    "../..:libdejaview_client_experimental",
     "../../gn:default_deps",
     "../../src/base",
   ]
@@ -56,10 +56,10 @@ executable("example_custom_data_source") {
 
 executable("example_startup_trace") {
   sources = [ "example_startup_trace.cc" ]
-  defines = [ "PERFETTO_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
+  defines = [ "DEJAVIEW_SDK_EXAMPLE_USE_INTERNAL_HEADERS" ]
   testonly = true
   deps = [
-    "../..:libperfetto_client_experimental",
+    "../..:libdejaview_client_experimental",
     "../../gn:default_deps",
     "../../src/base",
   ]

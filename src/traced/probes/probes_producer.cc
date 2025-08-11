@@ -20,18 +20,18 @@
 
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/watchdog.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/traced/traced.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/ipc/producer_ipc_client.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "perfetto/tracing/core/trace_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/watchdog.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/traced/traced.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/ipc/producer_ipc_client.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "dejaview/tracing/core/trace_config.h"
 #include "src/android_stats/statsd_logging_helper.h"
 #include "src/traced/probes/android_game_intervention_list/android_game_intervention_list_data_source.h"
 #include "src/traced/probes/android_log/android_log_data_source.h"
@@ -49,7 +49,7 @@
 #include "src/traced/probes/sys_stats/sys_stats_data_source.h"
 #include "src/traced/probes/system_info/system_info_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 constexpr uint32_t kInitialConnectionBackoffMs = 100;
@@ -78,7 +78,7 @@ ProbesProducer* ProbesProducer::GetInstance() {
 }
 
 ProbesProducer::ProbesProducer() : weak_factory_(this) {
-  PERFETTO_CHECK(instance_ == nullptr);
+  DEJAVIEW_CHECK(instance_ == nullptr);
   instance_ = this;
 }
 
@@ -123,19 +123,19 @@ ProbesProducer::CreateDSInstance<FtraceDataSource>(
     ftrace_ = FtraceController::Create(task_runner_, this);
 
     if (!ftrace_) {
-      PERFETTO_ELOG("Failed to create FtraceController");
+      DEJAVIEW_ELOG("Failed to create FtraceController");
       ftrace_creation_failed_ = true;
       return nullptr;
     }
   }
 
-  PERFETTO_LOG("Ftrace setup (target_buf=%" PRIu32 ")", config.target_buffer());
+  DEJAVIEW_LOG("Ftrace setup (target_buf=%" PRIu32 ")", config.target_buffer());
   const BufferID buffer_id = static_cast<BufferID>(config.target_buffer());
   std::unique_ptr<FtraceDataSource> data_source(new FtraceDataSource(
       ftrace_->GetWeakPtr(), session_id, std::move(ftrace_config),
       endpoint_->CreateTraceWriter(buffer_id)));
   if (!ftrace_->AddDataSource(data_source.get())) {
-    PERFETTO_ELOG("Failed to setup ftrace");
+    DEJAVIEW_ELOG("Failed to setup ftrace");
     return nullptr;
   }
   return std::unique_ptr<ProbesDataSource>(std::move(data_source));
@@ -146,7 +146,7 @@ std::unique_ptr<ProbesDataSource>
 ProbesProducer::CreateDSInstance<InodeFileDataSource>(
     TracingSessionID session_id,
     const DataSourceConfig& source_config) {
-  PERFETTO_LOG("Inode file map setup (target_buf=%" PRIu32 ")",
+  DEJAVIEW_LOG("Inode file map setup (target_buf=%" PRIu32 ")",
                source_config.target_buffer());
   auto buffer_id = static_cast<BufferID>(source_config.target_buffer());
   if (system_inodes_.empty())
@@ -316,7 +316,7 @@ constexpr const DataSourceTraits kAllDataSources[] = {
     Ds<MetatraceDataSource>(),
     Ds<PackagesListDataSource>(),
     Ds<ProcessStatsDataSource>(),
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
     Ds<StatsdBinderDataSource>(),
 #endif
     Ds<SysStatsDataSource>(),
@@ -326,10 +326,10 @@ constexpr const DataSourceTraits kAllDataSources[] = {
 }  // namespace
 
 void ProbesProducer::OnConnect() {
-  PERFETTO_DCHECK(state_ == kConnecting);
+  DEJAVIEW_DCHECK(state_ == kConnecting);
   state_ = kConnected;
   ResetConnectionBackoff();
-  PERFETTO_LOG("Connected to the service");
+  DEJAVIEW_LOG("Connected to the service");
 
   std::array<DataSourceDescriptor, base::ArraySize(kAllDataSources)>
       proto_descs;
@@ -339,7 +339,7 @@ void ProbesProducer::OnConnect() {
     const ProbesDataSource::Descriptor* desc = kAllDataSources[i].descriptor;
     for (size_t j = i + 1; j < proto_descs.size(); j++) {
       if (kAllDataSources[i].descriptor == kAllDataSources[j].descriptor) {
-        PERFETTO_FATAL("Duplicate descriptor name %s",
+        DEJAVIEW_FATAL("Duplicate descriptor name %s",
                        kAllDataSources[i].descriptor->name);
       }
     }
@@ -369,8 +369,8 @@ void ProbesProducer::OnConnect() {
 }
 
 void ProbesProducer::OnDisconnect() {
-  PERFETTO_DCHECK(state_ == kConnected || state_ == kConnecting);
-  PERFETTO_LOG("Disconnected from tracing service");
+  DEJAVIEW_DCHECK(state_ == kConnected || state_ == kConnecting);
+  DEJAVIEW_LOG("Disconnected from tracing service");
   if (state_ == kConnected)
     return task_runner_->PostTask([this] { this->Restart(); });
 
@@ -382,11 +382,11 @@ void ProbesProducer::OnDisconnect() {
 
 void ProbesProducer::SetupDataSource(DataSourceInstanceID instance_id,
                                      const DataSourceConfig& config) {
-  PERFETTO_DLOG("SetupDataSource(id=%" PRIu64 ", name=%s)", instance_id,
+  DEJAVIEW_DLOG("SetupDataSource(id=%" PRIu64 ", name=%s)", instance_id,
                 config.name().c_str());
-  PERFETTO_DCHECK(data_sources_.count(instance_id) == 0);
+  DEJAVIEW_DCHECK(data_sources_.count(instance_id) == 0);
   TracingSessionID session_id = config.tracing_session_id();
-  PERFETTO_CHECK(session_id > 0);
+  DEJAVIEW_CHECK(session_id > 0);
 
   std::unique_ptr<ProbesDataSource> data_source;
 
@@ -399,7 +399,7 @@ void ProbesProducer::SetupDataSource(DataSourceInstanceID instance_id,
   }
 
   if (!data_source) {
-    PERFETTO_ELOG("Failed to create data source '%s'", config.name().c_str());
+    DEJAVIEW_ELOG("Failed to create data source '%s'", config.name().c_str());
     return;
   }
 
@@ -410,12 +410,12 @@ void ProbesProducer::SetupDataSource(DataSourceInstanceID instance_id,
 
 void ProbesProducer::StartDataSource(DataSourceInstanceID instance_id,
                                      const DataSourceConfig& config) {
-  PERFETTO_DLOG("StartDataSource(id=%" PRIu64 ", name=%s)", instance_id,
+  DEJAVIEW_DLOG("StartDataSource(id=%" PRIu64 ", name=%s)", instance_id,
                 config.name().c_str());
   auto it = data_sources_.find(instance_id);
   if (it == data_sources_.end()) {
     // Can happen if SetupDataSource() failed (e.g. ftrace was busy).
-    PERFETTO_ELOG("Data source id=%" PRIu64 " not found", instance_id);
+    DEJAVIEW_ELOG("Data source id=%" PRIu64 " not found", instance_id);
     return;
   }
   ProbesDataSource* data_source = it->second.get();
@@ -442,11 +442,11 @@ void ProbesProducer::StartDataSource(DataSourceInstanceID instance_id,
 }
 
 void ProbesProducer::StopDataSource(DataSourceInstanceID id) {
-  PERFETTO_LOG("Producer stop (id=%" PRIu64 ")", id);
+  DEJAVIEW_LOG("Producer stop (id=%" PRIu64 ")", id);
   auto it = data_sources_.find(id);
   if (it == data_sources_.end()) {
     // Can happen if SetupDataSource() failed (e.g. ftrace was busy).
-    PERFETTO_ELOG("Cannot stop data source id=%" PRIu64 ", not found", id);
+    DEJAVIEW_ELOG("Cannot stop data source id=%" PRIu64 ", not found", id);
     return;
   }
   ProbesDataSource* data_source = it->second.get();
@@ -496,10 +496,10 @@ void ProbesProducer::Flush(FlushRequestID flush_request_id,
                            const DataSourceInstanceID* data_source_ids,
                            size_t num_data_sources,
                            FlushFlags) {
-  PERFETTO_DLOG("ProbesProducer::Flush(%" PRIu64 ") begin", flush_request_id);
-  PERFETTO_DCHECK(flush_request_id);
+  DEJAVIEW_DLOG("ProbesProducer::Flush(%" PRIu64 ") begin", flush_request_id);
+  DEJAVIEW_DCHECK(flush_request_id);
   auto log_on_exit = base::OnScopeExit([&] {
-    PERFETTO_DLOG("ProbesProducer::Flush(%" PRIu64 ") end", flush_request_id);
+    DEJAVIEW_DLOG("ProbesProducer::Flush(%" PRIu64 ") end", flush_request_id);
   });
 
   // Issue a Flush() to all started data sources.
@@ -537,7 +537,7 @@ void ProbesProducer::Flush(FlushRequestID flush_request_id,
       if (weak_this)
         weak_this->OnDataSourceFlushComplete(flush_request_id, ds_id);
     };
-    PERFETTO_DLOG("Flushing data source %" PRIu64 " %s", ds_id,
+    DEJAVIEW_DLOG("Flushing data source %" PRIu64 " %s", ds_id,
                   data_source->descriptor->name);
     data_source->Flush(flush_request_id, flush_callback);
   }
@@ -545,7 +545,7 @@ void ProbesProducer::Flush(FlushRequestID flush_request_id,
 
 void ProbesProducer::OnDataSourceFlushComplete(FlushRequestID flush_request_id,
                                                DataSourceInstanceID ds_id) {
-  PERFETTO_DLOG("Flush %" PRIu64 " acked by data source %" PRIu64,
+  DEJAVIEW_DLOG("Flush %" PRIu64 " acked by data source %" PRIu64,
                 flush_request_id, ds_id);
   auto range = pending_flushes_.equal_range(flush_request_id);
   for (auto it = range.first; it != range.second; it++) {
@@ -558,14 +558,14 @@ void ProbesProducer::OnDataSourceFlushComplete(FlushRequestID flush_request_id,
   if (pending_flushes_.count(flush_request_id))
     return;  // Still waiting for other data sources to ack.
 
-  PERFETTO_DLOG("All data sources acked to flush %" PRIu64, flush_request_id);
+  DEJAVIEW_DLOG("All data sources acked to flush %" PRIu64, flush_request_id);
   endpoint_->NotifyFlushComplete(flush_request_id);
 }
 
 void ProbesProducer::OnFlushTimeout(FlushRequestID flush_request_id) {
   if (pending_flushes_.count(flush_request_id) == 0)
     return;  // All acked.
-  PERFETTO_ELOG("Flush(%" PRIu64 ") timed out", flush_request_id);
+  DEJAVIEW_ELOG("Flush(%" PRIu64 ") timed out", flush_request_id);
   pending_flushes_.erase(flush_request_id);
   endpoint_->NotifyFlushComplete(flush_request_id);
 }
@@ -632,7 +632,7 @@ void ProbesProducer::OnFtraceDataWrittenIntoDataSourceBuffers() {
 
 void ProbesProducer::ConnectWithRetries(const char* socket_name,
                                         base::TaskRunner* task_runner) {
-  PERFETTO_DCHECK(state_ == kNotStarted);
+  DEJAVIEW_DCHECK(state_ == kNotStarted);
   state_ = kNotConnected;
 
   ResetConnectionBackoff();
@@ -642,10 +642,10 @@ void ProbesProducer::ConnectWithRetries(const char* socket_name,
 }
 
 void ProbesProducer::Connect() {
-  PERFETTO_DCHECK(state_ == kNotConnected);
+  DEJAVIEW_DCHECK(state_ == kNotConnected);
   state_ = kConnecting;
   endpoint_ = ProducerIPCClient::Connect(
-      socket_name_, this, "perfetto.traced_probes", task_runner_,
+      socket_name_, this, "dejaview.traced_probes", task_runner_,
       TracingService::ProducerSMBScrapingMode::kDisabled,
       kTracingSharedMemSizeHintBytes, kTracingSharedMemPageSizeHintBytes);
 }
@@ -662,16 +662,16 @@ void ProbesProducer::ResetConnectionBackoff() {
 
 void ProbesProducer::ActivateTrigger(std::string trigger) {
   android_stats::MaybeLogTriggerEvent(
-      PerfettoTriggerAtom::kProbesProducerTrigger, trigger);
+      DejaViewTriggerAtom::kProbesProducerTrigger, trigger);
 
   task_runner_->PostTask([this, trigger]() {
     if (!endpoint_) {
       android_stats::MaybeLogTriggerEvent(
-          PerfettoTriggerAtom::kProbesProducerTriggerFail, trigger);
+          DejaViewTriggerAtom::kProbesProducerTriggerFail, trigger);
       return;
     }
     endpoint_->ActivateTriggers({trigger});
   });
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

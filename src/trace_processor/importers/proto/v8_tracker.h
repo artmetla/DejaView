@@ -22,10 +22,10 @@
 #include <memory>
 #include <optional>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/protozero/field.h"
-#include "protos/perfetto/trace/chrome/v8.pbzero.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/protozero/field.h"
+#include "protos/dejaview/trace/chrome/v8.pbzero.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/proto/jit_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
@@ -33,7 +33,7 @@
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceStorage;
@@ -191,6 +191,6 @@ class V8Tracker : public Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_V8_TRACKER_H_

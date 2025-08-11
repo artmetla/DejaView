@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/graph.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/graph.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -26,7 +26,7 @@ using PostOrderIterator = GlobalNodeGraph::PostOrderIterator;
 using PreOrderIterator = GlobalNodeGraph::PreOrderIterator;
 using Process = GlobalNodeGraph::Process;
 using Node = GlobalNodeGraph::Node;
-using perfetto::base::SplitString;
+using dejaview::base::SplitString;
 
 }  // namespace
 
@@ -136,7 +136,7 @@ Node* Node::GetChild(const std::string& name) const {
 }
 
 void Node::InsertChild(const std::string& name, Node* node) {
-  PERFETTO_DCHECK(node);
+  DEJAVIEW_DCHECK(node);
   children_.emplace(name, node);
 }
 
@@ -280,4 +280,4 @@ Node* PostOrderIterator::next() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

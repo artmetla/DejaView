@@ -27,11 +27,11 @@
 #include <thread>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/heap_profile.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/heap_profile.h"
 
 namespace {
 
@@ -65,7 +65,7 @@ uint64_t ScrambleAllocId(uint64_t alloc_id, uint32_t thread_idx) {
 }
 
 void Thread(uint32_t thread_idx, uint64_t pending_allocs) {
-  PERFETTO_CHECK(thread_idx < 1 << 24);
+  DEJAVIEW_CHECK(thread_idx < 1 << 24);
   uint64_t alloc_id = 0;
   size_t thread_allocs = 0;
   while (!done.load(std::memory_order_relaxed)) {
@@ -84,43 +84,43 @@ void Thread(uint32_t thread_idx, uint64_t pending_allocs) {
 
 int main(int argc, char** argv) {
   if (argc != 4) {
-    PERFETTO_FATAL("%s NUMBER_THREADS RUNTIME_MS PENDING_ALLOCS", argv[0]);
+    DEJAVIEW_FATAL("%s NUMBER_THREADS RUNTIME_MS PENDING_ALLOCS", argv[0]);
   }
 
   std::optional<uint64_t> opt_no_threads =
-      perfetto::base::CStringToUInt64(argv[1]);
+      dejaview::base::CStringToUInt64(argv[1]);
   if (!opt_no_threads) {
-    PERFETTO_FATAL("Invalid number of threads: %s", argv[1]);
+    DEJAVIEW_FATAL("Invalid number of threads: %s", argv[1]);
   }
   uint64_t no_threads = *opt_no_threads;
 
   std::optional<uint64_t> opt_runtime_ms =
-      perfetto::base::CStringToUInt64(argv[2]);
+      dejaview::base::CStringToUInt64(argv[2]);
   if (!opt_runtime_ms) {
-    PERFETTO_FATAL("Invalid runtime: %s", argv[2]);
+    DEJAVIEW_FATAL("Invalid runtime: %s", argv[2]);
   }
   uint64_t runtime_ms = *opt_runtime_ms;
 
   std::optional<uint64_t> opt_pending_allocs =
-      perfetto::base::CStringToUInt64(argv[3]);
+      dejaview::base::CStringToUInt64(argv[3]);
   if (!opt_runtime_ms) {
-    PERFETTO_FATAL("Invalid number of pending allocs: %s", argv[3]);
+    DEJAVIEW_FATAL("Invalid number of pending allocs: %s", argv[3]);
   }
   uint64_t pending_allocs = *opt_pending_allocs;
 
   std::unique_lock<std::mutex> l(g_wake_up_mutex);
   g_wake_up_cv.wait(l, [] { return g_rate > 0; });
 
-  perfetto::base::TimeMillis end =
-      perfetto::base::GetWallTimeMs() + perfetto::base::TimeMillis(runtime_ms);
+  dejaview::base::TimeMillis end =
+      dejaview::base::GetWallTimeMs() + dejaview::base::TimeMillis(runtime_ms);
   std::vector<std::thread> threads;
   for (size_t i = 0; i < static_cast<size_t>(no_threads); ++i)
     threads.emplace_back(Thread, i, pending_allocs);
 
-  perfetto::base::TimeMillis current = perfetto::base::GetWallTimeMs();
+  dejaview::base::TimeMillis current = dejaview::base::GetWallTimeMs();
   while (current < end) {
     usleep(useconds_t((end - current).count()) * 1000);
-    current = perfetto::base::GetWallTimeMs();
+    current = dejaview::base::GetWallTimeMs();
   }
 
   done.store(true, std::memory_order_relaxed);

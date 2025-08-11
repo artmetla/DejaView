@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../../gn/perfetto.gni")
+import("../../../../gn/dejaview.gni")
 
 source_set("common") {
   sources = [
@@ -84,11 +84,11 @@ source_set("common") {
   deps = [
     ":parser_types",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/trace_processor",
-    "../../../../include/perfetto/trace_processor:basic_types",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/profiling:zero",
+    "../../../../include/dejaview/trace_processor",
+    "../../../../include/dejaview/trace_processor:basic_types",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
     "../../../base",
     "../../db:minimal",
     "../../storage",
@@ -111,7 +111,7 @@ source_set("parser_types") {
   sources = [ "parser_types.h" ]
   deps = [
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/trace_processor:storage",
+    "../../../../include/dejaview/trace_processor:storage",
     "../../containers",
     "../proto:packet_sequence_state_generation_hdr",
   ]
@@ -138,8 +138,8 @@ source_set("unittests") {
     ":common",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/trace:zero",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/trace:zero",
     "../../../base",
     "../../storage",
     "../../tables",

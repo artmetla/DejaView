@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/uuid.h"
+#include "dejaview/ext/base/uuid.h"
 
 #include <mutex>
 #include <random>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/no_destructor.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/no_destructor.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -31,9 +31,9 @@ constexpr char kHexmap[] = {'0', '1', '2', '3', '4', '5', '6', '7',
 }  // namespace
 
 // A globally unique 128-bit number.
-// In the early days of perfetto we were (sorta) respecting rfc4122. Later we
+// In the early days of dejaview we were (sorta) respecting rfc4122. Later we
 // started replacing the LSB of the UUID with the statsd subscription ID in
-// other parts of the codebase (see perfetto_cmd.cc) for the convenience of
+// other parts of the codebase (see dejaview_cmd.cc) for the convenience of
 // trace lookups, so rfc4122 made no sense as it just reduced entropy.
 Uuid Uuidv4() {
   // Mix different sources of entropy to reduce the chances of collisions.
@@ -73,7 +73,7 @@ Uuid Uuidv4() {
 Uuid::Uuid() {}
 
 Uuid::Uuid(const std::string& s) {
-  PERFETTO_CHECK(s.size() == data_.size());
+  DEJAVIEW_CHECK(s.size() == data_.size());
   memcpy(data_.data(), s.data(), s.size());
 }
 
@@ -99,4 +99,4 @@ std::string Uuid::ToPrettyString() const {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

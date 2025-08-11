@@ -236,7 +236,7 @@ class TableViewDocParser(AbstractDocParser):
   def parse(self, doc: DocsExtractor.Extract) -> Optional[TableOrView]:
     assert doc.obj_kind == ObjKind.table_view
 
-    or_replace, perfetto_or_virtual, type, self.name, schema = doc.obj_match
+    or_replace, dejaview_or_virtual, type, self.name, schema = doc.obj_match
 
     if or_replace is not None:
       self._error(
@@ -246,12 +246,12 @@ class TableViewDocParser(AbstractDocParser):
     if _is_internal(self.name):
       return None
 
-    is_perfetto_table_or_view = (
-        perfetto_or_virtual and perfetto_or_virtual.lower() == 'perfetto')
-    if not schema and is_perfetto_table_or_view:
+    is_dejaview_table_or_view = (
+        dejaview_or_virtual and dejaview_or_virtual.lower() == 'dejaview')
+    if not schema and is_dejaview_table_or_view:
       self._error(
           f'{type} "{self.name}": schema is missing for a non-internal stdlib'
-          f' perfetto table or view')
+          f' dejaview table or view')
 
     self._validate_only_contains_annotations(doc.annotations, {'@column'})
     return TableOrView(

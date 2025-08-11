@@ -20,13 +20,13 @@
 #include <cstdint>
 #include <string>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/trace_file_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 ScopedActiveTraceFile::~ScopedActiveTraceFile() {
   if (is_valid_) {
     context_->trace_file_tracker->EndFile(row_);
@@ -49,4 +49,4 @@ void ScopedActiveTraceFile::AddSize(size_t size) {
   row_.set_size(static_cast<int64_t>(size) + row_.size());
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -21,9 +21,9 @@
 #include <cstdint>
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // An implementation of a segment tree data structure [1] with:
 // 1) parent-child relationships are implicit, saving memory.
@@ -77,7 +77,7 @@ class ImplicitSegmentForest {
   //  1) values[start]: if start + 1 == end
   //  2) AggOp()(values[start], ..., values[end - 1]) otherwise
   T Query(uint32_t start, uint32_t end) const {
-    PERFETTO_DCHECK(start < end);
+    DEJAVIEW_DCHECK(start < end);
 
     const uint32_t in_start = start * 2;
     const uint32_t in_end = end * 2;
@@ -134,6 +134,6 @@ class ImplicitSegmentForest {
   std::vector<T> values_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_CONTAINERS_IMPLICIT_SEGMENT_FOREST_H_

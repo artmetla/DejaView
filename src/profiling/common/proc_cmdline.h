@@ -21,13 +21,13 @@
 
 #include <string>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // TODO(rsavitski): these functions are a reimplementation of those found in
 // proc_utils, but with a change in semantics that we intend for all profilers.
 // Eventually this should become the single canonical file dealing with proc
-// cmdlines. The transition will start with traced_perf and perfetto_hprof, and
+// cmdlines. The transition will start with traced_perf and dejaview_hprof, and
 // heapprofd will follow later.
 namespace glob_aware {
 
@@ -51,6 +51,6 @@ bool MatchGlobPattern(const char* pattern,
 
 }  // namespace glob_aware
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_COMMON_PROC_CMDLINE_H_

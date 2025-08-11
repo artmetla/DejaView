@@ -17,48 +17,48 @@
 #include "test/test_helper.h"
 #include <string>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/tracing/core/tracing_service_state.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/tracing/core/tracing_service_state.h"
+#include "dejaview/tracing/default_socket.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 const char* ProducerSocketForMode(TestHelper::Mode mode) {
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   base::ignore_result(mode);
-  return ::perfetto::GetProducerSocket();
+  return ::dejaview::GetProducerSocket();
 #else
   switch (mode) {
     case TestHelper::Mode::kStartDaemons:
       return "/data/local/tmp/traced_producer";
     case TestHelper::Mode::kUseSystemService:
-      return ::perfetto::GetProducerSocket();
+      return ::dejaview::GetProducerSocket();
   }
 #endif
 }
 
 const char* ConsumerSocketForMode(TestHelper::Mode mode) {
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   base::ignore_result(mode);
-  return ::perfetto::GetConsumerSocket();
+  return ::dejaview::GetConsumerSocket();
 #else
   switch (mode) {
     case TestHelper::Mode::kStartDaemons:
       return "/data/local/tmp/traced_consumer";
     case TestHelper::Mode::kUseSystemService:
-      return ::perfetto::GetConsumerSocket();
+      return ::dejaview::GetConsumerSocket();
   }
 #endif
 }
 }  // namespace
 
 uint64_t TestHelper::next_instance_num_ = 0;
-#if PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
 TestHelper::Mode TestHelper::kDefaultMode = Mode::kStartDaemons;
 #else
 TestHelper::Mode TestHelper::kDefaultMode = Mode::kUseSystemService;
@@ -81,7 +81,7 @@ TestHelper::TestHelper(base::TestTaskRunner* task_runner,
                       enable_relay_endpoint) {
   auto producer_sockets = TokenizeProducerSockets(producer_socket_);
   static constexpr const char* kDefaultFakeProducerName =
-      "android.perfetto.FakeProducer";
+      "android.dejaview.FakeProducer";
   for (size_t i = 0; i < producer_sockets.size(); i++) {
     auto cp_connect = "producer." + std::to_string(i) + ".connect";
     auto cp_setup = "producer." + std::to_string(i) + ".setup";
@@ -102,7 +102,7 @@ void TestHelper::OnConnect() {
 }
 
 void TestHelper::OnDisconnect() {
-  PERFETTO_FATAL("Consumer unexpectedly disconnected from the service");
+  DEJAVIEW_FATAL("Consumer unexpectedly disconnected from the service");
 }
 
 void TestHelper::OnTracingDisabled(const std::string& /*error*/) {
@@ -113,7 +113,7 @@ void TestHelper::OnTracingDisabled(const std::string& /*error*/) {
 void TestHelper::ReadTraceData(std::vector<TracePacket> packets) {
   for (auto& encoded_packet : packets) {
     protos::gen::TracePacket packet;
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         packet.ParseFromString(encoded_packet.GetRawBytesForTesting()));
     full_trace_.push_back(packet);
     if (packet.has_clock_snapshot() || packet.has_trace_uuid() ||
@@ -122,7 +122,7 @@ void TestHelper::ReadTraceData(std::vector<TracePacket> packets) {
         packet.has_service_event()) {
       continue;
     }
-    PERFETTO_CHECK(packet.has_trusted_uid());
+    DEJAVIEW_CHECK(packet.has_trusted_uid());
     trace_.push_back(std::move(packet));
   }
 }
@@ -140,7 +140,7 @@ void TestHelper::StartServiceIfRequired() {
 }
 
 void TestHelper::RestartService() {
-  PERFETTO_CHECK(mode_ == Mode::kStartDaemons);
+  DEJAVIEW_CHECK(mode_ == Mode::kStartDaemons);
   service_thread_.Stop();
   service_thread_.Start();
 }
@@ -202,7 +202,7 @@ void TestHelper::ProduceStartupEventBatch(
 
 void TestHelper::StartTracing(const TraceConfig& config,
                               base::ScopedFile file) {
-  PERFETTO_CHECK(!on_stop_tracing_callback_);
+  DEJAVIEW_CHECK(!on_stop_tracing_callback_);
   trace_.clear();
   on_stop_tracing_callback_ =
       CreateCheckpoint("stop.tracing" + std::to_string(++trace_count_));
@@ -270,7 +270,7 @@ void TestHelper::WaitFor(std::function<bool()> predicate,
       return;
     base::SleepMicroseconds(500 * 1000);  // 0.5 s.
   }
-  PERFETTO_FATAL("Test timed out waiting for: %s", error_msg.c_str());
+  DEJAVIEW_FATAL("Test timed out waiting for: %s", error_msg.c_str());
 }
 
 void TestHelper::WaitForDataSourceConnected(const std::string& ds_name) {
@@ -342,4 +342,4 @@ const char* TestHelper::GetDefaultModeProducerSocketName() {
   return ProducerSocketForMode(TestHelper::kDefaultMode);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

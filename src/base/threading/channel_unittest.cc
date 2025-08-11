@@ -14,25 +14,25 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/threading/channel.h"
+#include "dejaview/ext/base/threading/channel.h"
 
 #include <array>
 #include <memory>
 #include <optional>
 
-#include "perfetto/base/platform_handle.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/platform_handle.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/utils.h"
 #include "test/gtest_and_gmock.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #include <synchapi.h>
 #else
 #include <poll.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -40,12 +40,12 @@ using ReadResult = Channel<int>::ReadResult;
 using WriteResult = Channel<int>::WriteResult;
 
 bool IsReady(base::PlatformHandle fd) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   std::array<base::PlatformHandle, 1> poll_fds{fd};
   DWORD ret =
       WaitForMultipleObjects(static_cast<DWORD>(poll_fds.size()), &poll_fds[0],
                              /*bWaitAll=*/false, 0);
-  PERFETTO_CHECK(ret == WAIT_TIMEOUT || ret == 0);
+  DEJAVIEW_CHECK(ret == WAIT_TIMEOUT || ret == 0);
   return ret == 0;
 #else
   std::array<struct pollfd, 1> poll_fds;
@@ -53,9 +53,9 @@ bool IsReady(base::PlatformHandle fd) {
   poll_fds[0].events = POLLIN | POLLHUP;
   poll_fds[0].revents = 0;
 
-  int ret = PERFETTO_EINTR(
+  int ret = DEJAVIEW_EINTR(
       poll(&poll_fds[0], static_cast<nfds_t>(poll_fds.size()), 0));
-  PERFETTO_CHECK(ret == 0 || ret == 1);
+  DEJAVIEW_CHECK(ret == 0 || ret == 1);
   return ret == 1;
 #endif
 }
@@ -186,4 +186,4 @@ TEST(ChannelUnittest, FullClosedChannel) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

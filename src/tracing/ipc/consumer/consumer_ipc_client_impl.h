@@ -22,18 +22,18 @@
 #include <list>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/ipc/service_proxy.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/ext/tracing/ipc/consumer_ipc_client.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/ipc/service_proxy.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/ipc/consumer_ipc_client.h"
+#include "dejaview/tracing/core/forward_decls.h"
 
-#include "protos/perfetto/ipc/consumer_port.ipc.h"
+#include "protos/dejaview/ipc/consumer_port.ipc.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -127,6 +127,6 @@ class ConsumerIPCClientImpl : public TracingService::ConsumerEndpoint,
   base::WeakPtrFactory<ConsumerIPCClientImpl> weak_ptr_factory_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_CONSUMER_CONSUMER_IPC_CLIENT_IMPL_H_

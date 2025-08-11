@@ -22,9 +22,9 @@
 #include <string>
 #include <utility>
 #include <vector>
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 std::string FlattenClasses(
@@ -113,13 +113,13 @@ void MakeDeobfuscationPackets(
     const std::map<std::string, profiling::ObfuscatedClass>& mapping,
     std::function<void(const std::string&)> callback);
 
-std::vector<ProguardMap> GetPerfettoProguardMapPath();
+std::vector<ProguardMap> GetDejaViewProguardMapPath();
 
 bool ReadProguardMapsToDeobfuscationPackets(
     const std::vector<ProguardMap>& maps,
     std::function<void(std::string)> fn);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_DEOBFUSCATOR_H_

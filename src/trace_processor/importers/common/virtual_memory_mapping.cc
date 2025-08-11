@@ -23,8 +23,8 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/address_range.h"
 #include "src/trace_processor/importers/common/jit_cache.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
@@ -33,7 +33,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -143,7 +143,7 @@ FrameId DummyMemoryMapping::InternDummyFrame(base::StringView function_name,
           ->Insert({symbol_set_id, key.function_name_id, key.source_file_id})
           .id;
 
-  PERFETTO_CHECK(symbol_set_id == symbol_id.value);
+  DEJAVIEW_CHECK(symbol_set_id == symbol_id.value);
 
   const FrameId frame_id =
       context()
@@ -156,4 +156,4 @@ FrameId DummyMemoryMapping::InternDummyFrame(base::StringView function_name,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

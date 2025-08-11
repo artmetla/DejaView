@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/platform.h"
+#include "dejaview/tracing/platform.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // This simply allows building the client library and using those parts of it
 // that do not depend on anything in the platform.
@@ -26,4 +26,4 @@ Platform* Platform::GetDefaultPlatform() {
   return nullptr;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

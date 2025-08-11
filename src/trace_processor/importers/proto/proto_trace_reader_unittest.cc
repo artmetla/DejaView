@@ -17,18 +17,18 @@
 #include "src/trace_processor/importers/proto/proto_trace_reader.h"
 #include <memory>
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/machine_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/remote_clock_sync.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/remote_clock_sync.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 constexpr auto REALTIME = protos::pbzero::BUILTIN_CLOCK_REALTIME;
@@ -209,4 +209,4 @@ TEST_F(ProtoTraceReaderTest, CalculateClockOffset_MultiRounds) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

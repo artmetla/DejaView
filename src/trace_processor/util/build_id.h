@@ -20,10 +20,10 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Represents the unique identifier of an executable, shared library, or module.
@@ -71,13 +71,13 @@ class BuildId {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 template <>
-struct std::hash<perfetto::trace_processor::BuildId> {
+struct std::hash<dejaview::trace_processor::BuildId> {
   std::size_t operator()(
-      const perfetto::trace_processor::BuildId& o) const noexcept {
-    return perfetto::base::Hasher::Combine(o);
+      const dejaview::trace_processor::BuildId& o) const noexcept {
+    return dejaview::base::Hasher::Combine(o);
   }
 };
 

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/base64.h"
+#include "dejaview/ext/base/base64.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -69,7 +69,7 @@ ssize_t Base64Encode(const void* src,
     dst[wr_size++] = kEncTable[s[0] >> 2];
 
     uint8_t carry0 = static_cast<uint8_t>((s[0] & 0x03) << 4);
-    if (PERFETTO_LIKELY(rd < end)) {
+    if (DEJAVIEW_LIKELY(rd < end)) {
       s[1] = *(rd++);
       dst[wr_size++] = kEncTable[carry0 | (s[1] >> 4)];
     } else {
@@ -80,7 +80,7 @@ ssize_t Base64Encode(const void* src,
     }
 
     uint8_t carry1 = static_cast<uint8_t>((s[1] & 0x0f) << 2);
-    if (PERFETTO_LIKELY(rd < end)) {
+    if (DEJAVIEW_LIKELY(rd < end)) {
       s[2] = *(rd++);
       dst[wr_size++] = kEncTable[carry1 | (s[2] >> 6)];
     } else {
@@ -91,7 +91,7 @@ ssize_t Base64Encode(const void* src,
 
     dst[wr_size++] = kEncTable[s[2] & 0x3f];
   }
-  PERFETTO_DCHECK(wr_size == padded_dst_size);
+  DEJAVIEW_DCHECK(wr_size == padded_dst_size);
   return static_cast<ssize_t>(padded_dst_size);
 }
 
@@ -99,7 +99,7 @@ std::string Base64Encode(const void* src, size_t src_size) {
   std::string dst;
   dst.resize(Base64EncSize(src_size));
   auto res = Base64Encode(src, src_size, &dst[0], dst.size());
-  PERFETTO_CHECK(res == static_cast<ssize_t>(dst.size()));
+  DEJAVIEW_CHECK(res == static_cast<ssize_t>(dst.size()));
   return dst;
 }
 
@@ -131,7 +131,7 @@ ssize_t Base64Decode(const char* src,
     wr_size += 3;
   }
 
-  PERFETTO_CHECK(wr_size <= dst_size);
+  DEJAVIEW_CHECK(wr_size <= dst_size);
   wr_size -= (s[3] == kPadding ? 1 : 0) + (s[2] == kPadding ? 1 : 0);
   return static_cast<ssize_t>(wr_size);
 }
@@ -144,10 +144,10 @@ std::optional<std::string> Base64Decode(const char* src, size_t src_size) {
   if (res < 0)
     return std::nullopt;  // Decoding error.
 
-  PERFETTO_CHECK(res <= static_cast<ssize_t>(dst.size()));
+  DEJAVIEW_CHECK(res <= static_cast<ssize_t>(dst.size()));
   dst.resize(static_cast<size_t>(res));
   return std::make_optional(dst);
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

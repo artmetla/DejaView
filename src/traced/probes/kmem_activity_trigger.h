@@ -20,12 +20,12 @@
 #include <memory>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/thread_task_runner.h"
-#include "perfetto/ext/base/weak_ptr.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/thread_task_runner.h"
+#include "dejaview/ext/base/weak_ptr.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class FtraceProcfs;
 
@@ -55,13 +55,13 @@ class KmemActivityTrigger {
 
     // Keep last.
     base::WeakPtrFactory<WorkerData> weak_ptr_factory_;
-    PERFETTO_THREAD_CHECKER(thread_checker_)
+    DEJAVIEW_THREAD_CHECKER(thread_checker_)
   };
 
   base::ThreadTaskRunner task_runner_;
   std::unique_ptr<WorkerData> worker_data_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_KMEM_ACTIVITY_TRIGGER_H_

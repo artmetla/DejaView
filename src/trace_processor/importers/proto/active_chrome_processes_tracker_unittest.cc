@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/proto/active_chrome_processes_tracker.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 static bool operator==(const ProcessWithDataLoss& lhs,
@@ -109,4 +109,4 @@ TEST(ActiveChromeProcessesTracker, TemrinatedProcess) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

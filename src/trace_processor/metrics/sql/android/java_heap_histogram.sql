@@ -17,7 +17,7 @@
 SELECT RUN_METRIC('android/process_metadata.sql');
 
 DROP TABLE IF EXISTS android_special_classes;
-CREATE PERFETTO TABLE android_special_classes AS
+CREATE DEJAVIEW TABLE android_special_classes AS
 WITH RECURSIVE cls_visitor(cls_id, category) AS (
   SELECT id, name FROM heap_graph_class WHERE name IN (
     'android.view.View',
@@ -36,7 +36,7 @@ WITH RECURSIVE cls_visitor(cls_id, category) AS (
 SELECT * FROM cls_visitor;
 
 DROP TABLE IF EXISTS heap_obj_histograms;
-CREATE PERFETTO TABLE heap_obj_histograms AS
+CREATE DEJAVIEW TABLE heap_obj_histograms AS
 SELECT
   o.upid,
   o.graph_sample_ts,
@@ -52,7 +52,7 @@ GROUP BY 1, 2, 3
 ORDER BY 1, 2, 3;
 
 DROP VIEW IF EXISTS java_heap_histogram_output;
-CREATE PERFETTO VIEW java_heap_histogram_output AS
+CREATE DEJAVIEW VIEW java_heap_histogram_output AS
 WITH
 -- Group by to build the repeated field by upid, ts
 heap_obj_histogram_count_protos AS (

@@ -33,14 +33,14 @@
 #include <tuple>
 #include <utility>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/metatrace.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/metatrace.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/kallsyms/kernel_symbol_map.h"
 #include "src/kallsyms/lazy_kernel_symbolizer.h"
 #include "src/traced/probes/ftrace/atrace_hal_wrapper.h"
@@ -57,7 +57,7 @@
 #include "src/traced/probes/ftrace/proto_translation_table.h"
 #include "src/traced/probes/ftrace/vendor_tracepoints.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 constexpr uint32_t kDefaultTickPeriodMs = 100;
@@ -86,10 +86,10 @@ bool ClearFile(const char* path) {
 }
 
 std::optional<int64_t> ReadFtraceNowTs(const base::ScopedFile& cpu_stats_fd) {
-  PERFETTO_CHECK(cpu_stats_fd);
+  DEJAVIEW_CHECK(cpu_stats_fd);
 
   char buf[512];
-  ssize_t res = PERFETTO_EINTR(pread(*cpu_stats_fd, buf, sizeof(buf) - 1, 0));
+  ssize_t res = DEJAVIEW_EINTR(pread(*cpu_stats_fd, buf, sizeof(buf) - 1, 0));
   if (res <= 0)
     return std::nullopt;
   buf[res] = '\0';
@@ -101,14 +101,14 @@ std::optional<int64_t> ReadFtraceNowTs(const base::ScopedFile& cpu_stats_fd) {
 
 std::map<std::string, std::vector<GroupAndName>> GetAtraceVendorEvents(
     FtraceProcfs* tracefs) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   if (base::FileExists(vendor_tracepoints::kCategoriesFile)) {
     std::map<std::string, std::vector<GroupAndName>> vendor_evts;
     base::Status status =
         vendor_tracepoints::DiscoverAccessibleVendorTracepointsWithFile(
             vendor_tracepoints::kCategoriesFile, &vendor_evts, tracefs);
     if (!status.ok()) {
-      PERFETTO_ELOG("Cannot load vendor categories: %s", status.c_message());
+      DEJAVIEW_ELOG("Cannot load vendor categories: %s", status.c_message());
     }
     return vendor_evts;
   } else {
@@ -149,7 +149,7 @@ std::optional<AndroidGkiVersion> ParseAndroidGkiVersion(const char* s) {
 bool HardResetFtraceState() {
   for (const char* const* item = FtraceProcfs::kTracingPaths; *item; ++item) {
     std::string prefix(*item);
-    PERFETTO_CHECK(base::EndsWith(prefix, "/"));
+    DEJAVIEW_CHECK(base::EndsWith(prefix, "/"));
     bool res = true;
     res &= WriteToFile((prefix + "tracing_on").c_str(), "0");
     res &= WriteToFile((prefix + "buffer_size_kb").c_str(), "4");
@@ -211,10 +211,10 @@ FtraceController::~FtraceController() {
   while (!data_sources_.empty()) {
     RemoveDataSource(*data_sources_.begin());
   }
-  PERFETTO_DCHECK(data_sources_.empty());
-  PERFETTO_DCHECK(primary_.started_data_sources.empty());
-  PERFETTO_DCHECK(primary_.cpu_readers.empty());
-  PERFETTO_DCHECK(secondary_instances_.empty());
+  DEJAVIEW_DCHECK(data_sources_.empty());
+  DEJAVIEW_DCHECK(primary_.started_data_sources.empty());
+  DEJAVIEW_DCHECK(primary_.cpu_readers.empty());
+  DEJAVIEW_DCHECK(secondary_instances_.empty());
 }
 
 uint64_t FtraceController::NowMs() const {
@@ -249,7 +249,7 @@ void FtraceController::StartIfNeeded(FtraceInstanceState* instance,
 
   const auto ftrace_clock = instance->ftrace_config_muxer->ftrace_clock();
   size_t num_cpus = instance->ftrace_procfs->NumberOfCpus();
-  PERFETTO_CHECK(instance->cpu_readers.empty());
+  DEJAVIEW_CHECK(instance->cpu_readers.empty());
   instance->cpu_readers.reserve(num_cpus);
   for (size_t cpu = 0; cpu < num_cpus; cpu++) {
     instance->cpu_readers.emplace_back(
@@ -316,7 +316,7 @@ void FtraceController::ReadTick(int generation) {
 
   auto weak_this = weak_factory_.GetWeakPtr();
   if (!all_cpus_done) {
-    PERFETTO_DLOG("Reposting immediate ReadTick as there's more work.");
+    DEJAVIEW_DLOG("Reposting immediate ReadTick as there's more work.");
     task_runner_->PostTask([weak_this, generation] {
       if (weak_this)
         weak_this->ReadTick(generation);
@@ -332,14 +332,14 @@ void FtraceController::ReadTick(int generation) {
         tick_period_ms - (NowMs() % tick_period_ms));
   }
 
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   // OnFtraceDataWrittenIntoDataSourceBuffers() is supposed to clear
   // all metadata, including the |kernel_addrs| map for symbolization.
   ForEachInstance([&](FtraceInstanceState* instance) {
     for (FtraceDataSource* ds : instance->started_data_sources) {
       FtraceMetadata* ftrace_metadata = ds->mutable_metadata();
-      PERFETTO_DCHECK(ftrace_metadata->kernel_addrs.empty());
-      PERFETTO_DCHECK(ftrace_metadata->last_kernel_addr_index_written == 0);
+      DEJAVIEW_DCHECK(ftrace_metadata->kernel_addrs.empty());
+      DEJAVIEW_DCHECK(ftrace_metadata->last_kernel_addr_index_written == 0);
     }
   });
 #endif
@@ -354,7 +354,7 @@ bool FtraceController::ReadPassForInstance(FtraceInstanceState* instance) {
     size_t max_pages = kMaxPagesPerCpuPerReadTick;
     size_t pages_read = instance->cpu_readers[i].ReadCycle(
         &parsing_mem_, max_pages, instance->started_data_sources);
-    PERFETTO_DCHECK(pages_read <= max_pages);
+    DEJAVIEW_DCHECK(pages_read <= max_pages);
     if (pages_read == max_pages) {
       all_cpus_done = false;
     }
@@ -387,7 +387,7 @@ uint32_t FtraceController::GetTickPeriodMs() {
   }
 
   if (min_period_ms < kMinTickPeriodMs || min_period_ms > kMaxTickPeriodMs) {
-    PERFETTO_LOG(
+    DEJAVIEW_LOG(
         "drain_period_ms was %u should be between %u and %u. "
         "Falling back onto a default.",
         min_period_ms, kMinTickPeriodMs, kMaxTickPeriodMs);
@@ -399,7 +399,7 @@ uint32_t FtraceController::GetTickPeriodMs() {
 void FtraceController::UpdateBufferWatermarkWatches(
     FtraceInstanceState* instance,
     const std::string& instance_name) {
-  PERFETTO_DCHECK(buffer_watermark_support_ != PollSupport::kUntested);
+  DEJAVIEW_DCHECK(buffer_watermark_support_ != PollSupport::kUntested);
   if (buffer_watermark_support_ == PollSupport::kUnsupported)
     return;
 
@@ -460,9 +460,9 @@ void FtraceController::OnBufferPastWatermark(std::string instance_name,
       pollfds[i].fd = instance->cpu_readers[i].RawBufferFd();
       pollfds[i].events = POLLIN;
     }
-    int r = PERFETTO_EINTR(poll(pollfds.data(), num_cpus, 0));
+    int r = DEJAVIEW_EINTR(poll(pollfds.data(), num_cpus, 0));
     if (r < 0) {
-      PERFETTO_DPLOG("poll failed");
+      DEJAVIEW_DPLOG("poll failed");
       return;
     } else if (r == 0) {  // no buffers below the watermark -> we're done.
       return;
@@ -578,19 +578,19 @@ bool FtraceController::AddDataSource(FtraceDataSource* data_source) {
   const FtraceDataSourceConfig* ds_config =
       instance->ftrace_config_muxer->GetDataSourceConfig(config_id);
   auto it_and_inserted = data_sources_.insert(data_source);
-  PERFETTO_DCHECK(it_and_inserted.second);
+  DEJAVIEW_DCHECK(it_and_inserted.second);
   data_source->Initialize(config_id, ds_config);
   return true;
 }
 
 bool FtraceController::StartDataSource(FtraceDataSource* data_source) {
-  PERFETTO_DCHECK(data_sources_.count(data_source) > 0);
+  DEJAVIEW_DCHECK(data_sources_.count(data_source) > 0);
 
   FtraceConfigId config_id = data_source->config_id();
-  PERFETTO_CHECK(config_id);
+  DEJAVIEW_CHECK(config_id);
   const std::string& instance_name = data_source->config().instance_name();
   FtraceInstanceState* instance = GetOrCreateInstance(instance_name);
-  PERFETTO_CHECK(instance);
+  DEJAVIEW_CHECK(instance);
 
   if (!instance->ftrace_config_muxer->ActivateConfig(config_id))
     return false;
@@ -623,7 +623,7 @@ void FtraceController::RemoveDataSource(FtraceDataSource* data_source) {
 
   FtraceInstanceState* instance =
       GetOrCreateInstance(data_source->config().instance_name());
-  PERFETTO_CHECK(instance);
+  DEJAVIEW_CHECK(instance);
 
   instance->ftrace_config_muxer->RemoveConfig(data_source->config_id());
   instance->started_data_sources.erase(data_source);
@@ -634,7 +634,7 @@ void FtraceController::DumpFtraceStats(FtraceDataSource* data_source,
                                        FtraceStats* stats_out) {
   FtraceInstanceState* instance =
       GetInstance(data_source->config().instance_name());
-  PERFETTO_DCHECK(instance);
+  DEJAVIEW_DCHECK(instance);
   if (!instance)
     return;
 
@@ -653,7 +653,7 @@ void FtraceController::MaybeSnapshotFtraceClock() {
     return;
 
   auto ftrace_clock = primary_.ftrace_config_muxer->ftrace_clock();
-  PERFETTO_DCHECK(ftrace_clock != protos::pbzero::FTRACE_CLOCK_UNSPECIFIED);
+  DEJAVIEW_DCHECK(ftrace_clock != protos::pbzero::FTRACE_CLOCK_UNSPECIFIED);
 
   // Snapshot the boot clock *before* reading CPU stats so that
   // two clocks are as close togher as possible (i.e. if it was the
@@ -685,7 +685,7 @@ FtraceController::VerifyKernelSupportForBufferWatermark() {
   struct pollfd pollset = {};
   pollset.fd = fd.get();
   pollset.events = POLLIN;
-  int r = PERFETTO_EINTR(poll(&pollset, 1, 0));
+  int r = DEJAVIEW_EINTR(poll(&pollset, 1, 0));
   if (r < 0 || (r > 0 && (pollset.revents & POLLERR))) {
     return PollSupport::kUnsupported;
   }
@@ -744,7 +744,7 @@ FtraceController::FtraceInstanceState* FtraceController::GetOrCreateInstance(
   if (maybe_existing)
     return maybe_existing;
 
-  PERFETTO_DCHECK(!instance_name.empty());
+  DEJAVIEW_DCHECK(!instance_name.empty());
   std::unique_ptr<FtraceInstanceState> instance =
       CreateSecondaryInstance(instance_name);
   if (!instance)
@@ -753,7 +753,7 @@ FtraceController::FtraceInstanceState* FtraceController::GetOrCreateInstance(
   auto it_and_inserted = secondary_instances_.emplace(
       std::piecewise_construct, std::forward_as_tuple(instance_name),
       std::forward_as_tuple(std::move(instance)));
-  PERFETTO_CHECK(it_and_inserted.second);
+  DEJAVIEW_CHECK(it_and_inserted.second);
   return it_and_inserted.first->second.get();
 }
 
@@ -779,7 +779,7 @@ void FtraceController::DestroyIfUnusedSeconaryInstance(
       return;
     }
   }
-  PERFETTO_FATAL("Bug in ftrace instance lifetimes");
+  DEJAVIEW_FATAL("Bug in ftrace instance lifetimes");
 }
 
 std::unique_ptr<FtraceController::FtraceInstanceState>
@@ -787,14 +787,14 @@ FtraceController::CreateSecondaryInstance(const std::string& instance_name) {
   std::optional<std::string> instance_path = AbsolutePathForInstance(
       primary_.ftrace_procfs->GetRootPath(), instance_name);
   if (!instance_path.has_value()) {
-    PERFETTO_ELOG("Invalid ftrace instance name: \"%s\"",
+    DEJAVIEW_ELOG("Invalid ftrace instance name: \"%s\"",
                   instance_name.c_str());
     return nullptr;
   }
 
   auto ftrace_procfs = FtraceProcfs::Create(*instance_path);
   if (!ftrace_procfs) {
-    PERFETTO_ELOG("Failed to create ftrace procfs for \"%s\"",
+    DEJAVIEW_ELOG("Failed to create ftrace procfs for \"%s\"",
                   instance_path->c_str());
     return nullptr;
   }
@@ -802,7 +802,7 @@ FtraceController::CreateSecondaryInstance(const std::string& instance_name) {
   auto table = ProtoTranslationTable::Create(
       ftrace_procfs.get(), GetStaticEventInfo(), GetStaticCommonFieldsInfo());
   if (!table) {
-    PERFETTO_ELOG("Failed to create proto translation table for \"%s\"",
+    DEJAVIEW_ELOG("Failed to create proto translation table for \"%s\"",
                   instance_path->c_str());
     return nullptr;
   }
@@ -837,7 +837,7 @@ std::optional<std::string> FtraceController::AbsolutePathForInstance(
   // instances/, we special-case that name for now.
   if (raw_cfg_name == "hyp") {
     std::string hyp_path = tracefs_root + "hyp/";
-    PERFETTO_LOG(
+    DEJAVIEW_LOG(
         "Config specified reserved \"hyp\" instance name, using %s for events.",
         hyp_path.c_str());
     return std::make_optional(hyp_path);
@@ -848,4 +848,4 @@ std::optional<std::string> FtraceController::AbsolutePathForInstance(
 
 FtraceController::Observer::~Observer() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

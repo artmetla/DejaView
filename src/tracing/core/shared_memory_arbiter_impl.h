@@ -25,14 +25,14 @@
 #include <mutex>
 #include <vector>
 
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/shared_memory_arbiter.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/shared_memory_arbiter.h"
+#include "dejaview/tracing/core/forward_decls.h"
 #include "src/tracing/core/id_allocator.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class PatchList;
 class Patch;
@@ -162,7 +162,7 @@ class SharedMemoryArbiterImpl : public SharedMemoryArbiter {
   }
 
   // SharedMemoryArbiter implementation.
-  // See include/perfetto/tracing/core/shared_memory_arbiter.h for comments.
+  // See include/dejaview/tracing/core/shared_memory_arbiter.h for comments.
   std::unique_ptr<TraceWriter> CreateTraceWriter(
       BufferID target_buffer,
       BufferExhaustedPolicy = BufferExhaustedPolicy::kDefault) override;
@@ -331,6 +331,6 @@ class SharedMemoryArbiterImpl : public SharedMemoryArbiter {
   base::WeakPtrFactory<SharedMemoryArbiterImpl> weak_ptr_factory_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_CORE_SHARED_MEMORY_ARBITER_IMPL_H_

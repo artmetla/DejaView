@@ -20,11 +20,11 @@
 #include <functional>
 #include <memory>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class ChunkedTraceReader;
@@ -65,6 +65,6 @@ class TraceReaderRegistry {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TRACE_READER_REGISTRY_H_

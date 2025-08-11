@@ -20,14 +20,14 @@
 #include <memory>
 #include <optional>
 
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/status.h"
-#include "perfetto/trace_processor/trace_processor_storage.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/status.h"
+#include "dejaview/trace_processor/trace_processor_storage.h"
 #include "src/trace_processor/importers/common/trace_file_tracker.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class ForwardingTraceParser;
@@ -55,6 +55,6 @@ class TraceProcessorStorageImpl : public TraceProcessorStorage {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TRACE_PROCESSOR_STORAGE_IMPL_H_

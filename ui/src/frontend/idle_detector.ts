@@ -17,7 +17,7 @@ import {raf} from '../core/raf_scheduler';
 import {AppImpl} from '../core/app_impl';
 
 /**
- * This class is exposed by index.ts as window.waitForPerfettoIdle() and is used
+ * This class is exposed by index.ts as window.waitForDejaViewIdle() and is used
  * by tests, to detect when we reach quiescence.
  */
 
@@ -30,7 +30,7 @@ export class IdleDetector {
   private idleSince?: number;
   private idleHysteresisMs = IDLE_HYSTERESIS_MS;
 
-  waitForPerfettoIdle(idleHysteresisMs = IDLE_HYSTERESIS_MS): Promise<void> {
+  waitForDejaViewIdle(idleHysteresisMs = IDLE_HYSTERESIS_MS): Promise<void> {
     this.idleSince = undefined;
     this.idleHysteresisMs = idleHysteresisMs;
     this.scheduleNextTask();

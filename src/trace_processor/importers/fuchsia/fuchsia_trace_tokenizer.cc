@@ -19,10 +19,10 @@
 #include <cinttypes>
 #include <limits>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
@@ -33,7 +33,7 @@
 #include "src/trace_processor/types/task_state.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -148,7 +148,7 @@ util::Status FuchsiaTraceTokenizer::Parse(TraceBlobView blob) {
     // record to start with. We padded leftover_bytes_ out to read the header,
     // so it may now be a full record (in the case that the record consists of
     // only the header word), but it still cannot have any extra bytes.
-    PERFETTO_DCHECK(leftover_bytes_.size() <= record_len_bytes);
+    DEJAVIEW_DCHECK(leftover_bytes_.size() <= record_len_bytes);
     size_t missing_bytes = record_len_bytes - leftover_bytes_.size();
 
     if (missing_bytes <= size) {
@@ -199,11 +199,11 @@ util::Status FuchsiaTraceTokenizer::Parse(TraceBlobView blob) {
                          full_view.data() + record_offset,
                          full_view.data() + size);
 
-  TraceBlob perfetto_blob =
+  TraceBlob dejaview_blob =
       TraceBlob::CopyFrom(proto_trace_data_.data(), proto_trace_data_.size());
   proto_trace_data_.clear();
 
-  return proto_reader_.Parse(TraceBlobView(std::move(perfetto_blob)));
+  return proto_reader_.Parse(TraceBlobView(std::move(dejaview_blob)));
 }
 
 StringId FuchsiaTraceTokenizer::IdForOutgoingThreadState(uint32_t state) {
@@ -402,7 +402,7 @@ void FuchsiaTraceTokenizer::ParseRecord(TraceBlobView tbv) {
         }
         case kProviderEvent: {
           // TODO(bhamrick): Handle buffer fill events
-          PERFETTO_DLOG(
+          DEJAVIEW_DLOG(
               "Ignoring provider event. Events may have been dropped");
           break;
         }
@@ -535,10 +535,10 @@ void FuchsiaTraceTokenizer::ParseRecord(TraceBlobView tbv) {
       break;
     }
     case kBlob: {
-      constexpr uint32_t kPerfettoBlob = 3;
+      constexpr uint32_t kDejaViewBlob = 3;
       uint32_t blob_type =
           fuchsia_trace_utils::ReadField<uint32_t>(header, 48, 55);
-      if (blob_type == kPerfettoBlob) {
+      if (blob_type == kDejaViewBlob) {
         FuchsiaRecord record(std::move(tbv));
         uint32_t blob_size =
             fuchsia_trace_utils::ReadField<uint32_t>(header, 32, 46);
@@ -555,7 +555,7 @@ void FuchsiaTraceTokenizer::ParseRecord(TraceBlobView tbv) {
           }
         }
 
-        // Append the Blob into the embedded perfetto bytes -- we'll parse them
+        // Append the Blob into the embedded dejaview bytes -- we'll parse them
         // all after the main pass is done.
         if (!cursor.ReadBlob(blob_size, proto_trace_data_)) {
           storage->IncrementStats(stats::fuchsia_invalid_event);
@@ -590,7 +590,7 @@ void FuchsiaTraceTokenizer::ParseRecord(TraceBlobView tbv) {
 
       switch (obj_type) {
         case kZxObjTypeProcess: {
-          // Note: Fuchsia pid/tids are 64 bits but Perfetto's tables only
+          // Note: Fuchsia pid/tids are 64 bits but DejaView's tables only
           // support 32 bits. This is usually not an issue except for
           // artificial koids which have the 2^63 bit set. This is used for
           // things such as virtual threads.
@@ -631,7 +631,7 @@ void FuchsiaTraceTokenizer::ParseRecord(TraceBlobView tbv) {
           break;
         }
         default: {
-          PERFETTO_DLOG("Skipping Kernel Object record with type %d", obj_type);
+          DEJAVIEW_DLOG("Skipping Kernel Object record with type %d", obj_type);
           break;
         }
       }
@@ -829,14 +829,14 @@ void FuchsiaTraceTokenizer::ParseRecord(TraceBlobView tbv) {
           break;
         }
         default:
-          PERFETTO_DLOG("Skipping unknown scheduler event type %d", event_type);
+          DEJAVIEW_DLOG("Skipping unknown scheduler event type %d", event_type);
           break;
       }
 
       break;
     }
     default: {
-      PERFETTO_DLOG("Skipping record of unknown type %d", record_type);
+      DEJAVIEW_DLOG("Skipping record of unknown type %d", record_type);
       break;
     }
   }
@@ -855,4 +855,4 @@ base::Status FuchsiaTraceTokenizer::NotifyEndOfFile() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

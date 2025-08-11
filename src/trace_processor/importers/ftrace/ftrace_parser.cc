@@ -17,13 +17,13 @@
 #include "src/trace_processor/importers/ftrace/ftrace_parser.h"
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/proto_decoder.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/proto_decoder.h"
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
@@ -47,59 +47,59 @@
 #include "src/trace_processor/types/softirq_action.h"
 #include "src/trace_processor/types/tcp_state.h"
 
-#include "protos/perfetto/common/gpu_counter_descriptor.pbzero.h"
-#include "protos/perfetto/trace/ftrace/android_fs.pbzero.h"
-#include "protos/perfetto/trace/ftrace/bcl_exynos.pbzero.h"
-#include "protos/perfetto/trace/ftrace/binder.pbzero.h"
-#include "protos/perfetto/trace/ftrace/cma.pbzero.h"
-#include "protos/perfetto/trace/ftrace/cpuhp.pbzero.h"
-#include "protos/perfetto/trace/ftrace/cros_ec.pbzero.h"
-#include "protos/perfetto/trace/ftrace/dcvsh.pbzero.h"
-#include "protos/perfetto/trace/ftrace/dmabuf_heap.pbzero.h"
-#include "protos/perfetto/trace/ftrace/dpu.pbzero.h"
-#include "protos/perfetto/trace/ftrace/fastrpc.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"
-#include "protos/perfetto/trace/ftrace/g2d.pbzero.h"
-#include "protos/perfetto/trace/ftrace/generic.pbzero.h"
-#include "protos/perfetto/trace/ftrace/google_icc_trace.pbzero.h"
-#include "protos/perfetto/trace/ftrace/google_irm_trace.pbzero.h"
-#include "protos/perfetto/trace/ftrace/gpu_mem.pbzero.h"
-#include "protos/perfetto/trace/ftrace/i2c.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ion.pbzero.h"
-#include "protos/perfetto/trace/ftrace/irq.pbzero.h"
-#include "protos/perfetto/trace/ftrace/kgsl.pbzero.h"
-#include "protos/perfetto/trace/ftrace/kmem.pbzero.h"
-#include "protos/perfetto/trace/ftrace/lwis.pbzero.h"
-#include "protos/perfetto/trace/ftrace/mali.pbzero.h"
-#include "protos/perfetto/trace/ftrace/mdss.pbzero.h"
-#include "protos/perfetto/trace/ftrace/mm_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/net.pbzero.h"
-#include "protos/perfetto/trace/ftrace/oom.pbzero.h"
-#include "protos/perfetto/trace/ftrace/panel.pbzero.h"
-#include "protos/perfetto/trace/ftrace/power.pbzero.h"
-#include "protos/perfetto/trace/ftrace/raw_syscalls.pbzero.h"
-#include "protos/perfetto/trace/ftrace/rpm.pbzero.h"
-#include "protos/perfetto/trace/ftrace/samsung.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
-#include "protos/perfetto/trace/ftrace/scm.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sde.pbzero.h"
-#include "protos/perfetto/trace/ftrace/signal.pbzero.h"
-#include "protos/perfetto/trace/ftrace/skb.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sock.pbzero.h"
-#include "protos/perfetto/trace/ftrace/synthetic.pbzero.h"
-#include "protos/perfetto/trace/ftrace/systrace.pbzero.h"
-#include "protos/perfetto/trace/ftrace/task.pbzero.h"
-#include "protos/perfetto/trace/ftrace/tcp.pbzero.h"
-#include "protos/perfetto/trace/ftrace/trusty.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ufs.pbzero.h"
-#include "protos/perfetto/trace/ftrace/vmscan.pbzero.h"
-#include "protos/perfetto/trace/ftrace/workqueue.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/common/gpu_counter_descriptor.pbzero.h"
+#include "protos/dejaview/trace/ftrace/android_fs.pbzero.h"
+#include "protos/dejaview/trace/ftrace/bcl_exynos.pbzero.h"
+#include "protos/dejaview/trace/ftrace/binder.pbzero.h"
+#include "protos/dejaview/trace/ftrace/cma.pbzero.h"
+#include "protos/dejaview/trace/ftrace/cpuhp.pbzero.h"
+#include "protos/dejaview/trace/ftrace/cros_ec.pbzero.h"
+#include "protos/dejaview/trace/ftrace/dcvsh.pbzero.h"
+#include "protos/dejaview/trace/ftrace/dmabuf_heap.pbzero.h"
+#include "protos/dejaview/trace/ftrace/dpu.pbzero.h"
+#include "protos/dejaview/trace/ftrace/fastrpc.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"
+#include "protos/dejaview/trace/ftrace/g2d.pbzero.h"
+#include "protos/dejaview/trace/ftrace/generic.pbzero.h"
+#include "protos/dejaview/trace/ftrace/google_icc_trace.pbzero.h"
+#include "protos/dejaview/trace/ftrace/google_irm_trace.pbzero.h"
+#include "protos/dejaview/trace/ftrace/gpu_mem.pbzero.h"
+#include "protos/dejaview/trace/ftrace/i2c.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ion.pbzero.h"
+#include "protos/dejaview/trace/ftrace/irq.pbzero.h"
+#include "protos/dejaview/trace/ftrace/kgsl.pbzero.h"
+#include "protos/dejaview/trace/ftrace/kmem.pbzero.h"
+#include "protos/dejaview/trace/ftrace/lwis.pbzero.h"
+#include "protos/dejaview/trace/ftrace/mali.pbzero.h"
+#include "protos/dejaview/trace/ftrace/mdss.pbzero.h"
+#include "protos/dejaview/trace/ftrace/mm_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/net.pbzero.h"
+#include "protos/dejaview/trace/ftrace/oom.pbzero.h"
+#include "protos/dejaview/trace/ftrace/panel.pbzero.h"
+#include "protos/dejaview/trace/ftrace/power.pbzero.h"
+#include "protos/dejaview/trace/ftrace/raw_syscalls.pbzero.h"
+#include "protos/dejaview/trace/ftrace/rpm.pbzero.h"
+#include "protos/dejaview/trace/ftrace/samsung.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/trace/ftrace/scm.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sde.pbzero.h"
+#include "protos/dejaview/trace/ftrace/signal.pbzero.h"
+#include "protos/dejaview/trace/ftrace/skb.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sock.pbzero.h"
+#include "protos/dejaview/trace/ftrace/synthetic.pbzero.h"
+#include "protos/dejaview/trace/ftrace/systrace.pbzero.h"
+#include "protos/dejaview/trace/ftrace/task.pbzero.h"
+#include "protos/dejaview/trace/ftrace/tcp.pbzero.h"
+#include "protos/dejaview/trace/ftrace/trusty.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ufs.pbzero.h"
+#include "protos/dejaview/trace/ftrace/vmscan.pbzero.h"
+#include "protos/dejaview/trace/ftrace/workqueue.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -669,7 +669,7 @@ base::Status FtraceParser::ParseFtraceStats(ConstBytes blob,
   // Check for parsing errors such as our understanding of the ftrace ring
   // buffer ABI not matching the data read out of the kernel (while the trace
   // was being recorded). Reject such traces altogether as we need to make such
-  // errors hard to ignore (most likely it's a bug in perfetto or the kernel).
+  // errors hard to ignore (most likely it's a bug in dejaview or the kernel).
   using protos::pbzero::FtraceParseStatus;
   auto error_it = evt.ftrace_parse_errors();
   if (error_it) {
@@ -680,8 +680,8 @@ base::Status FtraceParser::ParseFtraceStats(ConstBytes blob,
     if (!dev_skip_errors) {
       std::string msg =
           "Trace was recorded with critical ftrace parsing errors, indicating "
-          "a bug in Perfetto or the kernel. Please report "
-          "the trace to Perfetto. If you really need to load this trace, use a "
+          "a bug in DejaView or the kernel. Please report "
+          "the trace to DejaView. If you really need to load this trace, use a "
           "native trace_processor_shell as an accelerator with these flags: "
           "\"trace_processor_shell --httpd --dev --dev-flag "
           "ignore-ftrace-parse-errors=true <trace_file.pb>\". Errors: ";
@@ -715,7 +715,7 @@ base::Status FtraceParser::ParseFtraceEvent(uint32_t cpu,
                                             int64_t ts,
                                             const TracePacketData& data) {
   MaybeOnFirstFtraceEvent();
-  if (PERFETTO_UNLIKELY(ts < drop_ftrace_data_before_ts_)) {
+  if (DEJAVIEW_UNLIKELY(ts < drop_ftrace_data_before_ts_)) {
     context_->storage->IncrementStats(
         stats::ftrace_packet_before_tracing_start);
     return base::OkStatus();
@@ -759,7 +759,7 @@ base::Status FtraceParser::ParseFtraceEvent(uint32_t cpu,
     // this event signifies a beginning of an operation that can end on a
     // different cpu, we could conclude that the operation never ends.
     // See b/192586066.
-    if (PERFETTO_UNLIKELY(ts < soft_drop_ftrace_data_before_ts_)) {
+    if (DEJAVIEW_UNLIKELY(ts < soft_drop_ftrace_data_before_ts_)) {
       return base::OkStatus();
     }
 
@@ -1320,7 +1320,7 @@ base::Status FtraceParser::ParseFtraceEvent(uint32_t cpu,
     }
   }
 
-  PERFETTO_DCHECK(!decoder.bytes_left());
+  DEJAVIEW_DCHECK(!decoder.bytes_left());
   return base::OkStatus();
 }
 
@@ -1330,7 +1330,7 @@ base::Status FtraceParser::ParseInlineSchedSwitch(
     const InlineSchedSwitch& data) {
   MaybeOnFirstFtraceEvent();
   bool parse_only_into_raw = false;
-  if (PERFETTO_UNLIKELY(ts < soft_drop_ftrace_data_before_ts_)) {
+  if (DEJAVIEW_UNLIKELY(ts < soft_drop_ftrace_data_before_ts_)) {
     parse_only_into_raw = true;
     if (ts < drop_ftrace_data_before_ts_) {
       context_->storage->IncrementStats(
@@ -1354,7 +1354,7 @@ base::Status FtraceParser::ParseInlineSchedWaking(
     const InlineSchedWaking& data) {
   MaybeOnFirstFtraceEvent();
   bool parse_only_into_raw = false;
-  if (PERFETTO_UNLIKELY(ts < soft_drop_ftrace_data_before_ts_)) {
+  if (DEJAVIEW_UNLIKELY(ts < soft_drop_ftrace_data_before_ts_)) {
     parse_only_into_raw = true;
     if (ts < drop_ftrace_data_before_ts_) {
       context_->storage->IncrementStats(
@@ -1373,7 +1373,7 @@ base::Status FtraceParser::ParseInlineSchedWaking(
 }
 
 void FtraceParser::MaybeOnFirstFtraceEvent() {
-  if (PERFETTO_LIKELY(has_seen_first_ftrace_packet_)) {
+  if (DEJAVIEW_LIKELY(has_seen_first_ftrace_packet_)) {
     return;
   }
 
@@ -1407,7 +1407,7 @@ void FtraceParser::MaybeOnFirstFtraceEvent() {
   SoftDropFtraceDataBefore soft_drop_before =
       context_->config.soft_drop_ftrace_data_before;
 
-  // TODO(b/344969928): Workaround, can be removed when perfetto v47+ traces are
+  // TODO(b/344969928): Workaround, can be removed when dejaview v47+ traces are
   // the norm in Android.
   base::StringView unique_session_name =
       context_->metadata_tracker->GetMetadata(metadata::unique_session_name)
@@ -1474,12 +1474,12 @@ void FtraceParser::ParseTypedFtraceToRaw(
     uint32_t tid,
     ConstBytes blob,
     PacketSequenceStateGeneration* seq_state) {
-  if (PERFETTO_UNLIKELY(!context_->config.ingest_ftrace_in_raw_table))
+  if (DEJAVIEW_UNLIKELY(!context_->config.ingest_ftrace_in_raw_table))
     return;
 
   ProtoDecoder decoder(blob.data, blob.size);
   if (ftrace_id >= GetDescriptorsSize()) {
-    PERFETTO_DLOG("Event with id: %d does not exist and cannot be parsed.",
+    DEJAVIEW_DLOG("Event with id: %d does not exist and cannot be parsed.",
                   ftrace_id);
     return;
   }
@@ -1497,8 +1497,8 @@ void FtraceParser::ParseTypedFtraceToRaw(
 
   for (auto fld = decoder.ReadField(); fld.valid(); fld = decoder.ReadField()) {
     uint32_t field_id = fld.id();
-    if (PERFETTO_UNLIKELY(field_id >= kMaxFtraceEventFields)) {
-      PERFETTO_DLOG(
+    if (DEJAVIEW_UNLIKELY(field_id >= kMaxFtraceEventFields)) {
+      DEJAVIEW_DLOG(
           "Skipping ftrace arg - proto field id is too large (%" PRIu32 ")",
           field_id);
       continue;
@@ -1514,7 +1514,7 @@ void FtraceParser::ParseTypedFtraceToRaw(
           return ev.event_id == ftrace_id && ev.field_id == field_id;
         });
     if (it != kKernelFunctionFields.end()) {
-      PERFETTO_CHECK(type == ProtoSchemaType::kUint64);
+      DEJAVIEW_CHECK(type == ProtoSchemaType::kUint64);
 
       auto* interned_string = seq_state->LookupInternedMessage<
           protos::pbzero::InternedData::kKernelSymbolsFieldNumber,
@@ -1575,14 +1575,14 @@ void FtraceParser::ParseTypedFtraceToRaw(
       case ProtoSchemaType::kUnknown:
       case ProtoSchemaType::kGroup:
       case ProtoSchemaType::kMessage:
-        PERFETTO_DLOG("Could not store %s as a field in args table.",
+        DEJAVIEW_DLOG("Could not store %s as a field in args table.",
                       ProtoSchemaToString(type));
         break;
     }
   }
 }
 
-PERFETTO_ALWAYS_INLINE
+DEJAVIEW_ALWAYS_INLINE
 void FtraceParser::ParseSchedSwitch(uint32_t cpu,
                                     int64_t timestamp,
                                     ConstBytes blob) {
@@ -2548,7 +2548,7 @@ void FtraceParser::ParseSoftIrqEntry(uint32_t cpu,
   protos::pbzero::SoftirqEntryFtraceEvent::Decoder evt(blob.data, blob.size);
   auto num_actions = sizeof(kActionNames) / sizeof(*kActionNames);
   if (evt.vec() >= num_actions) {
-    PERFETTO_DFATAL("No action name at index %d for softirq event.", evt.vec());
+    DEJAVIEW_DFATAL("No action name at index %d for softirq event.", evt.vec());
     return;
   }
   base::StringView slice_name = kActionNames[evt.vec()];
@@ -2598,11 +2598,11 @@ void FtraceParser::ParseGpuMemTotal(int64_t timestamp,
     // true process id (and not a thread id) so ensure there is an association
     // between the tid and pid.
     UniqueTid updated_utid = context_->process_tracker->UpdateThread(pid, pid);
-    PERFETTO_DCHECK(updated_utid == *opt_utid);
+    DEJAVIEW_DCHECK(updated_utid == *opt_utid);
 
     // UpdateThread above should ensure this is always set.
     UniquePid upid = *context_->storage->thread_table()[*opt_utid].upid();
-    PERFETTO_DCHECK(context_->storage->process_table()[upid].pid() == pid);
+    DEJAVIEW_DCHECK(context_->storage->process_table()[upid].pid() == pid);
 
     track = context_->track_tracker->InternProcessCounterTrack(
         gpu_mem_total_name_id_, upid, gpu_mem_total_unit_id_,
@@ -2746,19 +2746,19 @@ void FtraceParser::ParseInetSockSetState(int64_t timestamp,
 
   // Skip non TCP protocol.
   if (evt.protocol() != kIpprotoTcp) {
-    PERFETTO_ELOG("skip non tcp protocol");
+    DEJAVIEW_ELOG("skip non tcp protocol");
     return;
   }
 
   // Skip non IP protocol.
   if (evt.family() != kAfNet && evt.family() != kAfNet6) {
-    PERFETTO_ELOG("skip non IP protocol");
+    DEJAVIEW_ELOG("skip non IP protocol");
     return;
   }
 
   // Skip invalid TCP state.
   if (evt.newstate() >= TCP_MAX_STATES || evt.oldstate() >= TCP_MAX_STATES) {
-    PERFETTO_ELOG("skip invalid tcp state");
+    DEJAVIEW_ELOG("skip invalid tcp state");
     return;
   }
 
@@ -3254,7 +3254,7 @@ void FtraceParser::ParseUfshcdCommand(int64_t timestamp,
 
   // Parse occupied ufs command queue
   uint32_t num = evt.doorbell() > 0
-                     ? static_cast<uint32_t>(PERFETTO_POPCOUNT(evt.doorbell()))
+                     ? static_cast<uint32_t>(DEJAVIEW_POPCOUNT(evt.doorbell()))
                      : (evt.str_t() == 1 ? 0 : 1);
   TrackId track = context_->track_tracker->InternGlobalCounterTrack(
       TrackTracker::Group::kIo, ufs_command_count_id_);
@@ -3553,7 +3553,7 @@ StringId FtraceParser::GetRpmStatusStringId(int32_t rpm_status_val) {
       return runtime_status_active_id_;
   }
 
-  PERFETTO_DLOG(
+  DEJAVIEW_DLOG(
       "Invalid runtime status value obtained from rpm_status ftrace event");
   return runtime_status_invalid_id_;
 }
@@ -3692,4 +3692,4 @@ StringId FtraceParser::InternedKernelSymbolOrFallback(
   return name_id;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

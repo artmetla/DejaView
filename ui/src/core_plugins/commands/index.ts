@@ -19,7 +19,7 @@ import {globals} from '../../frontend/globals';
 import {openInOldUIWithSizeCheck} from '../../frontend/legacy_trace_viewer';
 import {Trace} from '../../public/trace';
 import {App} from '../../public/app';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {
   isLegacyTrace,
   openFileWithLegacyTraceViewer,
@@ -93,10 +93,10 @@ group by
 order by total_self_size desc
 limit 100;`;
 
-class CoreCommandsPlugin implements PerfettoPlugin {
+class CoreCommandsPlugin implements DejaViewPlugin {
   onActivate(ctx: App) {
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#ToggleLeftSidebar',
+      id: 'dejaview.CoreCommands#ToggleLeftSidebar',
       name: 'Toggle left sidebar',
       callback: () => {
         if (globals.state.sidebarVisible) {
@@ -123,7 +123,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     input.addEventListener('change', onInputElementFileSelectionChanged);
     document.body.appendChild(input);
 
-    const OPEN_TRACE_COMMAND_ID = 'perfetto.CoreCommands#openTrace';
+    const OPEN_TRACE_COMMAND_ID = 'dejaview.CoreCommands#openTrace';
     ctx.commands.registerCommand({
       id: OPEN_TRACE_COMMAND_ID,
       name: 'Open trace file',
@@ -140,7 +140,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     const OPEN_LEGACY_TRACE_COMMAND_ID =
-      'perfetto.CoreCommands#openTraceInLegacyUi';
+      'dejaview.CoreCommands#openTraceInLegacyUi';
     ctx.commands.registerCommand({
       id: OPEN_LEGACY_TRACE_COMMAND_ID,
       name: 'Open with legacy UI',
@@ -158,7 +158,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
 
   async onTraceLoad(ctx: Trace): Promise<void> {
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#RunQueryAllProcesses',
+      id: 'dejaview.CoreCommands#RunQueryAllProcesses',
       name: 'Run query: All processes',
       callback: () => {
         addQueryResultsTab(ctx, {
@@ -169,7 +169,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#RunQueryCpuTimeByProcess',
+      id: 'dejaview.CoreCommands#RunQueryCpuTimeByProcess',
       name: 'Run query: CPU time by process',
       callback: () => {
         addQueryResultsTab(ctx, {
@@ -180,7 +180,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#RunQueryCyclesByStateByCpu',
+      id: 'dejaview.CoreCommands#RunQueryCyclesByStateByCpu',
       name: 'Run query: cycles by p-state by CPU',
       callback: () => {
         addQueryResultsTab(ctx, {
@@ -191,7 +191,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#RunQueryCyclesByCpuByProcess',
+      id: 'dejaview.CoreCommands#RunQueryCyclesByCpuByProcess',
       name: 'Run query: CPU Time by CPU by process',
       callback: () => {
         addQueryResultsTab(ctx, {
@@ -202,7 +202,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#RunQueryHeapGraphBytesPerType',
+      id: 'dejaview.CoreCommands#RunQueryHeapGraphBytesPerType',
       name: 'Run query: heap graph bytes per type',
       callback: () => {
         addQueryResultsTab(ctx, {
@@ -213,7 +213,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#DebugSqlPerformance',
+      id: 'dejaview.CoreCommands#DebugSqlPerformance',
       name: 'Debug SQL performance',
       callback: () => {
         addQueryResultsTab(ctx, {
@@ -224,7 +224,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#UnpinAllTracks',
+      id: 'dejaview.CoreCommands#UnpinAllTracks',
       name: 'Unpin all pinned tracks',
       callback: () => {
         const workspace = ctx.workspace;
@@ -233,7 +233,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#ExpandAllGroups',
+      id: 'dejaview.CoreCommands#ExpandAllGroups',
       name: 'Expand all track groups',
       callback: () => {
         ctx.workspace.flatTracks.forEach((track) => track.expand());
@@ -241,7 +241,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#CollapseAllGroups',
+      id: 'dejaview.CoreCommands#CollapseAllGroups',
       name: 'Collapse all track groups',
       callback: () => {
         ctx.workspace.flatTracks.forEach((track) => track.collapse());
@@ -249,7 +249,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#PanToTimestamp',
+      id: 'dejaview.CoreCommands#PanToTimestamp',
       name: 'Pan to timestamp',
       callback: (tsRaw: unknown) => {
         if (exists(tsRaw)) {
@@ -268,7 +268,7 @@ class CoreCommandsPlugin implements PerfettoPlugin {
     });
 
     ctx.commands.registerCommand({
-      id: 'perfetto.CoreCommands#ShowCurrentSelectionTab',
+      id: 'dejaview.CoreCommands#ShowCurrentSelectionTab',
       name: 'Show current selection tab',
       callback: () => {
         ctx.tabs.showTab('current_selection');
@@ -351,6 +351,6 @@ async function openWithLegacyUi(file: File) {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.CoreCommands',
+  pluginId: 'dejaview.CoreCommands',
   plugin: CoreCommandsPlugin,
 };

@@ -21,14 +21,14 @@
 #include <optional>
 #include <stack>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class TraceProcessorContext;
@@ -156,6 +156,6 @@ class BinderTracker : public Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_BINDER_TRACKER_H_

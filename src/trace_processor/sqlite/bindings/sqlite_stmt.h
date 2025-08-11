@@ -19,7 +19,7 @@
 
 #include <sqlite3.h>  // IWYU pragma: export
 
-namespace perfetto::trace_processor::sqlite::stmt {
+namespace dejaview::trace_processor::sqlite::stmt {
 
 // This file contains wraps the SQLite functions which operate on sqlite3_stmt
 // objects.
@@ -28,6 +28,6 @@ inline int Reset(sqlite3_stmt* stmt) {
   return sqlite3_reset(stmt);
 }
 
-}  // namespace perfetto::trace_processor::sqlite::stmt
+}  // namespace dejaview::trace_processor::sqlite::stmt
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_BINDINGS_SQLITE_STMT_H_

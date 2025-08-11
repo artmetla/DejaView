@@ -18,17 +18,17 @@
 
 #include <cinttypes>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/ipc/host.h"
-#include "perfetto/ext/ipc/service.h"
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/ipc/host.h"
+#include "dejaview/ext/ipc/service.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include "src/tracing/ipc/shared_memory_windows.h"
 #else
 #include "src/tracing/ipc/posix_shared_memory.h"
@@ -38,7 +38,7 @@
 // IPC layer (e.g. RegisterDataSource()) must assume that the remote Producer is
 // compromised.
 
-namespace perfetto {
+namespace dejaview {
 
 ProducerIPCService::ProducerIPCService(TracingService* core_service)
     : core_service_(core_service), weak_ptr_factory_(this) {}
@@ -48,7 +48,7 @@ ProducerIPCService::~ProducerIPCService() = default;
 ProducerIPCService::RemoteProducer*
 ProducerIPCService::GetProducerForCurrentRequest() {
   const ipc::ClientID ipc_client_id = ipc::Service::client_info().client_id();
-  PERFETTO_CHECK(ipc_client_id);
+  DEJAVIEW_CHECK(ipc_client_id);
   auto it = producers_.find(ipc_client_id);
   if (it == producers_.end())
     return nullptr;
@@ -61,10 +61,10 @@ void ProducerIPCService::InitializeConnection(
     DeferredInitializeConnectionResponse response) {
   const auto& client_info = ipc::Service::client_info();
   const ipc::ClientID ipc_client_id = client_info.client_id();
-  PERFETTO_CHECK(ipc_client_id);
+  DEJAVIEW_CHECK(ipc_client_id);
 
   if (producers_.count(ipc_client_id) > 0) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "The remote Producer is trying to re-initialize the connection");
     return response.Reject();
   }
@@ -88,9 +88,9 @@ void ProducerIPCService::InitializeConnection(
   // If the producer provided an SMB, tell the service to attempt to adopt it.
   std::unique_ptr<SharedMemory> shmem;
   if (req.producer_provided_shmem()) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     if (!req.has_shm_key_windows() || req.shm_key_windows().empty()) {
-      PERFETTO_ELOG(
+      DEJAVIEW_ELOG(
           "shm_key_windows must be non-empty when "
           "producer_provided_shmem = true");
     } else {
@@ -104,12 +104,12 @@ void ProducerIPCService::InitializeConnection(
       shmem = PosixSharedMemory::AttachToFd(
           std::move(shmem_fd), /*require_seals_if_supported=*/true);
       if (!shmem) {
-        PERFETTO_ELOG(
+        DEJAVIEW_ELOG(
             "Couldn't map producer-provided SMB, falling back to "
             "service-provided SMB");
       }
     } else {
-      PERFETTO_DLOG(
+      DEJAVIEW_DLOG(
           "InitializeConnectionRequest's producer_provided_shmem flag is set "
           "but the producer didn't provide an FD");
     }
@@ -155,7 +155,7 @@ void ProducerIPCService::RegisterDataSource(
     DeferredRegisterDataSourceResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked RegisterDataSource() before InitializeConnection()");
     if (response.IsBound())
       response.Reject();
@@ -178,7 +178,7 @@ void ProducerIPCService::UpdateDataSource(
     DeferredUpdateDataSourceResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked UpdateDataSource() before InitializeConnection()");
     if (response.IsBound())
       response.Reject();
@@ -198,7 +198,7 @@ void ProducerIPCService::UpdateDataSource(
 // Called by the IPC layer.
 void ProducerIPCService::OnClientDisconnected() {
   ipc::ClientID client_id = ipc::Service::client_info().client_id();
-  PERFETTO_DLOG("Client %" PRIu64 " disconnected", client_id);
+  DEJAVIEW_DLOG("Client %" PRIu64 " disconnected", client_id);
   producers_.erase(client_id);
 }
 
@@ -212,7 +212,7 @@ void ProducerIPCService::UnregisterDataSource(
     DeferredUnregisterDataSourceResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked UnregisterDataSource() before "
         "InitializeConnection()");
     if (response.IsBound())
@@ -233,7 +233,7 @@ void ProducerIPCService::RegisterTraceWriter(
     DeferredRegisterTraceWriterResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked RegisterTraceWriter() before "
         "InitializeConnection()");
     if (response.IsBound())
@@ -255,7 +255,7 @@ void ProducerIPCService::UnregisterTraceWriter(
     DeferredUnregisterTraceWriterResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked UnregisterTraceWriter() before "
         "InitializeConnection()");
     if (response.IsBound())
@@ -275,7 +275,7 @@ void ProducerIPCService::CommitData(const protos::gen::CommitDataRequest& req,
                                     DeferredCommitDataResponse resp) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked CommitData() before InitializeConnection()");
     if (resp.IsBound())
       resp.Reject();
@@ -304,7 +304,7 @@ void ProducerIPCService::NotifyDataSourceStarted(
     DeferredNotifyDataSourceStartedResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked NotifyDataSourceStarted() before "
         "InitializeConnection()");
     if (response.IsBound())
@@ -326,7 +326,7 @@ void ProducerIPCService::NotifyDataSourceStopped(
     DeferredNotifyDataSourceStoppedResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked NotifyDataSourceStopped() before "
         "InitializeConnection()");
     if (response.IsBound())
@@ -348,7 +348,7 @@ void ProducerIPCService::ActivateTriggers(
     DeferredActivateTriggersResponse resp) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked ActivateTriggers() before InitializeConnection()");
     if (resp.IsBound())
       resp.Reject();
@@ -372,7 +372,7 @@ void ProducerIPCService::GetAsyncCommand(
     DeferredGetAsyncCommandResponse response) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Producer invoked GetAsyncCommand() before "
         "InitializeConnection()");
     return response.Reject();
@@ -392,7 +392,7 @@ void ProducerIPCService::Sync(const protos::gen::SyncRequest&,
                               DeferredSyncResponse resp) {
   RemoteProducer* producer = GetProducerForCurrentRequest();
   if (!producer) {
-    PERFETTO_DLOG("Producer invoked Sync() before InitializeConnection()");
+    DEJAVIEW_DLOG("Producer invoked Sync() before InitializeConnection()");
     return resp.Reject();
   }
   auto weak_this = weak_ptr_factory_.GetWeakPtr();
@@ -429,7 +429,7 @@ void ProducerIPCService::RemoteProducer::SetupDataSource(
     DataSourceInstanceID dsid,
     const DataSourceConfig& cfg) {
   if (!async_producer_commands.IsBound()) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "The Service tried to create a new data source but the remote Producer "
         "has not yet initialized the connection");
     return;
@@ -447,7 +447,7 @@ void ProducerIPCService::RemoteProducer::StartDataSource(
     DataSourceInstanceID dsid,
     const DataSourceConfig& cfg) {
   if (!async_producer_commands.IsBound()) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "The Service tried to start a new data source but the remote Producer "
         "has not yet initialized the connection");
     return;
@@ -462,7 +462,7 @@ void ProducerIPCService::RemoteProducer::StartDataSource(
 void ProducerIPCService::RemoteProducer::StopDataSource(
     DataSourceInstanceID dsid) {
   if (!async_producer_commands.IsBound()) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "The Service tried to stop a data source but the remote Producer "
         "has not yet initialized the connection");
     return;
@@ -483,8 +483,8 @@ void ProducerIPCService::RemoteProducer::OnTracingSetup() {
 }
 
 void ProducerIPCService::RemoteProducer::SendSetupTracing() {
-  PERFETTO_CHECK(async_producer_commands.IsBound());
-  PERFETTO_CHECK(service_endpoint->shared_memory());
+  DEJAVIEW_CHECK(async_producer_commands.IsBound());
+  DEJAVIEW_CHECK(service_endpoint->shared_memory());
   auto cmd = ipc::AsyncResult<protos::gen::GetAsyncCommandResponse>::Create();
   cmd.set_has_more(true);
   auto setup_tracing = cmd->mutable_setup_tracing();
@@ -492,7 +492,7 @@ void ProducerIPCService::RemoteProducer::SendSetupTracing() {
     // Nominal case (% Chrome): service provides SMB.
     setup_tracing->set_shared_buffer_page_size_kb(
         static_cast<uint32_t>(service_endpoint->shared_buffer_page_size_kb()));
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     const std::string& shm_key =
         static_cast<SharedMemoryWindows*>(service_endpoint->shared_memory())
             ->key();
@@ -513,7 +513,7 @@ void ProducerIPCService::RemoteProducer::Flush(
     size_t num_data_sources,
     FlushFlags flush_flags) {
   if (!async_producer_commands.IsBound()) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "The Service tried to request a flush but the remote Producer has not "
         "yet initialized the connection");
     return;
@@ -531,7 +531,7 @@ void ProducerIPCService::RemoteProducer::ClearIncrementalState(
     const DataSourceInstanceID* data_source_ids,
     size_t num_data_sources) {
   if (!async_producer_commands.IsBound()) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "The Service tried to request an incremental state invalidation, but "
         "the remote Producer has not yet initialized the connection");
     return;
@@ -544,4 +544,4 @@ void ProducerIPCService::RemoteProducer::ClearIncrementalState(
   async_producer_commands.Resolve(std::move(cmd));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,21 +14,21 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/periodic_task.h"
+#include "dejaview/ext/base/periodic_task.h"
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 #include "src/base/test/test_task_runner.h"
 #include "test/gtest_and_gmock.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <unistd.h>
 #endif
 
 #include <chrono>
 #include <thread>
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 namespace {
@@ -106,8 +106,8 @@ TEST(PeriodicTaskTest, FallbackIfTimerfdFails) {
   PeriodicTask::Args args;
   args.task = [&] {
     ++num_callbacks;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     if (num_callbacks == 3 && pt.timer_fd_for_testing() > 0) {
       ScopedFile dev_null = OpenFile("/dev/null", O_RDONLY);
       dup2(*dev_null, pt.timer_fd_for_testing());
@@ -219,4 +219,4 @@ TEST(PeriodicTaskTest, ImmediateExecution) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

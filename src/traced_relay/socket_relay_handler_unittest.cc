@@ -24,14 +24,14 @@
 #include <thread>
 #include <utility>
 
-#include "perfetto/ext/base/threading/thread_pool.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/ext/base/threading/thread_pool.h"
+#include "dejaview/ext/base/unix_socket.h"
 
 #include "test/gtest_and_gmock.h"
 
 using testing::Values;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using RawSocketPair = std::pair<base::UnixSocketRaw, base::UnixSocketRaw>;
@@ -164,7 +164,7 @@ TEST_P(SocketRelayHandlerTest, RandomizedRequestResponse) {
 
           // Perform a blocking read until we received the expected bytes.
           while (bytes_received < bytes_to_receive) {
-            ssize_t rsize = PERFETTO_EINTR(
+            ssize_t rsize = DEJAVIEW_EINTR(
                 receive_endpoint.Receive(receive_buffer + bytes_received,
                                          bytes_to_receive - bytes_received));
             if (rsize <= 0)
@@ -180,7 +180,7 @@ TEST_P(SocketRelayHandlerTest, RandomizedRequestResponse) {
         });
 
         // Perform a blocking send of the request data.
-        PERFETTO_EINTR(send_endpoint.Send(
+        DEJAVIEW_EINTR(send_endpoint.Send(
             request.data(), request.size() * sizeof(RngValueType)));
 
         // Wait until the request is fully received.
@@ -205,7 +205,7 @@ TEST_P(SocketRelayHandlerTest, RandomizedRequestResponse) {
   }
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 INSTANTIATE_TEST_SUITE_P(ByConnections, SocketRelayHandlerTest, Values(1, 5));
 #else
 INSTANTIATE_TEST_SUITE_P(ByConnections,
@@ -213,4 +213,4 @@ INSTANTIATE_TEST_SUITE_P(ByConnections,
                          Values(1, 5, 25));
 #endif
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

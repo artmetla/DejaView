@@ -24,12 +24,12 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 
 void TraceBlobViewReader::PushBack(TraceBlobView data) {
   if (data.size() == 0) {
@@ -41,7 +41,7 @@ void TraceBlobViewReader::PushBack(TraceBlobView data) {
 }
 
 bool TraceBlobViewReader::PopFrontUntil(const size_t target_offset) {
-  PERFETTO_CHECK(start_offset() <= target_offset);
+  DEJAVIEW_CHECK(start_offset() <= target_offset);
   while (!data_.empty()) {
     Entry& entry = data_.front();
     if (target_offset == entry.start_offset) {
@@ -63,11 +63,11 @@ std::optional<TraceBlobView> TraceBlobViewReader::SliceOff(
     size_t offset,
     size_t length) const {
   // If the length is zero, then a zero-sized blob view is always approrpriate.
-  if (PERFETTO_UNLIKELY(length == 0)) {
+  if (DEJAVIEW_UNLIKELY(length == 0)) {
     return TraceBlobView();
   }
 
-  PERFETTO_DCHECK(offset >= start_offset());
+  DEJAVIEW_DCHECK(offset >= start_offset());
 
   // Fast path: the slice fits entirely inside the first TBV, we can just slice
   // that directly without doing any searching. This will happen most of the
@@ -75,14 +75,14 @@ std::optional<TraceBlobView> TraceBlobViewReader::SliceOff(
   bool is_fast_path =
       !data_.empty() &&
       offset + length <= data_.front().start_offset + data_.front().data.size();
-  if (PERFETTO_LIKELY(is_fast_path)) {
+  if (DEJAVIEW_LIKELY(is_fast_path)) {
     return data_.front().data.slice_off(offset - data_.front().start_offset,
                                         length);
   }
 
   // If we don't have any TBVs or the end of the slice does not fit, then we
   // cannot possibly return a full slice.
-  if (PERFETTO_UNLIKELY(data_.empty() || offset + length > end_offset_)) {
+  if (DEJAVIEW_UNLIKELY(data_.empty() || offset + length > end_offset_)) {
     return std::nullopt;
   }
 
@@ -93,7 +93,7 @@ std::optional<TraceBlobView> TraceBlobViewReader::SliceOff(
       data_.begin(), data_.end(), offset, [](size_t offset, const Entry& rhs) {
         return offset < rhs.start_offset + rhs.data.size();
       });
-  PERFETTO_CHECK(rit != data_.end());
+  DEJAVIEW_CHECK(rit != data_.end());
 
   // If the slice fits entirely in the block we found, then just slice that
   // block avoiding any copies.
@@ -119,4 +119,4 @@ std::optional<TraceBlobView> TraceBlobViewReader::SliceOff(
   return TraceBlobView(std::move(buffer));
 }
 
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util

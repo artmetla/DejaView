@@ -1,20 +1,20 @@
-# Perfetto build instructions
+# DejaView build instructions
 
-The source of truth for the Perfetto codebase lives in AOSP:
+The source of truth for the DejaView codebase lives in AOSP:
 https://android.googlesource.com/platform/external/perfetto/
 
 A read-only mirror is also available at https://github.com/google/perfetto .
 
-Perfetto can be built both from the Android tree (AOSP) and standalone.
+DejaView can be built both from the Android tree (AOSP) and standalone.
 Standalone builds are meant only for local testing and are not shipped.
 Due to the reduced dependencies, the standalone workflow is faster to iterate on
-and the suggested way to work on Perfetto, unless you are working on code that
+and the suggested way to work on DejaView, unless you are working on code that
 has non-NDK depedencies into Android internals. Profilers and internal HAL/AIDL
 dependencies will not be built in the standalone build.
 
 If you are chromium contributor, AOSP is still the place you should send CLs to.
 The code inside chromium's
-[third_party/perfetto](https://source.chromium.org/chromium/chromium/src/+/main:third_party/perfetto/?q=f:third_party%2Fperfetto&ss=chromium)
+[third_party/dejaview](https://source.chromium.org/chromium/chromium/src/+/main:third_party/perfetto/?q=f:third_party%2Fperfetto&ss=chromium)
 is a direct mirror of the AOSP repo. The
 [AOSP->Chromium autoroller](https://autoroll.skia.org/r/perfetto-chromium-autoroll)
 takes care of keeping chromium's DEPS up to date.
@@ -47,7 +47,7 @@ version should be at least 3.9.1 to work around
 
 #### Generate the build files via GN
 
-Perfetto uses [GN](https://gn.googlesource.com/gn/+/HEAD/docs/quick_start.md)
+DejaView uses [GN](https://gn.googlesource.com/gn/+/HEAD/docs/quick_start.md)
 as primary build system. See the [Build files](#build-files) section below for
 more.
 
@@ -82,7 +82,7 @@ tools/ninja -C out/android
 tools/ninja -C out/android \
   traced \                 # Tracing service.
   traced_probes \          # Ftrace interop and /proc poller.
-  perfetto \               # Cmdline client.
+  dejaview \               # Cmdline client.
   trace_processor_shell \  # Trace parsing.
   traceconv                # Trace conversion.
 ...
@@ -92,16 +92,16 @@ tools/ninja -C out/android \
 
 Follow these instructions if you are an AOSP contributor.
 
-The source code lives in [`external/perfetto` in the AOSP tree](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/).
+The source code lives in [`external/dejaview` in the AOSP tree](https://cs.android.com/android/platform/superproject/main/+/main:external/perfetto/).
 
 Follow the instructions on https://source.android.com/setup/build/building .
 
 Then:
 
 ```bash
-mmma external/perfetto
+mmma external/dejaview
 # or
-m traced traced_probes perfetto
+m traced traced_probes dejaview
 ```
 
 This will generate artifacts `out/target/product/XXX/system/`.
@@ -233,22 +233,22 @@ The Windows support in standalone builds has been introduced in v16 by
 [r.android.com/1711913](https://r.android.com/1711913).
 
 clang-cl support is more stable because that build configuration is actively
-covered by the Chromium project (Perfetto rolls into chromium and underpins
+covered by the Chromium project (DejaView rolls into chromium and underpins
 chrome://tracing). The MSVC build is maintained best-effort.
 
 The following targets are supported on Windows:
 
 - `trace_processor_shell`: the trace importer and SQL query engine.
 - `traceconv`: the trace conversion tool.
-- `traced` and `perfetto`: the tracing service and cmdline client. They use an
+- `traced` and `dejaview`: the tracing service and cmdline client. They use an
   alternative implementation of the [inter-process tracing protocol](/docs/design-docs/api-and-abi.md#tracing-protocol-abi)
   based on a TCP socket and named shared memory. This configuration is only for
   testing / benchmarks and is not shipped in production.
   Googlers: see [go/perfetto-win](http://go/perfetto-win) for details.
-- `perfetto_unittests` / `perfetto_integrationtests`: although they support only
+- `dejaview_unittests` / `dejaview_integrationtests`: although they support only
   the subset of code that is supported on Windows (e.g. no ftrace).
 
-It is NOT possible to build the Perfetto UI from Windows.
+It is NOT possible to build the DejaView UI from Windows.
 
 #### Prerequisites
 
@@ -289,7 +289,7 @@ is_clang = false  # Will use MSVC 2019.
 #### Build
 
 ```bash
-python3 tools/ninja -C out/win perfetto traced trace_processor_shell
+python3 tools/ninja -C out/win dejaview traced trace_processor_shell
 ```
 
 ### Cross-compiling for Linux ARM/64
@@ -348,7 +348,7 @@ Chromium's choice, which in turn follows Windows naming convention.
 Toggles Debug (default) / Release mode. This affects, among other things:
 (i) the `-g` compiler flag; (ii) setting/unsetting `-DNDEBUG`; (iii) turning
 on/off `DCHECK` and `DLOG`.
-Note that debug builds of Perfetto are sensibly slower than release versions. We
+Note that debug builds of DejaView are sensibly slower than release versions. We
 strongly encourage using debug builds only for local development.
 
 `is_clang = true | false`
@@ -405,7 +405,7 @@ Enables [Undefined Behavior Sanitizer](https://clang.llvm.org/docs/UndefinedBeha
 
 ### {#custom-toolchain} Using custom toolchains and CC / CXX / CFLAGS env vars
 
-When building Perfetto as part of some other build environment it might be
+When building DejaView as part of some other build environment it might be
 necessary to switch off all the built-in toolchain-related path-guessing scripts
 and manually specify the path of the toolchains.
 
@@ -554,8 +554,8 @@ Edit `.vscode/launch.json`:
     {
       "request": "launch",
       "type": "cppdbg",
-      "name": "Perfetto unittests",
-      "program": "${workspaceRoot}/out/mac_debug/perfetto_unittests",
+      "name": "DejaView unittests",
+      "program": "${workspaceRoot}/out/mac_debug/dejaview_unittests",
       "args": ["--gtest_filter=TracingServiceImplTest.StopTracingTriggerRingBuffer"],
       "cwd": "${workspaceFolder}/out/mac_debug",
       "MIMode": "lldb",

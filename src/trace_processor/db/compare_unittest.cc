@@ -17,7 +17,7 @@
 #include "src/trace_processor/db/compare.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -77,4 +77,4 @@ TEST(CompareTest, SqlValueString) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

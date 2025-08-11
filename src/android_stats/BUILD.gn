@@ -12,24 +12,24 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
-source_set("perfetto_atoms") {
-  sources = [ "perfetto_atoms.h" ]
+source_set("dejaview_atoms") {
+  sources = [ "dejaview_atoms.h" ]
   deps = [ "../../gn:default_deps" ]
 }
 
 source_set("android_stats") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/base",
+    "../../include/dejaview/base",
   ]
-  public_deps = [ ":perfetto_atoms" ]
+  public_deps = [ ":dejaview_atoms" ]
   sources = [
     "statsd_logging_helper.cc",
     "statsd_logging_helper.h",
   ]
-  if (is_android && perfetto_build_with_android) {
+  if (is_android && dejaview_build_with_android) {
     deps += [
       "../android_internal:headers",
       "../android_internal:lazy_library_loader",

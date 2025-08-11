@@ -13,17 +13,17 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INCLUDE PERFETTO MODULE android.battery;
-INCLUDE PERFETTO MODULE android.battery_stats;
-INCLUDE PERFETTO MODULE android.suspend;
-INCLUDE PERFETTO MODULE counters.intervals;
+INCLUDE DEJAVIEW MODULE android.battery;
+INCLUDE DEJAVIEW MODULE android.battery_stats;
+INCLUDE DEJAVIEW MODULE android.suspend;
+INCLUDE DEJAVIEW MODULE counters.intervals;
 
 DROP VIEW IF EXISTS battery_view;
-CREATE PERFETTO VIEW battery_view AS
+CREATE DEJAVIEW VIEW battery_view AS
 SELECT * FROM android_battery_charge;
 
 DROP TABLE IF EXISTS android_batt_wakelocks_merged;
-CREATE PERFETTO TABLE android_batt_wakelocks_merged AS
+CREATE DEJAVIEW TABLE android_batt_wakelocks_merged AS
 SELECT
   MIN(ts) AS ts,
   MAX(ts_end) AS ts_end
@@ -54,11 +54,11 @@ GROUP BY group_id;
 
 -- TODO(simonmacm) remove this shim once no longer used internally
 DROP TABLE IF EXISTS suspend_slice_;
-CREATE PERFETTO TABLE suspend_slice_ AS
+CREATE DEJAVIEW TABLE suspend_slice_ AS
 SELECT ts, dur FROM android_suspend_state where power_state = 'suspended';
 
 DROP TABLE IF EXISTS screen_state_span;
-CREATE PERFETTO TABLE screen_state_span AS
+CREATE DEJAVIEW TABLE screen_state_span AS
 WITH screen_state AS (
   SELECT counter.id, ts, 0 AS track_id, value
   FROM counter
@@ -72,7 +72,7 @@ CREATE VIRTUAL TABLE screen_state_span_with_suspend
 USING span_join(screen_state_span, suspend_slice_);
 
 DROP TABLE IF EXISTS power_mw_intervals;
-CREATE PERFETTO TABLE power_mw_intervals AS
+CREATE DEJAVIEW TABLE power_mw_intervals AS
 WITH power_mw_counter AS (
   SELECT counter.id, ts, track_id, value
   FROM counter
@@ -82,7 +82,7 @@ WITH power_mw_counter AS (
 SELECT * FROM counter_leading_intervals!(power_mw_counter);
 
 DROP VIEW IF EXISTS android_batt_output;
-CREATE PERFETTO VIEW android_batt_output AS
+CREATE DEJAVIEW VIEW android_batt_output AS
 SELECT AndroidBatteryMetric(
   'battery_counters', (
     SELECT RepeatedField(

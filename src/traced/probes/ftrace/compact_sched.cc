@@ -19,13 +19,13 @@
 #include <stdint.h>
 #include <optional>
 
-#include "protos/perfetto/config/ftrace/ftrace_config.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/ftrace/sched.pbzero.h"
+#include "protos/dejaview/config/ftrace/ftrace_config.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/ftrace/sched.pbzero.h"
 #include "src/traced/probes/ftrace/event_info_constants.h"
 #include "src/traced/probes/ftrace/ftrace_config_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -188,7 +188,7 @@ CompactSchedEventFormat ValidateFormatForCompactSched(
     return CompactSchedEventFormat{/*format_valid=*/true, switch_format.value(),
                                    waking_format.value()};
   } else {
-    PERFETTO_ELOG("Unexpected sched_switch or sched_waking format.");
+    DEJAVIEW_ELOG("Unexpected sched_switch or sched_waking format.");
     return CompactSchedEventFormat{/*format_valid=*/false,
                                    CompactSchedSwitchFormat{},
                                    CompactSchedWakingFormat{}};
@@ -285,7 +285,7 @@ void CompactSchedBuffer::WriteAndReset(
   if (switch_.size() > 0 || waking_.size() > 0) {
     auto* compact_out = bundle->set_compact_sched();
 
-    PERFETTO_DCHECK(interner_.interned_comms_size() > 0);
+    DEJAVIEW_DCHECK(interner_.interned_comms_size() > 0);
     interner_.Write(compact_out);
 
     if (switch_.size() > 0)
@@ -303,4 +303,4 @@ void CompactSchedBuffer::Reset() {
   waking_.Reset();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

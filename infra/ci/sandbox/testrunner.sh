@@ -13,7 +13,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Should code live in this script or in the PERFETTO_TEST_SCRIPT script?
+# Should code live in this script or in the DEJAVIEW_TEST_SCRIPT script?
 # You might argue: after all they are both part of the same repo? The difference
 # is in temporal pinning.
 # Code in this script is part of the Docker image that is manually pushed
@@ -35,15 +35,15 @@ env
 
 mkdir src && cd src
 
-if [[ -f "$PERFETTO_TEST_GIT_REF" ]]; then
+if [[ -f "$DEJAVIEW_TEST_GIT_REF" ]]; then
 # This is used only by tools/run_test_like_ci.
-git clone -q --no-tags --single-branch --depth=1 "$PERFETTO_TEST_GIT_REF" .
+git clone -q --no-tags --single-branch --depth=1 "$DEJAVIEW_TEST_GIT_REF" .
 else
 git clone -q --no-tags --single-branch \
   https://android.googlesource.com/platform/external/perfetto.git .
 git config user.email "ci-bot@perfetto.dev"
-git config user.name "Perfetto CI"
-git fetch -q origin "$PERFETTO_TEST_GIT_REF"
+git config user.name "DejaView CI"
+git fetch -q origin "$DEJAVIEW_TEST_GIT_REF"
 
 # We really want to test the result of the merge of the CL in ToT main. Don't
 # really care about whether the CL passes the test at the time it was written.
@@ -52,7 +52,7 @@ fi
 
 # The android buildtools are huge due to the emulator, keep that as a separate
 # cache and pack/unpack separately. It's worth  ~30s on each non-android test.
-if [[ "$PERFETTO_TEST_GN_ARGS" =~ "android" ]]; then
+if [[ "$DEJAVIEW_TEST_GN_ARGS" =~ "android" ]]; then
 PREBUILTS_ARCHIVE=/ci/cache/buildtools-$(date +%Y-%m-%d)-android.tar.lz4
 else
 PREBUILTS_ARCHIVE=/ci/cache/buildtools-$(date +%Y-%m-%d).tar.lz4
@@ -80,10 +80,10 @@ export CCACHE_SLOPPINESS=include_file_ctime,include_file_mtime
 export CCACHE_NOCOMPRESS=1
 mkdir -m 777 -p $CCACHE_DIR
 
-export PERFETTO_TEST_GN_ARGS="${PERFETTO_TEST_GN_ARGS} cc_wrapper=\"ccache\""
+export DEJAVIEW_TEST_GN_ARGS="${DEJAVIEW_TEST_GN_ARGS} cc_wrapper=\"ccache\""
 
-export PERFETTO_TEST_NINJA_ARGS=""
-$PERFETTO_TEST_SCRIPT
+export DEJAVIEW_TEST_NINJA_ARGS=""
+$DEJAVIEW_TEST_SCRIPT
 
 # The code after this point will NOT run if the test fails (because of set -e).
 

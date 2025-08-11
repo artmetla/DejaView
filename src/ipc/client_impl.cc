@@ -21,19 +21,19 @@
 #include <cinttypes>
 #include <utility>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/ipc/service_descriptor.h"
-#include "perfetto/ext/ipc/service_proxy.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/ipc/service_descriptor.h"
+#include "dejaview/ext/ipc/service_proxy.h"
 
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 
 // TODO(primiano): Add ThreadChecker everywhere.
 
 // TODO(primiano): Add timeouts.
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 namespace {
@@ -68,13 +68,13 @@ ClientImpl::ClientImpl(ConnArgs conn_args, base::TaskRunner* task_runner)
 
 ClientImpl::~ClientImpl() {
   // Ensure we are not destroyed in the middle of invoking a reply.
-  PERFETTO_DCHECK(!invoking_method_reply_);
+  DEJAVIEW_DCHECK(!invoking_method_reply_);
   OnDisconnect(
       nullptr);  // The base::UnixSocket* ptr is not used in OnDisconnect().
 }
 
 void ClientImpl::TryConnect() {
-  PERFETTO_DCHECK(socket_name_);
+  DEJAVIEW_DCHECK(socket_name_);
   sock_ = base::UnixSocket::Connect(
       socket_name_, this, task_runner_, base::GetSockFamily(socket_name_),
       base::SockType::kStream, base::SockPeerCredMode::kIgnore);
@@ -94,7 +94,7 @@ void ClientImpl::BindService(base::WeakPtr<ServiceProxy> service_proxy) {
   const char* const service_name = service_proxy->GetDescriptor().service_name;
   req->set_service_name(service_name);
   if (!SendFrame(frame)) {
-    PERFETTO_DLOG("BindService(%s) failed", service_name);
+    DEJAVIEW_DLOG("BindService(%s) failed", service_name);
     return service_proxy->OnConnect(false /* success */);
   }
   QueuedRequest qr;
@@ -124,7 +124,7 @@ RequestID ClientImpl::BeginInvoke(ServiceID service_id,
   req->set_drop_reply(drop_reply);
   req->set_args_proto(method_args.SerializeAsString());
   if (!SendFrame(frame, fd)) {
-    PERFETTO_DLOG("BeginInvoke() failed while sending the frame");
+    DEJAVIEW_DLOG("BeginInvoke() failed while sending the frame");
     return 0;
   }
   if (drop_reply)
@@ -147,7 +147,7 @@ bool ClientImpl::SendFrame(const Frame& frame, int fd) {
   // the send and PostTask the reply later? Right now we are making Send()
   // blocking as a workaround. Propagate bakpressure to the caller instead.
   bool res = sock_->Send(buf.data(), buf.size(), fd);
-  PERFETTO_CHECK(res || !sock_->is_connected());
+  DEJAVIEW_CHECK(res || !sock_->is_connected());
   return res;
 }
 
@@ -155,7 +155,7 @@ void ClientImpl::OnConnect(base::UnixSocket*, bool connected) {
   if (!connected && socket_retry_) {
     socket_backoff_ms_ =
         (socket_backoff_ms_ < 10000) ? socket_backoff_ms_ + 1000 : 30000;
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "Connection to traced's UNIX socket failed, retrying in %u seconds",
         socket_backoff_ms_ / 1000);
     auto weak_this = weak_ptr_factory_.GetWeakPtr();
@@ -212,13 +212,13 @@ void ClientImpl::OnDataAvailable(base::UnixSocket*) {
     auto buf = frame_deserializer_.BeginReceive();
     base::ScopedFile fd;
     rsize = sock_->Receive(buf.data, buf.size, &fd);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-    PERFETTO_DCHECK(!fd);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+    DEJAVIEW_DCHECK(!fd);
 #else
     if (fd) {
-      PERFETTO_DCHECK(!received_fd_);
+      DEJAVIEW_DCHECK(!received_fd_);
       int res = fcntl(*fd, F_SETFD, FD_CLOEXEC);
-      PERFETTO_DCHECK(res == 0);
+      DEJAVIEW_DCHECK(res == 0);
       received_fd_ = std::move(fd);
     }
 #endif
@@ -236,7 +236,7 @@ void ClientImpl::OnDataAvailable(base::UnixSocket*) {
 void ClientImpl::OnFrameReceived(const Frame& frame) {
   auto queued_requests_it = queued_requests_.find(frame.request_id());
   if (queued_requests_it == queued_requests_.end()) {
-    PERFETTO_DLOG("OnFrameReceived(): got invalid request_id=%" PRIu64,
+    DEJAVIEW_DLOG("OnFrameReceived(): got invalid request_id=%" PRIu64,
                   static_cast<uint64_t>(frame.request_id()));
     return;
   }
@@ -252,11 +252,11 @@ void ClientImpl::OnFrameReceived(const Frame& frame) {
     return OnInvokeMethodReply(std::move(req), frame.msg_invoke_method_reply());
   }
   if (frame.has_msg_request_error()) {
-    PERFETTO_DLOG("Host error: %s", frame.msg_request_error().error().c_str());
+    DEJAVIEW_DLOG("Host error: %s", frame.msg_request_error().error().c_str());
     return;
   }
 
-  PERFETTO_DLOG(
+  DEJAVIEW_DLOG(
       "OnFrameReceived() request type=%d, received unknown frame in reply to "
       "request_id=%" PRIu64,
       req.type, static_cast<uint64_t>(frame.request_id()));
@@ -269,13 +269,13 @@ void ClientImpl::OnBindServiceReply(QueuedRequest req,
     return;
   const char* svc_name = service_proxy->GetDescriptor().service_name;
   if (!reply.success()) {
-    PERFETTO_DLOG("BindService(): unknown service_name=\"%s\"", svc_name);
+    DEJAVIEW_DLOG("BindService(): unknown service_name=\"%s\"", svc_name);
     return service_proxy->OnConnect(false /* success */);
   }
 
   auto prev_service = service_bindings_.find(reply.service_id());
   if (prev_service != service_bindings_.end() && prev_service->second.get()) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "BindService(): Trying to bind service \"%s\" but another service "
         "named \"%s\" is already bound with the same ID.",
         svc_name, prev_service->second->GetDescriptor().service_name);
@@ -286,7 +286,7 @@ void ClientImpl::OnBindServiceReply(QueuedRequest req,
   std::map<std::string, MethodID> methods;
   for (const auto& method : reply.methods()) {
     if (method.name().empty() || method.id() <= 0) {
-      PERFETTO_DLOG("OnBindServiceReply(): invalid method \"%s\" -> %" PRIu64,
+      DEJAVIEW_DLOG("OnBindServiceReply(): invalid method \"%s\" -> %" PRIu64,
                     method.name().c_str(), static_cast<uint64_t>(method.id()));
       continue;
     }
@@ -332,4 +332,4 @@ base::ScopedFile ClientImpl::TakeReceivedFD() {
 }
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

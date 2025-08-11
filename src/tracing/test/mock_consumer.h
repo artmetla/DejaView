@@ -20,15 +20,15 @@
 #include <memory>
 #include <string_view>
 
-#include "perfetto/ext/tracing/core/consumer.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/tracing_service_state.h"
+#include "dejaview/ext/tracing/core/consumer.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/tracing_service_state.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TestTaskRunner;
@@ -107,6 +107,6 @@ class MockConsumer : public Consumer {
   std::unique_ptr<TracingService::ConsumerEndpoint> service_endpoint_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_MOCK_CONSUMER_H_

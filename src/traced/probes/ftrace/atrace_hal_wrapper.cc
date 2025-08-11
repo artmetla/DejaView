@@ -16,21 +16,21 @@
 
 #include "src/traced/probes/ftrace/atrace_hal_wrapper.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "src/android_internal/atrace_hal.h"
 #include "src/android_internal/lazy_library_loader.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr size_t kMaxNumCategories = 64;
 }
 
 struct AtraceHalWrapper::DynamicLibLoader {
-  PERFETTO_LAZY_LOAD(android_internal::ForgetService, forget_service_);
-  PERFETTO_LAZY_LOAD(android_internal::ListCategories, list_categories_);
-  PERFETTO_LAZY_LOAD(android_internal::EnableCategories, enable_categories_);
-  PERFETTO_LAZY_LOAD(android_internal::DisableAllCategories,
+  DEJAVIEW_LAZY_LOAD(android_internal::ForgetService, forget_service_);
+  DEJAVIEW_LAZY_LOAD(android_internal::ListCategories, list_categories_);
+  DEJAVIEW_LAZY_LOAD(android_internal::EnableCategories, enable_categories_);
+  DEJAVIEW_LAZY_LOAD(android_internal::DisableAllCategories,
                      disable_all_categories_);
 
   std::vector<std::string> ListCategories() {
@@ -78,7 +78,7 @@ struct AtraceHalWrapper::DynamicLibLoader {
 };
 
 AtraceHalWrapper::AtraceHalWrapper() {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   lib_.reset(new DynamicLibLoader());
 #endif
 }
@@ -107,4 +107,4 @@ bool AtraceHalWrapper::DisableAllCategories() {
   return lib_->DisableAllCategories();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/copyable_ptr.h"
+#include "dejaview/protozero/copyable_ptr.h"
 
 #include "test/gtest_and_gmock.h"
 

@@ -22,9 +22,9 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class FtraceProcfs {
  public:
@@ -192,6 +192,6 @@ class FtraceProcfs {
   const std::string root_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FTRACE_PROCFS_H_

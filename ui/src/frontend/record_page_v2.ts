@@ -228,14 +228,14 @@ function RecordingNotes() {
 
   const msgFeatNotSupported = m(
     'span',
-    `Some probes are only supported in Perfetto versions running
-      on Android Q+. Therefore, Perfetto will sideload the latest version onto
+    `Some probes are only supported in DejaView versions running
+      on Android Q+. Therefore, DejaView will sideload the latest version onto
       the device.`,
   );
 
-  const msgPerfettoNotSupported = m(
+  const msgDejaViewNotSupported = m(
     'span',
-    `Perfetto is not supported natively before Android P. Therefore, Perfetto
+    `DejaView is not supported natively before Android P. Therefore, DejaView
        will sideload the latest version onto the device.`,
   );
 
@@ -298,7 +298,7 @@ function RecordingNotes() {
         /* eslint-disable @typescript-eslint/strict-boolean-expressions */
       } else if (androidApiLevel && androidApiLevel <= 27) {
         /* eslint-enable */
-        notes.push(m('.note', msgPerfettoNotSupported));
+        notes.push(m('.note', msgDejaViewNotSupported));
       }
       break;
     }
@@ -324,7 +324,7 @@ function RecordingSnippet(targetInfo: TargetInfo) {
       'div',
       m(
         'label',
-        `To trace Chrome from the Perfetto UI you just have to press
+        `To trace Chrome from the DejaView UI you just have to press
          '${START_RECORDING_MESSAGE}'.`,
       ),
     );
@@ -347,14 +347,14 @@ function getRecordCommand(targetInfo: TargetInfo): string {
   ) {
     cmd += `echo '${pbBase64}' | \n`;
     cmd += 'base64 --decode | \n';
-    cmd += 'adb shell "perfetto -c - -o /data/misc/perfetto-traces/trace"\n';
+    cmd += 'adb shell "dejaview -c - -o /data/misc/dejaview-traces/trace"\n';
   } else {
     cmd +=
       targetInfo.targetType === 'ANDROID'
-        ? 'adb shell perfetto \\\n'
-        : 'perfetto \\\n';
+        ? 'adb shell dejaview \\\n'
+        : 'dejaview \\\n';
     cmd += '  -c - --txt \\\n';
-    cmd += '  -o /data/misc/perfetto-traces/trace \\\n';
+    cmd += '  -o /data/misc/dejaview-traces/trace \\\n';
     cmd += '<<EOF\n\n';
     cmd += pbtx;
     cmd += '\nEOF\n';

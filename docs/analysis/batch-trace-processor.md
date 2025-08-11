@@ -6,12 +6,12 @@ interactive queries on large sets (up to ~1000) of traces._
 
 ## Installation
 
-Batch Trace Processor is part of the `perfetto` Python library and can be
+Batch Trace Processor is part of the `dejaview` Python library and can be
 installed by running:
 
 ```shell
 pip3 install pandas       # prerequisite for Batch Trace Processor
-pip3 install perfetto
+pip3 install dejaview
 ```
 
 ## Loading traces
@@ -20,7 +20,7 @@ NOTE: if you are a Googler, have a look at
 
 The simplest way to load traces in is by passing a list of file paths to load:
 ```python
-from perfetto.batch_trace_processor.api import BatchTraceProcessor
+from dejaview.batch_trace_processor.api import BatchTraceProcessor
 
 files = [
   'traces/slow-start.pftrace',
@@ -34,7 +34,7 @@ with BatchTraceProcessor(files) as btp:
 [glob](https://docs.python.org/3/library/glob.html) can be used to load
 all traces in a directory:
 ```python
-from perfetto.batch_trace_processor.api import BatchTraceProcessor
+from dejaview.batch_trace_processor.api import BatchTraceProcessor
 
 files = glob.glob('traces/*.pftrace')
 with BatchTraceProcessor(files) as btp:
@@ -48,11 +48,11 @@ A common requirement is to load traces located in the cloud or by sending
 a request to a server. To support this usecase, traces can also be loaded
 using [trace URIs](/docs/analysis/batch-trace-processor#trace-uris):
 ```python
-from perfetto.batch_trace_processor.api import BatchTraceProcessor
-from perfetto.batch_trace_processor.api import BatchTraceProcessorConfig
-from perfetto.trace_processor.api import TraceProcessorConfig
-from perfetto.trace_uri_resolver.registry import ResolverRegistry
-from perfetto.trace_uri_resolver.resolver import TraceUriResolver
+from dejaview.batch_trace_processor.api import BatchTraceProcessor
+from dejaview.batch_trace_processor.api import BatchTraceProcessorConfig
+from dejaview.trace_processor.api import TraceProcessorConfig
+from dejaview.trace_uri_resolver.registry import ResolverRegistry
+from dejaview.trace_uri_resolver.resolver import TraceUriResolver
 
 class FooResolver(TraceUriResolver):
   # See "Trace URIs" section below for how to implement a URI resolver.

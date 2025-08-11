@@ -25,11 +25,11 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/mapping_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/importers/common/virtual_memory_mapping.h"
@@ -40,7 +40,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-namespace perfetto::trace_processor::perf_text_importer {
+namespace dejaview::trace_processor::perf_text_importer {
 
 namespace {
 
@@ -117,7 +117,7 @@ base::Status PerfTextTraceTokenizer::Parse(TraceBlobView blob) {
         mapping = *mapping_ptr;
       } else {
         mapping = &context_->mapping_tracker->CreateDummyMapping(mapping_name);
-        PERFETTO_CHECK(mappings_.Insert(mapping_name, mapping).second);
+        DEJAVIEW_CHECK(mappings_.Insert(mapping_name, mapping).second);
       }
 
       std::string symbol_name_with_offset =
@@ -162,4 +162,4 @@ base::Status PerfTextTraceTokenizer::NotifyEndOfFile() {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::perf_text_importer
+}  // namespace dejaview::trace_processor::perf_text_importer

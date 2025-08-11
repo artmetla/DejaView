@@ -28,18 +28,18 @@
 #include <variant>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/column/utils.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 
 using Indices = DataLayerChain::Indices;
@@ -73,9 +73,9 @@ inline NumericValue GetNumericTypeVariant(ColumnType type, SqlValue val) {
     case ColumnType::kString:
     case ColumnType::kDummy:
     case ColumnType::kId:
-      PERFETTO_FATAL("Invalid type");
+      DEJAVIEW_FATAL("Invalid type");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 // Fetch std binary comparator class based on FilterOp. Can be used in
@@ -99,9 +99,9 @@ inline FilterOpVariant<T> GetFilterOpVariant(FilterOp op) {
     case FilterOp::kRegex:
     case FilterOp::kIsNotNull:
     case FilterOp::kIsNull:
-      PERFETTO_FATAL("Not a valid operation on numeric type.");
+      DEJAVIEW_FATAL("Not a valid operation on numeric type.");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 uint32_t LowerBoundIntrinsic(const void* vector_ptr,
@@ -164,7 +164,7 @@ void TypedLinearSearch(T typed_val,
     case FilterOp::kRegex:
     case FilterOp::kIsNotNull:
     case FilterOp::kIsNull:
-      PERFETTO_DFATAL("Illegal argument");
+      DEJAVIEW_DFATAL("Illegal argument");
   }
 }
 
@@ -198,9 +198,9 @@ SearchValidationResult IntColumnWithDouble(FilterOp op, SqlValue* sql_val) {
     case FilterOp::kIsNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Invalid filter operation");
+      DEJAVIEW_FATAL("Invalid filter operation");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 SearchValidationResult DoubleColumnWithInt(FilterOp op, SqlValue* sql_val) {
@@ -236,9 +236,9 @@ SearchValidationResult DoubleColumnWithInt(FilterOp op, SqlValue* sql_val) {
     case FilterOp::kIsNull:
     case FilterOp::kGlob:
     case FilterOp::kRegex:
-      PERFETTO_FATAL("Invalid filter operation");
+      DEJAVIEW_FATAL("Invalid filter operation");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 }  // namespace
@@ -252,7 +252,7 @@ SearchValidationResult NumericStorageBase::ChainImpl::ValidateSearchConstraints(
     FilterOp op,
     SqlValue val) const {
   // NULL checks.
-  if (PERFETTO_UNLIKELY(val.is_null())) {
+  if (DEJAVIEW_UNLIKELY(val.is_null())) {
     if (op == FilterOp::kIsNotNull) {
       return SearchValidationResult::kAllData;
     }
@@ -271,7 +271,7 @@ SearchValidationResult NumericStorageBase::ChainImpl::ValidateSearchConstraints(
       break;
     case FilterOp::kIsNull:
     case FilterOp::kIsNotNull:
-      PERFETTO_FATAL("Invalid constraint");
+      DEJAVIEW_FATAL("Invalid constraint");
     case FilterOp::kGlob:
     case FilterOp::kRegex:
       return SearchValidationResult::kNoData;
@@ -349,16 +349,16 @@ SearchValidationResult NumericStorageBase::ChainImpl::ValidateSearchConstraints(
       return SearchValidationResult::kNoData;
   }
 
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 RangeOrBitVector NumericStorageBase::ChainImpl::SearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Range search_range) const {
-  PERFETTO_DCHECK(search_range.end <= size());
+  DEJAVIEW_DCHECK(search_range.end <= size());
 
-  PERFETTO_TP_TRACE(
+  DEJAVIEW_TP_TRACE(
       metatrace::Category::DB, "NumericStorage::ChainImpl::Search",
       [&search_range, op](metatrace::Record* r) {
         r->AddArg("Start", std::to_string(search_range.start));
@@ -407,7 +407,7 @@ void NumericStorageBase::ChainImpl::IndexSearchValidated(
     FilterOp op,
     SqlValue sql_val,
     Indices& indices) const {
-  PERFETTO_TP_TRACE(
+  DEJAVIEW_TP_TRACE(
       metatrace::Category::DB, "NumericStorage::ChainImpl::IndexSearch",
       [&indices, op](metatrace::Record* r) {
         r->AddArg("Count", std::to_string(indices.tokens.size()));
@@ -470,7 +470,7 @@ BitVector NumericStorageBase::ChainImpl::LinearSearchInternal(
         range.start;
     TypedLinearSearch(*db, start, op, builder);
   } else {
-    PERFETTO_DFATAL("Invalid");
+    DEJAVIEW_DFATAL("Invalid");
   }
   return std::move(builder).Build();
 }
@@ -505,4 +505,4 @@ Range NumericStorageBase::ChainImpl::BinarySearchIntrinsic(
   return {};
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

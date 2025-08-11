@@ -63,7 +63,7 @@ interface SqlTableTabConfig {
 }
 
 class SqlTableTab extends BottomTab<SqlTableTabConfig> {
-  static readonly kind = 'dev.perfetto.SqlTableTab';
+  static readonly kind = 'dev.dejaview.SqlTableTab';
 
   private state: SqlTableState;
 

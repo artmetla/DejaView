@@ -19,11 +19,11 @@ source_set("android_game_intervention_list") {
   deps = [
     "..:data_source",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/config/android:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/android:zero",
+    "../../../../include/dejaview/ext/traced",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/config/android:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/android:zero",
     "../../../base",
   ]
   sources = [
@@ -32,15 +32,15 @@ source_set("android_game_intervention_list") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":android_game_intervention_list",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/config/android:cpp",
-    "../../../../protos/perfetto/trace/android:cpp",
-    "../../../../protos/perfetto/trace/android:zero",
+    "../../../../protos/dejaview/config/android:cpp",
+    "../../../../protos/dejaview/trace/android:cpp",
+    "../../../../protos/dejaview/trace/android:zero",
     "../../../../src/base:test_support",
     "../../../../src/tracing/test:test_support",
   ]

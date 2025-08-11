@@ -16,7 +16,7 @@ import m from 'mithril';
 import {LogFilteringCriteria, LogPanel} from './logs_panel';
 import {ANDROID_LOGS_TRACK_KIND} from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {addSqlTableTab} from '../../frontend/sql_table_tab_interface';
 import {sqlTableRegistry} from '../../frontend/widgets/sql/table/sql_table_registry';
 import {NUM} from '../../trace_processor/query_result';
@@ -43,7 +43,7 @@ interface AndroidLogPluginState {
   filter: LogFilteringCriteria;
 }
 
-class AndroidLog implements PerfettoPlugin {
+class AndroidLog implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const store = ctx.mountStore<AndroidLogPluginState>((init) => {
       return exists(init) && (init as {version: unknown}).version === VERSION
@@ -55,7 +55,7 @@ class AndroidLog implements PerfettoPlugin {
       `select count(1) as cnt from android_logs`,
     );
     const logCount = result.firstRow({cnt: NUM}).cnt;
-    const uri = 'perfetto.AndroidLog';
+    const uri = 'dejaview.AndroidLog';
     const title = 'Android logs';
     if (logCount > 0) {
       ctx.tracks.registerTrack({
@@ -68,7 +68,7 @@ class AndroidLog implements PerfettoPlugin {
       ctx.workspace.addChildInOrder(track);
     }
 
-    const androidLogsTabUri = 'perfetto.AndroidLog#tab';
+    const androidLogsTabUri = 'dejaview.AndroidLog#tab';
 
     // Eternal tabs should always be available even if there is nothing to show
     const filterStore = store.createSubStore(
@@ -90,7 +90,7 @@ class AndroidLog implements PerfettoPlugin {
     }
 
     ctx.commands.registerCommand({
-      id: 'perfetto.AndroidLog#ShowLogsTab',
+      id: 'dejaview.AndroidLog#ShowLogsTab',
       name: 'Show android logs tab',
       callback: () => {
         ctx.tabs.showTab(androidLogsTabUri);
@@ -99,7 +99,7 @@ class AndroidLog implements PerfettoPlugin {
 
     sqlTableRegistry['android_logs'] = getAndroidLogsTable();
     ctx.commands.registerCommand({
-      id: 'perfetto.ShowTable.android_logs',
+      id: 'dejaview.ShowTable.android_logs',
       name: 'Open table: android_logs',
       callback: () => {
         addSqlTableTab(ctx, {
@@ -111,6 +111,6 @@ class AndroidLog implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.AndroidLog',
+  pluginId: 'dejaview.AndroidLog',
   plugin: AndroidLog,
 };

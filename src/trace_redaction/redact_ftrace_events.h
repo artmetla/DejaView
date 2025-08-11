@@ -19,12 +19,12 @@
 
 #include <string>
 
-#include "perfetto/protozero/field.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "dejaview/protozero/field.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 #include "src/trace_redaction/redact_sched_events.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class FilterFtraceUsingSuspendResume : public FtraceEventFilter {
  public:
@@ -74,6 +74,6 @@ class RedactFtraceEvents : public TransformPrimitive {
   std::unique_ptr<PidCommModifier> modifier_;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_REDACT_FTRACE_EVENTS_H_

@@ -22,18 +22,18 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/util/gzip_utils.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -58,7 +58,7 @@ base::Status GzipTraceParser::ParseUnowned(const uint8_t* data, size_t size) {
   size_t len = size;
 
   if (!inner_) {
-    PERFETTO_CHECK(context_);
+    DEJAVIEW_CHECK(context_);
     inner_.reset(new ForwardingTraceParser(context_));
   }
 
@@ -95,7 +95,7 @@ base::Status GzipTraceParser::ParseUnowned(const uint8_t* data, size_t size) {
       return base::ErrStatus("Failed to decompress trace chunk");
 
     if (ret == ResultCode::kNeedsMoreInput) {
-      PERFETTO_DCHECK(result.bytes_written == 0);
+      DEJAVIEW_DCHECK(result.bytes_written == 0);
       return base::OkStatus();
     }
     bytes_written_ += result.bytes_written;
@@ -126,8 +126,8 @@ base::Status GzipTraceParser::NotifyEndOfFile() {
   if (output_state_ != kStreamBoundary || decompressor_.AvailIn() > 0) {
     return base::ErrStatus("GZIP stream incomplete, trace is likely corrupt");
   }
-  PERFETTO_CHECK(!buffer_);
+  DEJAVIEW_CHECK(!buffer_);
   return inner_ ? inner_->NotifyEndOfFile() : base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

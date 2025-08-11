@@ -22,7 +22,7 @@
 
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Responsible for keeping the state of pending sched events.
@@ -54,7 +54,7 @@ class SchedEventState {
 
   // Get the sched info for the given CPU, resizing the vector if necessary.
   PendingSchedInfo* GetPendingSchedInfoForCpu(uint32_t cpu) {
-    if (PERFETTO_UNLIKELY(cpu >= pending_sched_per_cpu_.size())) {
+    if (DEJAVIEW_UNLIKELY(cpu >= pending_sched_per_cpu_.size())) {
       pending_sched_per_cpu_.resize(cpu + 1);
     }
     return &pending_sched_per_cpu_[cpu];
@@ -66,6 +66,6 @@ class SchedEventState {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_SCHED_EVENT_STATE_H_

@@ -19,10 +19,10 @@
 #include <limits>
 #include <tuple>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 StringPool::StringPool() {
@@ -34,7 +34,7 @@ StringPool::StringPool() {
   blocks_.emplace_back(kBlockSizeBytes);
 
   // Reserve a slot for the null string.
-  PERFETTO_CHECK(blocks_.back().TryInsert(NullTermStringView()).first);
+  DEJAVIEW_CHECK(blocks_.back().TryInsert(NullTermStringView()).first);
 }
 
 StringPool::~StringPool() = default;
@@ -48,7 +48,7 @@ StringPool::Id StringPool::InsertString(base::StringView str, uint64_t hash) {
   bool success;
   uint32_t offset;
   std::tie(success, offset) = blocks_.back().TryInsert(str);
-  if (PERFETTO_UNLIKELY(!success)) {
+  if (DEJAVIEW_UNLIKELY(!success)) {
     // The block did not have enough space for the string. If the string is
     // large, add it into the |large_strings_| vector, to avoid discarding a
     // large portion of the current block's memory. This also enables us to
@@ -61,7 +61,7 @@ StringPool::Id StringPool::InsertString(base::StringView str, uint64_t hash) {
 
     // Try and reserve space again - this time we should definitely succeed.
     std::tie(success, offset) = blocks_.back().TryInsert(str);
-    PERFETTO_CHECK(success);
+    DEJAVIEW_CHECK(success);
   }
 
   // Compute the id from the block index and offset and add a mapping from the
@@ -70,7 +70,7 @@ StringPool::Id StringPool::InsertString(base::StringView str, uint64_t hash) {
 
   // Deliberately not adding |string_id| to |string_index_|. The caller
   // (InternString()) must take care of this.
-  PERFETTO_DCHECK(string_index_.Find(hash));
+  DEJAVIEW_DCHECK(string_index_.Find(hash));
 
   return string_id;
 }
@@ -83,7 +83,7 @@ StringPool::Id StringPool::InsertLargeString(base::StringView str,
 
   // Deliberately not adding |string_id| to |string_index_|. The caller
   // (InternString()) must take care of this.
-  PERFETTO_DCHECK(string_index_.Find(hash));
+  DEJAVIEW_DCHECK(string_index_.Find(hash));
 
   return string_id;
 }
@@ -106,7 +106,7 @@ std::pair<bool /*success*/, uint32_t /*offset*/> StringPool::Block::TryInsert(
   uint8_t* end = protozero::proto_utils::WriteVarInt(str_size, begin);
 
   // Next the string itself.
-  if (PERFETTO_LIKELY(str_size > 0)) {
+  if (DEJAVIEW_LIKELY(str_size > 0)) {
     memcpy(end, str.data(), str_size);
     end += str_size;
   }
@@ -145,7 +145,7 @@ StringPool::Iterator& StringPool::Iterator::operator++() {
   }
 
   // Advance to the next string from |large_strings_|.
-  PERFETTO_DCHECK(large_strings_index_ < pool_->large_strings_.size());
+  DEJAVIEW_DCHECK(large_strings_index_ < pool_->large_strings_.size());
   large_strings_index_++;
   return *this;
 }
@@ -161,16 +161,16 @@ NullTermStringView StringPool::Iterator::StringView() {
 
 StringPool::Id StringPool::Iterator::StringId() {
   if (block_index_ < pool_->blocks_.size()) {
-    PERFETTO_DCHECK(block_offset_ < pool_->blocks_[block_index_].pos());
+    DEJAVIEW_DCHECK(block_offset_ < pool_->blocks_[block_index_].pos());
 
     // If we're at (0, 0), we have the null string which has id 0.
     if (block_index_ == 0 && block_offset_ == 0)
       return Id::Null();
     return Id::BlockString(block_index_, block_offset_);
   }
-  PERFETTO_DCHECK(large_strings_index_ < pool_->large_strings_.size());
+  DEJAVIEW_DCHECK(large_strings_index_ < pool_->large_strings_.size());
   return Id::LargeString(large_strings_index_);
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

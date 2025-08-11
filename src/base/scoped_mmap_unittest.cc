@@ -14,28 +14,28 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/scoped_mmap.h"
+#include "dejaview/ext/base/scoped_mmap.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <sys/mman.h>
 #include <unistd.h>
 #endif
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 #include "src/base/test/tmp_dir_tree.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::base {
+namespace dejaview::base {
 namespace {
 
 class ScopedMmapTest : public ::testing::Test {
   void SetUp() override {
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) &&   \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE) &&   \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) &&   \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE) &&   \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     GTEST_SKIP() << "mmap not supported";
 #endif
   }
@@ -91,9 +91,9 @@ TEST_F(ScopedMmapTest, Reset) {
   EXPECT_FALSE(mapped.IsValid());
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 TEST_F(ScopedMmapTest, InheritMmappedRange) {
   base::TmpDirTree tmp;
   tmp.AddFile("f1.txt", "ccccc");
@@ -112,4 +112,4 @@ TEST_F(ScopedMmapTest, InheritMmappedRange) {
 #endif
 
 }  // namespace
-}  // namespace perfetto::base
+}  // namespace dejaview::base

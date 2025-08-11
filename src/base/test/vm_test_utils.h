@@ -19,7 +19,7 @@
 
 #include <stddef.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace vm_test_utils {
 
@@ -30,6 +30,6 @@ bool IsMapped(void* start, size_t size);
 
 }  // namespace vm_test_utils
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_BASE_TEST_VM_TEST_UTILS_H_

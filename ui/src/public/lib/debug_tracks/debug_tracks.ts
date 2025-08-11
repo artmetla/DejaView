@@ -14,7 +14,7 @@
 
 import {DebugSliceTrack} from './slice_track';
 import {
-  createPerfettoTable,
+  createDejaViewTable,
   matchesSqlValue,
   sqlValueToReadableString,
 } from '../../../trace_processor/sql_utils';
@@ -113,7 +113,7 @@ export async function addDebugSliceTrack(
   // - If we did it in the plugin's onTraceUnload function, we could risk
   //   dropping it n the middle of a track update cycle as track lifecycles are
   //   not synchronized with plugin lifecycles.
-  await createPerfettoTable(
+  await createDejaViewTable(
     trace.engine,
     tableName,
     createDebugSliceTrackTableExpr(data, sliceColumns, argColumns),
@@ -199,7 +199,7 @@ export async function addDebugCounterTrack(
   // - If we did it in the plugin's onTraceUnload function, we could risk
   //   dropping it n the middle of a track update cycle as track lifecycles are
   //   not synchronized with plugin lifecycles.
-  await createPerfettoTable(
+  await createDejaViewTable(
     trace.engine,
     tableName,
     createDebugCounterTrackTableExpr(data, columns),

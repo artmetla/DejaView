@@ -21,11 +21,11 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -61,6 +61,6 @@ class AndroidSystemPropertyDataSource : public ProbesDataSource {
       weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_ANDROID_SYSTEM_PROPERTY_ANDROID_SYSTEM_PROPERTY_DATA_SOURCE_H_

@@ -20,8 +20,8 @@ import {Monitor} from '../base/monitor';
 import {uuidv4Sql} from '../base/uuid';
 import {Engine} from '../trace_processor/engine';
 import {
-  createPerfettoIndex,
-  createPerfettoTable,
+  createDejaViewIndex,
+  createDejaViewTable,
 } from '../trace_processor/sql_utils';
 import {
   NUM,
@@ -244,20 +244,20 @@ async function computeFlamegraphTree(
   if (dependencySql !== undefined) {
     await engine.query(dependencySql);
   }
-  await engine.query(`include perfetto module viz.flamegraph;`);
+  await engine.query(`include dejaview module viz.flamegraph;`);
 
   const uuid = uuidv4Sql();
   await using disposable = new AsyncDisposableStack();
 
   disposable.use(
-    await createPerfettoTable(
+    await createDejaViewTable(
       engine,
       `_flamegraph_materialized_statement_${uuid}`,
       statement,
     ),
   );
   disposable.use(
-    await createPerfettoIndex(
+    await createDejaViewIndex(
       engine,
       `_flamegraph_materialized_statement_${uuid}_index`,
       `_flamegraph_materialized_statement_${uuid}(parentId)`,
@@ -267,7 +267,7 @@ async function computeFlamegraphTree(
   // TODO(lalitm): this doesn't need to be called unless we have
   // a non-empty set of filters.
   disposable.use(
-    await createPerfettoTable(
+    await createDejaViewTable(
       engine,
       `_flamegraph_source_${uuid}`,
       `
@@ -303,7 +303,7 @@ async function computeFlamegraphTree(
   // TODO(lalitm): this doesn't need to be called unless we have
   // a non-empty set of filters.
   disposable.use(
-    await createPerfettoTable(
+    await createDejaViewTable(
       engine,
       `_flamegraph_filtered_${uuid}`,
       `
@@ -316,7 +316,7 @@ async function computeFlamegraphTree(
     ),
   );
   disposable.use(
-    await createPerfettoTable(
+    await createDejaViewTable(
       engine,
       `_flamegraph_accumulated_${uuid}`,
       `
@@ -329,7 +329,7 @@ async function computeFlamegraphTree(
     ),
   );
   disposable.use(
-    await createPerfettoTable(
+    await createDejaViewTable(
       engine,
       `_flamegraph_hash_${uuid}`,
       `
@@ -356,7 +356,7 @@ async function computeFlamegraphTree(
     ),
   );
   disposable.use(
-    await createPerfettoTable(
+    await createDejaViewTable(
       engine,
       `_flamegraph_merged_${uuid}`,
       `
@@ -370,7 +370,7 @@ async function computeFlamegraphTree(
     ),
   );
   disposable.use(
-    await createPerfettoTable(
+    await createDejaViewTable(
       engine,
       `_flamegraph_layout_${uuid}`,
       `

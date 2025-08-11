@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/importers/memory_tracker/graph_processor.h"
+#include "dejaview/ext/trace_processor/importers/memory_tracker/graph_processor.h"
 
 #include <stddef.h>
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using Edge = GlobalNodeGraph::Edge;
@@ -679,4 +679,4 @@ TEST_F(GraphProcessorTest, CalculateNodeEffectiveSize) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

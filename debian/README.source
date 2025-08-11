@@ -1,7 +1,7 @@
-perfetto for Debian
+dejaview for Debian
 ------------------
 
-Perfetto is a performance instrumentation and logging framework for POSIX
+DejaView is a performance instrumentation and logging framework for POSIX
 platforms. See https://android.googlesource.com/platform/external/perfetto/.
 
 

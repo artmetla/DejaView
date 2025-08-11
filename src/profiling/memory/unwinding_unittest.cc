@@ -22,14 +22,14 @@
 #include <sys/types.h>
 #include <unwindstack/RegsGetLocal.h>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
 #include "src/profiling/common/unwind_support.h"
 #include "src/profiling/memory/client.h"
 #include "src/profiling/memory/wire_protocol.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -61,7 +61,7 @@ TEST(UnwindingTest, StackOverlayMemoryNonOverlay) {
 
 TEST(UnwindingTest, FDMapsParse) {
 #if defined(ADDRESS_SANITIZER)
-  PERFETTO_LOG("Skipping /proc/self/maps as ASAN distorts what is where");
+  DEJAVIEW_LOG("Skipping /proc/self/maps as ASAN distorts what is where");
   GTEST_SKIP();
 #else
   base::ScopedFile proc_maps(base::OpenFile("/proc/self/maps", O_RDONLY));
@@ -119,7 +119,7 @@ RecordMemory __attribute__((noinline)) GetRecord(WireMessage* msg) {
   unwindstack::AsmGetRegs(metadata->register_data);
 
   if (stackend < stackptr) {
-    PERFETTO_FATAL("Stacktop >= stackend.");
+    DEJAVIEW_FATAL("Stacktop >= stackend.");
     return {nullptr, nullptr};
   }
   size_t stack_size = static_cast<size_t>(stackend - stackptr);
@@ -156,8 +156,8 @@ TEST(UnwindingTest, DoUnwind) {
   ASSERT_EQ(st, 0) << "mangled: " << demangled.get()
                    << ", frames: " << out.frames.size();
   ASSERT_STREQ(demangled.get(),
-               "perfetto::profiling::(anonymous "
-               "namespace)::GetRecord(perfetto::profiling::WireMessage*)");
+               "dejaview::profiling::(anonymous "
+               "namespace)::GetRecord(dejaview::profiling::WireMessage*)");
 }
 
 TEST(UnwindingTest, DoUnwindReparse) {
@@ -178,8 +178,8 @@ TEST(UnwindingTest, DoUnwindReparse) {
   ASSERT_EQ(st, 0) << "mangled: " << demangled.get()
                    << ", frames: " << out.frames.size();
   ASSERT_STREQ(demangled.get(),
-               "perfetto::profiling::(anonymous "
-               "namespace)::GetRecord(perfetto::profiling::WireMessage*)");
+               "dejaview::profiling::(anonymous "
+               "namespace)::GetRecord(dejaview::profiling::WireMessage*)");
 }
 
 TEST(AllocRecordArenaTest, Smoke) {
@@ -191,4 +191,4 @@ TEST(AllocRecordArenaTest, Smoke) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

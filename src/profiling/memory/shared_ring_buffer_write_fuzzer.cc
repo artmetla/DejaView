@@ -18,12 +18,12 @@
 #include <stdint.h>
 #include <unistd.h>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/profiling/memory/shared_ring_buffer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -53,7 +53,7 @@ int FuzzRingBufferWrite(const uint8_t* data, size_t size) {
     return 0;
 
   auto fd = base::TempFile::CreateUnlinked().ReleaseFD();
-  PERFETTO_CHECK(fd);
+  DEJAVIEW_CHECK(fd);
 
   // Prefill shared buffer with fuzzer input, then attempt to write.
   // TODO(fmayer): Do we actually need to fill the buffer with payload, or
@@ -73,21 +73,21 @@ int FuzzRingBufferWrite(const uint8_t* data, size_t size) {
   metadata_page.spinlock.locked = false;
   metadata_page.spinlock.poisoned = false;
 
-  PERFETTO_CHECK(ftruncate(*fd, static_cast<off_t>(total_size_pages *
+  DEJAVIEW_CHECK(ftruncate(*fd, static_cast<off_t>(total_size_pages *
                                                    base::GetSysPageSize())) ==
                  0);
-  PERFETTO_CHECK(base::WriteAll(*fd, &metadata_page, sizeof(metadata_page)) !=
+  DEJAVIEW_CHECK(base::WriteAll(*fd, &metadata_page, sizeof(metadata_page)) !=
                  -1);
-  PERFETTO_CHECK(lseek(*fd, base::GetSysPageSize(), SEEK_SET) != -1);
-  PERFETTO_CHECK(base::WriteAll(*fd, payload, payload_size) != -1);
+  DEJAVIEW_CHECK(lseek(*fd, base::GetSysPageSize(), SEEK_SET) != -1);
+  DEJAVIEW_CHECK(base::WriteAll(*fd, payload, payload_size) != -1);
 
   auto buf = SharedRingBuffer::Attach(std::move(fd));
-  PERFETTO_CHECK(!!buf);
+  DEJAVIEW_CHECK(!!buf);
 
   SharedRingBuffer::Buffer write_buf;
   {
     auto lock = buf->AcquireLock(ScopedSpinlock::Mode::Try);
-    PERFETTO_CHECK(lock.locked());
+    DEJAVIEW_CHECK(lock.locked());
     write_buf = buf->BeginWrite(lock, header.write_size);
   }
   if (!write_buf)
@@ -100,10 +100,10 @@ int FuzzRingBufferWrite(const uint8_t* data, size_t size) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  return perfetto::profiling::FuzzRingBufferWrite(data, size);
+  return dejaview::profiling::FuzzRingBufferWrite(data, size);
 }

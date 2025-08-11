@@ -19,10 +19,10 @@ source_set("initial_display_state") {
   deps = [
     "..:data_source",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced",
-    "../../../../protos/perfetto/config/android:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/android:zero",
+    "../../../../include/dejaview/ext/traced",
+    "../../../../protos/dejaview/config/android:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/android:zero",
     "../../../base",
     "../common",
   ]
@@ -32,13 +32,13 @@ source_set("initial_display_state") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":initial_display_state",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/trace/android:cpp",
+    "../../../../protos/dejaview/trace/android:cpp",
     "../../../../src/base:test_support",
     "../../../../src/tracing/test:test_support",
     "../common:test_support",

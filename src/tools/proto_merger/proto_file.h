@@ -24,7 +24,7 @@
 // for an easy find/replace transformation when moving to Google3.
 #include <google/protobuf/descriptor.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace proto_merger {
 
 // Simplified representation of the components of a .proto file.
@@ -89,6 +89,6 @@ ProtoFile ProtoFileFromDescriptor(std::string preamble,
                                   const google::protobuf::FileDescriptor&);
 
 }  // namespace proto_merger
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TOOLS_PROTO_MERGER_PROTO_FILE_H_

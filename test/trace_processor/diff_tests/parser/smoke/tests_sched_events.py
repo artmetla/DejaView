@@ -21,7 +21,7 @@ from python.generators.diff_tests.testing import TestSuite
 
 class SmokeSchedEvents(TestSuite):
   # Contains smoke tests which test the most fundamentally important features
-  # trace processor  Note: new tests here should only be added by the Perfetto
+  # trace processor  Note: new tests here should only be added by the DejaView
   # Sched events
   def test_android_sched_and_ps_smoke(self):
     return DiffTestBlueprint(

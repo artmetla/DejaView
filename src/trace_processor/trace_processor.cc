@@ -14,14 +14,14 @@
  * limitations under the License.
  */
 
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
 #include <memory>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/trace_processor_impl.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 TraceProcessor::MetatraceConfig::MetatraceConfig() = default;
 
@@ -33,4 +33,4 @@ std::unique_ptr<TraceProcessor> TraceProcessor::CreateInstance(
 
 TraceProcessor::~TraceProcessor() = default;
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

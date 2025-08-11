@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/importers/proto/active_chrome_processes_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 void ActiveChromeProcessesTracker::AddActiveProcessMetadata(int64_t timestamp,
@@ -83,4 +83,4 @@ void ActiveChromeProcessesTracker::NotifyEndOfFile() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

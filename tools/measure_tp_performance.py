@@ -77,11 +77,11 @@ def heap_profile_run(args, dump_at_max: bool):
 
   out_file = os.path.join(
       args.result, args.result_prefix + ('max' if dump_at_max else 'rest'))
-  perfetto_args = [
-      os.path.join(args.out, 'perfetto'), '-c', '-', '--txt', '-o', out_file
+  dejaview_args = [
+      os.path.join(args.out, 'dejaview'), '-c', '-', '--txt', '-o', out_file
   ]
   profile = subprocess.Popen(
-      perfetto_args,
+      dejaview_args,
       stdin=subprocess.PIPE,
       stdout=None if args.verbose else subprocess.DEVNULL,
       stderr=None if args.verbose else subprocess.DEVNULL)
@@ -91,7 +91,7 @@ def heap_profile_run(args, dump_at_max: bool):
   env = {
       'LD_PRELOAD': os.path.join(args.out, 'libheapprofd_glibc_preload.so'),
       'TRACE_PROCESSOR_NO_MMAP': '1',
-      'PERFETTO_HEAPPROFD_BLOCKING_INIT': '1'
+      'DEJAVIEW_HEAPPROFD_BLOCKING_INIT': '1'
   }
   (tp, fail, _) = run_tp_until_ingestion(args, env)
 
@@ -151,7 +151,7 @@ def main():
   parser.add_argument(
       '--kill-existing',
       action='store_true',
-      help='Kill traced, perfetto_cmd and trace processor shell if running')
+      help='Kill traced, dejaview_cmd and trace processor shell if running')
   parser.add_argument(
       '--verbose',
       action='store_true',
@@ -163,7 +163,7 @@ def main():
     subprocess.run(['killall', 'traced'],
                    stdout=subprocess.DEVNULL,
                    stderr=subprocess.DEVNULL)
-    subprocess.run(['killall', 'perfetto'],
+    subprocess.run(['killall', 'dejaview'],
                    stdout=subprocess.DEVNULL,
                    stderr=subprocess.DEVNULL)
     subprocess.run(['killall', 'trace_processor_shell'],

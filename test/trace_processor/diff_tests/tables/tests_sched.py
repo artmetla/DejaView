@@ -145,7 +145,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
         SELECT
           waker_id,
           prev_id,
@@ -179,7 +179,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
         SELECT
           id,
           waker_id,
@@ -196,7 +196,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
         SELECT COUNT(*) AS count FROM _runnable_state WHERE state = 'Running'
         """,
         out=Csv("""
@@ -208,7 +208,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
         SELECT ts,dur FROM _wakeup_graph
           WHERE dur IS NULL OR ts IS NULL
         """,
@@ -220,7 +220,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_switch_original.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
         SELECT COUNT(*) AS count FROM _wakeup_graph
         """,
         out=Csv("""
@@ -232,7 +232,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
 
         SELECT * FROM
         _intervals_to_roots!((SELECT 1477 AS utid, trace_start() AS ts, trace_end() - trace_start() AS dur), _wakeup_graph)
@@ -257,7 +257,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
 
         SELECT * FROM
         _intervals_to_roots!((SELECT 1477 AS utid, 1737362149192 AS ts, CAST(2e7 AS INT) AS dur), _wakeup_graph)
@@ -275,16 +275,16 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_switch_original.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
 
-        CREATE PERFETTO TABLE graph AS
+        CREATE DEJAVIEW TABLE graph AS
         SELECT
           id AS source_node_id,
           COALESCE(waker_id, id) AS dest_node_id,
           id - COALESCE(waker_id, id) AS edge_weight
         FROM _wakeup_graph;
 
-        CREATE PERFETTO TABLE roots AS
+        CREATE DEJAVIEW TABLE roots AS
         SELECT
           _wakeup_graph.id AS root_node_id,
           _wakeup_graph.id - COALESCE(prev_id, _wakeup_graph.id) AS root_target_weight,
@@ -294,7 +294,7 @@ class TablesSched(TestSuite):
           utid
         FROM _wakeup_graph;
 
-        CREATE PERFETTO TABLE critical_path AS
+        CREATE DEJAVIEW TABLE critical_path AS
         SELECT root_node_id AS root_id, node_id AS id, root_node_id AS parent_id FROM graph_reachable_weight_bounded_dfs!(graph, roots, 1);
 
         SELECT * FROM _critical_path_to_intervals!(critical_path, _wakeup_graph);
@@ -316,7 +316,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_switch_original.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
 
         SELECT * FROM _critical_path_intervals!(_wakeup_kernel_edges, (SELECT id AS root_node_id, id - COALESCE(prev_id, id)  AS capacity FROM _wakeup_graph), _wakeup_graph) ORDER BY root_id;
         """,
@@ -367,7 +367,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_switch_original.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
 
         SELECT *
         FROM _critical_path_by_roots!(
@@ -393,7 +393,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_switch_original.pb'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
 
         SELECT root_utid, root_id, id, ts, dur, utid
         FROM _critical_path_by_intervals!(
@@ -418,7 +418,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span;
         SELECT
           root_id,
           root_utid,
@@ -448,7 +448,7 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span_with_slice;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span_with_slice;
         SELECT
           id,
           ts,
@@ -483,11 +483,11 @@ class TablesSched(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE sched.thread_executing_span_with_slice;
+        INCLUDE DEJAVIEW MODULE sched.thread_executing_span_with_slice;
         SELECT HEX(pprof) FROM _thread_executing_span_critical_path_graph("critical path", (select utid from thread where tid = 3487), 1737488133487, 16000), trace_bounds
       """,
         out=BinaryProto(
-            message_type="perfetto.third_party.perftools.profiles.Profile",
+            message_type="dejaview.third_party.perftools.profiles.Profile",
             post_processing=PrintProfileProto,
             contents="""
             Sample:

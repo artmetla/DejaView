@@ -18,7 +18,7 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_WINSCOPE_MODULE_H_
 
 #include <cstdint>
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/importers/proto/winscope/android_input_event_parser.h"
@@ -27,9 +27,9 @@
 #include "src/trace_processor/importers/proto/winscope/surfaceflinger_layers_parser.h"
 #include "src/trace_processor/importers/proto/winscope/surfaceflinger_transactions_parser.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class WinscopeModule : public ProtoImporterModule {
@@ -64,14 +64,14 @@ class WinscopeModule : public ProtoImporterModule {
   void ParseWindowManagerData(int64_t timestamp, protozero::ConstBytes blob);
 
   static constexpr auto* kInputMethodClientsProtoName =
-      ".perfetto.protos.InputMethodClientsTraceProto";
+      ".dejaview.protos.InputMethodClientsTraceProto";
   static constexpr auto* kInputMethodManagerServiceProtoName =
-      ".perfetto.protos.InputMethodManagerServiceTraceProto";
+      ".dejaview.protos.InputMethodManagerServiceTraceProto";
   static constexpr auto* kInputMethodServiceProtoName =
-      ".perfetto.protos.InputMethodServiceTraceProto";
-  static constexpr auto* kViewCaptureProtoName = ".perfetto.protos.ViewCapture";
+      ".dejaview.protos.InputMethodServiceTraceProto";
+  static constexpr auto* kViewCaptureProtoName = ".dejaview.protos.ViewCapture";
   static constexpr auto* kWindowManagerProtoName =
-      ".perfetto.protos.WindowManagerTraceEntry";
+      ".dejaview.protos.WindowManagerTraceEntry";
 
   TraceProcessorContext* const context_;
   DescriptorPool pool_;
@@ -85,6 +85,6 @@ class WinscopeModule : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_WINSCOPE_MODULE_H_

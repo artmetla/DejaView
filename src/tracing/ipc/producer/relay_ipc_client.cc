@@ -16,11 +16,11 @@
 
 #include "src/tracing/ipc/producer/relay_ipc_client.h"
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "protos/perfetto/ipc/relay_port.ipc.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "protos/dejaview/ipc/relay_port.ipc.h"
 
-namespace perfetto {
+namespace dejaview {
 
 RelayIPCClient::EventListener::~EventListener() = default;
 
@@ -33,13 +33,13 @@ RelayIPCClient::RelayIPCClient(ipc::Client::ConnArgs conn_args,
           ipc::Client::CreateInstance(std::move(conn_args), task_runner)),
       relay_proxy_(new protos::gen::RelayPortProxy(this /* event_listener */)) {
   ipc_channel_->BindService(relay_proxy_->GetWeakPtr());
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 }
 
 RelayIPCClient::~RelayIPCClient() = default;
 
 void RelayIPCClient::OnConnect() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   connected_ = true;
 
   if (listener_)
@@ -47,7 +47,7 @@ void RelayIPCClient::OnConnect() {
 }
 
 void RelayIPCClient::OnDisconnect() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   connected_ = false;
 
   if (listener_)
@@ -55,7 +55,7 @@ void RelayIPCClient::OnDisconnect() {
 }
 
 void RelayIPCClient::SyncClock(const SyncClockRequest& sync_clock_request) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!connected_) {
     return task_runner_->PostTask([listener = listener_]() {
       if (listener)
@@ -76,4 +76,4 @@ void RelayIPCClient::SyncClock(const SyncClockRequest& sync_clock_request) {
   relay_proxy_->SyncClock(sync_clock_request, std::move(async_resp), -1);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

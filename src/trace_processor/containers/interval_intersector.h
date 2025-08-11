@@ -25,10 +25,10 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/containers/interval_tree.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Provides functionality for efficient intersection of a set of intervals with
 // another interval. Operates in various modes: using interval tree, binary
@@ -93,7 +93,7 @@ class IntervalIntersector {
       return;
     }
 
-    PERFETTO_CHECK(mode_ == kLinearScan);
+    DEJAVIEW_CHECK(mode_ == kLinearScan);
 
     for (; overlap != intervals_.end() && overlap->start < e; ++overlap) {
       if (overlap->end <= s) {
@@ -148,6 +148,6 @@ class IntervalIntersector {
   std::unique_ptr<IntervalTree> tree;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_CONTAINERS_INTERVAL_INTERSECTOR_H_

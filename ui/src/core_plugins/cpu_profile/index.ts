@@ -14,7 +14,7 @@
 
 import {CPU_PROFILE_TRACK_KIND} from '../../public/track_kinds';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {NUM, NUM_NULL, STR_NULL} from '../../trace_processor/query_result';
 import {CpuProfileTrack} from './cpu_profile_track';
 import {getThreadUriPrefix} from '../../public/utils';
@@ -25,7 +25,7 @@ import {getOrCreateGroupForThread} from '../../public/standard_groups';
 import {TrackNode} from '../../public/workspace';
 import {CpuProfileSampleFlamegraphDetailsPanel} from './cpu_profile_details_panel';
 
-class CpuProfile implements PerfettoPlugin {
+class CpuProfile implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const result = await ctx.engine.query(`
       with thread_cpu_sample as (
@@ -87,6 +87,6 @@ class CpuProfile implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.CpuProfile',
+  pluginId: 'dejaview.CpuProfile',
   plugin: CpuProfile,
 };

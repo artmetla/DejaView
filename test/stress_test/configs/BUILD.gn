@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 
 config("include_path") {
   include_dirs = [ target_gen_dir ]

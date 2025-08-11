@@ -21,7 +21,7 @@
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Responsible for filling the Thread State table by analysing sched switches,
@@ -103,6 +103,6 @@ class ThreadStateTracker : public Destructible {
   std::vector<std::optional<RelatedRows>> prev_row_numbers_for_thread_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_THREAD_STATE_TRACKER_H_

@@ -106,11 +106,11 @@ export class NotesPanel implements Panel {
               e.preventDefault();
               if (allCollapsed) {
                 globals.commandManager.runCommand(
-                  'perfetto.CoreCommands#ExpandAllGroups',
+                  'dejaview.CoreCommands#ExpandAllGroups',
                 );
               } else {
                 globals.commandManager.runCommand(
-                  'perfetto.CoreCommands#CollapseAllGroups',
+                  'dejaview.CoreCommands#CollapseAllGroups',
                 );
               }
             },

@@ -28,11 +28,11 @@
 #include <variant>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column.h"
@@ -48,7 +48,7 @@
 #include "src/trace_processor/db/column_storage.h"
 #include "src/trace_processor/db/column_storage_overlay.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 template <typename T, typename U>
@@ -200,7 +200,7 @@ base::Status RuntimeTable::Builder::AddNull(uint32_t idx) {
   } else if (auto* doubles = std::get_if<NullDoubleStorage>(col)) {
     doubles->Append(std::nullopt);
   } else {
-    PERFETTO_FATAL("Unexpected column type");
+    DEJAVIEW_FATAL("Unexpected column type");
   }
   return base::OkStatus();
 }
@@ -362,7 +362,7 @@ base::Status RuntimeTable::Builder::AddNulls(uint32_t idx, uint32_t count) {
   } else if (auto* doubles = std::get_if<NullDoubleStorage>(col)) {
     doubles->AppendMultipleNulls(count);
   } else {
-    PERFETTO_FATAL("Unexpected column type");
+    DEJAVIEW_FATAL("Unexpected column type");
   }
   return base::OkStatus();
 }
@@ -413,13 +413,13 @@ base::StatusOr<std::unique_ptr<RuntimeTable>> RuntimeTable::Builder::Build(
     auto* col = storage_[i].get();
     std::unique_ptr<column::DataLayerChain> chain;
     if (auto* leading_nulls = std::get_if<uint32_t>(col)) {
-      PERFETTO_CHECK(*leading_nulls == rows);
+      DEJAVIEW_CHECK(*leading_nulls == rows);
       *col = Fill<NullIntStorage>(*leading_nulls, std::nullopt);
     }
 
     if (auto* null_ints = std::get_if<NullIntStorage>(col)) {
       // The `ints` column
-      PERFETTO_CHECK(null_ints->size() == rows);
+      DEJAVIEW_CHECK(null_ints->size() == rows);
 
       if (null_ints->non_null_size() == null_ints->size()) {
         // The column doesn't have any nulls so we construct a new nonnullable
@@ -440,14 +440,14 @@ base::StatusOr<std::unique_ptr<RuntimeTable>> RuntimeTable::Builder::Build(
 
     } else if (auto* ints = std::get_if<IntStorage>(col)) {
       // The `ints` column for tables where column types was provided before.
-      PERFETTO_CHECK(ints->size() == rows);
+      DEJAVIEW_CHECK(ints->size() == rows);
       CreateNonNullableIntsColumn(
           i, col_names_[i].c_str(), std::get_if<IntStorage>(col),
           storage_layers, overlay_layers, legacy_columns, legacy_overlays);
 
     } else if (auto* doubles = std::get_if<DoubleStorage>(col)) {
       // The `doubles` column for tables where column types was provided before.
-      PERFETTO_CHECK(doubles->size() == rows);
+      DEJAVIEW_CHECK(doubles->size() == rows);
       bool is_sorted =
           std::is_sorted(doubles->vector().begin(), doubles->vector().end());
       uint32_t flags =
@@ -459,7 +459,7 @@ base::StatusOr<std::unique_ptr<RuntimeTable>> RuntimeTable::Builder::Build(
 
     } else if (auto* null_doubles = std::get_if<NullDoubleStorage>(col)) {
       // The doubles column.
-      PERFETTO_CHECK(null_doubles->size() == rows);
+      DEJAVIEW_CHECK(null_doubles->size() == rows);
       if (null_doubles->non_null_size() == null_doubles->size()) {
         // The column is not nullable.
         *col = DoubleStorage::CreateFromAssertNonNull(std::move(*null_doubles));
@@ -486,13 +486,13 @@ base::StatusOr<std::unique_ptr<RuntimeTable>> RuntimeTable::Builder::Build(
 
     } else if (auto* strings = std::get_if<StringStorage>(col)) {
       // The `strings` column.
-      PERFETTO_CHECK(strings->size() == rows);
+      DEJAVIEW_CHECK(strings->size() == rows);
       legacy_columns.emplace_back(col_names_[i].c_str(), strings,
                                   ColumnLegacy::Flag::kNonNull, i, 0);
       storage_layers[i].reset(
           new column::StringStorage(string_pool_, &strings->vector()));
     } else {
-      PERFETTO_FATAL("Unexpected column type");
+      DEJAVIEW_FATAL("Unexpected column type");
     }
   }
 
@@ -523,4 +523,4 @@ base::StatusOr<std::unique_ptr<RuntimeTable>> RuntimeTable::Builder::Build(
   return {std::move(table)};
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

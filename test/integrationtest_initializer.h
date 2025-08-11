@@ -17,14 +17,14 @@
 #ifndef TEST_INTEGRATIONTEST_INITIALIZER_H_
 #define TEST_INTEGRATIONTEST_INITIALIZER_H_
 
-namespace perfetto::integration_tests {
+namespace dejaview::integration_tests {
 
 // Simple mechanism to execute code at the beginning of the integrationtest
 // main() before the gtest tests are run.
 //
 // Usage
 // ```
-// int PERFETTO_UNUSED initializer =
+// int DEJAVIEW_UNUSED initializer =
 //     integration_tests::Register...Initializer(
 //         &InitializerFunction);
 // ```
@@ -38,6 +38,6 @@ namespace perfetto::integration_tests {
 int RegisterHeapprofdEndToEndTestInitializer(void (*fn)(void));
 int RegisterApiIntegrationTestInitializer(void (*fn)(void));
 
-}  // namespace perfetto::integration_tests
+}  // namespace dejaview::integration_tests
 
 #endif  // TEST_INTEGRATIONTEST_INITIALIZER_H_

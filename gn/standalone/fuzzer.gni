@@ -14,7 +14,7 @@
 
 import("//gn/standalone/sanitizers/sanitizers.gni")
 
-template("perfetto_fuzzer_test") {
+template("dejaview_fuzzer_test") {
   if (is_fuzzer) {
     executable(target_name) {
       forward_variables_from(invoker, "*")

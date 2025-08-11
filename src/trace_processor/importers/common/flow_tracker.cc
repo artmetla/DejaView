@@ -24,7 +24,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 FlowTracker::FlowTracker(TraceProcessorContext* context) : context_(context) {
@@ -163,4 +163,4 @@ void FlowTracker::InsertFlow(SliceId slice_out_id, SliceId slice_in_id) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

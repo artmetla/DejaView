@@ -19,15 +19,15 @@
 
 #include <vector>
 
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class FtraceTokenizer {
@@ -72,7 +72,7 @@ class FtraceTokenizer {
   void DlogWithLimit(const base::Status& status) {
     static std::atomic<uint32_t> dlog_count(0);
     if (dlog_count++ < 10)
-      PERFETTO_DLOG("%s", status.c_message());
+      DEJAVIEW_DLOG("%s", status.c_message());
   }
 
   int64_t latest_ftrace_clock_snapshot_ts_ = 0;
@@ -81,6 +81,6 @@ class FtraceTokenizer {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_FTRACE_FTRACE_TOKENIZER_H_

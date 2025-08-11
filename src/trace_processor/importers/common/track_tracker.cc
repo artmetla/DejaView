@@ -21,7 +21,7 @@
 #include <string>
 #include <utility>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/process_track_translation_table.h"
@@ -31,7 +31,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -57,9 +57,9 @@ const char* GetNameForGroup(TrackTracker::Group group) {
     case TrackTracker::Group::kBatteryMitigation:
       return "Battery Mitigation";
     case TrackTracker::Group::kSizeSentinel:
-      PERFETTO_FATAL("Unexpected size passed as group");
+      DEJAVIEW_FATAL("Unexpected size passed as group");
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 // This function is added to keep backward compatibility. Don't add new names.
@@ -846,4 +846,4 @@ TrackId TrackTracker::InternTrackForGroup(TrackTracker::Group group) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

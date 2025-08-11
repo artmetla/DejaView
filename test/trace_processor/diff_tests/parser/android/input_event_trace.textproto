@@ -100,7 +100,7 @@ packet {
 }
 packet {
   system_info {
-    tracing_service_version: "Perfetto v45.0 (N/A)"
+    tracing_service_version: "DejaView v45.0 (N/A)"
     timezone_off_mins: -240
     utsname {
       sysname: "Linux"
@@ -153,7 +153,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_motion_event {
         event_id: 330184796
         event_time_nanos: 517481507875000
@@ -220,7 +220,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_motion_event {
         event_id: 1327679296
         event_time_nanos: 517481507875000
@@ -286,7 +286,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 1327679296
         vsync_id: 89110
@@ -320,7 +320,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 330184796
         vsync_id: 89110
@@ -354,7 +354,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 330184796
         vsync_id: 89110
@@ -388,7 +388,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 330184796
         vsync_id: 89110
@@ -422,7 +422,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 330184796
         vsync_id: 89110
@@ -456,7 +456,7 @@ packet {
   timestamp: 517481517002349
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 330184796
         vsync_id: 0
@@ -490,7 +490,7 @@ packet {
   timestamp: 517481538183257
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_motion_event {
         event_id: 557261353
         event_time_nanos: 517481533371000
@@ -556,7 +556,7 @@ packet {
   timestamp: 517481538183257
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 557261353
         vsync_id: 89110
@@ -590,7 +590,7 @@ packet {
   timestamp: 517481538183257
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 557261353
         vsync_id: 89110
@@ -624,7 +624,7 @@ packet {
   timestamp: 517481538183257
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 557261353
         vsync_id: 89110
@@ -658,7 +658,7 @@ packet {
   timestamp: 517481538183257
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 557261353
         vsync_id: 89110
@@ -692,7 +692,7 @@ packet {
   timestamp: 517481538183257
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 557261353
         vsync_id: 0
@@ -726,7 +726,7 @@ packet {
   timestamp: 517481543976511
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_motion_event {
         event_id: 106022695
         event_time_nanos: 517481540876000
@@ -792,7 +792,7 @@ packet {
   timestamp: 517481543976511
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 106022695
         vsync_id: 89110
@@ -826,7 +826,7 @@ packet {
   timestamp: 517481543976511
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 106022695
         vsync_id: 89110
@@ -860,7 +860,7 @@ packet {
   timestamp: 517481543976511
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 106022695
         vsync_id: 89110
@@ -894,7 +894,7 @@ packet {
   timestamp: 517481543976511
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 106022695
         vsync_id: 89110
@@ -928,7 +928,7 @@ packet {
   timestamp: 517481543976511
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 106022695
         vsync_id: 0
@@ -962,7 +962,7 @@ packet {
   timestamp: 517481553353301
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_motion_event {
         event_id: 313395000
         event_time_nanos: 517481550152000
@@ -1028,7 +1028,7 @@ packet {
   timestamp: 517481553353301
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 313395000
         vsync_id: 89110
@@ -1062,7 +1062,7 @@ packet {
   timestamp: 517481553353301
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 313395000
         vsync_id: 89110
@@ -1096,7 +1096,7 @@ packet {
   timestamp: 517481553353301
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 313395000
         vsync_id: 89110
@@ -1130,7 +1130,7 @@ packet {
   timestamp: 517481553353301
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 313395000
         vsync_id: 89110
@@ -1164,7 +1164,7 @@ packet {
   timestamp: 517481553353301
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 313395000
         vsync_id: 0
@@ -1198,7 +1198,7 @@ packet {
   timestamp: 517481558399200
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_motion_event {
         event_id: 436499943
         event_time_nanos: 517481557012000
@@ -1264,7 +1264,7 @@ packet {
   timestamp: 517481558399200
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 436499943
         vsync_id: 89110
@@ -1298,7 +1298,7 @@ packet {
   timestamp: 517481558399200
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 436499943
         vsync_id: 89110
@@ -1332,7 +1332,7 @@ packet {
   timestamp: 517481558399200
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 436499943
         vsync_id: 89110
@@ -1366,7 +1366,7 @@ packet {
   timestamp: 517481558399200
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 436499943
         vsync_id: 89110
@@ -1400,7 +1400,7 @@ packet {
   timestamp: 517481558399200
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 436499943
         vsync_id: 0
@@ -1434,7 +1434,7 @@ packet {
   timestamp: 517482831698151
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_key_event {
         event_id: 759309047
         event_time_nanos: 517482680619000
@@ -1460,7 +1460,7 @@ packet {
   timestamp: 517482831698151
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 759309047
         vsync_id: 89110
@@ -1477,7 +1477,7 @@ packet {
   timestamp: 517482831698151
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 759309047
         vsync_id: 0
@@ -1494,7 +1494,7 @@ packet {
   timestamp: 517482839729238
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_key_event {
         event_id: 894093732
         event_time_nanos: 517482832173000
@@ -1520,7 +1520,7 @@ packet {
   timestamp: 517482839729238
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 894093732
         vsync_id: 89110
@@ -1537,7 +1537,7 @@ packet {
   timestamp: 517482839729238
   timestamp_clock_id: 3
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.android_input_event] {
+    [dejaview.protos.WinscopeExtensionsImpl.android_input_event] {
       dispatcher_window_dispatch_event {
         event_id: 894093732
         vsync_id: 0

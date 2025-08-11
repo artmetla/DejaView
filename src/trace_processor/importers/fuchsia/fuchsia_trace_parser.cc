@@ -24,7 +24,7 @@
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/importers/fuchsia/fuchsia_trace_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -287,7 +287,7 @@ void FuchsiaTraceParser::ParseFuchsiaRecord(int64_t, FuchsiaRecord fr) {
           }
           // Note: In the Fuchsia trace format, counter values are stored
           // in the arguments for the record, with the data series defined
-          // by both the record name and the argument name. In Perfetto,
+          // by both the record name and the argument name. In DejaView,
           // counters only have one name, so we combine both names into
           // one here.
           for (const Arg& arg : *maybe_args) {
@@ -463,7 +463,7 @@ void FuchsiaTraceParser::ParseFuchsiaRecord(int64_t, FuchsiaRecord fr) {
       break;
     }
     default: {
-      PERFETTO_DFATAL("Unknown record type %d in FuchsiaTraceParser",
+      DEJAVIEW_DFATAL("Unknown record type %d in FuchsiaTraceParser",
                       record_type);
       break;
     }
@@ -471,4 +471,4 @@ void FuchsiaTraceParser::ParseFuchsiaRecord(int64_t, FuchsiaRecord fr) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

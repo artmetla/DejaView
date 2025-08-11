@@ -1,15 +1,15 @@
-# Contributing to Perfetto
+# Contributing to DejaView
 
 ## Quickstart
 
-NOTE: Perfetto can be built on Windows, Mac or Linux. However, setting up the environment on Windows is complicated so is not covered by this quickstart.
+NOTE: DejaView can be built on Windows, Mac or Linux. However, setting up the environment on Windows is complicated so is not covered by this quickstart.
 
 Prerequisites: git and python3.
 
 Setup:
 ```sh
 git clone https://android.googlesource.com/platform/external/perfetto/
-cd perfetto
+cd dejaview
 tools/install-build-deps
 tools/setup_all_configs.py
 ```
@@ -48,7 +48,7 @@ Android Gerrit.
 3. Download `depot_tools`, a collection of helper scripts which make uploading changes
 to Android Gerrit easier.
 ```sh
-cd perfetto
+cd dejaview
 git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git
 ```
 4. Add `depot_tools` to your PATH (you may want to add this to your .bashrc/.zshrc):
@@ -70,7 +70,7 @@ git cl upload
 
 ## Repository
 
-This project uses [Android AOSP Gerrit][perfetto-gerrit] for code reviews,
+This project uses [Android AOSP Gerrit][dejaview-gerrit] for code reviews,
 follows the [Google C++ style][google-cpp-style], and targets `-std=c++17`.
 
 Development happens in the AOSP repository:
@@ -82,7 +82,7 @@ read-only mirror of the above. Pull requests through GitHub are not accepted.
 ## Code Reviews
 
 All submissions, including submissions by project members, require review.
-We use [Android AOSP Gerrit][perfetto-gerrit] for this purpose.
+We use [Android AOSP Gerrit][dejaview-gerrit] for this purpose.
 
 `git cl upload` from [Chromium depot tools][depot-tools] is the preferred
 workflow to upload patches, as it takes care of runing presubmit tests,
@@ -94,11 +94,11 @@ aforementioned generators are bypassed.
 
 ## Continuous integration
 
-There are two levels of CI / TryBots involved when submitting a Perfetto CL:
+There are two levels of CI / TryBots involved when submitting a DejaView CL:
 
 - [ci.perfetto.dev](https://ci.perfetto.dev): it covers building and testing
   on most platforms and toolchains within ~15 mins. Anecdotally most build
-  failures and bugs are detected at the Perfetto CI level.
+  failures and bugs are detected at the DejaView CI level.
 
 - The [Android CI](https://ci.android.com) (also known as TreeHugger) builds a
   full system image and runs full integration tests within ~2-4 hours. This can
@@ -113,7 +113,7 @@ exceptions are UI-only, docs-only or GN-only changes, for which the Android CI
 can be bypassed, as those are not built as part of the Android tree.
 
 You can also
-[test a pending Perfetto CL against Chrome's TryBots](testing.md#chromium).
+[test a pending DejaView CL against Chrome's TryBots](testing.md#chromium).
 
 ## Community
 
@@ -133,7 +133,7 @@ For bugs affecting Android or the tracing internals:
 
 For bugs affecting Chrome Tracing:
 
-* Use http://crbug.com `Component:Speed>Tracing label:Perfetto`.
+* Use http://crbug.com `Component:Speed>Tracing label:DejaView`.
 
 ## Contributor License Agreement
 
@@ -147,7 +147,7 @@ You generally only need to submit a CLA once, so if you've already submitted one
 (even if it was for a different project), you probably don't need to do it
 again.
 
-[perfetto-gerrit]: https://android-review.googlesource.com/q/project:platform%252Fexternal%252Fperfetto+status:open
+[dejaview-gerrit]: https://android-review.googlesource.com/q/project:platform%252Fexternal%252Fperfetto+status:open
 [google-cpp-style]: https://google.github.io/styleguide/cppguide.html
 [depot-tools]: https://dev.chromium.org/developers/how-tos/depottools
 [ci-example]: https://android-review.googlesource.com/c/platform/external/perfetto/+/1108253/3#message-09fd27fb92ca8357abade3ec725919ac3445f3af

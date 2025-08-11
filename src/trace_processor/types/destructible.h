@@ -17,7 +17,7 @@
 #ifndef SRC_TRACE_PROCESSOR_TYPES_DESTRUCTIBLE_H_
 #define SRC_TRACE_PROCESSOR_TYPES_DESTRUCTIBLE_H_
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // To reduce Chrome binary size, we exclude the source code of several
@@ -31,6 +31,6 @@ class Destructible {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_DESTRUCTIBLE_H_

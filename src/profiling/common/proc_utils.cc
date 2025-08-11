@@ -22,11 +22,11 @@
 #include <cinttypes>
 #include <optional>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/profiling/common/proc_cmdline.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -40,7 +40,7 @@ std::optional<uint32_t> ParseProcStatusSize(const std::string& status,
     return {};
   int32_t val = atoi(status.c_str() + entry_idx);
   if (val < 0) {
-    PERFETTO_ELOG("Unexpected value reading %s", key.c_str());
+    DEJAVIEW_ELOG("Unexpected value reading %s", key.c_str());
     return {};
   }
   return static_cast<uint32_t>(val);
@@ -52,7 +52,7 @@ std::optional<std::string> ReadStatus(pid_t pid) {
   std::string status;
   bool read_proc = base::ReadFile(path, &status);
   if (!read_proc) {
-    PERFETTO_ELOG("Failed to read %s", path.c_str());
+    DEJAVIEW_ELOG("Failed to read %s", path.c_str());
     return std::nullopt;
   }
   return std::optional<std::string>(status);
@@ -77,7 +77,7 @@ void RemoveUnderAnonThreshold(uint32_t min_size_kb, std::set<pid_t>* pids) {
       rss_and_swap = GetRssAnonAndSwap(*status);
 
     if (rss_and_swap && rss_and_swap < min_size_kb) {
-      PERFETTO_LOG("Removing pid %d from profiled set (anon: %d kB < %" PRIu32
+      DEJAVIEW_LOG("Removing pid %d from profiled set (anon: %d kB < %" PRIu32
                    ")",
                    pid, *rss_and_swap, min_size_kb);
       it = pids->erase(it);
@@ -158,7 +158,7 @@ std::optional<std::vector<std::string>> NormalizeCmdlines(
     char* cmdline_cstr = &(cmdline[0]);
     ssize_t size = NormalizeCmdLine(&cmdline_cstr, cmdline.size());
     if (size == -1) {
-      PERFETTO_PLOG("Failed to normalize cmdline %s. Stopping the parse.",
+      DEJAVIEW_PLOG("Failed to normalize cmdline %s. Stopping the parse.",
                     cmdlines[i].c_str());
       return std::nullopt;
     }
@@ -174,19 +174,19 @@ bool GetCmdlineForPID(pid_t pid, std::string* name) {
   std::string filename = "/proc/" + std::to_string(pid) + "/cmdline";
   base::ScopedFile fd(base::OpenFile(filename, O_RDONLY | O_CLOEXEC));
   if (!fd) {
-    PERFETTO_DPLOG("Failed to open %s", filename.c_str());
+    DEJAVIEW_DPLOG("Failed to open %s", filename.c_str());
     return false;
   }
   char cmdline[512];
   const size_t max_read_size = sizeof(cmdline) - 1;
   ssize_t rd = read(*fd, cmdline, max_read_size);
   if (rd == -1) {
-    PERFETTO_DPLOG("Failed to read %s", filename.c_str());
+    DEJAVIEW_DPLOG("Failed to read %s", filename.c_str());
     return false;
   }
 
   if (rd == 0) {
-    PERFETTO_DLOG("Empty cmdline for %" PRIdMAX ". Skipping.",
+    DEJAVIEW_DLOG("Empty cmdline for %" PRIdMAX ". Skipping.",
                   static_cast<intmax_t>(pid));
     return false;
   }
@@ -197,7 +197,7 @@ bool GetCmdlineForPID(pid_t pid, std::string* name) {
   const size_t rd_u = static_cast<size_t>(rd);
   if (rd_u >= max_read_size && memchr(cmdline, '\0', rd_u) == nullptr) {
     // We did not manage to read the first argument.
-    PERFETTO_DLOG("Overflow reading cmdline for %" PRIdMAX,
+    DEJAVIEW_DLOG("Overflow reading cmdline for %" PRIdMAX,
                   static_cast<intmax_t>(pid));
     errno = EOVERFLOW;
     return false;
@@ -264,4 +264,4 @@ void FindPidsForCmdlinePatterns(const std::vector<std::string>& patterns,
 }  // namespace glob_aware
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

@@ -68,7 +68,7 @@ def main():
     line = line.strip()
     rev = line[0:COMMIT_ABBR_LEN]
     if rev not in ui_map:
-      continue  # Not all perfetto commits have a UI autopush build.
+      continue  # Not all dejaview commits have a UI autopush build.
     ui_versions.append(ui_map[rev])
 
   # git rev-list emits entries in recent -> older versions. Reverse it.

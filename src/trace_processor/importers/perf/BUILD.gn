@@ -28,10 +28,10 @@ source_set("record") {
   ]
   deps = [
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/base:base",
-    "../../../../include/perfetto/trace_processor:trace_processor",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/trace/profiling:zero",
+    "../../../../include/dejaview/ext/base:base",
+    "../../../../include/dejaview/trace_processor:trace_processor",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
     "../../storage",
     "../../tables:tables_python",
     "../../types",
@@ -48,7 +48,7 @@ source_set("tracker") {
   ]
   deps = [
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/base:base",
+    "../../../../include/dejaview/ext/base:base",
     "../../../../protos/third_party/simpleperf:zero",
     "../..//storage:storage",
     "../..//tables:tables",
@@ -100,9 +100,9 @@ source_set("perf") {
   deps = [
     ":tracker",
     "../../../../gn:default_deps",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/profiling:zero",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
     "../../../../protos/third_party/simpleperf:zero",
     "../../sorter",
     "../../storage",
@@ -116,7 +116,7 @@ source_set("perf") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [
     "aux_stream_manager_unittest.cc",
@@ -127,7 +127,7 @@ perfetto_unittest_source_set("unittests") {
     ":perf",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/trace/profiling:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
     "../../../base",
     "../../storage",
     "../../types",

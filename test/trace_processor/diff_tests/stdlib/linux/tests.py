@@ -26,7 +26,7 @@ class LinuxTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_postboot_unlock.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE linux.threads;
+        INCLUDE DEJAVIEW MODULE linux.threads;
 
         SELECT upid, utid, pid, tid, process_name, thread_name
         FROM linux_kernel_threads

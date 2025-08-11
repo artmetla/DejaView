@@ -24,7 +24,7 @@
 #include "src/trace_processor/tables/android_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 AndroidLogEventParserImpl::~AndroidLogEventParserImpl() = default;
 
@@ -39,4 +39,4 @@ void AndroidLogEventParserImpl::ParseAndroidLogEvent(int64_t ts,
   context_->storage->mutable_android_log_table()->Insert(std::move(row));
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

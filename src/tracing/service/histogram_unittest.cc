@@ -19,7 +19,7 @@
 #include <random>
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 TEST(HistogramTest, SingleBucket) {
@@ -153,4 +153,4 @@ TEST(HistogramTest, Rand) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

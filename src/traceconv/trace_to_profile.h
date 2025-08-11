@@ -21,7 +21,7 @@
 #include <iostream>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 // 0: success
@@ -46,6 +46,6 @@ int TraceToJavaHeapProfile(std::istream* input,
                            bool annotate_frames);
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_TRACE_TO_PROFILE_H_

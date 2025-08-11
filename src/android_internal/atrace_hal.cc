@@ -21,7 +21,7 @@
 
 #include <string.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 using android::hardware::hidl_string;
@@ -91,4 +91,4 @@ void ForgetService() {
 }
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview

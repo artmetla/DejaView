@@ -22,15 +22,15 @@
 #include <ctime>
 #include <optional>
 
-#include "perfetto/ext/base/string_view.h"
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
+#include "dejaview/ext/base/string_view.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
 #include "src/trace_processor/importers/perf/perf_counter.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/profiler_tables_py.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 namespace {
 
@@ -167,4 +167,4 @@ PerfCounter PerfEventAttr::CreateCounter(uint32_t cpu) const {
                      counter_track_ref);
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

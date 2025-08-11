@@ -20,7 +20,7 @@
 #include <cstddef>
 
 // This is just an empty stub for the rustc-demangle-capi rust crate.
-// It is used to build libunwindstack in the perfetto standalone build.
+// It is used to build libunwindstack in the dejaview standalone build.
 
 static inline char* rustc_demangle(const char*, char*, size_t*, int*) {
   return nullptr;

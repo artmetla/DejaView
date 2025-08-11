@@ -12,14 +12,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("perfetto.gni")
+import("dejaview.gni")
 
-if (perfetto_root_path == "//") {
+if (dejaview_root_path == "//") {
   import("//gn/standalone/fuzzer.gni")
 } else {
   # TODO: integrate fuzzer support for chromium builds.
   # For now just create a dummy template to avoid GN warnings.
-  template("perfetto_fuzzer_test") {
+  template("dejaview_fuzzer_test") {
     not_needed(invoker, "*")
     group(target_name) {
     }

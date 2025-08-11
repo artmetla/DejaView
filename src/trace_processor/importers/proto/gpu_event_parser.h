@@ -26,15 +26,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/protozero/field.h"
-#include "protos/perfetto/trace/gpu/gpu_render_stage_event.pbzero.h"
+#include "dejaview/protozero/field.h"
+#include "protos/dejaview/trace/gpu/gpu_render_stage_event.pbzero.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/vulkan_memory_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-#include "protos/perfetto/trace/gpu/vulkan_memory_event.pbzero.h"
+#include "protos/dejaview/trace/gpu/vulkan_memory_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos::pbzero {
 class GpuRenderStageEvent_Decoder;
@@ -131,6 +131,6 @@ class GpuEventParser {
   const StringId gpu_mem_total_proc_desc_id_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_GPU_EVENT_PARSER_H_

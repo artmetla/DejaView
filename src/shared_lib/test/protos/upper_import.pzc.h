@@ -23,8 +23,8 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#include "perfetto/public/pb_macros.h"
+#include "dejaview/public/pb_macros.h"
 
-PERFETTO_PB_MSG(protozero_test_protos_TrickyPublicImport);
+DEJAVIEW_PB_MSG(protozero_test_protos_TrickyPublicImport);
 
 #endif  // SRC_SHARED_LIB_TEST_PROTOS_UPPER_IMPORT_PZC_H_

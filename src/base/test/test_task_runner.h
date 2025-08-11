@@ -22,12 +22,12 @@
 #include <map>
 #include <string>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/unix_task_runner.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/unix_task_runner.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 class TestTaskRunner : public TaskRunner {
@@ -36,7 +36,7 @@ class TestTaskRunner : public TaskRunner {
   ~TestTaskRunner() override;
 
   void RunUntilIdle();
-  void PERFETTO_NORETURN Run();
+  void DEJAVIEW_NORETURN Run();
 
   std::function<void()> CreateCheckpoint(const std::string& checkpoint);
   void RunUntilCheckpoint(const std::string& checkpoint,
@@ -68,6 +68,6 @@ class TestTaskRunner : public TaskRunner {
 };
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_BASE_TEST_TEST_TASK_RUNNER_H_

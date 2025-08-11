@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/threading/stream.h"
+#include "dejaview/ext/base/threading/stream.h"
 
 #include <vector>
 
-#include "perfetto/base/platform_handle.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/event_fd.h"
-#include "perfetto/ext/base/threading/future_combinators.h"
-#include "perfetto/ext/base/threading/poll.h"
+#include "dejaview/base/platform_handle.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/event_fd.h"
+#include "dejaview/ext/base/threading/future_combinators.h"
+#include "dejaview/ext/base/threading/poll.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -332,4 +332,4 @@ TEST_F(StreamUnittest, FlattenStreams) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

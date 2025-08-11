@@ -16,7 +16,7 @@
 
 #include "src/traced/probes/filesystem/inode_file_data_source.h"
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/utils.h"
 #include "src/traced/probes/filesystem/lru_inode_cache.h"
@@ -24,10 +24,10 @@
 
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/config/inode_file/inode_file_config.pbzero.h"
-#include "protos/perfetto/trace/filesystem/inode_file_map.pbzero.h"
+#include "protos/dejaview/config/inode_file/inode_file_config.pbzero.h"
+#include "protos/dejaview/trace/filesystem/inode_file_map.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using ::testing::_;
@@ -53,7 +53,7 @@ class TestInodeFileDataSource : public InodeFileDataSource {
                             cache,
                             std::move(writer)) {
     struct stat buf;
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         lstat(base::GetTestDataPath("src/traced/probes/filesystem/testdata")
                   .c_str(),
               &buf) != -1);
@@ -96,7 +96,7 @@ TEST_F(InodeFileDataSourceTest, TestFileSystemScan) {
   auto data_source = GetInodeFileDataSource(ds_config);
 
   struct stat buf;
-  PERFETTO_CHECK(
+  DEJAVIEW_CHECK(
       lstat(base::GetTestDataPath("src/traced/probes/filesystem/testdata/file2")
                 .c_str(),
             &buf) != -1);
@@ -124,7 +124,7 @@ TEST_F(InodeFileDataSourceTest, TestStaticMap) {
       &static_file_map_);
 
   struct stat buf;
-  PERFETTO_CHECK(
+  DEJAVIEW_CHECK(
       lstat(base::GetTestDataPath("src/traced/probes/filesystem/testdata/file2")
                 .c_str(),
             &buf) != -1);
@@ -147,7 +147,7 @@ TEST_F(InodeFileDataSourceTest, TestCache) {
       &static_file_map_);
 
   struct stat buf;
-  PERFETTO_CHECK(
+  DEJAVIEW_CHECK(
       lstat(base::GetTestDataPath("src/traced/probes/filesystem/testdata/file2")
                 .c_str(),
             &buf) != -1);
@@ -163,4 +163,4 @@ TEST_F(InodeFileDataSourceTest, TestCache) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

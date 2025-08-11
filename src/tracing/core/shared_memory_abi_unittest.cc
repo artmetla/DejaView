@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
 
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 #include "src/tracing/test/aligned_buffer_test.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using testing::ValuesIn;
@@ -249,4 +249,4 @@ TEST_P(SharedMemoryABITest, ShmemEmulation) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

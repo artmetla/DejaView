@@ -18,7 +18,7 @@
 
 #include "src/trace_processor/importers/perf/reader.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 base::Status ItraceStartRecord::Parse(const Record& record) {
   Reader reader(record.payload.copy());
@@ -36,4 +36,4 @@ base::Status ItraceStartRecord::Parse(const Record& record) {
   return sample_id->ParseFromRecord(record);
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

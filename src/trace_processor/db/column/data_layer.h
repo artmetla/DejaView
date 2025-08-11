@@ -24,13 +24,13 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 class DataLayerChain;
 
 // Data structure which either directly or indirectly (i.e. by transforming
@@ -153,10 +153,10 @@ class DataLayerChain {
   //    optimize based on it.
   //  * Implementations should ensure that, if they return a BitVector, it is
   //    precisely of size |range.end|.
-  PERFETTO_ALWAYS_INLINE RangeOrBitVector Search(FilterOp op,
+  DEJAVIEW_ALWAYS_INLINE RangeOrBitVector Search(FilterOp op,
                                                  SqlValue value,
                                                  Range range) const {
-    PERFETTO_DCHECK(range.end <= size());
+    DEJAVIEW_DCHECK(range.end <= size());
     switch (ValidateSearchConstraints(op, value)) {
       case SearchValidationResult::kAllData:
         return RangeOrBitVector(range);
@@ -165,7 +165,7 @@ class DataLayerChain {
       case SearchValidationResult::kOk:
         return SearchValidated(op, value, range);
     }
-    PERFETTO_FATAL("For GCC");
+    DEJAVIEW_FATAL("For GCC");
   }
 
   // Searches for elements which match |op| and |value| at the positions given
@@ -182,7 +182,7 @@ class DataLayerChain {
   // Notes for implementors:
   //  * Implementations should ensure that, if they return a BitVector, it is
   //    precisely of size |indices_count|.
-  PERFETTO_ALWAYS_INLINE void IndexSearch(FilterOp op,
+  DEJAVIEW_ALWAYS_INLINE void IndexSearch(FilterOp op,
                                           SqlValue value,
                                           Indices& indices) const {
     switch (ValidateSearchConstraints(op, value)) {
@@ -195,7 +195,7 @@ class DataLayerChain {
         IndexSearchValidated(op, value, indices);
         return;
     }
-    PERFETTO_FATAL("For GCC");
+    DEJAVIEW_FATAL("For GCC");
   }
 
   // Searches for elements which match |op| and |value| at the positions given
@@ -212,7 +212,7 @@ class DataLayerChain {
   //      result.
   //  * Callers should note that the return value of this function corresponds
   //    to positions in |indices| *not* positions in the storage.
-  PERFETTO_ALWAYS_INLINE Range
+  DEJAVIEW_ALWAYS_INLINE Range
   OrderedIndexSearch(FilterOp op,
                      SqlValue value,
                      const OrderedIndices& indices) const {
@@ -224,7 +224,7 @@ class DataLayerChain {
       case SearchValidationResult::kOk:
         return OrderedIndexSearchValidated(op, value, indices);
     }
-    PERFETTO_FATAL("For GCC");
+    DEJAVIEW_FATAL("For GCC");
   }
 
   // Stable sorts an array of Token elements between |start| and |end|
@@ -318,6 +318,6 @@ class DataLayerChain {
   virtual SqlValue Get_AvoidUsingBecauseSlow(uint32_t index) const = 0;
 };
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COLUMN_DATA_LAYER_H_

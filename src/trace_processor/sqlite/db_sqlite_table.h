@@ -24,15 +24,15 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/db/runtime_table.h"
 #include "src/trace_processor/db/table.h"
-#include "src/trace_processor/perfetto_sql/intrinsics/table_functions/static_table_function.h"
+#include "src/trace_processor/dejaview_sql/intrinsics/table_functions/static_table_function.h"
 #include "src/trace_processor/sqlite/bindings/sqlite_module.h"
 #include "src/trace_processor/sqlite/module_lifecycle_manager.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 enum class TableComputation {
   // Table is statically defined.
@@ -165,6 +165,6 @@ struct DbSqliteModule : public sqlite::Module<DbSqliteModule> {
   static constexpr sqlite3_module kModule = CreateModule();
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_SQLITE_DB_SQLITE_TABLE_H_

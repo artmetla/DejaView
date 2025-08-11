@@ -30,10 +30,10 @@ GRPC_GN_HEADER = '''
 # tools/gen_grpc_build_gn.py > buildtools/grpc/BUILD.gn
 #
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 # Prevent the gRPC from being depended upon without explicitly being opted in.
-assert(enable_perfetto_grpc)
+assert(enable_dejaview_grpc)
 
 # BoringSSL has assembly code which is tied to platform-specific. For now, we
 # only care about Linux x64 so assert this as the case.

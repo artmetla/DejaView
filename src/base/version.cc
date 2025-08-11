@@ -14,40 +14,40 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/version.h"
+#include "dejaview/ext/base/version.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
 #include <stdio.h>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_VERSION_GEN)
-#include "perfetto_version.gen.h"
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_VERSION_GEN)
+#include "dejaview_version.gen.h"
 #else
-#define PERFETTO_VERSION_STRING() nullptr
-#define PERFETTO_VERSION_SCM_REVISION() "unknown"
+#define DEJAVIEW_VERSION_STRING() nullptr
+#define DEJAVIEW_VERSION_SCM_REVISION() "unknown"
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 const char* GetVersionCode() {
-  return PERFETTO_VERSION_STRING();
+  return DEJAVIEW_VERSION_STRING();
 }
 
 const char* GetVersionString() {
   static const char* version_str = [] {
     static constexpr size_t kMaxLen = 256;
-    const char* version_code = PERFETTO_VERSION_STRING();
+    const char* version_code = DEJAVIEW_VERSION_STRING();
     if (version_code == nullptr) {
       version_code = "v0.0";
     }
     char* version = new char[kMaxLen + 1];
-    snprintf(version, kMaxLen, "Perfetto %s (%s)", version_code,
-             PERFETTO_VERSION_SCM_REVISION());
+    snprintf(version, kMaxLen, "DejaView %s (%s)", version_code,
+             DEJAVIEW_VERSION_SCM_REVISION());
     return version;
   }();
   return version_str;
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

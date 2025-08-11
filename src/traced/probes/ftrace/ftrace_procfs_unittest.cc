@@ -23,7 +23,7 @@ using testing::IsEmpty;
 using testing::Return;
 using testing::UnorderedElementsAre;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 class MockFtraceProcfs : public FtraceProcfs {
@@ -101,4 +101,4 @@ TEST(FtraceProcfsTest, ParseAvailableClocks) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview

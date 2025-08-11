@@ -21,10 +21,10 @@
 #include <cstring>
 #include <optional>
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/containers/string_pool.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 
 struct alignas(8) AndroidLogEvent {
   enum class Format : int32_t {
@@ -47,6 +47,6 @@ struct alignas(8) AndroidLogEvent {
   StringPool::Id msg;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_ANDROID_LOG_EVENT_H_

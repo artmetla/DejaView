@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {PageLoadDetailsPanel} from './page_load_details_panel';
 import {StartupDetailsPanel} from './startup_details_panel';
 import {WebContentInteractionPanel} from './web_content_interaction_details_panel';
@@ -22,10 +22,10 @@ import {TrackNode} from '../../public/workspace';
 import {TrackEventSelection} from '../../public/selection';
 import {GenericSliceDetailsTab} from '../../frontend/generic_slice_details_tab';
 
-class CriticalUserInteractionPlugin implements PerfettoPlugin {
+class CriticalUserInteractionPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     ctx.commands.registerCommand({
-      id: 'perfetto.CriticalUserInteraction.AddInteractionTrack',
+      id: 'dejaview.CriticalUserInteraction.AddInteractionTrack',
       name: 'Add track: Chrome interactions',
       callback: () => {
         const track = new TrackNode({
@@ -69,6 +69,6 @@ class CriticalUserInteractionPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.CriticalUserInteraction',
+  pluginId: 'dejaview.CriticalUserInteraction',
   plugin: CriticalUserInteractionPlugin,
 };

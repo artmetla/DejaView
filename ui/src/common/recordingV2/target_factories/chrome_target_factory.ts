@@ -93,7 +93,7 @@ export class ChromeTargetFactory implements TargetFactory {
   }
 }
 
-// We only instantiate the factory if Perfetto UI is open in the Chrome browser.
+// We only instantiate the factory if DejaView UI is open in the Chrome browser.
 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 if (globalThis.chrome && chrome.runtime) {
   targetFactoryRegistry.register(new ChromeTargetFactory());

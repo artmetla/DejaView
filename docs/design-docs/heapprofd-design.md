@@ -11,7 +11,7 @@ Provide a low-overhead native heap profiling mechanism, with C++ and Java callst
 
 Implement an out-of-process heap profiler. Do the minimal amount of processing in-line of malloc, and then delegate to a central component for further processing. This introduces a new daemon _heapprofd_.
 
-When tracing is enabled, either via a system property or a signal delivered to an existing process, a given percentage of malloc calls copies the current call stack into a shared memory buffer that is received by heapprofd. heapprofd uses libunwindstack asynchronously for stack unwinding and symbolization. This information is used to build bookkeeping tables to track live allocations and is ultimately dumped into the Perfetto trace.
+When tracing is enabled, either via a system property or a signal delivered to an existing process, a given percentage of malloc calls copies the current call stack into a shared memory buffer that is received by heapprofd. heapprofd uses libunwindstack asynchronously for stack unwinding and symbolization. This information is used to build bookkeeping tables to track live allocations and is ultimately dumped into the DejaView trace.
 
 All data referenced in this design document was collected on a Pixel 2 on Android P.
 
@@ -228,8 +228,8 @@ Symbolization is the process of determining function name and line number from a
 
 For other builds, symbolization requires debug info contained within the binary. This information is often compressed. Symbolization of JIT-ed code requires information contained in process memory.
 
-### Perfetto
-[Perfetto](https://perfetto.dev) is an open-source, highly efficient and expandable platform-wide tracing system that allows collection of performance data from kernel, apps and services. It aims to become the next-gen performance tracing mechanism for both Android and Chrome.
+### DejaView
+[DejaView](https://perfetto.dev) is an open-source, highly efficient and expandable platform-wide tracing system that allows collection of performance data from kernel, apps and services. It aims to become the next-gen performance tracing mechanism for both Android and Chrome.
 
 
 ## Related Work

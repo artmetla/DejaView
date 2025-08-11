@@ -21,13 +21,13 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/no_destructor.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/no_destructor.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -83,7 +83,7 @@ void TraceStorage::SqlStats::RecordQueryFirstNext(uint32_t row,
   if (popped_queries_ > row)
     return;
   uint32_t queue_row = row - popped_queries_;
-  PERFETTO_DCHECK(queue_row < queries_.size());
+  DEJAVIEW_DCHECK(queue_row < queries_.size());
   times_first_next_[queue_row] = time_first_next;
 }
 
@@ -93,8 +93,8 @@ void TraceStorage::SqlStats::RecordQueryEnd(uint32_t row, int64_t time_ended) {
   if (popped_queries_ > row)
     return;
   uint32_t queue_row = row - popped_queries_;
-  PERFETTO_DCHECK(queue_row < queries_.size());
+  DEJAVIEW_DCHECK(queue_row < queries_.size());
   times_ended_[queue_row] = time_ended;
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

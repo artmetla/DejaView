@@ -17,10 +17,10 @@
 #ifndef SRC_TRACE_PROCESSOR_UTIL_DEBUG_ANNOTATION_PARSER_H_
 #define SRC_TRACE_PROCESSOR_UTIL_DEBUG_ANNOTATION_PARSER_H_
 
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -61,6 +61,6 @@ class DebugAnnotationParser {
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_DEBUG_ANNOTATION_PARSER_H_

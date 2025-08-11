@@ -15,21 +15,21 @@
 
 -- This metric will be deprecated soon. All of the tables have been
 -- migrated to SQL standard library and can be imported from:
-INCLUDE PERFETTO MODULE android.startup.startups;
+INCLUDE DEJAVIEW MODULE android.startup.startups;
 
 
 DROP VIEW IF EXISTS launches;
-CREATE PERFETTO VIEW launches AS
+CREATE DEJAVIEW VIEW launches AS
 SELECT startup_id AS launch_id, *, startup_type as launch_type FROM android_startups;
 
 DROP VIEW IF EXISTS launch_processes;
-CREATE PERFETTO VIEW launch_processes AS
+CREATE DEJAVIEW VIEW launch_processes AS
 SELECT startup_id AS launch_id, * FROM android_startup_processes;
 
 DROP VIEW IF EXISTS launch_threads;
-CREATE PERFETTO VIEW launch_threads AS
+CREATE DEJAVIEW VIEW launch_threads AS
 SELECT startup_id AS launch_id, * FROM android_startup_threads;
 
 DROP VIEW IF EXISTS launching_events;
-CREATE PERFETTO VIEW launching_events AS
+CREATE DEJAVIEW VIEW launching_events AS
 SELECT * FROM _startup_events;

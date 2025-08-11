@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/trace_processor/read_trace.h"
+#include "dejaview/trace_processor/read_trace.h"
 #include <cstdint>
 #include <functional>
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/gzip/gzip_trace_parser.h"
 #include "src/trace_processor/importers/proto/proto_trace_tokenizer.h"
@@ -34,10 +34,10 @@
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/trace_type.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 class SerializingProtoTraceReader : public ChunkedTraceReader {
@@ -98,7 +98,7 @@ base::Status DecompressTrace(const uint8_t* data,
     return parser.NotifyEndOfFile();
   }
 
-  PERFETTO_CHECK(type == TraceType::kProtoTraceType);
+  DEJAVIEW_CHECK(type == TraceType::kProtoTraceType);
 
   protos::pbzero::Trace::Decoder decoder(data, size);
   util::GzipDecompressor decompressor;
@@ -127,4 +127,4 @@ base::Status DecompressTrace(const uint8_t* data,
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

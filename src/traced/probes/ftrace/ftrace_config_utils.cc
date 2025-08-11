@@ -16,9 +16,9 @@
 
 #include "src/traced/probes/ftrace/ftrace_config_utils.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 // Excludes \r, \n, escape sequences and control chars.
@@ -67,23 +67,23 @@ bool RequiresAtrace(const FtraceConfig& config) {
 bool ValidConfig(const FtraceConfig& config) {
   for (const std::string& event_name : config.ftrace_events()) {
     if (!IsValidFtraceEventName(event_name)) {
-      PERFETTO_ELOG("Bad event name '%s'", event_name.c_str());
+      DEJAVIEW_ELOG("Bad event name '%s'", event_name.c_str());
       return false;
     }
   }
   for (const std::string& category : config.atrace_categories()) {
     if (!IsValidAtraceEventName(category)) {
-      PERFETTO_ELOG("Bad category name '%s'", category.c_str());
+      DEJAVIEW_ELOG("Bad category name '%s'", category.c_str());
       return false;
     }
   }
   for (const std::string& app : config.atrace_apps()) {
     if (!IsValidAtraceEventName(app)) {
-      PERFETTO_ELOG("Bad app '%s'", app.c_str());
+      DEJAVIEW_ELOG("Bad app '%s'", app.c_str());
       return false;
     }
   }
   return true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

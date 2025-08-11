@@ -21,12 +21,12 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_event.h"
 #include "src/trace_processor/importers/android_bugreport/chunked_line_reader.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 
 class TraceProcessorContext;
 
@@ -130,6 +130,6 @@ class DedupingAndroidLogReader : public AndroidLogReader {
   std::vector<TimestampedAndroidLogEvent> events_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ANDROID_BUGREPORT_ANDROID_LOG_READER_H_

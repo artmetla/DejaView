@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto_host_executable.gni")
+import("../../../gn/dejaview_host_executable.gni")
 
-perfetto_host_executable("proto_merger") {
+dejaview_host_executable("proto_merger") {
   testonly = true
   deps = [
     "../../../gn:default_deps",

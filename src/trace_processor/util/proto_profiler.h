@@ -20,11 +20,11 @@
 #include <algorithm>
 #include <vector>
 
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/util/descriptors.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -114,6 +114,6 @@ class SizeProfileComputer {
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_PROTO_PROFILER_H_

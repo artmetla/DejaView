@@ -169,7 +169,7 @@ class TestCaseRunner:
       descriptor_paths = [
           f.path
           for f in os.scandir(
-              os.path.join(ROOT_DIR, out_path, 'gen', 'protos', 'perfetto',
+              os.path.join(ROOT_DIR, out_path, 'gen', 'protos', 'dejaview',
                            'trace_processor'))
           if f.is_file() and os.path.splitext(f.name)[1] == '.descriptor'
       ]
@@ -321,7 +321,7 @@ class TestCaseRunner:
       gen_trace_file = tempfile.NamedTemporaryFile(delete=False)
       proto = create_message_factory([self.trace_descriptor_path] +
                                      extension_descriptor_paths,
-                                     'perfetto.protos.Trace')()
+                                     'dejaview.protos.Trace')()
       text_format.Merge(self.test.blueprint.trace.contents, proto)
       gen_trace_file.write(proto.SerializeToString())
       gen_trace_file.flush()
@@ -357,7 +357,7 @@ class TestCaseRunner:
       result = self.__run_metrics_test(
           trace_path,
           create_message_factory(metrics_descriptor_paths,
-                                 'perfetto.protos.TraceMetrics'))
+                                 'dejaview.protos.TraceMetrics'))
     else:
       assert False
 
@@ -408,7 +408,7 @@ class TestCaseRunner:
               rebase: bool) -> Tuple[str, str, TestResult]:
     if not metrics_descriptor_paths:
       out_path = os.path.dirname(self.trace_processor_path)
-      metrics_protos_path = os.path.join(out_path, 'gen', 'protos', 'perfetto',
+      metrics_protos_path = os.path.join(out_path, 'gen', 'protos', 'dejaview',
                                          'metrics')
       metrics_descriptor_paths = [
           os.path.join(metrics_protos_path, 'metrics.descriptor'),

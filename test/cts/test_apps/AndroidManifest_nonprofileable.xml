@@ -16,17 +16,17 @@
  -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="android.perfetto.cts.app.nonprofileable">
+    package="android.dejaview.cts.app.nonprofileable">
 
     <application>
         <profileable android:shell="true" android:enabled="false"/>
         <activity
-          android:name="android.perfetto.cts.app.MainActivity"
+          android:name="android.dejaview.cts.app.MainActivity"
           android:exported="true">
         </activity>
         <activity-alias
-          android:name="android.perfetto.cts.app.nonprofileable.MainActivity"
-          android:targetActivity="android.perfetto.cts.app.MainActivity"
+          android:name="android.dejaview.cts.app.nonprofileable.MainActivity"
+          android:targetActivity="android.dejaview.cts.app.MainActivity"
           android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -34,12 +34,12 @@
             </intent-filter>
         </activity-alias>
         <activity
-          android:name="android.perfetto.cts.app.BusyWaitActivity"
+          android:name="android.dejaview.cts.app.BusyWaitActivity"
           android:exported="true">
         </activity>
         <activity-alias
-          android:name="android.perfetto.cts.app.nonprofileable.BusyWaitActivity"
-          android:targetActivity="android.perfetto.cts.app.BusyWaitActivity"
+          android:name="android.dejaview.cts.app.nonprofileable.BusyWaitActivity"
+          android:targetActivity="android.dejaview.cts.app.BusyWaitActivity"
           android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -47,12 +47,12 @@
             </intent-filter>
         </activity-alias>
         <activity
-          android:name="android.perfetto.cts.app.JavaAllocActivity"
+          android:name="android.dejaview.cts.app.JavaAllocActivity"
           android:exported="true">
         </activity>
         <activity-alias
-          android:name="android.perfetto.cts.app.nonprofileable.JavaAllocActivity"
-          android:targetActivity="android.perfetto.cts.app.JavaAllocActivity"
+          android:name="android.dejaview.cts.app.nonprofileable.JavaAllocActivity"
+          android:targetActivity="android.dejaview.cts.app.JavaAllocActivity"
           android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -60,8 +60,8 @@
             </intent-filter>
         </activity-alias>
         <provider
-          android:name="android.perfetto.cts.app.FileContentProvider"
-          android:authorities="android.perfetto.cts.app.nonprofileable"
+          android:name="android.dejaview.cts.app.FileContentProvider"
+          android:authorities="android.dejaview.cts.app.nonprofileable"
           android:exported="true"
           android:grantUriPermissions="true" />
     </application>

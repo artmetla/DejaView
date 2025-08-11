@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/importers/fuchsia/fuchsia_record.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 void FuchsiaRecord::InsertString(uint32_t index, StringPool::Id string_id) {
@@ -52,4 +52,4 @@ FuchsiaThreadInfo FuchsiaRecord::GetThread(uint32_t index) {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

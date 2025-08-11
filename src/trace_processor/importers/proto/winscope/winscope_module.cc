@@ -15,17 +15,17 @@
  */
 
 #include "src/trace_processor/importers/proto/winscope/winscope_module.h"
-#include "protos/perfetto/trace/android/winscope_extensions.pbzero.h"
-#include "protos/perfetto/trace/android/winscope_extensions_impl.pbzero.h"
+#include "protos/dejaview/trace/android/winscope_extensions.pbzero.h"
+#include "protos/dejaview/trace/android/winscope_extensions_impl.pbzero.h"
 #include "src/trace_processor/importers/proto/args_parser.h"
 #include "src/trace_processor/importers/proto/winscope/viewcapture_args_parser.h"
 #include "src/trace_processor/importers/proto/winscope/winscope.descriptor.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
-using perfetto::protos::pbzero::WinscopeExtensionsImpl;
+using dejaview::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::WinscopeExtensionsImpl;
 
 WinscopeModule::WinscopeModule(TraceProcessorContext* context)
     : context_{context},
@@ -227,4 +227,4 @@ void WinscopeModule::ParseWindowManagerData(int64_t timestamp,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

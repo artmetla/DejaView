@@ -20,43 +20,43 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 SingleSearchResult DummyStorage::ChainImpl::SingleSearch(FilterOp,
                                                          SqlValue,
                                                          uint32_t) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 SearchValidationResult DummyStorage::ChainImpl::ValidateSearchConstraints(
     FilterOp,
     SqlValue) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 RangeOrBitVector DummyStorage::ChainImpl::SearchValidated(FilterOp,
                                                           SqlValue,
                                                           Range) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 void DummyStorage::ChainImpl::IndexSearchValidated(FilterOp,
                                                    SqlValue,
                                                    Indices&) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 void DummyStorage::ChainImpl::StableSort(Token*, Token*, SortDirection) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 void DummyStorage::ChainImpl::Distinct(Indices&) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 uint32_t DummyStorage::ChainImpl::size() const {
@@ -64,15 +64,15 @@ uint32_t DummyStorage::ChainImpl::size() const {
 }
 
 std::optional<Token> DummyStorage::ChainImpl::MaxElement(Indices&) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 std::optional<Token> DummyStorage::ChainImpl::MinElement(Indices&) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
 SqlValue DummyStorage::ChainImpl::Get_AvoidUsingBecauseSlow(uint32_t) const {
-  PERFETTO_FATAL("Shouldn't be called");
+  DEJAVIEW_FATAL("Shouldn't be called");
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

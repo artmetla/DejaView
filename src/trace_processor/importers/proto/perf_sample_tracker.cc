@@ -19,16 +19,16 @@
 
 #include <cinttypes>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-#include "protos/perfetto/common/perf_events.pbzero.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/common/perf_events.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 namespace {
@@ -82,7 +82,7 @@ const char* StringifyCounter(int32_t counter) {
     default:
       break;
   }
-  PERFETTO_DLOG("Unknown PerfEvents::Counter enum value");
+  DEJAVIEW_DLOG("Unknown PerfEvents::Counter enum value");
   return "unknown";
 }
 
@@ -116,7 +116,7 @@ StringId InternCounterName(
     return context->storage->InternString(name.string_view());
   }
 
-  PERFETTO_DLOG("Could not name the perf counter");
+  DEJAVIEW_DLOG("Could not name the perf counter");
   return context->storage->InternString("unknown");
 }
 
@@ -217,4 +217,4 @@ tables::PerfSessionTable::Id PerfSampleTracker::CreatePerfSession() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

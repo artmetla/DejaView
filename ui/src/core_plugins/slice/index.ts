@@ -15,11 +15,11 @@
 import {addSqlTableTab} from '../../frontend/sql_table_tab_interface';
 import {sqlTableRegistry} from '../../frontend/widgets/sql/table/sql_table_registry';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {getSliceTable} from './table';
 import {AsyncAndThreadSliceSelectionAggregator} from './async_and_thread_slice_selection_aggregator';
 
-class SlicePlugin implements PerfettoPlugin {
+class SlicePlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace) {
     ctx.selection.registerAreaSelectionAggreagtor(
       new AsyncAndThreadSliceSelectionAggregator(),
@@ -27,7 +27,7 @@ class SlicePlugin implements PerfettoPlugin {
 
     sqlTableRegistry['slice'] = getSliceTable();
     ctx.commands.registerCommand({
-      id: 'perfetto.ShowTable.slice',
+      id: 'dejaview.ShowTable.slice',
       name: 'Open table: slice',
       callback: () => {
         addSqlTableTab(ctx, {
@@ -39,6 +39,6 @@ class SlicePlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.Slice',
+  pluginId: 'dejaview.Slice',
   plugin: SlicePlugin,
 };

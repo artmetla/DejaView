@@ -26,22 +26,22 @@
 #include <unordered_map>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/message.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/trace_processor.h"
-#include "src/trace_processor/perfetto_sql/engine/perfetto_sql_engine.h"
-#include "src/trace_processor/perfetto_sql/intrinsics/functions/sql_function.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/message.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/trace_processor.h"
+#include "src/trace_processor/dejaview_sql/engine/dejaview_sql_engine.h"
+#include "src/trace_processor/dejaview_sql/intrinsics/functions/sql_function.h"
 #include "src/trace_processor/sqlite/bindings/sqlite_aggregate_function.h"
 #include "src/trace_processor/util/descriptors.h"
 
-#include "protos/perfetto/trace_processor/metrics_impl.pbzero.h"
+#include "protos/dejaview/trace_processor/metrics_impl.pbzero.h"
 
-namespace perfetto::trace_processor::metrics {
+namespace dejaview::trace_processor::metrics {
 
 // A description of a SQL metric in C++.
 struct SqlMetricFile {
@@ -174,7 +174,7 @@ struct BuildProto : public SqlFunction {
 // Implements the RUN_METRIC SQL function.
 struct RunMetric : public SqlFunction {
   struct Context {
-    PerfettoSqlEngine* engine;
+    DejaViewSqlEngine* engine;
     std::vector<SqlMetricFile>* metrics;
   };
   static constexpr bool kVoidReturn = true;
@@ -203,13 +203,13 @@ struct RepeatedField : public SqliteAggregateFunction<RepeatedField> {
   static void Final(sqlite3_context* ctx);
 };
 
-base::Status ComputeMetrics(PerfettoSqlEngine*,
+base::Status ComputeMetrics(DejaViewSqlEngine*,
                             const std::vector<std::string>& metrics_to_compute,
                             const std::vector<SqlMetricFile>& metrics,
                             const DescriptorPool& pool,
                             const ProtoDescriptor& root_descriptor,
                             std::vector<uint8_t>* metrics_proto);
 
-}  // namespace perfetto::trace_processor::metrics
+}  // namespace dejaview::trace_processor::metrics
 
 #endif  // SRC_TRACE_PROCESSOR_METRICS_METRICS_H_

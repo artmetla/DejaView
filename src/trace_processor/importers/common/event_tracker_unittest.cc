@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/importers/common/event_tracker.h"
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/machine_tracker.h"
@@ -24,7 +24,7 @@
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -81,4 +81,4 @@ TEST_F(EventTrackerTest, CounterDuration) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

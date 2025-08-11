@@ -17,9 +17,9 @@
 #ifndef SRC_TRACING_IPC_MEMFD_H_
 #define SRC_TRACING_IPC_MEMFD_H_
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_file.h"
 
 // Some android build bots use a sysroot that doesn't support memfd when
 // compiling for the host, so we define the flags we need ourselves.
@@ -40,7 +40,7 @@
 #define F_SEAL_WRITE 0x0008
 #endif
 
-namespace perfetto {
+namespace dejaview {
 
 // Whether the operating system supports memfd.
 bool HasMemfdSupport();
@@ -50,6 +50,6 @@ bool HasMemfdSupport();
 // Returns an invalid ScopedFile on failure.
 base::ScopedFile CreateMemfd(const char* name, unsigned int flags);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_IPC_MEMFD_H_

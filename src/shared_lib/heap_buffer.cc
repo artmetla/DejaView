@@ -14,24 +14,24 @@
  * limitations under the License.
  */
 
-#include "perfetto/public/abi/heap_buffer.h"
+#include "dejaview/public/abi/heap_buffer.h"
 
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/shared_lib/stream_writer.h"
 
-struct PerfettoHeapBuffer* PerfettoHeapBufferCreate(
-    struct PerfettoStreamWriter* w) {
+struct DejaViewHeapBuffer* DejaViewHeapBufferCreate(
+    struct DejaViewStreamWriter* w) {
   auto* shb = new protozero::ScatteredHeapBuffer(4096, 4096);
   auto* sw = new protozero::ScatteredStreamWriter(shb);
   shb->set_writer(sw);
 
-  w->impl = reinterpret_cast<PerfettoStreamWriterImpl*>(sw);
-  perfetto::UpdateStreamWriter(*sw, w);
-  return reinterpret_cast<PerfettoHeapBuffer*>(shb);
+  w->impl = reinterpret_cast<DejaViewStreamWriterImpl*>(sw);
+  dejaview::UpdateStreamWriter(*sw, w);
+  return reinterpret_cast<DejaViewHeapBuffer*>(shb);
 }
 
-void PerfettoHeapBufferCopyInto(struct PerfettoHeapBuffer* buf,
-                                struct PerfettoStreamWriter* w,
+void DejaViewHeapBufferCopyInto(struct DejaViewHeapBuffer* buf,
+                                struct DejaViewStreamWriter* w,
                                 void* dst,
                                 size_t size) {
   auto* shb = reinterpret_cast<protozero::ScatteredHeapBuffer*>(buf);
@@ -51,8 +51,8 @@ void PerfettoHeapBufferCopyInto(struct PerfettoHeapBuffer* buf,
   }
 }
 
-void PerfettoHeapBufferDestroy(struct PerfettoHeapBuffer* buf,
-                               struct PerfettoStreamWriter* w) {
+void DejaViewHeapBufferDestroy(struct DejaViewHeapBuffer* buf,
+                               struct DejaViewStreamWriter* w) {
   auto* shb = reinterpret_cast<protozero::ScatteredHeapBuffer*>(buf);
   auto* sw = reinterpret_cast<protozero::ScatteredStreamWriter*>(w->impl);
   delete sw;

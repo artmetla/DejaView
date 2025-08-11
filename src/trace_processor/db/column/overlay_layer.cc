@@ -18,10 +18,10 @@
 
 #include "src/trace_processor/db/column/data_layer.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 
 OverlayLayer::OverlayLayer(Impl impl) : DataLayer(impl) {}
 
 OverlayLayer::~OverlayLayer() = default;
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

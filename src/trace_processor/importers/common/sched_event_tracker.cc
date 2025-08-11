@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/common/sched_event_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 SchedEventTracker::~SchedEventTracker() = default;
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

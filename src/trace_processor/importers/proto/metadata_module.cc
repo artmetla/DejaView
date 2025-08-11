@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/importers/proto/metadata_module.h"
 
-#include "perfetto/ext/base/base64.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/uuid.h"
+#include "dejaview/ext/base/base64.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/uuid.h"
 #include "src/trace_processor/importers/common/metadata_tracker.h"
 #include "src/trace_processor/importers/common/slice_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
@@ -27,16 +27,16 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/protozero_to_text.h"
 
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/chrome/chrome_trigger.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trace_uuid.pbzero.h"
-#include "protos/perfetto/trace/trigger.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/chrome/chrome_trigger.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_uuid.pbzero.h"
+#include "protos/dejaview/trace/trigger.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 MetadataModule::MetadataModule(TraceProcessorContext* context)
     : context_(context),
@@ -187,7 +187,7 @@ void MetadataModule::ParseTraceConfig(
                                 kConfigDescriptor.size());
 
   std::string text = protozero_to_text::ProtozeroToText(
-      pool, ".perfetto.protos.TraceConfig",
+      pool, ".dejaview.protos.TraceConfig",
       protozero::ConstBytes{
           trace_config.begin(),
           static_cast<uint32_t>(trace_config.end() - trace_config.begin())},
@@ -198,4 +198,4 @@ void MetadataModule::ParseTraceConfig(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

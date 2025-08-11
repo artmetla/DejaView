@@ -54,7 +54,7 @@ SELECT 1;
 -- Second line.
 -- @arg utid INT              Utid of thread.
 -- @arg name STRING           String name.
-CREATE PERFETTO FUNCTION foo_fn(utid INT, name STRING)
+CREATE DEJAVIEW FUNCTION foo_fn(utid INT, name STRING)
 -- Exists.
 RETURNS BOOL
 AS
@@ -81,7 +81,7 @@ SELECT 1;
 -- @arg name STRING           String name.
 -- @column slice_id           Id of slice.
 -- @column slice_name         Name of slice.
-CREATE PERFETTO FUNCTION foo_view_fn(utid INT, name STRING)
+CREATE DEJAVIEW FUNCTION foo_view_fn(utid INT, name STRING)
 RETURNS TABLE(slice_id INT, slice_name STRING)
 AS SELECT 1;
     '''.strip())
@@ -117,7 +117,7 @@ SELECT 1;
     res = parse_file(
         'chrome/util/test.sql', f'''
 -- Comment
-CREATE PERFETTO TABLE cr_table(
+CREATE DEJAVIEW TABLE cr_table(
     -- Column.
     x INT
 ) AS
@@ -138,7 +138,7 @@ SELECT 1;
     res = parse_file(
         'chrome/util/test.sql', f'''
 -- Comment
-CREATE PERFETTO TABLE chrome_table(
+CREATE DEJAVIEW TABLE chrome_table(
     -- Column.
     x INT
 ) AS
@@ -159,7 +159,7 @@ SELECT 1;
     res = parse_file(
         'chrome/util/test.sql', f'''
 -- Comment
-CREATE PERFETTO TABLE foo_table(
+CREATE DEJAVIEW TABLE foo_table(
     -- Column.
     x INT
 ) AS
@@ -175,7 +175,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Comment
-CREATE PERFETTO TABLE cr_table(
+CREATE DEJAVIEW TABLE cr_table(
     -- Column.
     x INT
 ) AS
@@ -229,7 +229,7 @@ SELECT 1;
 --
 -- @arg utid2 INT             Uint.
 -- @arg name STRING           String name.
-CREATE PERFETTO FUNCTION foo_fn(utid INT, name STRING)
+CREATE DEJAVIEW FUNCTION foo_fn(utid INT, name STRING)
 -- Exists.
 RETURNS BOOL
 AS
@@ -247,7 +247,7 @@ SELECT 1;
 --
 -- @arg utid INT
 -- @arg name STRING           String name.
-CREATE PERFETTO FUNCTION foo_fn(utid INT, name STRING)
+CREATE DEJAVIEW FUNCTION foo_fn(utid INT, name STRING)
 -- Exists.
 RETURNS BOOL
 AS
@@ -262,7 +262,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Comment
-CREATE PERFETTO FUNCTION foo_fn()
+CREATE DEJAVIEW FUNCTION foo_fn()
 --
 RETURNS BOOL
 AS
@@ -283,7 +283,7 @@ SELECT TRUE;
 -- long
 --
 -- description.
-CREATE PERFETTO FUNCTION foo_fn()
+CREATE DEJAVIEW FUNCTION foo_fn()
 -- Exists.
 RETURNS BOOL
 AS
@@ -307,7 +307,7 @@ SELECT 1;
 -- @arg name STRING            String name
 --                             which spans across multiple lines
 -- inconsistently.
-CREATE PERFETTO FUNCTION foo_fn(utid INT, name STRING)
+CREATE DEJAVIEW FUNCTION foo_fn(utid INT, name STRING)
 -- Exists.
 RETURNS BOOL
 AS
@@ -329,7 +329,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Function comment.
-CREATE PERFETTO FUNCTION foo_SnakeCase()
+CREATE DEJAVIEW FUNCTION foo_SnakeCase()
 -- Exists.
 RETURNS BOOL
 AS
@@ -342,7 +342,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Table comment.
-CREATE PERFETTO TABLE foo_table(
+CREATE DEJAVIEW TABLE foo_table(
     -- Id of slice.
     id INT
 ) AS
@@ -358,11 +358,11 @@ SELECT 1 as id;
         'id': Arg('INT', 'Id of slice.'),
     })
 
-  def test_perfetto_view_with_schema(self):
+  def test_dejaview_view_with_schema(self):
     res = parse_file(
         'foo/bar.sql', f'''
 -- View comment.
-CREATE PERFETTO VIEW foo_table(
+CREATE DEJAVIEW VIEW foo_table(
     -- Foo.
     foo INT,
     -- Bar.
@@ -385,7 +385,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Function foo.
-CREATE PERFETTO FUNCTION foo_fn(
+CREATE DEJAVIEW FUNCTION foo_fn(
     -- Utid of thread.
     utid INT,
     -- String name.
@@ -412,7 +412,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Function foo.
-CREATE PERFETTO FUNCTION foo_fn(
+CREATE DEJAVIEW FUNCTION foo_fn(
     -- Utid of thread.
     utid INT)
 -- Impl comment.
@@ -439,7 +439,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Function foo.
-CREATE PERFETTO FUNCTION foo_fn(
+CREATE DEJAVIEW FUNCTION foo_fn(
     -- Multi
     -- line
     --
@@ -465,7 +465,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Function foo.
-CREATE PERFETTO FUNCTION foo_fn(
+CREATE DEJAVIEW FUNCTION foo_fn(
     -- Arg
     arg INT)
 -- Multi
@@ -491,7 +491,7 @@ SELECT 1;
     res = parse_file(
         'common/bar.sql', f'''
 -- Table.
-CREATE OR REPLACE PERFETTO TABLE foo(
+CREATE OR REPLACE DEJAVIEW TABLE foo(
     -- Column.
     x INT
 )
@@ -506,7 +506,7 @@ SELECT 1;
     res = parse_file(
         'common/bar.sql', f'''
 -- Table.
-CREATE OR REPLACE PERFETTO VIEW foo(
+CREATE OR REPLACE DEJAVIEW VIEW foo(
     -- Column.
     x INT
 )
@@ -521,7 +521,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Function foo.
-CREATE OR REPLACE PERFETTO FUNCTION foo_fn()
+CREATE OR REPLACE DEJAVIEW FUNCTION foo_fn()
 -- Exists.
 RETURNS BOOL
 AS
@@ -534,7 +534,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Function foo.
-CREATE PERFETTO FUNCTION foo_fn(
+CREATE DEJAVIEW FUNCTION foo_fn(
     -- Utid of thread (important).
     utid INT)
 -- Exists.
@@ -557,7 +557,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Macro
-CREATE OR REPLACE PERFETTO FUNCTION foo_fn()
+CREATE OR REPLACE DEJAVIEW FUNCTION foo_fn()
 -- Exists.
 RETURNS BOOL
 AS
@@ -570,7 +570,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Macro
-CREATE PERFETTO MACRO foo_macro(
+CREATE DEJAVIEW MACRO foo_macro(
   -- x Arg.
   x TableOrSubquery
 )
@@ -593,7 +593,7 @@ SELECT 1;
     res = parse_file(
         'foo/bar.sql', f'''
 -- Macro
-CREATE OR REPLACE PERFETTO MACRO foo_macro(
+CREATE OR REPLACE DEJAVIEW MACRO foo_macro(
   -- x Arg.
   x TableOrSubquery
 )

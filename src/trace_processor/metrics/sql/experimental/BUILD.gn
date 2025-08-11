@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../../../gn/perfetto.gni")
-import("../../../../../gn/perfetto_sql.gni")
+import("../../../../../gn/dejaview.gni")
+import("../../../../../gn/dejaview_sql.gni")
 
-assert(enable_perfetto_trace_processor_sqlite)
+assert(enable_dejaview_trace_processor_sqlite)
 
-perfetto_sql_source_set("experimental") {
+dejaview_sql_source_set("experimental") {
   sources = [
     "chrome_dropped_frames.sql",
     "chrome_long_latency.sql",

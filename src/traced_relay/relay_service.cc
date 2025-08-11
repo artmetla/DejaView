@@ -19,25 +19,25 @@
 #include <functional>
 #include <memory>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/ipc/client.h"
-#include "perfetto/tracing/core/clock_snapshots.h"
-#include "perfetto/tracing/core/forward_decls.h"
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/ipc/client.h"
+#include "dejaview/tracing/core/clock_snapshots.h"
+#include "dejaview/tracing/core/forward_decls.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 #include "src/ipc/buffered_frame_deserializer.h"
 #include "src/traced_relay/socket_relay_handler.h"
 #include "src/tracing/ipc/producer/relay_ipc_client.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
@@ -45,9 +45,9 @@
 #include <unistd.h>
 #endif
 
-using ::perfetto::protos::gen::IPCFrame;
+using ::dejaview::protos::gen::IPCFrame;
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 std::string GenerateSetPeerIdentityRequest(int32_t pid,
@@ -57,8 +57,8 @@ std::string GenerateSetPeerIdentityRequest(int32_t pid,
   ipc_frame.set_request_id(0);
 
   auto* set_peer_identity = ipc_frame.mutable_set_peer_identity();
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   set_peer_identity->set_pid(pid);
 #else
   base::ignore_result(pid);
@@ -112,7 +112,7 @@ void RelayClient::OnConnect(base::UnixSocket* self, bool connected) {
   }
 
   // Create the IPC client with a connected socket.
-  PERFETTO_DCHECK(self == client_sock_.get());
+  DEJAVIEW_DCHECK(self == client_sock_.get());
   auto sock_fd = client_sock_->ReleaseSocket().ReleaseFd();
   client_sock_ = nullptr;
   relay_ipc_client_ = std::make_unique<RelayIPCClient>(
@@ -133,7 +133,7 @@ void RelayClient::SendSyncClockRequest() {
   protos::gen::SyncClockRequest request;
   switch (phase_) {
     case Phase::CONNECTING:
-      PERFETTO_DFATAL("Should be unreachable.");
+      DEJAVIEW_DFATAL("Should be unreachable.");
       return;
     case Phase::PING:
       request.set_phase(SyncClockRequest::PING);
@@ -157,7 +157,7 @@ void RelayClient::OnSyncClockResponse(const protos::gen::SyncClockResponse&) {
   static constexpr uint32_t kSyncClockIntervalMs = 30000;  // 30 Sec.
   switch (phase_) {
     case Phase::CONNECTING:
-      PERFETTO_DFATAL("Should be unreachable.");
+      DEJAVIEW_DFATAL("Should be unreachable.");
       break;
     case Phase::PING:
       phase_ = Phase::UPDATE;
@@ -192,7 +192,7 @@ void RelayService::Start(const char* listening_socket_name,
   bool producer_socket_listening =
       listening_socket_ && listening_socket_->is_listening();
   if (!producer_socket_listening) {
-    PERFETTO_FATAL("Failed to listen to socket %s", listening_socket_name);
+    DEJAVIEW_FATAL("Failed to listen to socket %s", listening_socket_name);
   }
 
   // Save |client_socket_name| for opening new client connection to remote
@@ -212,7 +212,7 @@ void RelayService::Start(base::ScopedSocketHandle server_socket_handle,
   bool producer_socket_listening =
       listening_socket_ && listening_socket_->is_listening();
   if (!producer_socket_listening) {
-    PERFETTO_FATAL("Failed to listen to the server socket");
+    DEJAVIEW_FATAL("Failed to listen to the server socket");
   }
 
   // Save |client_socket_name| for opening new client connection to remote
@@ -225,7 +225,7 @@ void RelayService::Start(base::ScopedSocketHandle server_socket_handle,
 void RelayService::OnNewIncomingConnection(
     base::UnixSocket* listen_socket,
     std::unique_ptr<base::UnixSocket> server_conn) {
-  PERFETTO_DCHECK(listen_socket == listening_socket_.get());
+  DEJAVIEW_DCHECK(listen_socket == listening_socket_.get());
 
   // Create a connection to the host to pair with |listen_conn|.
   auto sock_family = base::GetSockFamily(client_socket_name_.c_str());
@@ -241,8 +241,8 @@ void RelayService::OnNewIncomingConnection(
   // connecting producer (while instead we are just forging it). The host traced
   // will only accept only one SetPeerIdentity request pre-queued here.
   int32_t pid = base::kInvalidPid;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   pid = server_conn->peer_pid_linux();
 #endif
   auto req = GenerateSetPeerIdentityRequest(
@@ -250,7 +250,7 @@ void RelayService::OnNewIncomingConnection(
       machine_id_hint_);
   // Buffer the SetPeerIdentity request.
   SocketWithBuffer server, client;
-  PERFETTO_CHECK(server.available_bytes() >= req.size());
+  DEJAVIEW_CHECK(server.available_bytes() >= req.size());
   memcpy(server.buffer(), req.data(), req.size());
   server.EnqueueData(req.size());
 
@@ -270,7 +270,7 @@ void RelayService::OnConnect(base::UnixSocket* self, bool connected) {
                    [&](const PendingConnection& pending_conn) {
                      return pending_conn.connecting_client_conn.get() == self;
                    });
-  PERFETTO_CHECK(it != pending_connections_.end());
+  DEJAVIEW_CHECK(it != pending_connections_.end());
   // Need to remove the element in |pending_connections_| regardless of
   // |connected|.
   auto remover = base::OnScopeExit([&]() { pending_connections_.erase(it); });
@@ -286,11 +286,11 @@ void RelayService::OnConnect(base::UnixSocket* self, bool connected) {
 }
 
 void RelayService::OnDisconnect(base::UnixSocket*) {
-  PERFETTO_DFATAL("Should be unreachable.");
+  DEJAVIEW_DFATAL("Should be unreachable.");
 }
 
 void RelayService::OnDataAvailable(base::UnixSocket*) {
-  PERFETTO_DFATAL("Should be unreachable.");
+  DEJAVIEW_DFATAL("Should be unreachable.");
 }
 
 void RelayService::ReconnectRelayClient() {
@@ -322,18 +322,18 @@ std::string RelayService::GetMachineIdHint(
     return base::StripSuffix(boot_id, "\n");
   }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   auto get_pseudo_boot_id = []() -> std::string {
     base::Hasher hasher;
     const char* dev_path = "/dev";
     // Generate a pseudo-unique identifier for the current machine.
     // Source 1: system boot timestamp from the creation time of /dev inode.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
     // Mac or iOS, just use stat(2).
     struct stat stat_buf {};
-    int rc = PERFETTO_EINTR(stat(dev_path, &stat_buf));
+    int rc = DEJAVIEW_EINTR(stat(dev_path, &stat_buf));
     if (rc == -1)
       return std::string();
     hasher.Update(reinterpret_cast<const char*>(&stat_buf.st_birthtimespec),
@@ -341,7 +341,7 @@ std::string RelayService::GetMachineIdHint(
 #else
     // Android or Linux, use statx(2)
     struct statx stat_buf {};
-    auto rc = PERFETTO_EINTR(syscall(__NR_statx, /*dirfd=*/-1, dev_path,
+    auto rc = DEJAVIEW_EINTR(syscall(__NR_statx, /*dirfd=*/-1, dev_path,
                                      /*flags=*/0, STATX_BTIME, &stat_buf));
     if (rc == -1)
       return std::string();
@@ -370,4 +370,4 @@ std::string RelayService::GetMachineIdHint(
   return std::string();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -24,17 +24,17 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 
 namespace {
@@ -72,7 +72,7 @@ BitVector ReconcileStorageResult(FilterOp op,
                                  const BitVector& non_null,
                                  RangeOrBitVector storage_result,
                                  Range in_range) {
-  PERFETTO_CHECK(in_range.end <= non_null.size());
+  DEJAVIEW_CHECK(in_range.end <= non_null.size());
 
   // Reconcile the results of the Search operation with the non-null indices
   // to ensure only those positions are set.
@@ -85,7 +85,7 @@ BitVector ReconcileStorageResult(FilterOp op,
 
       // We should always have at least as many elements as the input range
       // itself.
-      PERFETTO_CHECK(res.size() <= in_range.end);
+      DEJAVIEW_CHECK(res.size() <= in_range.end);
     }
   } else {
     res = non_null.Copy();
@@ -98,7 +98,7 @@ BitVector ReconcileStorageResult(FilterOp op,
 
   // For the IS NULL constraint, we also need to include all the null indices
   // themselves.
-  if (PERFETTO_UNLIKELY(op == FilterOp::kIsNull)) {
+  if (DEJAVIEW_UNLIKELY(op == FilterOp::kIsNull)) {
     BitVector null = non_null.IntersectRange(in_range.start, in_range.end);
     null.Resize(in_range.end, false);
     null.Not();
@@ -144,13 +144,13 @@ SingleSearchResult NullOverlay::ChainImpl::SingleSearch(FilterOp op,
                                         non_null_->CountSetBits(index))
                  : SingleSearchResult::kNoMatch;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 NullOverlay::ChainImpl::ChainImpl(std::unique_ptr<DataLayerChain> inner,
                                   const BitVector* non_null)
     : inner_(std::move(inner)), non_null_(non_null) {
-  PERFETTO_DCHECK(non_null_->CountSetBits() <= inner_->size());
+  DEJAVIEW_DCHECK(non_null_->CountSetBits() <= inner_->size());
 }
 
 SearchValidationResult NullOverlay::ChainImpl::ValidateSearchConstraints(
@@ -168,7 +168,7 @@ SearchValidationResult NullOverlay::ChainImpl::ValidateSearchConstraints(
 RangeOrBitVector NullOverlay::ChainImpl::SearchValidated(FilterOp op,
                                                          SqlValue sql_val,
                                                          Range in) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB, "NullOverlay::ChainImpl::Search");
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB, "NullOverlay::ChainImpl::Search");
 
   if (op == FilterOp::kIsNull) {
     switch (inner_->ValidateSearchConstraints(op, sql_val)) {
@@ -204,14 +204,14 @@ RangeOrBitVector NullOverlay::ChainImpl::SearchValidated(FilterOp op,
       op, *non_null_, inner_->SearchValidated(op, sql_val, Range(start, end)),
       in);
 
-  PERFETTO_DCHECK(res.size() == in.end);
+  DEJAVIEW_DCHECK(res.size() == in.end);
   return RangeOrBitVector(std::move(res));
 }
 
 void NullOverlay::ChainImpl::IndexSearchValidated(FilterOp op,
                                                   SqlValue sql_val,
                                                   Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "NullOverlay::ChainImpl::IndexSearch");
 
   if (op == FilterOp::kIsNull) {
@@ -273,7 +273,7 @@ void NullOverlay::ChainImpl::IndexSearchValidated(FilterOp op,
 void NullOverlay::ChainImpl::StableSort(Token* start,
                                         Token* end,
                                         SortDirection direction) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "NullOverlay::ChainImpl::StableSort");
   Token* middle = std::stable_partition(start, end, [this](const Token& idx) {
     return !non_null_->IsSet(idx.index);
@@ -288,7 +288,7 @@ void NullOverlay::ChainImpl::StableSort(Token* start,
 }
 
 void NullOverlay::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "NullOverlay::ChainImpl::Distinct");
   auto null_tok = UpdateIndicesForInner(indices, *non_null_);
 
@@ -302,7 +302,7 @@ void NullOverlay::ChainImpl::Distinct(Indices& indices) const {
 
 std::optional<Token> NullOverlay::ChainImpl::MaxElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "NullOverlay::ChainImpl::MaxElement");
   auto null_tok = UpdateIndicesForInner(indices, *non_null_);
 
@@ -313,7 +313,7 @@ std::optional<Token> NullOverlay::ChainImpl::MaxElement(
 
 std::optional<Token> NullOverlay::ChainImpl::MinElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "NullOverlay::ChainImpl::MinDistinct");
   // The smallest value would be a NULL, so we should just return NULL here.
   auto first_null_it = std::find_if(
@@ -340,4 +340,4 @@ SqlValue NullOverlay::ChainImpl::Get_AvoidUsingBecauseSlow(
              : SqlValue();
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

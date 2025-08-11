@@ -24,11 +24,11 @@ import {AppImpl} from '../core/app_impl';
 const TRUSTED_ORIGINS_KEY = 'trustedOrigins';
 
 interface PostedTraceWrapped {
-  perfetto: PostedTrace;
+  dejaview: PostedTrace;
 }
 
 interface PostedScrollToRangeWrapped {
-  perfetto: PostedScrollToRange;
+  dejaview: PostedScrollToRange;
 }
 
 interface PostedScrollToRange {
@@ -91,9 +91,9 @@ function saveUserTrustedOrigin(hostname: string) {
 }
 
 // Returns whether we should ignore a given message based on the value of
-// the 'perfettoIgnore' field in the event data.
+// the 'dejaviewIgnore' field in the event data.
 function shouldGracefullyIgnoreMessage(messageEvent: MessageEvent) {
-  return messageEvent.data.perfettoIgnore === true;
+  return messageEvent.data.dejaviewIgnore === true;
 }
 
 // The message handler supports loading traces from an ArrayBuffer.
@@ -123,9 +123,9 @@ export function postMessageHandler(messageEvent: MessageEvent) {
   const fromOpener = messageEvent.source === window.opener;
   const fromIframeHost = messageEvent.source === window.parent;
   // This adds support for the folowing flow:
-  // * A (page that whats to open a trace in perfetto) opens B
+  // * A (page that whats to open a trace in dejaview) opens B
   // * B (does something to get the traceBuffer)
-  // * A is navigated to Perfetto UI
+  // * A is navigated to DejaView UI
   // * B sends the traceBuffer to A
   // * closes itself
   const fromOpenee = (messageEvent.source as WindowProxy).opener === window;
@@ -168,7 +168,7 @@ export function postMessageHandler(messageEvent: MessageEvent) {
 
   let postedScrollToRange: PostedScrollToRange;
   if (isPostedScrollToRange(messageEvent.data)) {
-    postedScrollToRange = messageEvent.data.perfetto;
+    postedScrollToRange = messageEvent.data.dejaview;
     scrollToTimeRange(postedScrollToRange);
     return;
   }
@@ -176,7 +176,7 @@ export function postMessageHandler(messageEvent: MessageEvent) {
   let postedTrace: PostedTrace;
   let keepApiOpen = false;
   if (isPostedTraceWrapped(messageEvent.data)) {
-    postedTrace = sanitizePostedTrace(messageEvent.data.perfetto);
+    postedTrace = sanitizePostedTrace(messageEvent.data.dejaview);
     if (postedTrace.keepApiOpen) {
       keepApiOpen = true;
     }
@@ -294,23 +294,23 @@ function isPostedScrollToRange(
   obj: unknown,
 ): obj is PostedScrollToRangeWrapped {
   const wrapped = obj as PostedScrollToRangeWrapped;
-  if (wrapped.perfetto === undefined) {
+  if (wrapped.dejaview === undefined) {
     return false;
   }
   return (
-    wrapped.perfetto.timeStart !== undefined ||
-    wrapped.perfetto.timeEnd !== undefined
+    wrapped.dejaview.timeStart !== undefined ||
+    wrapped.dejaview.timeEnd !== undefined
   );
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function isPostedTraceWrapped(obj: any): obj is PostedTraceWrapped {
   const wrapped = obj as PostedTraceWrapped;
-  if (wrapped.perfetto === undefined) {
+  if (wrapped.dejaview === undefined) {
     return false;
   }
   return (
-    wrapped.perfetto.buffer !== undefined &&
-    wrapped.perfetto.title !== undefined
+    wrapped.dejaview.buffer !== undefined &&
+    wrapped.dejaview.title !== undefined
   );
 }

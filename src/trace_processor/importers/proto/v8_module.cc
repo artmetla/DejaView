@@ -19,9 +19,9 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "protos/perfetto/trace/chrome/v8.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/base/logging.h"
+#include "protos/dejaview/trace/chrome/v8.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
@@ -32,17 +32,17 @@
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/tables/v8_tables_py.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
-using ::perfetto::protos::pbzero::TracePacket;
-using ::perfetto::protos::pbzero::V8CodeDefaults;
-using ::perfetto::protos::pbzero::V8CodeMove;
-using ::perfetto::protos::pbzero::V8InternalCode;
-using ::perfetto::protos::pbzero::V8JsCode;
-using ::perfetto::protos::pbzero::V8RegExpCode;
-using ::perfetto::protos::pbzero::V8WasmCode;
+using ::dejaview::protos::pbzero::TracePacket;
+using ::dejaview::protos::pbzero::V8CodeDefaults;
+using ::dejaview::protos::pbzero::V8CodeMove;
+using ::dejaview::protos::pbzero::V8InternalCode;
+using ::dejaview::protos::pbzero::V8JsCode;
+using ::dejaview::protos::pbzero::V8RegExpCode;
+using ::dejaview::protos::pbzero::V8WasmCode;
 
 }  // namespace
 
@@ -256,4 +256,4 @@ void V8Module::ParseV8CodeMove(protozero::ConstBytes bytes,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

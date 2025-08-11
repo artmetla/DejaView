@@ -17,16 +17,16 @@
 #ifndef SRC_TRACING_CORE_NULL_TRACE_WRITER_H_
 #define SRC_TRACING_CORE_NULL_TRACE_WRITER_H_
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/protozero/message_handle.h"
-#include "perfetto/protozero/root_message.h"
-#include "perfetto/protozero/scattered_stream_null_delegate.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/protozero/message_handle.h"
+#include "dejaview/protozero/root_message.h"
+#include "dejaview/protozero/scattered_stream_null_delegate.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // A specialization of TraceWriter which no-ops all the writes routing them
 // into a fixed region of memory
-// See //include/perfetto/ext/tracing/core/trace_writer.h for docs.
+// See //include/dejaview/ext/tracing/core/trace_writer.h for docs.
 class NullTraceWriter : public TraceWriter {
  public:
   NullTraceWriter();
@@ -53,6 +53,6 @@ class NullTraceWriter : public TraceWriter {
       cur_packet_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_CORE_NULL_TRACE_WRITER_H_

@@ -19,12 +19,12 @@
 
 #include <iostream>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 
 int DeobfuscateProfile(std::istream* input, std::ostream* output);
 
 }
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_DEOBFUSCATE_PROFILE_H_

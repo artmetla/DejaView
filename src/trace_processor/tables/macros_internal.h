@@ -24,9 +24,9 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/ref_counted.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/db/column.h"
@@ -36,7 +36,7 @@
 #include "src/trace_processor/db/column_storage_overlay.h"
 #include "src/trace_processor/db/table.h"
 
-namespace perfetto::trace_processor::macros_internal {
+namespace dejaview::trace_processor::macros_internal {
 
 // We define this class to allow the table macro below to compile without
 // needing templates; in reality none of the methods will be called because the
@@ -60,9 +60,9 @@ class RootParentTable : public Table {
     uint32_t id;
   };
   struct RowNumber {
-    static uint32_t row_number() { PERFETTO_FATAL("Should not be called"); }
+    static uint32_t row_number() { DEJAVIEW_FATAL("Should not be called"); }
   };
-  static IdAndRow Insert(const Row&) { PERFETTO_FATAL("Should not be called"); }
+  static IdAndRow Insert(const Row&) { DEJAVIEW_FATAL("Should not be called"); }
 
  private:
   explicit RootParentTable(std::nullptr_t);
@@ -83,7 +83,7 @@ class MacroTable : public Table {
 
  protected:
   // Constructors for tables created by the regular constructor.
-  PERFETTO_NO_INLINE explicit MacroTable(StringPool* pool,
+  DEJAVIEW_NO_INLINE explicit MacroTable(StringPool* pool,
                                          std::vector<ColumnLegacy> columns,
                                          const MacroTable* parent);
 
@@ -95,20 +95,20 @@ class MacroTable : public Table {
 
   ~MacroTable() override;
 
-  PERFETTO_NO_INLINE void UpdateOverlaysAfterParentInsert();
+  DEJAVIEW_NO_INLINE void UpdateOverlaysAfterParentInsert();
 
-  PERFETTO_NO_INLINE void UpdateSelfOverlayAfterInsert();
+  DEJAVIEW_NO_INLINE void UpdateSelfOverlayAfterInsert();
 
-  PERFETTO_NO_INLINE static std::vector<ColumnLegacy>
+  DEJAVIEW_NO_INLINE static std::vector<ColumnLegacy>
   CopyColumnsFromParentOrAddRootColumns(MacroTable* self,
                                         const MacroTable* parent);
 
-  PERFETTO_NO_INLINE void OnConstructionCompletedRegularConstructor(
+  DEJAVIEW_NO_INLINE void OnConstructionCompletedRegularConstructor(
       std::initializer_list<RefPtr<column::StorageLayer>> storage_layers,
       std::initializer_list<RefPtr<column::OverlayLayer>> null_layers);
 
   template <typename T>
-  PERFETTO_NO_INLINE static void AddColumnToVector(
+  DEJAVIEW_NO_INLINE static void AddColumnToVector(
       std::vector<ColumnLegacy>& columns,
       const char* name,
       ColumnStorage<T>* storage,
@@ -142,9 +142,9 @@ class MacroTable : public Table {
   ColumnStorage<StringPool::Id> type_;
 
  private:
-  PERFETTO_NO_INLINE static std::vector<ColumnStorageOverlay>
+  DEJAVIEW_NO_INLINE static std::vector<ColumnStorageOverlay>
   EmptyOverlaysFromParent(const MacroTable* parent);
-  PERFETTO_NO_INLINE static std::vector<ColumnStorageOverlay>
+  DEJAVIEW_NO_INLINE static std::vector<ColumnStorageOverlay>
   SelectedOverlaysFromParent(const macros_internal::MacroTable& parent,
                              const RowMap& rm);
 
@@ -264,6 +264,6 @@ class AbstractConstRowReference : public BaseRowReference {
       : BaseRowReference(table, row_number) {}
 };
 
-}  // namespace perfetto::trace_processor::macros_internal
+}  // namespace dejaview::trace_processor::macros_internal
 
 #endif  // SRC_TRACE_PROCESSOR_TABLES_MACROS_INTERNAL_H_

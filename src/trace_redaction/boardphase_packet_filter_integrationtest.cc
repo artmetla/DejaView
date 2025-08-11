@@ -22,10 +22,10 @@
 #include "src/trace_redaction/trace_redaction_integration_fixture.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class BroadphasePacketFilterIntegrationTest
     : public testing::Test,
@@ -46,7 +46,7 @@ class BroadphasePacketFilterIntegrationTest
 
       for (auto field = decoder.ReadField(); field.valid();
            field = decoder.ReadField()) {
-        PERFETTO_DCHECK(field.id() < mask.size());
+        DEJAVIEW_DCHECK(field.id() < mask.size());
         mask.set(field.id());
       }
     }
@@ -81,7 +81,7 @@ class BroadphasePacketFilterIntegrationTest
 
     for (auto field = decoder.ReadField(); field.valid();
          field = decoder.ReadField()) {
-      PERFETTO_DCHECK(field.id() < mask.size());
+      DEJAVIEW_DCHECK(field.id() < mask.size());
       mask.set(field.id());
     }
 
@@ -132,4 +132,4 @@ TEST_F(BroadphasePacketFilterIntegrationTest,
   ASSERT_FALSE((fields & exclude_mask).any());
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

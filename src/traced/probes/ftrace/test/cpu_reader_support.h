@@ -22,7 +22,7 @@
 
 #include "src/traced/probes/ftrace/proto_translation_table.h"
 
-namespace perfetto {
+namespace dejaview {
 
 struct ExamplePage {
   // The name of the format file set used in the collection of this example
@@ -39,6 +39,6 @@ ProtoTranslationTable* GetTable(const std::string& name);
 // Convert xxd output into binary data.
 std::unique_ptr<uint8_t[]> PageFromXxd(const std::string& text);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_TEST_CPU_READER_SUPPORT_H_

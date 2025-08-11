@@ -1,11 +1,11 @@
 # Synchronization of multiple clock domains
 
-As per [6756fb05][6756fb05] Perfetto handles events using different
+As per [6756fb05][6756fb05] DejaView handles events using different
 clock domains. On top of the default set of builtin clock domains, new clock
 domains can be dynamically created at trace-time.
 
 Clock domains are allowed to drift from each other.
-At import time, Perfetto's [Trace Processor](/docs/analysis/trace-processor.md) is able
+At import time, DejaView's [Trace Processor](/docs/analysis/trace-processor.md) is able
 to rebuild the clock graph and use that to re-synchronize events on a global
 trace time, as long as the [ClockSnapshot][clock_snapshot] packets are present in
 the trace.

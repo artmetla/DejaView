@@ -18,14 +18,14 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_ANDROID_INPUT_EVENT_PARSER_H_
 
 #include <cstdint>
-#include "perfetto/base/build_config.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/base/build_config.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class AndroidInputEventParser {
  public:
@@ -44,6 +44,6 @@ class AndroidInputEventParser {
   void ParseWindowDispatchEvent(int64_t packet_ts, const protozero::ConstBytes& bytes);
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_ANDROID_INPUT_EVENT_PARSER_H_

@@ -21,10 +21,10 @@
 #include <cstdlib>
 #include <new>
 
-#include "perfetto/base/compiler.h"
+#include "dejaview/base/compiler.h"
 #include "src/trace_processor/rpc/rpc.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 using RpcResponseFn = void(const void*, uint32_t);
@@ -35,7 +35,7 @@ Rpc* g_trace_processor_rpc;
 // big this buffer should be in the Initialize() call.
 uint8_t* g_req_buf;
 
-PERFETTO_NO_INLINE void OutOfMemoryHandler() {
+DEJAVIEW_NO_INLINE void OutOfMemoryHandler() {
   fprintf(stderr, "\nCannot enlarge memory\n");
   abort();
 }
@@ -78,7 +78,7 @@ void trace_processor_on_rpc_request(uint32_t size) {
 }
 
 }  // extern "C"
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 int main(int, char**) {
   // This is unused but is needed for the following reasons:

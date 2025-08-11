@@ -16,13 +16,13 @@
 
 #include "src/trace_redaction/populate_allow_lists.h"
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 base::Status PopulateAllowlists::Build(Context* context) const {
   auto& packet_mask = context->packet_mask;
@@ -99,4 +99,4 @@ base::Status PopulateAllowlists::Build(Context* context) const {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

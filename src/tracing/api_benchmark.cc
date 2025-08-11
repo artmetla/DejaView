@@ -14,18 +14,18 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/tracing.h"
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/track_event/log_message.pbzero.h"
+#include "dejaview/tracing.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/track_event/log_message.pbzero.h"
 
-PERFETTO_DEFINE_CATEGORIES(perfetto::Category("benchmark"));
-PERFETTO_TRACK_EVENT_STATIC_STORAGE();
+DEJAVIEW_DEFINE_CATEGORIES(dejaview::Category("benchmark"));
+DEJAVIEW_TRACK_EVENT_STATIC_STORAGE();
 
 namespace {
 
-class BenchmarkDataSource : public perfetto::DataSource<BenchmarkDataSource> {
+class BenchmarkDataSource : public dejaview::DataSource<BenchmarkDataSource> {
  public:
   void OnSetup(const SetupArgs&) override {}
   void OnStart(const StartArgs&) override {}
@@ -39,23 +39,23 @@ static void BM_TracingDataSourceDisabled(benchmark::State& state) {
   }
 }
 
-std::unique_ptr<perfetto::TracingSession> StartTracing(
+std::unique_ptr<dejaview::TracingSession> StartTracing(
     const std::string& data_source_name) {
-  perfetto::TracingInitArgs args;
-  args.backends = perfetto::kInProcessBackend;
-  perfetto::Tracing::Initialize(args);
+  dejaview::TracingInitArgs args;
+  args.backends = dejaview::kInProcessBackend;
+  dejaview::Tracing::Initialize(args);
 
-  perfetto::DataSourceDescriptor dsd;
+  dejaview::DataSourceDescriptor dsd;
   dsd.set_name("benchmark");
   BenchmarkDataSource::Register(dsd);
-  perfetto::TrackEvent::Register();
+  dejaview::TrackEvent::Register();
 
-  perfetto::TraceConfig cfg;
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name(data_source_name);
   auto tracing_session =
-      perfetto::Tracing::NewTrace(perfetto::kInProcessBackend);
+      dejaview::Tracing::NewTrace(dejaview::kInProcessBackend);
   tracing_session->Setup(cfg);
   tracing_session->StartBlocking();
   return tracing_session;
@@ -74,17 +74,17 @@ static void BM_TracingDataSourceLambda(benchmark::State& state) {
   }
 
   tracing_session->StopBlocking();
-  PERFETTO_CHECK(!tracing_session->ReadTraceBlocking().empty());
+  DEJAVIEW_CHECK(!tracing_session->ReadTraceBlocking().empty());
 }
 
 // Parses `trace` and returns the size of the first trace packet that contains
 // `for_testing()`.
 size_t GetForTestingPacketSizeFromTrace(const std::vector<char>& trace) {
   size_t packet_size = 0;
-  perfetto::protos::pbzero::Trace::Decoder decoder(
+  dejaview::protos::pbzero::Trace::Decoder decoder(
       reinterpret_cast<const uint8_t*>(trace.data()), trace.size());
   for (auto packet = decoder.packet(); packet; packet++) {
-    perfetto::protos::pbzero::TracePacket::Decoder packet_decoder(*packet);
+    dejaview::protos::pbzero::TracePacket::Decoder packet_decoder(*packet);
 
     if (packet_decoder.has_for_testing()) {
       packet_size = packet->size();
@@ -115,7 +115,7 @@ static void BM_TracingDataSourceLambdaDifferentPacketSize(
   tracing_session->StopBlocking();
 
   std::vector<char> trace = tracing_session->ReadTraceBlocking();
-  PERFETTO_CHECK(!trace.empty());
+  DEJAVIEW_CHECK(!trace.empty());
   state.counters["PacketSize"] =
       static_cast<double>(GetForTestingPacketSizeFromTrace(trace));
 }
@@ -136,7 +136,7 @@ static void BM_TracingTrackEventBasic(benchmark::State& state) {
   }
 
   tracing_session->StopBlocking();
-  PERFETTO_CHECK(!tracing_session->ReadTraceBlocking().empty());
+  DEJAVIEW_CHECK(!tracing_session->ReadTraceBlocking().empty());
 }
 
 static void BM_TracingTrackEventDebugAnnotations(benchmark::State& state) {
@@ -148,14 +148,14 @@ static void BM_TracingTrackEventDebugAnnotations(benchmark::State& state) {
   }
 
   tracing_session->StopBlocking();
-  PERFETTO_CHECK(!tracing_session->ReadTraceBlocking().empty());
+  DEJAVIEW_CHECK(!tracing_session->ReadTraceBlocking().empty());
 }
 
 static void BM_TracingTrackEventLambda(benchmark::State& state) {
   auto tracing_session = StartTracing("track_event");
 
   while (state.KeepRunning()) {
-    TRACE_EVENT_BEGIN("benchmark", "Event", [&](perfetto::EventContext ctx) {
+    TRACE_EVENT_BEGIN("benchmark", "Event", [&](dejaview::EventContext ctx) {
       auto* log = ctx.event()->set_log_message();
       log->set_source_location_iid(42);
       log->set_body_iid(1234);
@@ -164,7 +164,7 @@ static void BM_TracingTrackEventLambda(benchmark::State& state) {
   }
 
   tracing_session->StopBlocking();
-  PERFETTO_CHECK(!tracing_session->ReadTraceBlocking().empty());
+  DEJAVIEW_CHECK(!tracing_session->ReadTraceBlocking().empty());
 }
 
 }  // namespace

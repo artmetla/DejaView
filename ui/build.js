@@ -110,13 +110,13 @@ const cfg = {
   outDistDir: '',
   outExtDir: '',
   outBigtraceDistDir: '',
-  outOpenPerfettoTraceDistDir: '',
+  outOpenDejaViewTraceDistDir: '',
 };
 
 const RULES = [
   {r: /ui\/src\/assets\/index.html/, f: copyIndexHtml},
   {r: /ui\/src\/assets\/bigtrace.html/, f: copyBigtraceHtml},
-  {r: /ui\/src\/open_perfetto_trace\/index.html/, f: copyOpenPerfettoTraceHtml},
+  {r: /ui\/src\/open_dejaview_trace\/index.html/, f: copyOpenDejaViewTraceHtml},
   {r: /ui\/src\/assets\/((.*)[.]png)/, f: copyAssets},
   {r: /buildtools\/typefaces\/(.+[.]woff2)/, f: copyAssets},
   {r: /buildtools\/catapult_trace_viewer\/(.+(js|html))/, f: copyAssets},
@@ -150,7 +150,7 @@ async function main() {
   parser.add_argument('--run-unittests', '-t', {action: 'store_true'});
   parser.add_argument('--debug', '-d', {action: 'store_true'});
   parser.add_argument('--bigtrace', {action: 'store_true'});
-  parser.add_argument('--open-perfetto-trace', {action: 'store_true'});
+  parser.add_argument('--open-dejaview-trace', {action: 'store_true'});
   parser.add_argument('--interactive', '-i', {action: 'store_true'});
   parser.add_argument('--rebaseline', '-r', {action: 'store_true'});
   parser.add_argument('--no-depscheck', {action: 'store_true'});
@@ -177,7 +177,7 @@ async function main() {
   cfg.verbose = !!args.verbose;
   cfg.debug = !!args.debug;
   cfg.bigtrace = !!args.bigtrace;
-  cfg.openPerfettoTrace = !!args.open_perfetto_trace;
+  cfg.openDejaViewTrace = !!args.open_dejaview_trace;
   cfg.startHttpServer = args.serve;
   cfg.noOverrideGnArgs = !!args.no_override_gn_args;
   if (args.minify_js) {
@@ -186,9 +186,9 @@ async function main() {
   if (args.bigtrace) {
     cfg.outBigtraceDistDir = ensureDir(pjoin(cfg.outDistDir, 'bigtrace'));
   }
-  if (cfg.openPerfettoTrace) {
-    cfg.outOpenPerfettoTraceDistDir = ensureDir(pjoin(cfg.outDistRootDir,
-                                                      'open_perfetto_trace'));
+  if (cfg.openDejaViewTrace) {
+    cfg.outOpenDejaViewTraceDistDir = ensureDir(pjoin(cfg.outDistRootDir,
+                                                      'open_dejaview_trace'));
   }
   if (args.serve_host) {
     cfg.httpServerListenHost = args.serve_host;
@@ -197,10 +197,10 @@ async function main() {
     cfg.httpServerListenPort = args.serve_port;
   }
   if (args.interactive) {
-    process.env.PERFETTO_UI_TESTS_INTERACTIVE = '1';
+    process.env.DEJAVIEW_UI_TESTS_INTERACTIVE = '1';
   }
   if (args.rebaseline) {
-    process.env.PERFETTO_UI_TESTS_REBASELINE = '1';
+    process.env.DEJAVIEW_UI_TESTS_REBASELINE = '1';
   }
   if (args.cross_origin_isolation) {
     cfg.crossOriginIsolation = true;
@@ -263,9 +263,9 @@ async function main() {
       'ui/src/service_worker'
     ];
     if (cfg.bigtrace) tsProjects.push('ui/src/bigtrace');
-    if (cfg.openPerfettoTrace) {
-      scanDir('ui/src/open_perfetto_trace');
-      tsProjects.push('ui/src/open_perfetto_trace');
+    if (cfg.openDejaViewTrace) {
+      scanDir('ui/src/open_dejaview_trace');
+      tsProjects.push('ui/src/open_dejaview_trace');
     }
 
 
@@ -350,8 +350,8 @@ function cpHtml(src, filename) {
   // TODO(primiano): in next CLs, this script should take a
   // --release_map=xxx.json argument, to populate this with multiple channels.
   const versionMap = JSON.stringify({'stable': cfg.version});
-  const bodyRegex = /data-perfetto_version='[^']*'/;
-  html = html.replace(bodyRegex, `data-perfetto_version='${versionMap}'`);
+  const bodyRegex = /data-dejaview_version='[^']*'/;
+  html = html.replace(bodyRegex, `data-dejaview_version='${versionMap}'`);
   fs.writeFileSync(pjoin(cfg.outDistRootDir, filename), html);
 }
 
@@ -365,9 +365,9 @@ function copyBigtraceHtml(src) {
   }
 }
 
-function copyOpenPerfettoTraceHtml(src) {
-  if (cfg.openPerfettoTrace) {
-    addTask(cp, [src, pjoin(cfg.outOpenPerfettoTraceDistDir, 'index.html')]);
+function copyOpenDejaViewTraceHtml(src) {
+  if (cfg.openDejaViewTrace) {
+    addTask(cp, [src, pjoin(cfg.outOpenDejaViewTraceDistDir, 'index.html')]);
   }
 }
 
@@ -383,8 +383,8 @@ function copyUiTestArtifactsAssets(src, dst) {
 }
 
 function compileScss() {
-  const src = pjoin(ROOT_DIR, 'ui/src/assets/perfetto.scss');
-  const dst = pjoin(cfg.outDistDir, 'perfetto.css');
+  const src = pjoin(ROOT_DIR, 'ui/src/assets/dejaview.scss');
+  const dst = pjoin(cfg.outDistDir, 'dejaview.css');
   // In watch mode, don't exit(1) if scss fails. It can easily happen by
   // having a typo in the css. It will still print an error.
   const noErrCheck = !!cfg.watch;
@@ -394,7 +394,7 @@ function compileScss() {
   }
   addTask(execModule, ['sass', args, {noErrCheck}]);
   if (cfg.bigtrace) {
-    addTask(cp, [dst, pjoin(cfg.outBigtraceDistDir, 'perfetto.css')]);
+    addTask(cp, [dst, pjoin(cfg.outBigtraceDistDir, 'dejaview.css')]);
   }
 }
 
@@ -402,10 +402,10 @@ function compileProtos() {
   const dstJs = pjoin(cfg.outGenDir, 'protos.js');
   const dstTs = pjoin(cfg.outGenDir, 'protos.d.ts');
   const inputs = [
-    'protos/perfetto/ipc/consumer_port.proto',
-    'protos/perfetto/ipc/wire_protocol.proto',
-    'protos/perfetto/trace/perfetto/perfetto_metatrace.proto',
-    'protos/perfetto/trace_processor/trace_processor.proto',
+    'protos/dejaview/ipc/consumer_port.proto',
+    'protos/dejaview/ipc/wire_protocol.proto',
+    'protos/dejaview/trace/dejaview/dejaview_metatrace.proto',
+    'protos/dejaview/trace_processor/trace_processor.proto',
   ];
   // Can't put --no-comments here - The comments are load bearing for
   // the pbts invocation which follows.
@@ -450,13 +450,13 @@ function generateImports(dir, name) {
 function genVersion() {
   const cmd = 'python3';
   const args =
-      [VERSION_SCRIPT, '--ts_out', pjoin(cfg.outGenDir, 'perfetto_version.ts')];
+      [VERSION_SCRIPT, '--ts_out', pjoin(cfg.outGenDir, 'dejaview_version.ts')];
   addTask(exec, [cmd, args]);
 }
 
 function generateStdlibDocs() {
   const cmd = pjoin(ROOT_DIR, 'tools/gen_stdlib_docs_json.py');
-  const stdlibDir = pjoin(ROOT_DIR, 'src/trace_processor/perfetto_sql/stdlib');
+  const stdlibDir = pjoin(ROOT_DIR, 'src/trace_processor/dejaview_sql/stdlib');
 
   const stdlibFiles =
     listFilesRecursive(stdlibDir)
@@ -549,8 +549,8 @@ function bundleJs(cfgName) {
   if (cfg.bigtrace) {
     args.push('--environment', 'ENABLE_BIGTRACE:true');
   }
-  if (cfg.openPerfettoTrace) {
-    args.push('--environment', 'ENABLE_OPEN_PERFETTO_TRACE:true');
+  if (cfg.openDejaViewTrace) {
+    args.push('--environment', 'ENABLE_OPEN_DEJAVIEW_TRACE:true');
   }
   if (cfg.minifyJs) {
     args.push('--environment', `MINIFY_JS:${cfg.minifyJs}`);
@@ -668,7 +668,7 @@ function isDistComplete() {
     'engine_bundle.js',
     'traceconv_bundle.js',
     'trace_processor.wasm',
-    'perfetto.css',
+    'dejaview.css',
   ];
   const relPaths = new Set();
   walk(cfg.outDistDir, (absPath) => {

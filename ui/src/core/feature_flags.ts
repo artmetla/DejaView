@@ -224,7 +224,7 @@ class FlagImpl implements Flag {
 }
 
 class LocalStorageStore implements FlagStore {
-  static KEY = 'perfettoFeatureFlags';
+  static KEY = 'dejaviewFeatureFlags';
 
   load(): object {
     const s = localStorage.getItem(LocalStorageStore.KEY);

@@ -22,6 +22,6 @@
 // both of those, at the same build.
 // The maximum alignment of every type T is sizeof(T), so we overalign that.
 // E.g., the alignment for uint64_t is 4 bytes on 32, and 8 bytes on 64 bit.
-#define PERFETTO_CROSS_ABI_ALIGNED(type) alignas(sizeof(type)) type
+#define DEJAVIEW_CROSS_ABI_ALIGNED(type) alignas(sizeof(type)) type
 
 #endif  // SRC_PROFILING_MEMORY_UTIL_H_

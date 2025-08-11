@@ -14,13 +14,13 @@
 -- limitations under the License.
 --
 
-CREATE OR REPLACE PERFETTO FUNCTION GET_LATENCY(tag STRING)
+CREATE OR REPLACE DEJAVIEW FUNCTION GET_LATENCY(tag STRING)
 RETURNS DOUBLE AS
 SELECT dur/1e6 FROM slices WHERE name = $tag ORDER BY dur DESC LIMIT 1;
 
 DROP VIEW IF EXISTS ad_services_metric_output;
 
-CREATE PERFETTO VIEW ad_services_metric_output
+CREATE DEJAVIEW VIEW ad_services_metric_output
 AS
 SELECT
   AdServicesMetric(

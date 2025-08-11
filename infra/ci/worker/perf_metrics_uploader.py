@@ -21,7 +21,7 @@ import sys
 from config import DB, PROJECT
 from common_utils import req, SCOPES
 '''
-Uploads the performance metrics of the Perfetto tests to StackDriver and
+Uploads the performance metrics of the DejaView tests to StackDriver and
 Firebase.
 
 The expected format of the JSON is as follows:
@@ -80,7 +80,7 @@ def create_stackdriver_metrics(ts, metrics):
       desc['timeSeries'] += [{
           'metric': {
               'type':
-                  'custom.googleapis.com/perfetto-ci/perf/%s' % metric_name,
+                  'custom.googleapis.com/dejaview-ci/perf/%s' % metric_name,
               'labels':
                   dict(
                       list(metric.get('tags', {}).items()) +
@@ -108,7 +108,7 @@ def main():
       '--job-id',
       type=str,
       required=True,
-      help='The Perfetto CI job ID to tie this upload to')
+      help='The DejaView CI job ID to tie this upload to')
   parser.add_argument(
       'metrics_file', type=str, help='File containing the metrics to upload')
   args = parser.parse_args()
@@ -123,7 +123,7 @@ def main():
   req('PUT', '%s/perf/%s.json' % (DB, args.job_id), body=metrics)
 
   # Only upload Stackdriver metrics for post-submit runs.
-  git_ref = job['env'].get('PERFETTO_TEST_GIT_REF')
+  git_ref = job['env'].get('DEJAVIEW_TEST_GIT_REF')
   if git_ref == 'refs/heads/main':
     sd_metrics_chunks = create_stackdriver_metrics(ts, metrics)
     for sd_metrics in sd_metrics_chunks:

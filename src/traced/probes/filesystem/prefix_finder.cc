@@ -15,10 +15,10 @@
  */
 
 #include "src/traced/probes/filesystem/prefix_finder.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_splitter.h"
 
-namespace perfetto {
+namespace dejaview {
 
 std::string PrefixFinder::Node::ToString() const {
   if (parent_ != nullptr)
@@ -58,7 +58,7 @@ void PrefixFinder::InsertPrefix(size_t len) {
 }
 
 void PrefixFinder::Flush(size_t i) {
-  PERFETTO_CHECK(i > 0);
+  DEJAVIEW_CHECK(i > 0);
   for (size_t j = i; j < state_.size(); ++j) {
     if (state_[j - 1].second > limit_ && state_[j].second <= limit_) {
       InsertPrefix(i);
@@ -70,14 +70,14 @@ void PrefixFinder::Flush(size_t i) {
 void PrefixFinder::Finalize() {
   Flush(1);
   state_.resize(1);
-#if PERFETTO_DCHECK_IS_ON()
-  PERFETTO_DCHECK(!finalized_);
+#if DEJAVIEW_DCHECK_IS_ON()
+  DEJAVIEW_DCHECK(!finalized_);
   finalized_ = true;
 #endif
 }
 
 void PrefixFinder::AddPath(std::string path) {
-  perfetto::base::StringSplitter s(std::move(path), '/');
+  dejaview::base::StringSplitter s(std::move(path), '/');
   // An artificial element for the root directory.
   // This simplifies the logic below because we can always assume
   // there is a parent element.
@@ -103,10 +103,10 @@ void PrefixFinder::AddPath(std::string path) {
 }
 
 PrefixFinder::Node* PrefixFinder::GetPrefix(std::string path) {
-#if PERFETTO_DCHECK_IS_ON()
-  PERFETTO_DCHECK(finalized_);
+#if DEJAVIEW_DCHECK_IS_ON()
+  DEJAVIEW_DCHECK(finalized_);
 #endif
-  perfetto::base::StringSplitter s(std::move(path), '/');
+  dejaview::base::StringSplitter s(std::move(path), '/');
   Node* cur = &root_;
   for (; s.Next();) {
     char* token = s.cur_token();
@@ -114,9 +114,9 @@ PrefixFinder::Node* PrefixFinder::GetPrefix(std::string path) {
     if (next == nullptr)
       break;
     cur = next;
-    PERFETTO_DCHECK(cur->name_ == token);
+    DEJAVIEW_DCHECK(cur->name_ == token);
   }
   return cur;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

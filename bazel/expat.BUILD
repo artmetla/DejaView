@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 
 cc_library(
     name = "expat",
@@ -49,11 +49,11 @@ cc_library(
       "expat/lib/xmltok_ns.c",
     ],
     deps = [
-        "@perfetto//buildtools/expat/include:expat_config",
+        "@dejaview//buildtools/expat/include:expat_config",
     ],
     copts = [
         "-DHAVE_EXPAT_CONFIG_H",
-    ] + PERFETTO_CONFIG.deps_copts.expat,
+    ] + DEJAVIEW_CONFIG.deps_copts.expat,
     defines = [
         "XML_STATIC"
     ],

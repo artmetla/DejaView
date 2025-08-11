@@ -21,13 +21,13 @@ from python.generators.diff_tests.testing import PrintProfileProto
 from google.protobuf import text_format
 
 
-class PerfettoTableFunction(TestSuite):
+class DejaViewTableFunction(TestSuite):
 
   def test_create_table_function(self):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        CREATE PERFETTO FUNCTION f(x INT) RETURNS TABLE(y INT) AS SELECT $x + 1 as y;
+        CREATE DEJAVIEW FUNCTION f(x INT) RETURNS TABLE(y INT) AS SELECT $x + 1 as y;
 
         SELECT * FROM f(5);
       """,
@@ -40,8 +40,8 @@ class PerfettoTableFunction(TestSuite):
     return DiffTestBlueprint(
         trace=TextProto(""),
         query="""
-        CREATE PERFETTO FUNCTION f(x INT) RETURNS TABLE(y INT) AS SELECT $x + 1 as y;
-        CREATE OR REPLACE PERFETTO FUNCTION f(x INT) RETURNS TABLE(y INT) AS SELECT $x + 2 as y;
+        CREATE DEJAVIEW FUNCTION f(x INT) RETURNS TABLE(y INT) AS SELECT $x + 1 as y;
+        CREATE OR REPLACE DEJAVIEW FUNCTION f(x INT) RETURNS TABLE(y INT) AS SELECT $x + 2 as y;
 
         SELECT * FROM f(5);
       """,
@@ -69,7 +69,7 @@ class PerfettoTableFunction(TestSuite):
         query="""
           CREATE TABLE bar AS SELECT 1;
 
-          CREATE OR REPLACE PERFETTO FUNCTION foo()
+          CREATE OR REPLACE DEJAVIEW FUNCTION foo()
           RETURNS TABLE(x INT) AS
           SELECT 1 AS x
           UNION

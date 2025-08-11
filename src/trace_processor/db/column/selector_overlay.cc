@@ -22,16 +22,16 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/db/column/data_layer.h"
 #include "src/trace_processor/db/column/types.h"
 #include "src/trace_processor/tp_metatrace.h"
 
-#include "protos/perfetto/trace_processor/metatrace_categories.pbzero.h"
+#include "protos/dejaview/trace_processor/metatrace_categories.pbzero.h"
 
-namespace perfetto::trace_processor::column {
+namespace dejaview::trace_processor::column {
 namespace {
 
 constexpr uint32_t kIndexOfNthSetRatio = 32;
@@ -108,7 +108,7 @@ SearchValidationResult SelectorOverlay::ChainImpl::ValidateSearchConstraints(
 RangeOrBitVector SelectorOverlay::ChainImpl::SearchValidated(FilterOp op,
                                                              SqlValue sql_val,
                                                              Range in) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SelectorOverlay::ChainImpl::Search");
 
   // Figure out the bounds of the indicess in the underlying storage and
@@ -129,19 +129,19 @@ RangeOrBitVector SelectorOverlay::ChainImpl::SearchValidated(FilterOp op,
   }
 
   BitVector storage_bitvector = std::move(storage_result).TakeIfBitVector();
-  PERFETTO_DCHECK(storage_bitvector.size() <= selector_->size());
+  DEJAVIEW_DCHECK(storage_bitvector.size() <= selector_->size());
   storage_bitvector.SelectBits(*selector_);
   if (storage_bitvector.size() == 0) {
     return RangeOrBitVector(std::move(storage_bitvector));
   }
-  PERFETTO_DCHECK(storage_bitvector.size() == in.end);
+  DEJAVIEW_DCHECK(storage_bitvector.size() == in.end);
   return RangeOrBitVector(std::move(storage_bitvector));
 }
 
 void SelectorOverlay::ChainImpl::IndexSearchValidated(FilterOp op,
                                                       SqlValue sql_val,
                                                       Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SelectorOverlay::ChainImpl::IndexSearch");
   TranslateToInnerIndices(*selector_, indices.tokens);
   return inner_->IndexSearchValidated(op, sql_val, indices);
@@ -150,7 +150,7 @@ void SelectorOverlay::ChainImpl::IndexSearchValidated(FilterOp op,
 void SelectorOverlay::ChainImpl::StableSort(Token* start,
                                             Token* end,
                                             SortDirection direction) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SelectorOverlay::ChainImpl::StableSort");
   for (Token* it = start; it != end; ++it) {
     it->index = selector_->IndexOfNthSet(it->index);
@@ -159,7 +159,7 @@ void SelectorOverlay::ChainImpl::StableSort(Token* start,
 }
 
 void SelectorOverlay::ChainImpl::Distinct(Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SelectorOverlay::ChainImpl::Distinct");
   TranslateToInnerIndices(*selector_, indices.tokens);
   return inner_->Distinct(indices);
@@ -167,7 +167,7 @@ void SelectorOverlay::ChainImpl::Distinct(Indices& indices) const {
 
 std::optional<Token> SelectorOverlay::ChainImpl::MaxElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SelectorOverlay::ChainImpl::MaxElement");
   TranslateToInnerIndices(*selector_, indices.tokens);
   return inner_->MaxElement(indices);
@@ -175,7 +175,7 @@ std::optional<Token> SelectorOverlay::ChainImpl::MaxElement(
 
 std::optional<Token> SelectorOverlay::ChainImpl::MinElement(
     Indices& indices) const {
-  PERFETTO_TP_TRACE(metatrace::Category::DB,
+  DEJAVIEW_TP_TRACE(metatrace::Category::DB,
                     "SelectorOverlay::ChainImpl::MinElement");
   TranslateToInnerIndices(*selector_, indices.tokens);
   return inner_->MinElement(indices);
@@ -186,4 +186,4 @@ SqlValue SelectorOverlay::ChainImpl::Get_AvoidUsingBecauseSlow(
   return inner_->Get_AvoidUsingBecauseSlow(selector_->IndexOfNthSet(index));
 }
 
-}  // namespace perfetto::trace_processor::column
+}  // namespace dejaview::trace_processor::column

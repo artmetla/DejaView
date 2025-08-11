@@ -23,7 +23,7 @@
 
 #include <grpcpp/client_context.h>
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 // This struct maps a thread to a context in order to allow for the cancellation
 // of the thread's current gRPC call through ClientContext's TryCancel
@@ -64,6 +64,6 @@ class ResizableTaskPool {
   std::function<void(ThreadWithContext*)> fn_;
   std::vector<std::unique_ptr<ThreadWithContext>> contextual_threads_;
 };
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 #endif  // SRC_BIGTRACE_ORCHESTRATOR_RESIZABLE_TASK_POOL_H_

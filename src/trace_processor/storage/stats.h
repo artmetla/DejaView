@@ -19,11 +19,11 @@
 
 #include <cstddef>
 
-namespace perfetto::trace_processor::stats {
+namespace dejaview::trace_processor::stats {
 
 // Compile time list of parsing and processing stats.
 // clang-format off
-#define PERFETTO_TP_STATS(F)                                                   \
+#define DEJAVIEW_TP_STATS(F)                                                   \
   F(android_br_parse_errors,              kSingle,  kError,    kTrace,    ""), \
   F(android_log_num_failed,               kSingle,  kError,    kTrace,    ""), \
   F(android_log_format_invalid,           kSingle,  kError,    kTrace,    ""), \
@@ -460,28 +460,28 @@ enum Source {
 
 // Declares an enum of literals (one for each stat). The enum values of each
 // literal corresponds to the string index in the arrays below.
-#define PERFETTO_TP_STATS_ENUM(name, ...) name
-enum KeyIDs : size_t { PERFETTO_TP_STATS(PERFETTO_TP_STATS_ENUM), kNumKeys };
+#define DEJAVIEW_TP_STATS_ENUM(name, ...) name
+enum KeyIDs : size_t { DEJAVIEW_TP_STATS(DEJAVIEW_TP_STATS_ENUM), kNumKeys };
 
 // The code below declares an array for each property (name, type, ...).
 
-#define PERFETTO_TP_STATS_NAME(name, ...) #name
-constexpr char const* kNames[] = {PERFETTO_TP_STATS(PERFETTO_TP_STATS_NAME)};
+#define DEJAVIEW_TP_STATS_NAME(name, ...) #name
+constexpr char const* kNames[] = {DEJAVIEW_TP_STATS(DEJAVIEW_TP_STATS_NAME)};
 
-#define PERFETTO_TP_STATS_TYPE(_, type, ...) type
-constexpr Type kTypes[] = {PERFETTO_TP_STATS(PERFETTO_TP_STATS_TYPE)};
+#define DEJAVIEW_TP_STATS_TYPE(_, type, ...) type
+constexpr Type kTypes[] = {DEJAVIEW_TP_STATS(DEJAVIEW_TP_STATS_TYPE)};
 
-#define PERFETTO_TP_STATS_SEVERITY(_, __, severity, ...) severity
+#define DEJAVIEW_TP_STATS_SEVERITY(_, __, severity, ...) severity
 constexpr Severity kSeverities[] = {
-    PERFETTO_TP_STATS(PERFETTO_TP_STATS_SEVERITY)};
+    DEJAVIEW_TP_STATS(DEJAVIEW_TP_STATS_SEVERITY)};
 
-#define PERFETTO_TP_STATS_SOURCE(_, __, ___, source, ...) source
-constexpr Source kSources[] = {PERFETTO_TP_STATS(PERFETTO_TP_STATS_SOURCE)};
+#define DEJAVIEW_TP_STATS_SOURCE(_, __, ___, source, ...) source
+constexpr Source kSources[] = {DEJAVIEW_TP_STATS(DEJAVIEW_TP_STATS_SOURCE)};
 
-#define PERFETTO_TP_STATS_DESCRIPTION(_, __, ___, ____, descr, ...) descr
+#define DEJAVIEW_TP_STATS_DESCRIPTION(_, __, ___, ____, descr, ...) descr
 constexpr char const* kDescriptions[] = {
-    PERFETTO_TP_STATS(PERFETTO_TP_STATS_DESCRIPTION)};
+    DEJAVIEW_TP_STATS(DEJAVIEW_TP_STATS_DESCRIPTION)};
 
-}  // namespace perfetto::trace_processor::stats
+}  // namespace dejaview::trace_processor::stats
 
 #endif  // SRC_TRACE_PROCESSOR_STORAGE_STATS_H_

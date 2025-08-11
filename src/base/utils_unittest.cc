@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #else
 #include <fcntl.h>
@@ -32,12 +32,12 @@
 #include <random>
 #include <thread>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -110,7 +110,7 @@ TEST(UtilsTest, ReadWritePlatformHandle) {
   // that the file is automatically closed via RAII before being reopened.
   {
     ScopedPlatformHandle handle {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
       ::CreateFileA(tmp_path.c_str(), GENERIC_WRITE, 0, nullptr, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_NORMAL, nullptr)
 #else
@@ -125,7 +125,7 @@ TEST(UtilsTest, ReadWritePlatformHandle) {
   // Read it back.
   {
     ScopedPlatformHandle handle {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
       ::CreateFileA(tmp_path.c_str(), GENERIC_READ, 0, nullptr, OPEN_EXISTING,
                     FILE_ATTRIBUTE_NORMAL, nullptr)
 #else
@@ -143,9 +143,9 @@ TEST(UtilsTest, ReadWritePlatformHandle) {
 
 // Fuchsia doesn't currently support sigaction(), see
 // https://fxbug.dev/42105390 .
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 TEST(UtilsTest, EintrWrapper) {
   Pipe pipe = Pipe::Create();
 
@@ -172,7 +172,7 @@ TEST(UtilsTest, EintrWrapper) {
   }
 
   char buf[6] = {};
-  EXPECT_EQ(4, PERFETTO_EINTR(read(*pipe.rd, buf, sizeof(buf))));
+  EXPECT_EQ(4, DEJAVIEW_EINTR(read(*pipe.rd, buf, sizeof(buf))));
   EXPECT_TRUE(close(*pipe.rd) == 0 || errno == EINTR);
   pipe.wr.reset();
 
@@ -217,4 +217,4 @@ TEST(UtilsTest, HexDump) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

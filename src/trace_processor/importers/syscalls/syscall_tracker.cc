@@ -20,11 +20,11 @@
 #include <type_traits>
 #include <utility>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/kernel_utils/syscall_table.h"
 #include "src/trace_processor/storage/stats.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // TODO(primiano): The current design is broken in case of 32-bit processes
 // running on 64-bit kernel. At least on ARM, the syscal numbers don't match
@@ -60,4 +60,4 @@ void SyscallTracker::SetArchitecture(Architecture arch) {
   }
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

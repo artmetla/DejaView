@@ -16,27 +16,27 @@
 
 #include "src/traced/probes/ftrace/ftrace_data_source.h"
 
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/subprocess.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/subprocess.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
 #include "src/traced/probes/ftrace/cpu_reader.h"
 #include "src/traced/probes/ftrace/ftrace_controller.h"
 
-#include "protos/perfetto/common/ftrace_descriptor.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/ftrace_descriptor.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 void FillFtraceDataSourceDescriptor(DataSourceDescriptor* dsd) {
   protozero::HeapBuffered<protos::pbzero::FtraceDescriptor> ftd;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   base::Subprocess p({"/system/bin/atrace", "--list_categories"});
   p.args.stdin_mode = base::Subprocess::InputMode::kDevNull;
   p.args.stdout_mode = base::Subprocess::OutputMode::kBuffer;
@@ -63,7 +63,7 @@ void FillFtraceDataSourceDescriptor(DataSourceDescriptor* dsd) {
       cat->set_description(desc.data(), desc.size());
     }
   } else {
-    PERFETTO_ELOG("Failed to run atrace --list_categories code(%d): %s",
+    DEJAVIEW_ELOG("Failed to run atrace --list_categories code(%d): %s",
                   p.returncode(), p.output().c_str());
   }
 #endif
@@ -98,7 +98,7 @@ FtraceDataSource::~FtraceDataSource() {
 void FtraceDataSource::Initialize(
     FtraceConfigId config_id,
     const FtraceDataSourceConfig* parsing_config) {
-  PERFETTO_CHECK(config_id);
+  DEJAVIEW_CHECK(config_id);
   config_id_ = config_id;
   parsing_config_ = parsing_config;
 }
@@ -107,7 +107,7 @@ void FtraceDataSource::Start() {
   if (!controller_weak_)
     return;
 
-  PERFETTO_CHECK(config_id_);
+  DEJAVIEW_CHECK(config_id_);
   if (!controller_weak_->StartDataSource(this))
     return;
 
@@ -181,4 +181,4 @@ void FtraceDataSource::WriteStats() {
   }
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

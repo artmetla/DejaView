@@ -15,9 +15,9 @@
  */
 
 #include "src/trace_processor/importers/common/system_info_tracker.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 SystemInfoTracker::SystemInfoTracker() = default;
@@ -41,4 +41,4 @@ void SystemInfoTracker::SetKernelVersion(base::StringView name,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

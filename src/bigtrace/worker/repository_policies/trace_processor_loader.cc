@@ -15,7 +15,7 @@
  */
 #include "src/bigtrace/worker/repository_policies/trace_processor_loader.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 TraceProcessorLoader::~TraceProcessorLoader() = default;
 

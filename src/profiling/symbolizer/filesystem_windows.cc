@@ -16,11 +16,11 @@
 
 #include "src/profiling/symbolizer/filesystem.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 #include <Windows.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 bool WalkDirectories(std::vector<std::string> dirs, FileCallback fn) {
@@ -53,6 +53,6 @@ bool WalkDirectories(std::vector<std::string> dirs, FileCallback fn) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)

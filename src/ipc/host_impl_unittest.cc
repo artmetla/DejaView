@@ -18,34 +18,34 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/sys_types.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/ipc/service.h"
-#include "perfetto/ext/ipc/service_descriptor.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/sys_types.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/ipc/service.h"
+#include "dejaview/ext/ipc/service_descriptor.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/ipc/buffered_frame_deserializer.h"
 #include "src/ipc/test/test_socket.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 #include "src/ipc/test/client_unittest_messages.gen.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/socket.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 namespace {
 
-using ::perfetto::ipc::Frame;
-using ::perfetto::ipc::gen::ReplyProto;
-using ::perfetto::ipc::gen::RequestProto;
+using ::dejaview::ipc::Frame;
+using ::dejaview::ipc::gen::ReplyProto;
+using ::dejaview::ipc::gen::RequestProto;
 using ::testing::_;
 using ::testing::Invoke;
 using ::testing::InvokeWithoutArgs;
@@ -127,8 +127,8 @@ class FakeClient : public base::UnixSocket::EventListener {
     SendFrame(frame);
   }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   void SetPeerIdentity(uid_t uid,
                        pid_t pid,
                        const std::string& machine_id_hint) {
@@ -206,7 +206,7 @@ class HostImplTest : public ::testing::Test {
   void SetUp() override {
     kTestSocket.Destroy();
     task_runner_.reset(new base::TestTaskRunner());
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
     Host* host = Host::CreateInstance_Fuchsia(task_runner_.get()).release();
     auto socket_pair = base::UnixSocketRaw::CreatePairPosix(
         base::SockFamily::kUnix, base::SockType::kStream);
@@ -369,8 +369,8 @@ TEST_F(HostImplTest, InvokeMethodDropReply) {
   task_runner_->RunUntilCheckpoint("on_reply_received");
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 // File descriptor sending over IPC is not supported on Windows.
 TEST_F(HostImplTest, SendFileDescriptor) {
   FakeService* fake_service = new FakeService("FakeService");
@@ -407,7 +407,7 @@ TEST_F(HostImplTest, SendFileDescriptor) {
         char buf[sizeof(kFileContent)] = {};
         ASSERT_EQ(0, lseek(fd, 0, SEEK_SET));
         ASSERT_EQ(static_cast<int32_t>(sizeof(buf)),
-                  PERFETTO_EINTR(read(fd, buf, sizeof(buf))));
+                  DEJAVIEW_EINTR(read(fd, buf, sizeof(buf))));
         ASSERT_STREQ(kFileContent, buf);
         on_fd_received();
       }));
@@ -447,7 +447,7 @@ TEST_F(HostImplTest, ReceiveFileDescriptor) {
   char buf[sizeof(kFileContent)] = {};
   ASSERT_EQ(0, lseek(*rx_fd, 0, SEEK_SET));
   ASSERT_EQ(static_cast<int32_t>(sizeof(buf)),
-            PERFETTO_EINTR(read(*rx_fd, buf, sizeof(buf))));
+            DEJAVIEW_EINTR(read(*rx_fd, buf, sizeof(buf))));
   ASSERT_STREQ(kFileContent, buf);
 }
 #endif  // !OS_WIN
@@ -527,8 +527,8 @@ TEST_F(HostImplTest, MoveReplyObjectAndReplyAsynchronously) {
   task_runner_->RunUntilCheckpoint("on_reply_received");
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 // Check ClientInfo of the service.
 TEST_F(HostImplTest, ServiceClientInfo) {
   FakeService* fake_service = new FakeService("FakeService");
@@ -649,8 +649,8 @@ TEST(HostImpl, SetPeerIdentityTcpSocket) {
   EXPECT_CALL(*cli, OnInvokeMethodReply(_)).WillOnce(Return());
   task_runner->RunUntilIdle();
 }
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||
-        // PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||
+        // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
 // TODO(primiano): add the tests below in next CLs.
 // TEST(HostImplTest, ManyClients) {}
@@ -660,4 +660,4 @@ TEST(HostImpl, SetPeerIdentityTcpSocket) {
 
 }  // namespace
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

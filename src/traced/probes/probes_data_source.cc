@@ -16,7 +16,7 @@
 
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 ProbesDataSource::ProbesDataSource(TracingSessionID session_id,
                                    const Descriptor* desc)
@@ -24,4 +24,4 @@ ProbesDataSource::ProbesDataSource(TracingSessionID session_id,
 
 ProbesDataSource::~ProbesDataSource() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

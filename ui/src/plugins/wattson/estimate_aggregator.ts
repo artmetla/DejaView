@@ -50,9 +50,9 @@ export class WattsonEstimateSelectionAggregator
   ): string {
     const duration = area.end - area.start;
     let query = `
-      INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+      INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
 
-      CREATE OR REPLACE PERFETTO TABLE _ui_selection_window AS
+      CREATE OR REPLACE DEJAVIEW TABLE _ui_selection_window AS
       SELECT
         ${area.start} as ts,
         ${duration} as dur;

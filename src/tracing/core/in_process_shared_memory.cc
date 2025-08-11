@@ -16,7 +16,7 @@
 
 #include "src/tracing/core/in_process_shared_memory.h"
 
-namespace perfetto {
+namespace dejaview {
 
 InProcessSharedMemory::~InProcessSharedMemory() = default;
 InProcessSharedMemory::Factory::~Factory() = default;
@@ -28,4 +28,4 @@ size_t InProcessSharedMemory::size() const {
   return mem_.size();
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

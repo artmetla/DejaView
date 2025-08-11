@@ -25,14 +25,14 @@
 #include <unordered_set>
 #include <vector>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/status.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/status.h"
 #include "src/trace_redaction/frame_cookie.h"
 #include "src/trace_redaction/process_thread_timeline.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Multiple packages can share the same name. This is common when a device has
 // multiple users. When this happens, each instance shares the 5 least
@@ -59,7 +59,7 @@ class SystemInfo {
   // new tid.
   //
   // On a 64 bit machine, the max pid limit is 2^22 (approximately 4 million).
-  // Perfetto uses a 32 (signed) int for the pid. Even in this case, there is
+  // DejaView uses a 32 (signed) int for the pid. Even in this case, there is
   // room for 2^9 synthetic threads (2 ^ (31 - 22) = 2 ^ 9).
   //
   // Futhermore, ther Android source code return 4194304 (2 ^ 22) on 64 bit
@@ -400,6 +400,6 @@ class TransformPrimitive {
                                  std::string* packet) const = 0;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_TRACE_REDACTION_FRAMEWORK_H_

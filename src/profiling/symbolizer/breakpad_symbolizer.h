@@ -17,10 +17,10 @@
 #ifndef SRC_PROFILING_SYMBOLIZER_BREAKPAD_SYMBOLIZER_H_
 #define SRC_PROFILING_SYMBOLIZER_BREAKPAD_SYMBOLIZER_H_
 
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/profiling/symbolizer/symbolizer.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // A subclass of Symbolizer that overrides the Symbolize method to make the
@@ -53,6 +53,6 @@ class BreakpadSymbolizer : public Symbolizer {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_SYMBOLIZER_BREAKPAD_SYMBOLIZER_H_

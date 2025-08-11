@@ -140,8 +140,8 @@ const ITEMS: ContextMenuItem[] = [
     run: (slice: SliceDetails, trace: Trace) => {
       trace.engine
         .query(
-          `INCLUDE PERFETTO MODULE android.binder;
-           INCLUDE PERFETTO MODULE android.monitor_contention;`,
+          `INCLUDE DEJAVIEW MODULE android.binder;
+           INCLUDE DEJAVIEW MODULE android.monitor_contention;`,
         )
         .then(() =>
           addDebugSliceTrack(

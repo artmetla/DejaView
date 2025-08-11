@@ -21,11 +21,11 @@
 #include <memory>
 #include <mutex>
 #include <optional>
-#include "perfetto/ext/base/threading/thread_pool.h"
-#include "protos/perfetto/bigtrace/orchestrator.grpc.pb.h"
-#include "protos/perfetto/bigtrace/worker.grpc.pb.h"
+#include "dejaview/ext/base/threading/thread_pool.h"
+#include "protos/dejaview/bigtrace/orchestrator.grpc.pb.h"
+#include "protos/dejaview/bigtrace/worker.grpc.pb.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 namespace {
 const uint64_t kDefaultMaxQueryConcurrency = 8;
 }  // namespace
@@ -48,6 +48,6 @@ class OrchestratorImpl final : public protos::BigtraceOrchestrator::Service {
   std::mutex query_count_mutex_;
 };
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 #endif  // SRC_BIGTRACE_ORCHESTRATOR_ORCHESTRATOR_IMPL_H_

@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/field.h"
+#include "dejaview/protozero/field.h"
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
 
-#if !PERFETTO_IS_LITTLE_ENDIAN()
+#if !DEJAVIEW_IS_LITTLE_ENDIAN()
 // The memcpy() for fixed32/64 below needs to be adjusted if we want to
 // support big endian CPUs. There doesn't seem to be a compelling need today.
 #error Unimplemented for big endian archs.
@@ -62,11 +62,11 @@ void Field::SerializeAndAppendToInternal(Container* dst) const {
       break;
     }
     default:
-      PERFETTO_FATAL("Unknown field type %u", type_);
+      DEJAVIEW_FATAL("Unknown field type %u", type_);
   }
   size_t written_size = static_cast<size_t>(wptr - start);
-  PERFETTO_DCHECK(written_size > 0 && written_size < pu::kMaxMessageLength);
-  PERFETTO_DCHECK(initial_size + written_size <= dst->size());
+  DEJAVIEW_DCHECK(written_size > 0 && written_size < pu::kMaxMessageLength);
+  DEJAVIEW_DCHECK(initial_size + written_size <= dst->size());
   dst->resize(initial_size + written_size);
 }
 

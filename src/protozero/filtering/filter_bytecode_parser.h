@@ -78,7 +78,7 @@ class FilterBytecodeParser {
 
   // Checks wheter a given field is allowed or not.
   // msg_index = 0 is the index of the root message, where all queries should
-  // start from (typically perfetto.protos.Trace).
+  // start from (typically dejaview.protos.Trace).
   QueryResult Query(uint32_t msg_index, uint32_t field_id) const;
 
   void Reset();

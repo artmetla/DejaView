@@ -25,7 +25,7 @@ class HeapGraph(TestSuite):
     return DiffTestBlueprint(
         trace=Path('heap_graph_for_dominator_tree.textproto'),
         query="""
-          INCLUDE PERFETTO MODULE android.memory.heap_graph.dominator_tree;
+          INCLUDE DEJAVIEW MODULE android.memory.heap_graph.dominator_tree;
 
           SELECT
             node.id,
@@ -71,7 +71,7 @@ class HeapGraph(TestSuite):
     return DiffTestBlueprint(
         trace=Path('heap_graph_for_aggregation.textproto'),
         query="""
-          INCLUDE PERFETTO MODULE android.memory.heap_graph.heap_graph_class_aggregation;
+          INCLUDE DEJAVIEW MODULE android.memory.heap_graph.heap_graph_class_aggregation;
 
           SELECT graph_sample_ts, upid, type_name, is_libcore_or_array,
             obj_count, size_bytes,

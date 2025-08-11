@@ -22,7 +22,7 @@
 -- 2. HwcPresentOrValidateDisplay
 -- 3. HwcValidateDisplay and then HwcPresentDisplay
 DROP VIEW IF EXISTS raw_hwc_function_spans;
-CREATE PERFETTO VIEW raw_hwc_function_spans AS
+CREATE DEJAVIEW VIEW raw_hwc_function_spans AS
 SELECT
   id,
   display_id,
@@ -51,7 +51,7 @@ FROM(
 ORDER BY ts;
 
 DROP VIEW IF EXISTS {{output}};
-CREATE PERFETTO VIEW {{output}} AS
+CREATE DEJAVIEW VIEW {{output}} AS
 SELECT
   id,
   display_id,

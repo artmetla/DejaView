@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/tracing.h"
+#include "dejaview/tracing/tracing.h"
 
 #include <atomic>
 #include <condition_variable>
 #include <mutex>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/no_destructor.h"
-#include "perfetto/ext/base/waitable_event.h"
-#include "perfetto/tracing/internal/track_event_internal.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/no_destructor.h"
+#include "dejaview/ext/base/waitable_event.h"
+#include "dejaview/tracing/internal/track_event_internal.h"
 #include "src/tracing/internal/tracing_muxer_impl.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 bool g_was_initialized = false;
 
@@ -44,13 +44,13 @@ void Tracing::InitializeInternal(const TracingInitArgs& args) {
   // If it's the first time Initialize is called, set some global params.
   if (!g_was_initialized) {
     // Make sure the headers and implementation files agree on the build config.
-    PERFETTO_CHECK(args.dcheck_is_on_ == PERFETTO_DCHECK_IS_ON());
+    DEJAVIEW_CHECK(args.dcheck_is_on_ == DEJAVIEW_DCHECK_IS_ON());
     if (args.log_message_callback) {
       base::SetLogMessageCallback(args.log_message_callback);
     }
 
     if (args.use_monotonic_clock) {
-      PERFETTO_CHECK(!args.use_monotonic_raw_clock);
+      DEJAVIEW_CHECK(!args.use_monotonic_raw_clock);
       internal::TrackEventInternal::SetClockId(
           protos::pbzero::BUILTIN_CLOCK_MONOTONIC);
     } else if (args.use_monotonic_raw_clock) {
@@ -211,4 +211,4 @@ TracingSession::QueryServiceStateBlocking() {
 
 StartupTracingSession::~StartupTracingSession() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

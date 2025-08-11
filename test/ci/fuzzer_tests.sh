@@ -23,8 +23,8 @@ echo "skipping build + test runs"
 exit 0
 fi
 
-tools/gn gen ${OUT_PATH} --args="${PERFETTO_TEST_GN_ARGS}" --check
-tools/ninja -C ${OUT_PATH} ${PERFETTO_TEST_NINJA_ARGS} fuzzers
+tools/gn gen ${OUT_PATH} --args="${DEJAVIEW_TEST_GN_ARGS}" --check
+tools/ninja -C ${OUT_PATH} ${DEJAVIEW_TEST_NINJA_ARGS} fuzzers
 
 # Run a single iteration each to make sure they are not crashing.
 for fuzzer in $(find ${OUT_PATH} -name '*_fuzzer' -executable); do

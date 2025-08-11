@@ -25,10 +25,10 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/util/gzip_utils.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
@@ -54,7 +54,7 @@
 //   This would avoid completely the cost of keeping in memory the compressed
 //   payload of unwanted files (e.g. dumpstate.bin in BRs).
 
-namespace perfetto::trace_processor::util {
+namespace dejaview::trace_processor::util {
 
 class ZipReader;
 
@@ -191,6 +191,6 @@ class ZipReader {
   util::TraceBlobViewReader reader_;
 };
 
-}  // namespace perfetto::trace_processor::util
+}  // namespace dejaview::trace_processor::util
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_ZIP_READER_H_

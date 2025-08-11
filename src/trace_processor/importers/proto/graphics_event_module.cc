@@ -17,10 +17,10 @@
 #include "src/trace_processor/importers/proto/graphics_event_module.h"
 #include "src/trace_processor/importers/common/trace_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 GraphicsEventModule::GraphicsEventModule(TraceProcessorContext* context)
     : parser_(context),
@@ -75,4 +75,4 @@ void GraphicsEventModule::ParseTracePacketData(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,7 +21,7 @@
 #include "src/trace_processor/importers/common/deobfuscation_mapping_table.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -163,4 +163,4 @@ TEST(ArgsTranslationTable, NeedsTranslation) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

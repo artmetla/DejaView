@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/scattered_stream_writer.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
 
 #include <algorithm>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
 namespace protozero {
 
@@ -43,7 +43,7 @@ void ScatteredStreamWriter::Reset(ContiguousMemoryRange range) {
   written_previously_ += static_cast<uint64_t>(write_ptr_ - cur_range_.begin);
   cur_range_ = range;
   write_ptr_ = range.begin;
-  PERFETTO_DCHECK(!write_ptr_ || write_ptr_ < cur_range_.end);
+  DEJAVIEW_DCHECK(!write_ptr_ || write_ptr_ < cur_range_.end);
 }
 
 void ScatteredStreamWriter::Extend() {
@@ -70,11 +70,11 @@ uint8_t* ScatteredStreamWriter::ReserveBytes(size_t size) {
     // Assume the reservations are always < Delegate::GetNewBuffer().size(),
     // so that one single call to Extend() will definitely give enough headroom.
     Extend();
-    PERFETTO_DCHECK(write_ptr_ + size <= cur_range_.end);
+    DEJAVIEW_DCHECK(write_ptr_ + size <= cur_range_.end);
   }
   uint8_t* begin = write_ptr_;
   write_ptr_ += size;
-#if PERFETTO_DCHECK_IS_ON()
+#if DEJAVIEW_DCHECK_IS_ON()
   // In the past, the service had a matching DCHECK in
   // TraceBuffer::TryPatchChunkContents, which was assuming that service and all
   // producers are built with matching DCHECK levels. This turned out to be a

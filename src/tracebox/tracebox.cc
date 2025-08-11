@@ -21,22 +21,22 @@
 #include <cstring>
 #include <string>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/proc_utils.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/subprocess.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/traced/traced.h"
-#include "src/perfetto_cmd/perfetto_cmd.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/proc_utils.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/subprocess.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/traced/traced.h"
+#include "src/dejaview_cmd/dejaview_cmd.h"
 #include "src/websocket_bridge/websocket_bridge.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TRACED_PERF)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TRACED_PERF)
 #include "src/profiling/perf/traced_perf.h"
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 struct Applet {
@@ -48,24 +48,24 @@ struct Applet {
 const Applet g_applets[]{
     {"traced", ServiceMain},
     {"traced_probes", ProbesMain},
-#if PERFETTO_BUILDFLAG(PERFETTO_TRACED_PERF)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TRACED_PERF)
     {"traced_perf", TracedPerfMain},
 #endif
-    {"perfetto", PerfettoCmdMain},
-    {"trigger_perfetto", TriggerPerfettoMain},
+    {"dejaview", DejaViewCmdMain},
+    {"trigger_dejaview", TriggerDejaViewMain},
     {"websocket_bridge", WebsocketBridgeMain},
 };
 
 void PrintUsage() {
-  printf(R"(Welcome to Perfetto tracing!
+  printf(R"(Welcome to DejaView tracing!
 
-Tracebox is a bundle containing all the tracing services and the perfetto
+Tracebox is a bundle containing all the tracing services and the dejaview
 cmdline client in one binary. It can be used either to spawn manually the
 various subprocess or in "autostart" mode, which will take care of starting
 and tearing down the services for you.
 
 Usage in autostart mode:
-  tracebox -t 10s -o trace_file.perfetto-trace sched/sched_switch
+  tracebox -t 10s -o trace_file.dejaview-trace sched/sched_switch
   See tracebox --help for more options.
 
 Usage in manual mode:
@@ -109,7 +109,7 @@ int TraceboxMain(int argc, char** argv) {
 
   // If no matching applet is found, switch to the autostart mode. In this mode
   // we make tracebox behave like the cmdline client (without needing to prefix
-  // it with "perfetto"), but will also start traced and traced_probes.
+  // it with "dejaview"), but will also start traced and traced_probes.
   // As part of this we also use a different namespace for the producer/consumer
   // sockets, to avoid clashing with the system daemon.
 
@@ -122,44 +122,44 @@ int TraceboxMain(int argc, char** argv) {
     return !strcmp(arg, "--system-sockets");
   });
   if (end < (argv + argc - 1)) {
-    PERFETTO_ELOG("Cannot specify --system-sockets multiple times");
+    DEJAVIEW_ELOG("Cannot specify --system-sockets multiple times");
     return 1;
   }
   if (bool system_sockets = end == (argv + argc - 1); system_sockets) {
     argc--;
   } else {
     auto pid_str = std::to_string(static_cast<uint64_t>(base::GetProcessId()));
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     // Use an unlinked abstract domain socket on Linux/Android.
     std::string consumer_socket = "@traced-c-" + pid_str;
     std::string producer_socket = "@traced-p-" + pid_str;
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
     std::string consumer_socket = "/tmp/traced-c-" + pid_str;
     std::string producer_socket = "/tmp/traced-p-" + pid_str;
 #else
-    PERFETTO_FATAL("The autostart mode is not supported on this platform");
+    DEJAVIEW_FATAL("The autostart mode is not supported on this platform");
 #endif
 
-    // If the caller has set the PERFETTO_*_SOCK_NAME, respect those.
-    if (const char* env = getenv("PERFETTO_CONSUMER_SOCK_NAME"); env) {
+    // If the caller has set the DEJAVIEW_*_SOCK_NAME, respect those.
+    if (const char* env = getenv("DEJAVIEW_CONSUMER_SOCK_NAME"); env) {
       consumer_socket = env;
     }
-    if (const char* env = getenv("PERFETTO_PRODUCER_SOCK_NAME"); env) {
+    if (const char* env = getenv("DEJAVIEW_PRODUCER_SOCK_NAME"); env) {
       producer_socket = env;
     }
-    base::SetEnv("PERFETTO_CONSUMER_SOCK_NAME", consumer_socket);
-    base::SetEnv("PERFETTO_PRODUCER_SOCK_NAME", producer_socket);
+    base::SetEnv("DEJAVIEW_CONSUMER_SOCK_NAME", consumer_socket);
+    base::SetEnv("DEJAVIEW_PRODUCER_SOCK_NAME", producer_socket);
   }
 
-  PerfettoCmd perfetto_cmd;
+  DejaViewCmd dejaview_cmd;
 
   // If the cmdline parsing fails, stop here, no need to spawn services.
   // It will daemonize if --background. In that case the subprocesses will be
   // spawned by the damonized cmdline client, which is what we want so killing
   // the backgrounded cmdline client will also kill the other services, as they
   // will live in the same background session.
-  auto opt_res = perfetto_cmd.ParseCmdlineAndMaybeDaemonize(argc, argv);
+  auto opt_res = dejaview_cmd.ParseCmdlineAndMaybeDaemonize(argc, argv);
   if (opt_res.has_value()) {
     if (*opt_res != 0) {
       PrintTraceboxUsage();
@@ -169,7 +169,7 @@ int TraceboxMain(int argc, char** argv) {
 
   std::string self_path = base::GetCurExecutablePath();
   base::Subprocess traced({self_path, "traced"});
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // |traced_sync_pipe| is used to synchronize with traced socket creation.
   // traced will write "1" and close the FD when the IPC socket is listening
   // (or traced crashed).
@@ -185,13 +185,13 @@ int TraceboxMain(int argc, char** argv) {
 #endif
   traced.Start();
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   traced_sync_pipe.wr.reset();
 
   std::string traced_notify_msg;
   base::ReadPlatformHandle(*traced_sync_pipe.rd, &traced_notify_msg);
   if (traced_notify_msg != "1")
-    PERFETTO_FATAL("The tracing service failed unexpectedly. Check the logs");
+    DEJAVIEW_FATAL("The tracing service failed unexpectedly. Check the logs");
 #endif
 
   base::Subprocess traced_probes(
@@ -199,7 +199,7 @@ int TraceboxMain(int argc, char** argv) {
   // Put traced_probes in the same process group as traced. Same reason (CTRL+C)
   // but it's not worth creating a new group.
   traced_probes.args.posix_proc_group_id = traced.pid();
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // |traced_probes_sync_pipe| is used to synchronize with traced socket
   // creation. traced will write "1" and close the FD when the IPC socket is
   // listening (or traced crashed).
@@ -210,18 +210,18 @@ int TraceboxMain(int argc, char** argv) {
 #endif
   traced_probes.Start();
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   traced_probes_sync_pipe.wr.reset();
 
   std::string traced_probes_notify_msg;
   base::ReadPlatformHandle(*traced_probes_sync_pipe.rd,
                            &traced_probes_notify_msg);
   if (traced_probes_notify_msg != "1")
-    PERFETTO_FATAL(
+    DEJAVIEW_FATAL(
         "The traced_probes service failed unexpectedly. Check the logs");
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_TRACED_PERF)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_TRACED_PERF)
   base::Subprocess traced_perf({self_path, "traced_perf"});
   // Put traced_perf in the same process group as traced. Same reason (CTRL+C)
   // but it's not worth creating a new group.
@@ -237,17 +237,17 @@ int TraceboxMain(int argc, char** argv) {
   std::string traced_perf_notify_msg;
   base::ReadPlatformHandle(*traced_perf_sync_pipe.rd, &traced_perf_notify_msg);
   if (traced_perf_notify_msg != "1")
-    PERFETTO_FATAL(
+    DEJAVIEW_FATAL(
         "The traced_perf service failed unexpectedly. Check the logs");
 #endif
 
-  perfetto_cmd.ConnectToServiceRunAndMaybeNotify();
+  dejaview_cmd.ConnectToServiceRunAndMaybeNotify();
   return 0;
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  return perfetto::TraceboxMain(argc, argv);
+  return dejaview::TraceboxMain(argc, argv);
 }

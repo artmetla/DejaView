@@ -16,8 +16,8 @@
 
 #include "test/gtest_and_gmock.h"
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "src/protozero/filtering/filter_bytecode_parser.h"
 #include "src/protozero/filtering/filter_util.h"
 
@@ -27,25 +27,25 @@ namespace protozero {
 
 namespace {
 
-perfetto::base::TempFile MkTemp(const char* str) {
-  auto tmp = perfetto::base::TempFile::Create();
-  perfetto::base::WriteAll(*tmp, str, strlen(str));
-  perfetto::base::FlushFile(*tmp);
+dejaview::base::TempFile MkTemp(const char* str) {
+  auto tmp = dejaview::base::TempFile::Create();
+  dejaview::base::WriteAll(*tmp, str, strlen(str));
+  dejaview::base::FlushFile(*tmp);
   return tmp;
 }
 
 std::string FilterToText(FilterUtil& filter,
                          std::optional<std::string> bytecode = {}) {
-  std::string tmp_path = perfetto::base::TempFile::Create().path();
+  std::string tmp_path = dejaview::base::TempFile::Create().path();
   {
-    perfetto::base::ScopedFstream tmp_stream(fopen(tmp_path.c_str(), "wb"));
-    PERFETTO_CHECK(!!tmp_stream);
+    dejaview::base::ScopedFstream tmp_stream(fopen(tmp_path.c_str(), "wb"));
+    DEJAVIEW_CHECK(!!tmp_stream);
     filter.set_print_stream_for_testing(*tmp_stream);
     filter.PrintAsText(bytecode);
     filter.set_print_stream_for_testing(stdout);
   }
   std::string output;
-  PERFETTO_CHECK(perfetto::base::ReadFile(tmp_path, &output));
+  DEJAVIEW_CHECK(dejaview::base::ReadFile(tmp_path, &output));
   // Make the output a bit more compact.
   output = std::regex_replace(output, std::regex(" +"), " ");
   return std::regex_replace(output, std::regex(" +\\n"), "\n");

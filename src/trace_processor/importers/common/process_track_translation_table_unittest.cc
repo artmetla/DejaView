@@ -17,7 +17,7 @@
 #include "src/trace_processor/importers/common/process_track_translation_table.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 TEST(ProcessTrackTranslationTable, UnknownName) {
@@ -37,4 +37,4 @@ TEST(ProcessTrackTranslationTable, MappedName) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

@@ -16,11 +16,11 @@
 
 #include "src/protozero/filtering/filter_bytecode_parser.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
 #include "src/protozero/filtering/filter_bytecode_common.h"
 
 namespace protozero {
@@ -56,14 +56,14 @@ bool FilterBytecodeParser::LoadInternal(const uint8_t* bytecode_data,
   if (packed_parse_err || words.empty())
     return false;
 
-  perfetto::base::Hasher hasher;
+  dejaview::base::Hasher hasher;
   for (size_t i = 0; i < words.size() - 1; ++i)
     hasher.Update(words[i]);
 
   uint32_t expected_csum = static_cast<uint32_t>(hasher.digest());
   if (expected_csum != words.back()) {
     if (!suppress_logs_for_fuzzer_) {
-      PERFETTO_ELOG("Filter bytecode checksum failed. Expected: %x, actual: %x",
+      DEJAVIEW_ELOG("Filter bytecode checksum failed. Expected: %x, actual: %x",
                     expected_csum, words.back());
     }
     return false;
@@ -77,15 +77,15 @@ bool FilterBytecodeParser::LoadInternal(const uint8_t* bytecode_data,
   uint32_t max_msg_index = 0;
 
   auto add_directly_indexed_field = [&](uint32_t field_id, uint32_t msg_id) {
-    PERFETTO_DCHECK(field_id > 0 && field_id < kDirectlyIndexLimit);
+    DEJAVIEW_DCHECK(field_id > 0 && field_id < kDirectlyIndexLimit);
     direct_indexed_fields.resize(std::max(direct_indexed_fields.size(),
                                           static_cast<size_t>(field_id) + 1));
     direct_indexed_fields[field_id] = kAllowed | msg_id;
   };
 
   auto add_range = [&](uint32_t id_start, uint32_t id_end, uint32_t msg_id) {
-    PERFETTO_DCHECK(id_end > id_start);
-    PERFETTO_DCHECK(id_start >= kDirectlyIndexLimit);
+    DEJAVIEW_DCHECK(id_end > id_start);
+    DEJAVIEW_DCHECK(id_start >= kDirectlyIndexLimit);
     ranges.emplace_back(id_start);
     ranges.emplace_back(id_end);
     ranges.emplace_back(kAllowed | msg_id);
@@ -100,7 +100,7 @@ bool FilterBytecodeParser::LoadInternal(const uint8_t* bytecode_data,
 
     is_eom = opcode == kFilterOpcode_EndOfMessage;
     if (field_id == 0 && opcode != kFilterOpcode_EndOfMessage) {
-      PERFETTO_DLOG("bytecode error @ word %zu, invalid field id (0)", i);
+      DEJAVIEW_DLOG("bytecode error @ word %zu, invalid field id (0)", i);
       return false;
     }
 
@@ -121,7 +121,7 @@ bool FilterBytecodeParser::LoadInternal(const uint8_t* bytecode_data,
       } else {  // FILTER_OPCODE_NESTED_FIELD
         // The next word in the bytecode contains the message index.
         if (!has_next_word) {
-          PERFETTO_DLOG("bytecode error @ word %zu: unterminated nested field",
+          DEJAVIEW_DLOG("bytecode error @ word %zu: unterminated nested field",
                         i);
           return false;
         }
@@ -139,7 +139,7 @@ bool FilterBytecodeParser::LoadInternal(const uint8_t* bytecode_data,
       }
     } else if (opcode == kFilterOpcode_SimpleFieldRange) {
       if (!has_next_word) {
-        PERFETTO_DLOG("bytecode error @ word %zu: unterminated range", i);
+        DEJAVIEW_DLOG("bytecode error @ word %zu: unterminated range", i);
         return false;
       }
       const uint32_t range_len = words[++i];
@@ -153,7 +153,7 @@ bool FilterBytecodeParser::LoadInternal(const uint8_t* bytecode_data,
       // and add only the remaining range as a non-indexed range.
       for (; id < range_end && id < kDirectlyIndexLimit; ++id)
         add_directly_indexed_field(id, kAllowed | kSimpleField);
-      PERFETTO_DCHECK(id >= kDirectlyIndexLimit || id == range_end);
+      DEJAVIEW_DCHECK(id >= kDirectlyIndexLimit || id == range_end);
       if (id < range_end)
         add_range(id, range_end, kSimpleField);
     } else if (opcode == kFilterOpcode_EndOfMessage) {
@@ -172,19 +172,19 @@ bool FilterBytecodeParser::LoadInternal(const uint8_t* bytecode_data,
       direct_indexed_fields.clear();
       ranges.clear();
     } else {
-      PERFETTO_DLOG("bytecode error @ word %zu: invalid opcode (%x)", i, word);
+      DEJAVIEW_DLOG("bytecode error @ word %zu: invalid opcode (%x)", i, word);
       return false;
     }
   }  // (for word in bytecode).
 
   if (!is_eom) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "bytecode error: end of message not the last word in the bytecode");
     return false;
   }
 
   if (max_msg_index > 0 && max_msg_index >= message_offset_.size()) {
-    PERFETTO_DLOG(
+    DEJAVIEW_DLOG(
         "bytecode error: a message index (%u) is out of range "
         "(num_messages=%zu)",
         max_msg_index, message_offset_.size());
@@ -210,17 +210,17 @@ FilterBytecodeParser::QueryResult FilterBytecodeParser::Query(
   // These are DCHECKs and not just CHECKS because the |words_| is populated
   // by the LoadInternal call above. These cannot be violated with a malformed
   // bytecode.
-  PERFETTO_DCHECK(start_offset < words_.size());
+  DEJAVIEW_DCHECK(start_offset < words_.size());
   const uint32_t* word = &words_[start_offset];
   const uint32_t end_off = message_offset_[msg_index + 1];
   const uint32_t* const end = words_.data() + end_off;
-  PERFETTO_DCHECK(end > word && end <= words_.data() + words_.size());
+  DEJAVIEW_DCHECK(end > word && end <= words_.data() + words_.size());
   const uint32_t num_directly_indexed = *(word++);
-  PERFETTO_DCHECK(num_directly_indexed <= kDirectlyIndexLimit);
-  PERFETTO_DCHECK(word + num_directly_indexed <= end);
+  DEJAVIEW_DCHECK(num_directly_indexed <= kDirectlyIndexLimit);
+  DEJAVIEW_DCHECK(word + num_directly_indexed <= end);
   uint32_t field_state = 0;
-  if (PERFETTO_LIKELY(field_id < num_directly_indexed)) {
-    PERFETTO_DCHECK(&word[field_id] < end);
+  if (DEJAVIEW_LIKELY(field_id < num_directly_indexed)) {
+    DEJAVIEW_DCHECK(&word[field_id] < end);
     field_state = word[field_id];
   } else {
     for (word = word + num_directly_indexed; word + 2 < end;) {
@@ -236,7 +236,7 @@ FilterBytecodeParser::QueryResult FilterBytecodeParser::Query(
 
   res.allowed = (field_state & kAllowed) != 0;
   res.nested_msg_index = field_state & ~kAllowed;
-  PERFETTO_DCHECK(!res.nested_msg_field() ||
+  DEJAVIEW_DCHECK(!res.nested_msg_field() ||
                   res.nested_msg_index < message_offset_.size() - 1);
   return res;
 }

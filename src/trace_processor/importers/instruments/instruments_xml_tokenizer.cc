@@ -22,22 +22,22 @@
 #include <expat.h>
 #include <stdint.h>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/public/fnv1a.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/public/fnv1a.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/importers/instruments/row.h"
 #include "src/trace_processor/importers/instruments/row_data_tracker.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_TP_INSTRUMENTS)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_TP_INSTRUMENTS)
 #error \
-    "This file should not be built when enable_perfetto_trace_processor_mac_instruments=false"
+    "This file should not be built when enable_dejaview_trace_processor_mac_instruments=false"
 #endif
 
-namespace perfetto::trace_processor::instruments_importer {
+namespace dejaview::trace_processor::instruments_importer {
 
 namespace {
 
@@ -65,16 +65,16 @@ std::string MakeTrimmed(const char* chars, int len) {
 //   1. Points of interest signposts
 //   2. Time samples
 //
-// The first is used for clock synchronization -- perfetto emits signpost events
+// The first is used for clock synchronization -- dejaview emits signpost events
 // during tracing which allow synchronization of the xctrace clock (relative to
-// start of profiling) with the perfetto boottime clock. The second contains
+// start of profiling) with the dejaview boottime clock. The second contains
 // the samples themselves.
 //
 // The expected format of the rows in the clock sync table is:
 //
 //     <row>
 //       <event-time>1234</event-time>
-//       <subsystem>dev.perfetto.clock_sync</subsystem>
+//       <subsystem>dev.dejaview.clock_sync</subsystem>
 //       <os-log-metadata>
 //         <uint64>5678</uint64>
 //       </os-log-metadata>
@@ -135,9 +135,9 @@ class InstrumentsXmlTokenizer::Impl {
     XML_SetCharacterDataHandler(parser_, CharacterData);
     XML_SetUserData(parser_, this);
 
-    const char* subsystem = "dev.perfetto.instruments_clock";
+    const char* subsystem = "dev.dejaview.instruments_clock";
     clock_ = static_cast<ClockTracker::ClockId>(
-        PerfettoFnv1a(subsystem, strlen(subsystem)) | 0x80000000);
+        DejaViewFnv1a(subsystem, strlen(subsystem)) | 0x80000000);
 
     // Use the above clock if we can, in case there is no other trace and
     // no clock sync events.
@@ -203,7 +203,7 @@ class InstrumentsXmlTokenizer::Impl {
           GetOrInsertByRef(attrs, process_ref_to_process_);
       if (process_lookup.is_new) {
         // Can only be processing a new process when processing a new thread.
-        PERFETTO_DCHECK(current_new_thread_ != kNullId);
+        DEJAVIEW_DCHECK(current_new_thread_ != kNullId);
         auto new_process = data_.NewProcess();
         process_lookup.ref = new_process.id;
 
@@ -288,7 +288,7 @@ class InstrumentsXmlTokenizer::Impl {
           ->frames.push_back(frame_lookup.ref);
     } else if (tag_name == "binary") {
       // Can only be processing a binary when processing a new frame.
-      PERFETTO_DCHECK(current_new_frame_ != kNullId);
+      DEJAVIEW_DCHECK(current_new_frame_ != kNullId);
 
       MaybeCachedRef<BinaryId> binary_lookup =
           GetOrInsertByRef(attrs, binary_ref_to_binary_);
@@ -308,13 +308,13 @@ class InstrumentsXmlTokenizer::Impl {
         }
         new_binary.ptr->max_addr = new_binary.ptr->load_addr;
       }
-      PERFETTO_DCHECK(data_.GetFrame(current_new_frame_)->binary == kNullId);
+      DEJAVIEW_DCHECK(data_.GetFrame(current_new_frame_)->binary == kNullId);
       data_.GetFrame(current_new_frame_)->binary = binary_lookup.ref;
     }
   }
 
   void ElementEnd(const char* el) {
-    PERFETTO_DCHECK(el == tag_stack_.back());
+    DEJAVIEW_DCHECK(el == tag_stack_.back());
     std::string tag_name = std::move(tag_stack_.back());
     tag_stack_.pop_back();
 
@@ -324,7 +324,7 @@ class InstrumentsXmlTokenizer::Impl {
         base::StatusOr<int64_t> trace_ts =
             ToTraceTimestamp(current_row_.timestamp_);
         if (!trace_ts.ok()) {
-          PERFETTO_DLOG("Skipping timestamp %" PRId64 ", no clock snapshot yet",
+          DEJAVIEW_DLOG("Skipping timestamp %" PRId64 ", no clock snapshot yet",
                         current_row_.timestamp_);
         } else {
           context_->sorter->PushInstrumentsRow(*trace_ts,
@@ -332,12 +332,12 @@ class InstrumentsXmlTokenizer::Impl {
         }
       } else if (current_subsystem_ref_ != nullptr) {
         // Rows without backtraces are assumed to be signpost events -- filter
-        // these for `dev.perfetto.clock_sync` events.
-        if (*current_subsystem_ref_ == "dev.perfetto.clock_sync") {
-          PERFETTO_DCHECK(current_os_log_metadata_uint64_ref_ != nullptr);
+        // these for `dev.dejaview.clock_sync` events.
+        if (*current_subsystem_ref_ == "dev.dejaview.clock_sync") {
+          DEJAVIEW_DCHECK(current_os_log_metadata_uint64_ref_ != nullptr);
           uint64_t clock_sync_timestamp = *current_os_log_metadata_uint64_ref_;
           if (latest_clock_sync_timestamp_ > clock_sync_timestamp) {
-            PERFETTO_DLOG("Skipping timestamp %" PRId64
+            DEJAVIEW_DLOG("Skipping timestamp %" PRId64
                           ", non-monotonic sync deteced",
                           current_row_.timestamp_);
           } else {
@@ -347,7 +347,7 @@ class InstrumentsXmlTokenizer::Impl {
                  {protos::pbzero::ClockSnapshot::Clock::BOOTTIME,
                   static_cast<int64_t>(latest_clock_sync_timestamp_)}});
             if (!status.ok()) {
-              PERFETTO_FATAL("Error adding clock snapshot: %s",
+              DEJAVIEW_FATAL("Error adding clock snapshot: %s",
                              status.status().c_message());
             }
           }
@@ -362,7 +362,7 @@ class InstrumentsXmlTokenizer::Impl {
         Binary* binary = data_.GetBinary(frame->binary);
         // We don't know what the binary's mapping end is, but we know that the
         // current frame is inside of it, so use that.
-        PERFETTO_DCHECK(frame->addr > binary->load_addr);
+        DEJAVIEW_DCHECK(frame->addr > binary->load_addr);
         if (frame->addr > binary->max_addr) {
           binary->max_addr = frame->addr;
         }
@@ -408,7 +408,7 @@ class InstrumentsXmlTokenizer::Impl {
     base::StatusOr<int64_t> trace_ts =
         context_->clock_tracker->ToTraceTime(clock_, time);
 
-    if (PERFETTO_LIKELY(trace_ts.ok())) {
+    if (DEJAVIEW_LIKELY(trace_ts.ok())) {
       latest_timestamp_ = std::max(latest_timestamp_, *trace_ts);
     }
 
@@ -437,16 +437,16 @@ class InstrumentsXmlTokenizer::Impl {
   template <typename Value>
   MaybeCachedRef<Value> GetOrInsertByRef(const char** attrs,
                                          std::map<unsigned long, Value>& map) {
-    PERFETTO_DCHECK(attrs[0] != nullptr);
-    PERFETTO_DCHECK(attrs[1] != nullptr);
+    DEJAVIEW_DCHECK(attrs[0] != nullptr);
+    DEJAVIEW_DCHECK(attrs[1] != nullptr);
     const char* key = attrs[0];
     // The id or ref attribute has to be the first attribute on the element.
-    PERFETTO_DCHECK(strcmp(key, "ref") == 0 || strcmp(key, "id") == 0);
+    DEJAVIEW_DCHECK(strcmp(key, "ref") == 0 || strcmp(key, "id") == 0);
     unsigned long id = strtoul(attrs[1], nullptr, 10);
     // If the first attribute key is `id`, then this is a new entry in the
     // cache -- otherwise, for lookup by ref, it should already exist.
     bool is_new = strcmp(key, "id") == 0;
-    PERFETTO_DCHECK(is_new == (map.find(id) == map.end()));
+    DEJAVIEW_DCHECK(is_new == (map.find(id) == map.end()));
     return {map[id], is_new};
   }
 
@@ -504,4 +504,4 @@ base::Status InstrumentsXmlTokenizer::Parse(TraceBlobView view) {
   return impl_->End();
 }
 
-}  // namespace perfetto::trace_processor::instruments_importer
+}  // namespace dejaview::trace_processor::instruments_importer

@@ -15,7 +15,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/rpc/query_result_serializer.h"
+#include "dejaview/ext/trace_processor/rpc/query_result_serializer.h"
 
 #include <deque>
 #include <ostream>
@@ -23,14 +23,14 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace_processor/trace_processor.pbzero.h"
+#include "protos/dejaview/trace_processor/trace_processor.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // For ASSERT_THAT(ElementsAre(...))
@@ -454,4 +454,4 @@ TEST(QueryResultSerializerTest, NoResultQuery) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

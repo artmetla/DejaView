@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/importers/proto/android_probes_module.h"
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_processor/importers/common/machine_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 #include "src/trace_processor/importers/proto/android_probes_parser.h"
@@ -26,15 +26,15 @@
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
 
-#include "protos/perfetto/common/android_energy_consumer_descriptor.pbzero.h"
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/android/packages_list.pbzero.h"
-#include "protos/perfetto/trace/power/android_energy_estimation_breakdown.pbzero.h"
-#include "protos/perfetto/trace/power/android_entity_state_residency.pbzero.h"
-#include "protos/perfetto/trace/power/power_rails.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/android_energy_consumer_descriptor.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/android/packages_list.pbzero.h"
+#include "protos/dejaview/trace/power/android_energy_estimation_breakdown.pbzero.h"
+#include "protos/dejaview/trace/power/android_entity_state_residency.pbzero.h"
+#include "protos/dejaview/trace/power/power_rails.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -79,7 +79,7 @@ const char* MapToFriendlyPowerRailName(base::StringView raw) {
 
 }  // namespace
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 AndroidProbesModule::AndroidProbesModule(TraceProcessorContext* context)
     : parser_(context),
@@ -140,8 +140,8 @@ ModuleResult AndroidProbesModule::TokenizePacket(
   for (auto it = evt.rail_descriptor(); it; ++it) {
     protos::pbzero::PowerRails::RailDescriptor::Decoder desc(*it);
     uint32_t idx = desc.index();
-    if (PERFETTO_UNLIKELY(idx > 256)) {
-      PERFETTO_DLOG("Skipping excessively large power_rail index %" PRIu32,
+    if (DEJAVIEW_UNLIKELY(idx > 256)) {
+      DEJAVIEW_DLOG("Skipping excessively large power_rail index %" PRIu32,
                     idx);
       continue;
     }
@@ -316,4 +316,4 @@ void AndroidProbesModule::ParseEntityStateDescriptor(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

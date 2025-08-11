@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/status.h"
+#include "dejaview/base/status.h"
 #include <string>
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::base {
+namespace dejaview::base {
 
 TEST(StatusTest, HugeError) {
   std::string x(4096, 'x');
@@ -69,4 +69,4 @@ TEST(StatusTest, SetMultipleAndDuplicate) {
   ASSERT_EQ(status.GetPayload("test.foo.com/bar2"), "2");
 }
 
-}  // namespace perfetto::base
+}  // namespace dejaview::base

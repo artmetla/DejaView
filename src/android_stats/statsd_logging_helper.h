@@ -22,9 +22,9 @@
 #include <string>
 #include <vector>
 
-#include "src/android_stats/perfetto_atoms.h"
+#include "src/android_stats/dejaview_atoms.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace android_stats {
 
 // Functions in this file are only active on built in the Android
@@ -32,19 +32,19 @@ namespace android_stats {
 // on Android) these functions are a noop.
 
 // Logs the upload event to statsd if built in the Android tree.
-void MaybeLogUploadEvent(PerfettoStatsdAtom atom,
+void MaybeLogUploadEvent(DejaViewStatsdAtom atom,
                          int64_t uuid_lsb,
                          int64_t uuid_msb,
                          const std::string& trigger_name = "");
 
 // Logs the trigger events to statsd if built in the Android tree.
-void MaybeLogTriggerEvent(PerfettoTriggerAtom atom, const std::string& trigger);
+void MaybeLogTriggerEvent(DejaViewTriggerAtom atom, const std::string& trigger);
 
 // Logs the trigger events to statsd if built in the Android tree.
-void MaybeLogTriggerEvents(PerfettoTriggerAtom atom,
+void MaybeLogTriggerEvents(DejaViewTriggerAtom atom,
                            const std::vector<std::string>& triggers);
 
 }  // namespace android_stats
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_ANDROID_STATS_STATSD_LOGGING_HELPER_H_

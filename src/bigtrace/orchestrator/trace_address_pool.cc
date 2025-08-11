@@ -15,9 +15,9 @@
  */
 
 #include "src/bigtrace/orchestrator/trace_address_pool.h"
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 TraceAddressPool::TraceAddressPool(
     const std::vector<std::string>& trace_addresses)
@@ -42,7 +42,7 @@ std::optional<std::string> TraceAddressPool::Pop() {
 // Returns cancelled trace addresses to the pool for future calls to |Pop|
 void TraceAddressPool::MarkCancelled(std::string trace_address) {
   std::lock_guard<std::mutex> guard(trace_addresses_lock_);
-  PERFETTO_CHECK(running_queries_-- > 0);
+  DEJAVIEW_CHECK(running_queries_-- > 0);
   trace_addresses_.push_back(std::move(trace_address));
 }
 
@@ -52,4 +52,4 @@ uint32_t TraceAddressPool::RemainingCount() {
   return static_cast<uint32_t>(trace_addresses_.size()) + running_queries_;
 }
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace

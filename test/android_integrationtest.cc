@@ -14,45 +14,45 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/utils.h"
 #include "test/gtest_and_gmock.h"
 #include "test/test_helper.h"
 
-#include "protos/perfetto/config/power/android_power_config.pbzero.h"
-#include "protos/perfetto/config/test_config.gen.h"
-#include "protos/perfetto/config/trace_config.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.gen.h"
-#include "protos/perfetto/trace/perfetto/tracing_service_event.gen.h"
-#include "protos/perfetto/trace/power/battery_counters.gen.h"
-#include "protos/perfetto/trace/test_event.gen.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/trigger.gen.h"
+#include "protos/dejaview/config/power/android_power_config.pbzero.h"
+#include "protos/dejaview/config/test_config.gen.h"
+#include "protos/dejaview/config/trace_config.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.gen.h"
+#include "protos/dejaview/trace/dejaview/tracing_service_event.gen.h"
+#include "protos/dejaview/trace/power/battery_counters.gen.h"
+#include "protos/dejaview/trace/test_event.gen.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trigger.gen.h"
 
-#include "protos/perfetto/common/sys_stats_counters.gen.h"
-#include "protos/perfetto/config/sys_stats/sys_stats_config.gen.h"
-#include "protos/perfetto/trace/sys_stats/sys_stats.gen.h"
+#include "protos/dejaview/common/sys_stats_counters.gen.h"
+#include "protos/dejaview/config/sys_stats/sys_stats_config.gen.h"
+#include "protos/dejaview/trace/sys_stats/sys_stats.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -65,7 +65,7 @@ using ::testing::SizeIs;
 
 }  // namespace
 
-TEST(PerfettoAndroidIntegrationTest, TestKmemActivity) {
+TEST(DejaViewAndroidIntegrationTest, TestKmemActivity) {
   using C = protos::gen::VmstatCounters;
 
   base::TestTaskRunner task_runner;
@@ -74,7 +74,7 @@ TEST(PerfettoAndroidIntegrationTest, TestKmemActivity) {
 
   helper.StartServiceIfRequired();
 
-#if PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
   ProbesProducerThread probes(GetTestProducerSockName());
   probes.Connect();
 #endif
@@ -160,7 +160,7 @@ TEST(PerfettoAndroidIntegrationTest, TestKmemActivity) {
   // inherently flaky on different devices. The same goes for writing
   // /proc/sys/vm/compact_memory to trigger compaction, since compaction is
   // only started if needed (even if explicitly triggered from proc).
-  // Trigger kmem activity using perfetto trigger.
+  // Trigger kmem activity using dejaview trigger.
   producer->ActivateTrigger("kmem_activity");
 
   helper.WaitForTracingDisabled();
@@ -202,13 +202,13 @@ TEST(PerfettoAndroidIntegrationTest, TestKmemActivity) {
   ASSERT_TRUE(sys_stats_captured);
 }
 
-TEST(PerfettoAndroidIntegrationTest, TestBatteryTracing) {
+TEST(DejaViewAndroidIntegrationTest, TestBatteryTracing) {
   base::TestTaskRunner task_runner;
 
   TestHelper helper(&task_runner);
   helper.StartServiceIfRequired();
 
-#if PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
   ProbesProducerThread probes(GetTestProducerSockName());
   probes.Connect();
 #endif
@@ -256,6 +256,6 @@ TEST(PerfettoAndroidIntegrationTest, TestBatteryTracing) {
   ASSERT_TRUE(has_battery_packet);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 
-#endif  // PERFETTO_OS_ANDROID
+#endif  // DEJAVIEW_OS_ANDROID

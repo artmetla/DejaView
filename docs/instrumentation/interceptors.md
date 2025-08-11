@@ -1,15 +1,15 @@
 # Trace packet interceptors (Tracing SDK)
 
 A trace packet interceptor is used to redirect trace packets written by a
-data source into a custom backend instead of the normal Perfetto tracing
+data source into a custom backend instead of the normal DejaView tracing
 service. For example, the console interceptor prints all trace packets to the
 console as they are generated. Another potential use is exporting trace data
 to another tracing service such as Android ATrace or Windows ETW.
 
-An interceptor is defined by subclassing the `perfetto::Interceptor` template:
+An interceptor is defined by subclassing the `dejaview::Interceptor` template:
 
 ```C++
-class MyInterceptor : public perfetto::Interceptor<MyInterceptor> {
+class MyInterceptor : public dejaview::Interceptor<MyInterceptor> {
  public:
   ~MyInterceptor() override = default;
 
@@ -23,7 +23,7 @@ class MyInterceptor : public perfetto::Interceptor<MyInterceptor> {
   // Warning: this function can be called on any thread at any time. See
   // below for how to safely access shared interceptor data from here.
   static void OnTracePacket(InterceptorContext context) {
-    perfetto::protos::pbzero::TracePacket::Decoder packet(
+    dejaview::protos::pbzero::TracePacket::Decoder packet(
         context.packet_data.data, context.packet_data.size);
     // ... Write |packet| to the desired destination ...
   }
@@ -35,7 +35,7 @@ Note that the interceptor also needs to be activated through the trace config
 shown below.
 
 ```C++
-perfetto::InterceptorDescriptor desc;
+dejaview::InterceptorDescriptor desc;
 desc.set_name("my_interceptor");
 MyInterceptor::Register(desc);
 ```
@@ -43,7 +43,7 @@ MyInterceptor::Register(desc);
 Finally, an interceptor is enabled through the trace config like this:
 
 ```C++
-perfetto::TraceConfig cfg;
+dejaview::TraceConfig cfg;
 auto* ds_cfg = cfg.add_data_sources()->mutable_config();
 ds_cfg->set_name("data_source_to_intercept");   // e.g. "track_event"
 ds_cfg->mutable_interceptor_config()->set_name("my_interceptor");
@@ -67,7 +67,7 @@ function can access three other types of state:
    can be maintained through the OnSetup/OnStart/OnStop callbacks:
 
    ```C++
-   class MyInterceptor : public perfetto::Interceptor<MyInterceptor> {
+   class MyInterceptor : public dejaview::Interceptor<MyInterceptor> {
     public:
      void OnSetup(const SetupArgs& args) override {
        enable_foo_ = args.config.interceptor_config().enable_foo();
@@ -81,7 +81,7 @@ function can access three other types of state:
    lock for safety:
 
    ```C++
-   class MyInterceptor : public perfetto::Interceptor<MyInterceptor> {
+   class MyInterceptor : public dejaview::Interceptor<MyInterceptor> {
      ...
      static void OnTracePacket(InterceptorContext context) {
        auto my_interceptor = context.GetInterceptorLocked();
@@ -104,10 +104,10 @@ function can access three other types of state:
    matching the TraceWriter:
 
    ```C++
-   class MyInterceptor : public perfetto::Interceptor<MyInterceptor> {
+   class MyInterceptor : public dejaview::Interceptor<MyInterceptor> {
     public:
      struct ThreadLocalState
-         : public perfetto::InterceptorBase::ThreadLocalState {
+         : public dejaview::InterceptorBase::ThreadLocalState {
        ThreadLocalState(ThreadLocalStateArgs&) override = default;
        ~ThreadLocalState() override = default;
 
@@ -120,12 +120,12 @@ function can access three other types of state:
    `OnTracePacket` like this:
 
    ```C++
-   class MyInterceptor : public perfetto::Interceptor<MyInterceptor> {
+   class MyInterceptor : public dejaview::Interceptor<MyInterceptor> {
      ...
      static void OnTracePacket(InterceptorContext context) {
        // Updating interned data.
        auto& tls = context.GetThreadLocalState();
-       if (parsed_packet.sequence_flags() & perfetto::protos::pbzero::
+       if (parsed_packet.sequence_flags() & dejaview::protos::pbzero::
                TracePacket::SEQ_INCREMENTAL_STATE_CLEARED) {
          tls.event_names.clear();
        }

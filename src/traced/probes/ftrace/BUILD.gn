@@ -13,14 +13,14 @@
 # limitations under the License.
 
 import("../../../../gn/fuzzer.gni")
-import("../../../../gn/perfetto.gni")
+import("../../../../gn/dejaview.gni")
 import("../../../../gn/proto_library.gni")
 import("../../../../gn/test.gni")
 
 assert(target_os != "win")
 
 # For use_libfuzzer.
-if (perfetto_root_path == "//") {
+if (dejaview_root_path == "//") {
   import("//gn/standalone/sanitizers/vars.gni")  # nogncheck
 } else {
   import("//build/config/sanitizers/sanitizers.gni")  # nogncheck
@@ -43,7 +43,7 @@ source_set("test_support") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":ftrace",
@@ -54,9 +54,9 @@ perfetto_unittest_source_set("unittests") {
     ":test_support",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../protos/perfetto/trace:cpp",
-    "../../../../protos/perfetto/trace/ftrace:cpp",
-    "../../../../protos/perfetto/trace/ftrace:zero",
+    "../../../../protos/dejaview/trace:cpp",
+    "../../../../protos/dejaview/trace/ftrace:cpp",
+    "../../../../protos/dejaview/trace/ftrace:zero",
     "../../../base:test_support",
     "../../../tracing/test:test_support",
     "format_parser:unittests",
@@ -77,14 +77,14 @@ perfetto_unittest_source_set("unittests") {
   ]
 }
 
-perfetto_proto_library("test_messages_@TYPE@") {
+dejaview_proto_library("test_messages_@TYPE@") {
   proto_generators = [
     "cpp",
     "lite",
     "zero",
   ]
   sources = [ "test/test_messages.proto" ]
-  proto_path = perfetto_root_path
+  proto_path = dejaview_root_path
 }
 
 # These tests require access to a real ftrace implementation and must
@@ -105,19 +105,19 @@ source_set("integrationtests") {
 
 source_set("ftrace") {
   public_deps = [
-    "../../../../protos/perfetto/config/ftrace:cpp",
-    "../../../../protos/perfetto/trace/ftrace:zero",
+    "../../../../protos/dejaview/config/ftrace:cpp",
+    "../../../../protos/dejaview/trace/ftrace:zero",
     "../../../tracing/core",
   ]
   deps = [
     ":ftrace_procfs",
     "..:data_source",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/interned_data:zero",
-    "../../../../protos/perfetto/trace/profiling:zero",
+    "../../../../include/dejaview/ext/traced",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/interned_data:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
     "../../../android_internal:lazy_library_loader",
     "../../../base",
     "../../../kallsyms",
@@ -173,7 +173,7 @@ source_set("ftrace_procfs") {
   ]
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [
@@ -186,7 +186,7 @@ if (enable_perfetto_benchmarks) {
   }
 }
 
-perfetto_fuzzer_test("cpu_reader_fuzzer") {
+dejaview_fuzzer_test("cpu_reader_fuzzer") {
   testonly = true
   sources = [ "cpu_reader_fuzzer.cc" ]
   deps = [

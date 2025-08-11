@@ -16,17 +16,17 @@
 
 #include "src/tracing/ipc/shared_memory_windows.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 #include <memory>
 #include <random>
 
 #include <Windows.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // static
 std::unique_ptr<SharedMemoryWindows> SharedMemoryWindows::Create(
@@ -34,7 +34,7 @@ std::unique_ptr<SharedMemoryWindows> SharedMemoryWindows::Create(
   base::ScopedPlatformHandle shmem_handle;
   std::random_device rnd_dev;
   uint64_t rnd_key = (static_cast<uint64_t>(rnd_dev()) << 32) | rnd_dev();
-  std::string key = "perfetto_shm_" + base::Uint64ToHexStringNoPrefix(rnd_key);
+  std::string key = "dejaview_shm_" + base::Uint64ToHexStringNoPrefix(rnd_key);
 
   SECURITY_ATTRIBUTES security_attributes = {};
   security_attributes.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -50,14 +50,14 @@ std::unique_ptr<SharedMemoryWindows> SharedMemoryWindows::Create(
       key.c_str()));
 
   if (!shmem_handle) {
-    PERFETTO_PLOG("CreateFileMapping() call failed");
+    DEJAVIEW_PLOG("CreateFileMapping() call failed");
     return nullptr;
   }
   void* start =
       MapViewOfFile(*shmem_handle, FILE_MAP_ALL_ACCESS, /*offsetHigh=*/0,
                     /*offsetLow=*/0, size);
   if (!start) {
-    PERFETTO_PLOG("MapViewOfFile() failed");
+    DEJAVIEW_PLOG("MapViewOfFile() failed");
     return nullptr;
   }
 
@@ -72,7 +72,7 @@ std::unique_ptr<SharedMemoryWindows> SharedMemoryWindows::Attach(
   shmem_handle.reset(
       OpenFileMappingA(FILE_MAP_ALL_ACCESS, /*inherit=*/false, key.c_str()));
   if (!shmem_handle) {
-    PERFETTO_PLOG("Failed to OpenFileMapping()");
+    DEJAVIEW_PLOG("Failed to OpenFileMapping()");
     return nullptr;
   }
 
@@ -80,13 +80,13 @@ std::unique_ptr<SharedMemoryWindows> SharedMemoryWindows::Attach(
       MapViewOfFile(*shmem_handle, FILE_MAP_ALL_ACCESS, /*offsetHigh=*/0,
                     /*offsetLow=*/0, /*dwNumberOfBytesToMap=*/0);
   if (!start) {
-    PERFETTO_PLOG("MapViewOfFile() failed");
+    DEJAVIEW_PLOG("MapViewOfFile() failed");
     return nullptr;
   }
 
   MEMORY_BASIC_INFORMATION info{};
   if (!VirtualQuery(start, &info, sizeof(info))) {
-    PERFETTO_PLOG("VirtualQuery() failed");
+    DEJAVIEW_PLOG("VirtualQuery() failed");
     return nullptr;
   }
   size_t size = info.RegionSize;
@@ -101,13 +101,13 @@ std::unique_ptr<SharedMemoryWindows> SharedMemoryWindows::AttachToHandleWithKey(
       MapViewOfFile(*shmem_handle, FILE_MAP_ALL_ACCESS, /*offsetHigh=*/0,
                     /*offsetLow=*/0, /*dwNumberOfBytesToMap=*/0);
   if (!start) {
-    PERFETTO_PLOG("MapViewOfFile() failed");
+    DEJAVIEW_PLOG("MapViewOfFile() failed");
     return nullptr;
   }
 
   MEMORY_BASIC_INFORMATION info{};
   if (!VirtualQuery(start, &info, sizeof(info))) {
-    PERFETTO_PLOG("VirtualQuery() failed");
+    DEJAVIEW_PLOG("VirtualQuery() failed");
     return nullptr;
   }
   size_t size = info.RegionSize;
@@ -137,6 +137,6 @@ std::unique_ptr<SharedMemory> SharedMemoryWindows::Factory::CreateSharedMemory(
   return SharedMemoryWindows::Create(size);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // !OS_WIN

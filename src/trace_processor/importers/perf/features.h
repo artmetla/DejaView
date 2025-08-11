@@ -23,13 +23,13 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/status.h"
 #include "src/trace_processor/importers/perf/perf_event.h"
 
-namespace perfetto ::trace_processor {
+namespace dejaview ::trace_processor {
 class TraceBlobView;
 
 namespace perf_importer::feature {
@@ -129,6 +129,6 @@ base::StatusOr<std::vector<std::string>> ParseCmdline(TraceBlobView blob);
 
 }  // namespace perf_importer::feature
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_FEATURES_H_

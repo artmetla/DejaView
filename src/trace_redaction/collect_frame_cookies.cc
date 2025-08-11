@@ -16,17 +16,17 @@
 
 #include "src/trace_redaction/collect_frame_cookies.h"
 
-#include "perfetto/base/status.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
+#include "dejaview/base/status.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
 #include "src/trace_redaction/proto_util.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/android/frame_timeline_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/android/frame_timeline_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 namespace {
 
@@ -198,7 +198,7 @@ base::Status FilterFrameEvents::Transform(const Context& context,
 
 bool FilterFrameEvents::KeepField(const Context& context,
                                   const protozero::Field& field) const {
-  PERFETTO_DCHECK(field.id() ==
+  DEJAVIEW_DCHECK(field.id() ==
                   protos::pbzero::TracePacket::kFrameTimelineEventFieldNumber);
 
   protozero::ProtoDecoder timeline_event_decoder(field.as_bytes());
@@ -232,4 +232,4 @@ bool FilterFrameEvents::KeepField(const Context& context,
   return false;
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

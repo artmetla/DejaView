@@ -19,16 +19,16 @@
 
 #include <memory>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/protozero/proto_ring_buffer.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/protozero/proto_ring_buffer.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/forward_decls.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class StatsdBinderDataSource : public ProbesDataSource {
  public:
@@ -60,6 +60,6 @@ class StatsdBinderDataSource : public ProbesDataSource {
   base::WeakPtrFactory<StatsdBinderDataSource> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_STATSD_CLIENT_STATSD_BINDER_DATA_SOURCE_H_

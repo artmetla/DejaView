@@ -13,13 +13,13 @@
 // limitations under the License.
 
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {addDebugCounterTrack} from '../../public/lib/debug_tracks/debug_tracks';
 
-class PixelMemory implements PerfettoPlugin {
+class PixelMemory implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     ctx.commands.registerCommand({
-      id: 'dev.perfetto.PixelMemory#ShowTotalMemory',
+      id: 'dev.dejaview.PixelMemory#ShowTotalMemory',
       name: 'Add tracks: show a process total memory',
       callback: async (pid) => {
         if (pid === undefined) {
@@ -27,8 +27,8 @@ class PixelMemory implements PerfettoPlugin {
           if (pid === null) return;
         }
         const RSS_ALL = `
-          INCLUDE PERFETTO MODULE android.gpu.memory;
-          INCLUDE PERFETTO MODULE linux.memory.process;
+          INCLUDE DEJAVIEW MODULE android.gpu.memory;
+          INCLUDE DEJAVIEW MODULE linux.memory.process;
 
           DROP TABLE IF EXISTS process_mem_rss_anon_file_shmem_swap_gpu;
 

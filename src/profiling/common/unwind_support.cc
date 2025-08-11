@@ -22,9 +22,9 @@
 #include <unwindstack/Maps.h>
 #include <unwindstack/Memory.h>
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 StackOverlayMemory::StackOverlayMemory(std::shared_ptr<unwindstack::Memory> mem,
@@ -47,8 +47,8 @@ FDMemory::FDMemory(base::ScopedFile mem_fd) : mem_fd_(std::move(mem_fd)) {}
 
 size_t FDMemory::Read(uint64_t addr, void* dst, size_t size) {
   ssize_t rd = pread64(*mem_fd_, dst, size, static_cast<off64_t>(addr));
-  if (PERFETTO_UNLIKELY(rd == -1)) {
-    PERFETTO_PLOG("Failed remote pread of %zu bytes at address %" PRIx64, size,
+  if (DEJAVIEW_UNLIKELY(rd == -1)) {
+    DEJAVIEW_PLOG("Failed remote pread of %zu bytes at address %" PRIx64, size,
                   addr);
     return 0;
   }
@@ -96,20 +96,20 @@ UnwindingMetadata::UnwindingMetadata(base::ScopedFile maps_fd,
     : fd_maps(std::move(maps_fd)),
       fd_mem(std::make_shared<FDMemory>(std::move(mem_fd))) {
   if (!fd_maps.Parse())
-    PERFETTO_DLOG("Failed initial maps parse");
+    DEJAVIEW_DLOG("Failed initial maps parse");
 }
 
 void UnwindingMetadata::ReparseMaps() {
   reparses++;
   fd_maps.Reset();
   fd_maps.Parse();
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   jit_debug.reset();
   dex_files.reset();
 #endif
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
 unwindstack::JitDebug* UnwindingMetadata::GetJitDebug(
     unwindstack::ArchEnum arch) {
   if (jit_debug.get() == nullptr) {
@@ -174,4 +174,4 @@ std::string StringifyLibUnwindstackError(unwindstack::ErrorCode e) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

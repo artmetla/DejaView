@@ -22,16 +22,16 @@
 #include <chrono>
 #include <thread>
 
-void InitializePerfetto() {
-  perfetto::TracingInitArgs args;
-  args.backends = perfetto::kInProcessBackend;
-  perfetto::Tracing::Initialize(args);
-  perfetto::TrackEvent::Register();
-  perfetto::ConsoleInterceptor::Register();
+void InitializeDejaView() {
+  dejaview::TracingInitArgs args;
+  args.backends = dejaview::kInProcessBackend;
+  dejaview::Tracing::Initialize(args);
+  dejaview::TrackEvent::Register();
+  dejaview::ConsoleInterceptor::Register();
 }
 
-std::unique_ptr<perfetto::TracingSession> StartTracing() {
-  perfetto::TraceConfig cfg;
+std::unique_ptr<dejaview::TracingSession> StartTracing() {
+  dejaview::TraceConfig cfg;
   cfg.add_buffers()->set_size_kb(1024);
   auto* ds_cfg = cfg.add_data_sources()->mutable_config();
   ds_cfg->set_name("track_event");
@@ -39,7 +39,7 @@ std::unique_ptr<perfetto::TracingSession> StartTracing() {
   // Enable the console interceptor.
   ds_cfg->mutable_interceptor_config()->set_name("console");
 
-  auto tracing_session = perfetto::Tracing::NewTrace();
+  auto tracing_session = dejaview::Tracing::NewTrace();
   tracing_session->Setup(cfg);
   tracing_session->StartBlocking();
   return tracing_session;
@@ -61,7 +61,7 @@ void DrawGame() {
 }
 
 int main(int, const char**) {
-  InitializePerfetto();
+  InitializeDejaView();
   auto tracing_session = StartTracing();
 
   // Simulate some work that emits trace events.

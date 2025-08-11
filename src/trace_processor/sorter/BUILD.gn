@@ -12,11 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 import("../../../gn/test.gni")
 
 # Prevent that this file is accidentally included in embedder builds.
-assert(enable_perfetto_trace_processor)
+assert(enable_dejaview_trace_processor)
 
 source_set("sorter") {
   sources = [
@@ -27,7 +27,7 @@ source_set("sorter") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/trace_processor:storage",
+    "../../../include/dejaview/trace_processor:storage",
     "../../base",
     "../importers/android_bugreport:android_log_event",
     "../importers/art_method:art_method_event",
@@ -46,7 +46,7 @@ source_set("sorter") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [
     "trace_sorter_unittest.cc",
@@ -56,8 +56,8 @@ perfetto_unittest_source_set("unittests") {
     ":sorter",
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../include/perfetto/trace_processor:storage",
-    "../../../include/perfetto/trace_processor:trace_processor",
+    "../../../include/dejaview/trace_processor:storage",
+    "../../../include/dejaview/trace_processor:trace_processor",
     "../../base",
     "../importers/common:parser_types",
     "../importers/proto:minimal",

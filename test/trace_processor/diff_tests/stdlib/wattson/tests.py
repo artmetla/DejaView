@@ -41,7 +41,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query="""
-        INCLUDE PERFETTO MODULE wattson.system_state;
+        INCLUDE DEJAVIEW MODULE wattson.system_state;
         SELECT * from wattson_system_states
         ORDER by ts DESC
         LIMIT 20
@@ -75,9 +75,9 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query="""
-        INCLUDE PERFETTO MODULE wattson.system_state;
+        INCLUDE DEJAVIEW MODULE wattson.system_state;
 
-        CREATE PERFETTO TABLE wattson_time_window
+        CREATE DEJAVIEW TABLE wattson_time_window
         AS
         SELECT 362426061658 AS ts, 5067704349 AS dur;
 
@@ -114,7 +114,7 @@ class WattsonStdlib(TestSuite):
   def test_wattson_dsu_pmu(self):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
-        query=("INCLUDE PERFETTO MODULE wattson.system_state;\n" +
+        query=("INCLUDE DEJAVIEW MODULE wattson.system_state;\n" +
                self.consolidate_tables_template.replace(
                    "SYSTEM_STATE_TABLE", "wattson_system_states")),
         out=Csv("""
@@ -146,7 +146,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_eos_suspend.pb'),
         query="""
-        INCLUDE PERFETTO MODULE wattson.system_state;
+        INCLUDE DEJAVIEW MODULE wattson.system_state;
         SELECT
           sum(dur) as duration,
           freq_0, idle_0, freq_1, idle_1, freq_2, idle_2, freq_3, idle_3,
@@ -187,7 +187,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_wo_device_name.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.device_infos;
+            INCLUDE DEJAVIEW MODULE wattson.device_infos;
             select name from _wattson_device
             """),
         out=Csv("""
@@ -200,7 +200,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
               select * from _w_independent_cpus_calc
               WHERE ts > 359661672577
               ORDER by ts ASC
@@ -225,7 +225,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
               select * from _system_state_curves
               ORDER by ts ASC
               LIMIT 5
@@ -244,7 +244,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
               select * from _system_state_curves
               WHERE ts > 359661672577
               ORDER by ts ASC
@@ -264,7 +264,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
               select * from _system_state_mw
               WHERE ts > 359661672577
               ORDER by ts ASC
@@ -289,7 +289,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_eos_suspend.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
               select * from _system_state_curves
               WHERE ts > 24790009884888
               ORDER by ts ASC
@@ -309,7 +309,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.grouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.grouped;
               select * from wattson_estimate_per_component
               WHERE ts > 359661672577
               ORDER by ts ASC
@@ -334,7 +334,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_dsu_pmu.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.grouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.grouped;
                select * from _wattson_entire_trace
             """),
         out=Csv("""
@@ -347,7 +347,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_eos_suspend.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.grouped;
+            INCLUDE DEJAVIEW MODULE wattson.curves.grouped;
                select * from _wattson_entire_trace
             """),
         out=Csv("""
@@ -360,7 +360,7 @@ class WattsonStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('wattson_eos_suspend.pb'),
         query=("""
-            INCLUDE PERFETTO MODULE wattson.curves.idle_attribution;
+            INCLUDE DEJAVIEW MODULE wattson.curves.idle_attribution;
             SELECT
               SUM(estimated_mw * dur) / 1000000000 as idle_transition_cost_mws,
               utid,

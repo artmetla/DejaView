@@ -21,7 +21,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::json {
+namespace dejaview::trace_processor::json {
 namespace {
 
 TEST(JsonTraceUtilsTest, CoerceToUint32) {
@@ -77,4 +77,4 @@ TEST(JsonTraceUtilsTest, CoerceToTs) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::json
+}  // namespace dejaview::trace_processor::json

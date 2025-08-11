@@ -2332,8 +2332,8 @@ wattson_trace_threads {
   task_info {
     estimated_mws: 0.027287
     estimated_mw: 0.003155
-    thread_name: "perfetto"
-    process_name: "perfetto"
+    thread_name: "dejaview"
+    process_name: "dejaview"
     thread_id: 5581
     process_id: 5581
   }
@@ -3174,7 +3174,7 @@ wattson_trace_threads {
   task_info {
     estimated_mws: 0.004877
     estimated_mw: 0.000564
-    thread_name: "perfetto_hprof_"
+    thread_name: "dejaview_hprof_"
     process_name: "com.google.android.gms"
     thread_id: 2880
     process_id: 2856
@@ -3814,7 +3814,7 @@ wattson_trace_threads {
   task_info {
     estimated_mws: 0.000583
     estimated_mw: 0.000067
-    thread_name: "perfetto_hprof_"
+    thread_name: "dejaview_hprof_"
     process_name: "com.fitbit.FitbitMobile"
     thread_id: 5383
     process_id: 5377

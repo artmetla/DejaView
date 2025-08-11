@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("perfetto.gni")
+import("dejaview.gni")
 
-if (perfetto_root_path == "//") {
+if (dejaview_root_path == "//") {
   template("test") {
     executable(target_name) {
       forward_variables_from(invoker, "*")
@@ -24,7 +24,7 @@ if (perfetto_root_path == "//") {
 } else if (build_with_chromium) {
   import("//testing/test.gni")
 } else {
-  assert(perfetto_build_with_embedder)
+  assert(dejaview_build_with_embedder)
   template("test") {
     group(target_name) {
       not_needed(invoker, "*")
@@ -36,8 +36,8 @@ if (perfetto_root_path == "//") {
 # This is to avoid that unittest targets get discovered and built in the
 # "default" GN target of embedder builds. See notes in the comments of the
 # root BUILD.gn.
-template("perfetto_unittest_source_set") {
-  if (enable_perfetto_unittests) {
+template("dejaview_unittest_source_set") {
+  if (enable_dejaview_unittests) {
     source_set(target_name) {
       forward_variables_from(invoker, "*")
     }

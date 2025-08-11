@@ -22,11 +22,11 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/uuid.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/uuid.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/async_track_set_tracker.h"
@@ -54,7 +54,7 @@
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 TraceProcessorStorageImpl::TraceProcessorStorageImpl(const Config& cfg)
     : context_({cfg, std::make_shared<TraceStorage>(cfg)}) {
@@ -121,7 +121,7 @@ base::Status TraceProcessorStorageImpl::NotifyEndOfFile() {
   }
   Flush();
   RETURN_IF_ERROR(parser_->NotifyEndOfFile());
-  PERFETTO_CHECK(active_file_.has_value());
+  DEJAVIEW_CHECK(active_file_.has_value());
   active_file_->SetTraceType(parser_->trace_type());
   active_file_.reset();
   // NotifyEndOfFile might have pushed packets to the sorter.
@@ -166,4 +166,4 @@ void TraceProcessorStorageImpl::DestroyContext() {
   // TODO(chinglinyu): also need to destroy secondary contextes.
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

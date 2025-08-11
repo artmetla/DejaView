@@ -15,7 +15,7 @@
 import {raf} from '../core/raf_scheduler';
 
 export const DEFAULT_CHANNEL = 'stable';
-const CHANNEL_KEY = 'perfettoUiChannel';
+const CHANNEL_KEY = 'dejaviewUiChannel';
 
 let currentChannel: string | undefined = undefined;
 let nextChannel: string | undefined = undefined;

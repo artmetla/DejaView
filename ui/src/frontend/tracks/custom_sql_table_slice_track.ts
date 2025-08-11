@@ -103,7 +103,7 @@ export abstract class CustomSqlTableSliceTrack extends NamedSliceTrack<
 
   async loadImports() {
     for (const importModule of this.getSqlImports().modules) {
-      await this.engine.query(`INCLUDE PERFETTO MODULE ${importModule};`);
+      await this.engine.query(`INCLUDE DEJAVIEW MODULE ${importModule};`);
     }
   }
 }

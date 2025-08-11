@@ -4,11 +4,11 @@
 
 syntax = "proto2";
 
-import public "protos/perfetto/trace/track_event/track_event.proto";
-import public "protos/perfetto/trace/track_event/debug_annotation.proto";
-import public "protos/perfetto/trace/track_event/source_location.proto";
+import public "protos/dejaview/trace/track_event/track_event.proto";
+import public "protos/dejaview/trace/track_event/debug_annotation.proto";
+import public "protos/dejaview/trace/track_event/source_location.proto";
 
-package perfetto.protos;
+package dejaview.protos;
 
 enum ChromeAppState {
   APP_STATE_FOREGROUND = 1;

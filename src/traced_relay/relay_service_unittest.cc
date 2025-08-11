@@ -18,18 +18,18 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/unix_socket.h"
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/ipc/buffered_frame_deserializer.h"
 #include "test/gtest_and_gmock.h"
 
 // Disable tests on MacOS and Windows as neither abstract sockets nor pseudo
 // boot ID are supported.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 using ::testing::_;
@@ -152,7 +152,7 @@ TEST(RelayServiceTest, MachineIDHint) {
   EXPECT_NE(hint3, hint4);
 
   EXPECT_FALSE(hint1.empty());
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   // This test can run on Android kernel 3.x, but pseudo boot ID uses statx(2)
   // that requires kernel 4.11.
   EXPECT_FALSE(hint2.empty());
@@ -262,6 +262,6 @@ TEST(RelayClientTest, SetPeerIdentity) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif

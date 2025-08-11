@@ -22,7 +22,7 @@
 #include <utility>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -63,4 +63,4 @@ size_t LogHistogram::GetBucket(uint64_t value) {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

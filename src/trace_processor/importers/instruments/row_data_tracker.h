@@ -21,7 +21,7 @@
 #include "src/trace_processor/types/destructible.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::instruments_importer {
+namespace dejaview::trace_processor::instruments_importer {
 
 template <typename T>
 struct IdPtr {
@@ -65,6 +65,6 @@ class RowDataTracker : public Destructible {
   std::vector<Binary> binaries_;
 };
 
-}  // namespace perfetto::trace_processor::instruments_importer
+}  // namespace dejaview::trace_processor::instruments_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_INSTRUMENTS_ROW_DATA_TRACKER_H_

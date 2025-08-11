@@ -22,8 +22,8 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/importers/systrace/systrace_line_tokenizer.h"
 
@@ -31,7 +31,7 @@ namespace Json {
 class Value;
 }
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 class TraceProcessorContext;
 
@@ -165,6 +165,6 @@ class JsonTraceTokenizer : public ChunkedTraceReader {
   std::vector<char> buffer_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_JSON_JSON_TRACE_TOKENIZER_H_

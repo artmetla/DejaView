@@ -14,16 +14,16 @@
 
 import {OmniboxMode} from '../../core/omnibox_manager';
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {AppImpl} from '../../core/app_impl';
 import {getTimeSpanOfSelectionOrVisibleWindow} from '../../public/utils';
 import {exists} from '../../base/utils';
 import {TrackNode} from '../../public/workspace';
 
-class TrackUtilsPlugin implements PerfettoPlugin {
+class TrackUtilsPlugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     ctx.commands.registerCommand({
-      id: 'perfetto.RunQueryInSelectedTimeWindow',
+      id: 'dejaview.RunQueryInSelectedTimeWindow',
       name: `Run query in selected time window`,
       callback: async () => {
         const window = await getTimeSpanOfSelectionOrVisibleWindow(ctx);
@@ -38,7 +38,7 @@ class TrackUtilsPlugin implements PerfettoPlugin {
 
     ctx.commands.registerCommand({
       // Selects & reveals the first track on the timeline with a given URI.
-      id: 'perfetto.FindTrackByName',
+      id: 'dejaview.FindTrackByName',
       name: 'Find track by name',
       callback: async () => {
         const tracks = ctx.workspace.flatTracks;
@@ -75,7 +75,7 @@ class TrackUtilsPlugin implements PerfettoPlugin {
 
     ctx.commands.registerCommand({
       // Selects & reveals the first track on the timeline with a given URI.
-      id: 'perfetto.FindTrackByUri',
+      id: 'dejaview.FindTrackByUri',
       name: 'Find track by URI',
       callback: async () => {
         const tracks = ctx.workspace.flatTracks;
@@ -107,6 +107,6 @@ class TrackUtilsPlugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'perfetto.TrackUtils',
+  pluginId: 'dejaview.TrackUtils',
   plugin: TrackUtilsPlugin,
 };

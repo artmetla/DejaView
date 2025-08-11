@@ -14,36 +14,36 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.memory.process;
-INCLUDE PERFETTO MODULE linux.memory.process;
+INCLUDE DEJAVIEW MODULE android.memory.process;
+INCLUDE DEJAVIEW MODULE linux.memory.process;
 
 SELECT RUN_METRIC('android/process_oom_score.sql');
 
 DROP VIEW IF EXISTS anon_rss_span;
-CREATE PERFETTO VIEW anon_rss_span AS
+CREATE DEJAVIEW VIEW anon_rss_span AS
 SELECT * FROM _anon_rss;
 
 DROP VIEW IF EXISTS file_rss_span;
-CREATE PERFETTO VIEW file_rss_span AS
+CREATE DEJAVIEW VIEW file_rss_span AS
 SELECT * FROM _file_rss;
 
 DROP VIEW IF EXISTS shmem_rss_span;
-CREATE PERFETTO VIEW shmem_rss_span AS
+CREATE DEJAVIEW VIEW shmem_rss_span AS
 SELECT * FROM _shmem_rss;
 
 DROP VIEW IF EXISTS swap_span;
-CREATE PERFETTO VIEW swap_span AS
+CREATE DEJAVIEW VIEW swap_span AS
 SELECT * FROM _swap;
 
 DROP VIEW IF EXISTS anon_and_swap_span;
-CREATE PERFETTO VIEW anon_and_swap_span AS
+CREATE DEJAVIEW VIEW anon_and_swap_span AS
 SELECT
   ts, dur, upid,
   IFNULL(anon_rss_val, 0) + IFNULL(swap_val, 0) AS anon_and_swap_val
 FROM _anon_swap_sj;
 
 DROP VIEW IF EXISTS rss_and_swap_span;
-CREATE PERFETTO VIEW rss_and_swap_span AS
+CREATE DEJAVIEW VIEW rss_and_swap_span AS
 SELECT
   ts,
   dur,
@@ -67,7 +67,7 @@ SELECT RUN_METRIC('android/process_counter_span_view.sql',
   'counter_name', 'Heap size (KB)');
 
 DROP VIEW IF EXISTS java_heap_span;
-CREATE PERFETTO VIEW java_heap_span AS
+CREATE DEJAVIEW VIEW java_heap_span AS
 SELECT ts, dur, upid, java_heap_kb_val * 1024 AS java_heap_val
 FROM java_heap_kb_span;
 

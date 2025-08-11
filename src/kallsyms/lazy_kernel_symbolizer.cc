@@ -20,18 +20,18 @@
 
 #include <unistd.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/kallsyms/kernel_symbol_map.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/system_properties.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -74,7 +74,7 @@ class ScopedKptrUnrestrict {
   bool restore_on_dtor_ = true;
 };
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
 // This is true only on Android in-tree builds (not on standalone).
 const bool ScopedKptrUnrestrict::kUseAndroidProperty = true;
 #else
@@ -90,7 +90,7 @@ ScopedKptrUnrestrict::ScopedKptrUnrestrict() {
   }
 
   if (kUseAndroidProperty) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     __system_property_set(kLowerPtrRestrictAndroidProp, "1");
 #endif
     // Init takes some time to react to the property change.
@@ -102,7 +102,7 @@ ScopedKptrUnrestrict::ScopedKptrUnrestrict() {
       if (LazyKernelSymbolizer::CanReadKernelSymbolAddresses())
         return;
     }
-    PERFETTO_ELOG("kallsyms addresses are still masked after setting %s",
+    DEJAVIEW_ELOG("kallsyms addresses are still masked after setting %s",
                   kLowerPtrRestrictAndroidProp);
     return;
   }  // if (kUseAndroidProperty)
@@ -111,7 +111,7 @@ ScopedKptrUnrestrict::ScopedKptrUnrestrict() {
   // if needed.
   bool read_res = base::ReadFile(kPtrRestrictPath, &initial_value_);
   if (!read_res) {
-    PERFETTO_PLOG("Failed to read %s", kPtrRestrictPath);
+    DEJAVIEW_PLOG("Failed to read %s", kPtrRestrictPath);
     return;
   }
 
@@ -127,7 +127,7 @@ ScopedKptrUnrestrict::~ScopedKptrUnrestrict() {
   if (!restore_on_dtor_)
     return;
   if (kUseAndroidProperty) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
     __system_property_set(kLowerPtrRestrictAndroidProp, "0");
 #endif
   } else if (!initial_value_.empty()) {
@@ -137,11 +137,11 @@ ScopedKptrUnrestrict::~ScopedKptrUnrestrict() {
 
 void ScopedKptrUnrestrict::WriteKptrRestrict(const std::string& value) {
   // Note: kptr_restrict requires O_WRONLY. O_RDWR won't work.
-  PERFETTO_DCHECK(!value.empty());
+  DEJAVIEW_DCHECK(!value.empty());
   base::ScopedFile fd = base::OpenFile(kPtrRestrictPath, O_WRONLY);
   auto wsize = write(*fd, value.c_str(), value.size());
   if (wsize <= 0)
-    PERFETTO_PLOG("Failed to set %s to %s", kPtrRestrictPath, value.c_str());
+    DEJAVIEW_PLOG("Failed to set %s to %s", kPtrRestrictPath, value.c_str());
 }
 
 }  // namespace
@@ -150,7 +150,7 @@ LazyKernelSymbolizer::LazyKernelSymbolizer() = default;
 LazyKernelSymbolizer::~LazyKernelSymbolizer() = default;
 
 KernelSymbolMap* LazyKernelSymbolizer::GetOrCreateKernelSymbolMap() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (symbol_map_)
     return symbol_map_.get();
 
@@ -164,7 +164,7 @@ KernelSymbolMap* LazyKernelSymbolizer::GetOrCreateKernelSymbolMap() {
 }
 
 void LazyKernelSymbolizer::Destroy() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   symbol_map_.reset();
   base::MaybeReleaseAllocatorMemToOS();  // For Scudo, b/170217718.
 }
@@ -175,14 +175,14 @@ bool LazyKernelSymbolizer::CanReadKernelSymbolAddresses(
   auto* path = ksyms_path_for_testing ? ksyms_path_for_testing : kKallsymsPath;
   base::ScopedFile fd = base::OpenFile(path, O_RDONLY);
   if (!fd) {
-    PERFETTO_PLOG("open(%s) failed", kKallsymsPath);
+    DEJAVIEW_PLOG("open(%s) failed", kKallsymsPath);
     return false;
   }
   // Don't just use fscanf() as that might read the whole file (b/36473442).
   char buf[4096];
   auto rsize_signed = base::Read(*fd, buf, sizeof(buf) - 1);
   if (rsize_signed <= 0) {
-    PERFETTO_PLOG("read(%s) failed", kKallsymsPath);
+    DEJAVIEW_PLOG("read(%s) failed", kKallsymsPath);
     return false;
   }
   size_t rsize = static_cast<size_t>(rsize_signed);
@@ -217,4 +217,4 @@ bool LazyKernelSymbolizer::CanReadKernelSymbolAddresses(
   return false;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

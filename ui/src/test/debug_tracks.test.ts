@@ -13,11 +13,11 @@
 // limitations under the License.
 
 import {test, Page} from '@playwright/test';
-import {PerfettoTestHelper} from './perfetto_ui_test_helper';
+import {DejaViewTestHelper} from './dejaview_ui_test_helper';
 
 test.describe.configure({mode: 'serial'});
 
-let pth: PerfettoTestHelper;
+let pth: DejaViewTestHelper;
 let page: Page;
 
 const SQL_QUERY = `select id, ts, dur, name, category, track_id from slices
@@ -25,8 +25,8 @@ where category is not null  limit 1000`;
 
 test.beforeAll(async ({browser}, _testInfo) => {
   page = await browser.newPage();
-  pth = new PerfettoTestHelper(page);
-  await pth.openTraceFile('api34_startup_cold.perfetto-trace');
+  pth = new DejaViewTestHelper(page);
+  await pth.openTraceFile('api34_startup_cold.dejaview-trace');
 });
 
 test('debug tracks', async () => {
@@ -34,27 +34,27 @@ test('debug tracks', async () => {
   await omnibox.focus();
   await omnibox.selectText();
   await omnibox.press(':');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await omnibox.fill(SQL_QUERY);
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await omnibox.press('Enter');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
 
   await page.getByRole('button', {name: 'Show debug track'}).click();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await page.keyboard.type('debug track'); // The track name
   await page.keyboard.press('Enter');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('debug track added.png');
 
   // Click on a slice on the debug track.
   await page.mouse.click(1454, 290);
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('debug slice clicked.png');
 
   // Close the debug track.
   await pth.locateTrack('debug track').getByText('close').first().click();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('debug track removed.png');
 });
 
@@ -63,17 +63,17 @@ test('debug tracks pivot', async () => {
   await omnibox.focus();
   await omnibox.selectText();
   await omnibox.press(':');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await omnibox.fill(SQL_QUERY);
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await omnibox.press('Enter');
 
   await page.getByRole('button', {name: 'Show debug track'}).click();
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await page.keyboard.type('pivot'); // The track name
   await page.locator('.pf-popup-portal #pivot').selectOption('category');
   await page.keyboard.press('Enter');
-  await pth.waitForPerfettoIdle();
+  await pth.waitForDejaViewIdle();
   await pth.waitForIdleAndScreenshot('debug track pivot.png', {
     clip: {
       x: (await pth.sidebarSize()).width,

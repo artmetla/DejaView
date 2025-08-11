@@ -23,19 +23,19 @@
 #include <optional>
 #include <set>
 
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/traced/data_source_types.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/protozero/message.h"
-#include "perfetto/protozero/message_handle.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/traced/data_source_types.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/protozero/message.h"
+#include "dejaview/protozero/message_handle.h"
 #include "src/traced/probes/ftrace/compact_sched.h"
 #include "src/traced/probes/ftrace/ftrace_metadata.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class FtraceDataSource;
 class LazyKernelSymbolizer;
@@ -51,7 +51,7 @@ enum FtraceParseStatus : int32_t;
 }  // namespace pbzero
 }  // namespace protos
 
-// Reads raw ftrace data for a cpu, parses it, and writes it into the perfetto
+// Reads raw ftrace data for a cpu, parses it, and writes it into the dejaview
 // tracing buffers.
 class CpuReader {
  public:
@@ -93,7 +93,7 @@ class CpuReader {
       return reinterpret_cast<uint8_t*>(ftrace_data_.Get());
     }
     size_t ftrace_data_buf_pages() const {
-      PERFETTO_DCHECK(ftrace_data_.size() ==
+      DEJAVIEW_DCHECK(ftrace_data_.size() ==
                       base::GetSysPageSize() * kFtraceDataBufSizePages);
       return kFtraceDataBufSizePages;
     }
@@ -410,6 +410,6 @@ class CpuReader {
   const FtraceClockSnapshot* ftrace_clock_snapshot_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_CPU_READER_H_

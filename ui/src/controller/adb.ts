@@ -678,7 +678,7 @@ async function encodePubKey(key: CryptoKey) {
     dv.setUint8(8 + 2 * MODULUS_SIZE_BYTES + i, eArr[i]);
   }
   return (
-    btoa(String.fromCharCode(...new Uint8Array(dv.buffer))) + ' perfetto@webusb'
+    btoa(String.fromCharCode(...new Uint8Array(dv.buffer))) + ' dejaview@webusb'
   );
 }
 

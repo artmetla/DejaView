@@ -12,17 +12,17 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 # This GN file should not be referenced in chromium builds.
 assert(!build_with_chromium)
 
 # This target is supported only in in-tree builds of Android. It contains
 # code that is not NDK-clean and references other repos in the Android tree.
-# perfetto_build_with_android is only true when running the GN -> Android.bp
+# dejaview_build_with_android is only true when running the GN -> Android.bp
 # build file translator //tools/gen_android_bp .
-if (perfetto_build_with_android) {
-  shared_library("libperfetto_android_internal") {
+if (dejaview_build_with_android) {
+  shared_library("libdejaview_android_internal") {
     deps = [
       ":headers",
       "../../gn:default_deps",
@@ -42,7 +42,7 @@ if (perfetto_build_with_android) {
       "android.hardware.power.stats@1.0",
       "android.hardware.power.stats-V1-cpp",
       "android.hardware.atrace@1.0",
-      "statslog_perfetto",
+      "statslog_dejaview",
       "statssocket",
       "cutils",
       "base",
@@ -57,7 +57,7 @@ if (perfetto_build_with_android) {
       "statspull",
     ]
 
-    # This target should never depend on any other perfetto target to avoid ODR
+    # This target should never depend on any other dejaview target to avoid ODR
     # violation by doubly linking code in two .so(s) loaded in the same exe.
     assert_no_deps = [
       "../../include/*",
@@ -65,12 +65,12 @@ if (perfetto_build_with_android) {
       "../../src/tracing/*",
     ]
   }
-}  # if (perfetto_build_with_android)
+}  # if (dejaview_build_with_android)
 
 source_set("headers") {
   deps = [
     "../../gn:default_deps",
-    "../android_stats:perfetto_atoms",
+    "../android_stats:dejaview_atoms",
   ]
   sources = [
     "atrace_hal.h",

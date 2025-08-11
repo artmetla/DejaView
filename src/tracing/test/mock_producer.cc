@@ -16,13 +16,13 @@
 
 #include "src/tracing/test/mock_producer.h"
 
-#include "perfetto/ext/tracing/core/client_identity.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/tracing/core/data_source_config.h"
-#include "perfetto/tracing/core/data_source_descriptor.h"
-#include "protos/perfetto/common/track_event_descriptor.pbzero.h"
+#include "dejaview/ext/tracing/core/client_identity.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/tracing/core/data_source_config.h"
+#include "dejaview/tracing/core/data_source_descriptor.h"
+#include "protos/dejaview/common/track_event_descriptor.pbzero.h"
 #include "src/base/test/test_task_runner.h"
 
 using ::testing::_;
@@ -31,7 +31,7 @@ using ::testing::Invoke;
 using ::testing::InvokeWithoutArgs;
 using ::testing::Property;
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -194,7 +194,7 @@ void MockProducer::WaitForDataSourceStop(const std::string& name) {
 std::unique_ptr<TraceWriter> MockProducer::CreateTraceWriter(
     const std::string& data_source_name,
     BufferExhaustedPolicy buffer_exhausted_policy) {
-  PERFETTO_DCHECK(data_source_instances_.count(data_source_name));
+  DEJAVIEW_DCHECK(data_source_instances_.count(data_source_name));
   BufferID buf_id = data_source_instances_[data_source_name].target_buffer;
   return service_endpoint_->CreateTraceWriter(buf_id, buffer_exhausted_policy);
 }
@@ -240,4 +240,4 @@ const MockProducer::EnabledDataSource* MockProducer::GetDataSourceInstance(
   return it == data_source_instances_.end() ? nullptr : &it->second;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

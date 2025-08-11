@@ -19,10 +19,10 @@
 
 #include <memory>
 
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // An implementation of the ShareMemory interface that allocates memory that can
 // only be shared intra-process.
@@ -58,6 +58,6 @@ class InProcessSharedMemory : public SharedMemory {
   base::PagedMemory mem_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_CORE_IN_PROCESS_SHARED_MEMORY_H_

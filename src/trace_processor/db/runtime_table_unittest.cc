@@ -24,7 +24,7 @@
 #include "src/trace_processor/containers/string_pool.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 using base::gtest_matchers::IsOk;
 using testing::Not;
@@ -63,4 +63,4 @@ TEST_F(RuntimeTableTest, IntThenDouble) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

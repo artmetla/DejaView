@@ -19,9 +19,9 @@
 
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Writes the uid for the package matching `Context.package_name`. Returns
 // `kStop` with a package is found, otherwrise `kContinue`. If a package is not
@@ -37,6 +37,6 @@ class FindPackageUid final : public CollectPrimitive {
   base::Status End(Context*) const override;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_FIND_PACKAGE_UID_H_

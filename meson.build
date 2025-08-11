@@ -12,12 +12,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# This meson project only supports the Perfetto SDK
+# This meson project only supports the DejaView SDK
 # available from release branches.
 # https://perfetto.dev/docs/instrumentation/tracing-sdk
 
 project(
-    'perfetto',
+    'dejaview',
     ['cpp'],
 )
 
@@ -29,31 +29,31 @@ endif
 
 cpp = meson.get_compiler('cpp')
 
-deps_perfetto = [dependency('threads')]
+deps_dejaview = [dependency('threads')]
 
 if host_machine.system() == 'android'
-  deps_perfetto += cpp.find_library('log')
+  deps_dejaview += cpp.find_library('log')
 endif
 
-lib_perfetto = static_library(
-    'perfetto',
-    sources: 'sdk/perfetto.cc',
-    dependencies: deps_perfetto,
+lib_dejaview = static_library(
+    'dejaview',
+    sources: 'sdk/dejaview.cc',
+    dependencies: deps_dejaview,
     install: true,
     cpp_args: '-std=c++17',
 )
 
-inc_perfetto = include_directories('sdk')
+inc_dejaview = include_directories('sdk')
 
-dir_perfetto_trace = join_paths(meson.current_source_dir(),
-                                'protos/perfetto/trace')
+dir_dejaview_trace = join_paths(meson.current_source_dir(),
+                                'protos/dejaview/trace')
 
-install_data(dir_perfetto_trace / 'perfetto_trace.proto')
+install_data(dir_dejaview_trace / 'dejaview_trace.proto')
 
-dep_perfetto = declare_dependency(
-    link_with: lib_perfetto,
-    include_directories: inc_perfetto,
+dep_dejaview = declare_dependency(
+    link_with: lib_dejaview,
+    include_directories: inc_dejaview,
     variables: {
-        'pkgdatadir': dir_perfetto_trace,
+        'pkgdatadir': dir_dejaview_trace,
     }
 )

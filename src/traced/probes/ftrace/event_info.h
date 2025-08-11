@@ -19,10 +19,10 @@
 
 #include <vector>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 #include "src/traced/probes/ftrace/event_info_constants.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // The compile time information needed to read the raw ftrace buffer.
 // Specifically for each event we have a proto we fill:
@@ -37,6 +37,6 @@ namespace perfetto {
 // are zeroed.
 std::vector<Event> GetStaticEventInfo();
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_EVENT_INFO_H_

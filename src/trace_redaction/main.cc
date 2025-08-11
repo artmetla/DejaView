@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
 #include "src/trace_redaction/trace_redaction_framework.h"
 #include "src/trace_redaction/trace_redactor.h"
 #include "src/trace_redaction/verify_integrity.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // Builds and runs a trace redactor.
 static base::Status Main(std::string_view input,
@@ -35,7 +35,7 @@ static base::Status Main(std::string_view input,
   return redactor->Redact(input, output, &context);
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 int main(int argc, char** argv) {
   constexpr int kSuccess = 0;
@@ -43,18 +43,18 @@ int main(int argc, char** argv) {
   constexpr int kInvalidArgs = 2;
 
   if (argc != 4) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "Invalid arguments: %s <input file> <output file> <package name>",
         argv[0]);
     return kInvalidArgs;
   }
 
-  auto result = perfetto::trace_redaction::Main(argv[1], argv[2], argv[3]);
+  auto result = dejaview::trace_redaction::Main(argv[1], argv[2], argv[3]);
 
   if (result.ok()) {
     return kSuccess;
   }
 
-  PERFETTO_ELOG("Unexpected error: %s", result.c_message());
+  DEJAVIEW_ELOG("Unexpected error: %s", result.c_message());
   return kFailure;
 }

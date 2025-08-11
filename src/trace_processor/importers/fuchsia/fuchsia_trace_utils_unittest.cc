@@ -18,7 +18,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace fuchsia_trace_utils {
 namespace {
@@ -36,4 +36,4 @@ TEST(FuchsiaTraceUtilsTest, TicksToNs) {
 }  // namespace
 }  // namespace fuchsia_trace_utils
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

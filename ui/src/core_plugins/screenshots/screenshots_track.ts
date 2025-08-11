@@ -18,7 +18,7 @@ import {
 } from '../../frontend/tracks/custom_sql_table_slice_track';
 
 export class ScreenshotsTrack extends CustomSqlTableSliceTrack {
-  static readonly kind = 'dev.perfetto.ScreenshotsTrack';
+  static readonly kind = 'dev.dejaview.ScreenshotsTrack';
 
   getSqlDataSource(): CustomSqlTableDefConfig {
     return {

@@ -17,7 +17,7 @@
 #ifndef SRC_TRACE_PROCESSOR_TYPES_SOFTIRQ_ACTION_H_
 #define SRC_TRACE_PROCESSOR_TYPES_SOFTIRQ_ACTION_H_
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 static constexpr const char* const kActionNames[] = {
@@ -25,6 +25,6 @@ static constexpr const char* const kActionNames[] = {
     "BLOCK_IOPOLL", "TASKLET", "SCHED",  "HRTIMER", "RCU"};
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_SOFTIRQ_ACTION_H_

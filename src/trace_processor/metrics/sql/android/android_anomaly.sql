@@ -14,10 +14,10 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.binder;
+INCLUDE DEJAVIEW MODULE android.binder;
 
 DROP TABLE IF EXISTS android_binder_process_incoming_serial_count_per_second;
-CREATE PERFETTO TABLE android_binder_process_incoming_serial_count_per_second
+CREATE DEJAVIEW TABLE android_binder_process_incoming_serial_count_per_second
 AS
 WITH unagg AS (
   SELECT
@@ -35,7 +35,7 @@ WITH unagg AS (
   FROM unagg GROUP BY pid;
 
 DROP TABLE IF EXISTS android_binder_process_outgoing_serial_count_per_second;
-CREATE PERFETTO TABLE android_binder_process_outgoing_serial_count_per_second
+CREATE DEJAVIEW TABLE android_binder_process_outgoing_serial_count_per_second
 AS
 WITH unagg AS (
   SELECT
@@ -53,7 +53,7 @@ WITH unagg AS (
   FROM unagg GROUP BY pid;
 
 DROP VIEW IF EXISTS android_anomaly_output;
-CREATE PERFETTO VIEW android_anomaly_output AS
+CREATE DEJAVIEW VIEW android_anomaly_output AS
 SELECT AndroidAnomalyMetric(
   'binder', (SELECT AndroidAnomalyMetric_Binder(
     'max_incoming_process_count_per_second', (

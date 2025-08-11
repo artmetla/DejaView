@@ -27,15 +27,15 @@
 #include <grpcpp/support/channel_arguments.h>
 #include <grpcpp/support/status.h>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/bigtrace/worker.grpc.pb.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/bigtrace/worker.grpc.pb.h"
 #include "src/bigtrace/orchestrator/orchestrator_impl.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 namespace {
 
 struct CommandLineOptions {
@@ -49,7 +49,7 @@ struct CommandLineOptions {
 };
 
 void PrintUsage(char** argv) {
-  PERFETTO_ELOG(R"(
+  DEJAVIEW_ELOG(R"(
 Orchestrator main executable.
 Usage: %s [OPTIONS]
 Options:
@@ -164,11 +164,11 @@ base::Status OrchestratorMain(int argc, char** argv) {
                            ? std::thread::hardware_concurrency()
                            : options->pool_size;
 
-  PERFETTO_DCHECK(pool_size);
+  DEJAVIEW_DCHECK(pool_size);
 
   if (worker_address_list.empty()) {
     // Use a set of n workers incrementing from a starting port
-    PERFETTO_DCHECK(worker_count > 0 && !worker_address.empty());
+    DEJAVIEW_DCHECK(worker_count > 0 && !worker_address.empty());
     std::vector<std::string> worker_addresses;
     for (uint64_t i = 0; i < worker_count; ++i) {
       std::string address =
@@ -195,7 +195,7 @@ base::Status OrchestratorMain(int argc, char** argv) {
   builder.AddListeningPort(server_socket, grpc::InsecureServerCredentials());
   builder.RegisterService(service.get());
   std::unique_ptr<grpc::Server> server(builder.BuildAndStart());
-  PERFETTO_LOG("Orchestrator server listening on %s", server_socket.c_str());
+  DEJAVIEW_LOG("Orchestrator server listening on %s", server_socket.c_str());
 
   server->Wait();
 
@@ -203,10 +203,10 @@ base::Status OrchestratorMain(int argc, char** argv) {
 }
 
 }  // namespace
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 int main(int argc, char** argv) {
-  auto status = perfetto::bigtrace::OrchestratorMain(argc, argv);
+  auto status = dejaview::bigtrace::OrchestratorMain(argc, argv);
   if (!status.ok()) {
     fprintf(stderr, "%s\n", status.c_message());
     return 1;

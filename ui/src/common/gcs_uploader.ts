@@ -16,7 +16,7 @@ import {defer} from '../base/deferred';
 import {Time} from '../base/time';
 import {TraceFileStream} from '../core/trace_stream';
 
-export const BUCKET_NAME = 'perfetto-ui-data';
+export const BUCKET_NAME = 'dejaview-ui-data';
 export const MIME_JSON = 'application/json; charset=utf-8';
 export const MIME_BINARY = 'application/octet-stream';
 

@@ -19,15 +19,15 @@
 #include <memory>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
 #include "src/trace_processor/importers/common/chunked_trace_reader.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "src/trace_processor/util/gzip_utils.h"
 #include "src/trace_processor/util/trace_type.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 const char kNoZlibErr[] =
     "Cannot open compressed trace. zlib not enabled in the build config";
@@ -56,13 +56,13 @@ bool RequiresZlibSupport(TraceType type) {
     case kPerfTextTraceType:
       return false;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 }  // namespace
 
 void TraceReaderRegistry::RegisterFactory(TraceType trace_type,
                                           Factory factory) {
-  PERFETTO_CHECK(factories_.Insert(trace_type, std::move(factory)).second);
+  DEJAVIEW_CHECK(factories_.Insert(trace_type, std::move(factory)).second);
 }
 
 base::StatusOr<std::unique_ptr<ChunkedTraceReader>>
@@ -79,4 +79,4 @@ TraceReaderRegistry::CreateTraceReader(TraceType type) {
   return base::ErrStatus("%s support is disabled", TraceTypeToString(type));
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

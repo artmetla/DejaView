@@ -22,15 +22,15 @@
 #include <grpcpp/client_context.h>
 #include <grpcpp/support/status.h>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/utils.h"
-#include "protos/perfetto/bigtrace/orchestrator.pb.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/utils.h"
+#include "protos/dejaview/bigtrace/orchestrator.pb.h"
 #include "src/bigtrace/orchestrator/orchestrator_impl.h"
 #include "src/bigtrace/orchestrator/resizable_task_pool.h"
 #include "src/bigtrace/orchestrator/trace_address_pool.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 namespace {
 const uint32_t kBufferPushDelayMicroseconds = 100;
 
@@ -168,7 +168,7 @@ grpc::Status OrchestratorImpl::Query(
       current_query_count = query_count_;
     }
 
-    PERFETTO_CHECK(current_query_count != 0);
+    DEJAVIEW_CHECK(current_query_count != 0);
 
     // Update the number of threads to the lower of {the remaining number of
     // traces} and the {maximum concurrency divided by the number of active
@@ -215,4 +215,4 @@ grpc::Status OrchestratorImpl::Query(
   return query_status;
 }
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace

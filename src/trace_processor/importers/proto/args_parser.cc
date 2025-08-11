@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/proto/args_parser.h"
 
-#include "perfetto/ext/base/base64.h"
+#include "dejaview/ext/base/base64.h"
 #include "src/trace_processor/importers/json/json_utils.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 using BoundInserter = ArgsTracker::BoundInserter;
 
@@ -86,7 +86,7 @@ void ArgsParser::AddBytes(const Key& key, const protozero::ConstBytes& value) {
 
 bool ArgsParser::AddJson(const Key& key, const protozero::ConstChars& value) {
   if (!support_json_)
-    PERFETTO_FATAL("Unexpected JSON value when parsing data");
+    DEJAVIEW_FATAL("Unexpected JSON value when parsing data");
 
   auto json_value = json::ParseJsonString(value);
   if (!json_value)
@@ -127,4 +127,4 @@ InternedMessageView* ArgsParser::GetInternedMessageView(uint32_t field_id,
   return sequence_state_->GetInternedMessageView(field_id, iid);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

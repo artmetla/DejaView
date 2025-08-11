@@ -17,10 +17,10 @@
 #ifndef SRC_BIGTRACE_WORKER_REPOSITORY_POLICIES_TRACE_PROCESSOR_LOADER_H_
 #define SRC_BIGTRACE_WORKER_REPOSITORY_POLICIES_TRACE_PROCESSOR_LOADER_H_
 
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
-namespace perfetto::bigtrace {
+namespace dejaview::bigtrace {
 
 // This interface is designed to facilitate interaction with multiple file
 // systems/object stores e.g. GCS, S3 or the local filesystem by allowing
@@ -36,6 +36,6 @@ class TraceProcessorLoader {
   LoadTraceProcessor(const std::string& path) = 0;
 };
 
-}  // namespace perfetto::bigtrace
+}  // namespace dejaview::bigtrace
 
 #endif  // SRC_BIGTRACE_WORKER_REPOSITORY_POLICIES_TRACE_PROCESSOR_LOADER_H_

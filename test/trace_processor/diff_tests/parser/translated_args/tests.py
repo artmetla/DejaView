@@ -73,7 +73,7 @@ class TranslatedArgs(TestSuite):
             track_uuid: 12345
             type: 1
             name: "slice1"
-            [perfetto.protos.ChromeTrackEvent.chrome_hashed_performance_mark] {
+            [dejaview.protos.ChromeTrackEvent.chrome_hashed_performance_mark] {
               site_hash: 10
               mark_hash: 20
             }

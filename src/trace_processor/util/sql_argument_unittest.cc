@@ -18,7 +18,7 @@
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace sql_argument {
 namespace {
@@ -89,4 +89,4 @@ TEST(SqlArgumentTest, ParseArguments) {
 }  // namespace
 }  // namespace sql_argument
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

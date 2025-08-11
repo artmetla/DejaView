@@ -19,9 +19,9 @@
 -- containing bounds of jank CUJs.
 SELECT RUN_METRIC('android/android_jank_cuj.sql');
 
-INCLUDE PERFETTO MODULE android.slices;
-INCLUDE PERFETTO MODULE android.binder;
-INCLUDE PERFETTO MODULE android.critical_blocking_calls;
+INCLUDE DEJAVIEW MODULE android.slices;
+INCLUDE DEJAVIEW MODULE android.binder;
+INCLUDE DEJAVIEW MODULE android.critical_blocking_calls;
 
 -- Jank "J<*>" and latency "L<*>" cujs are put together in android_cujs table.
 -- They are computed separately as latency ones are slightly different, don't
@@ -92,7 +92,7 @@ FROM all_cujs;
 --  (2) each slice needs to be trimmed to be fully inside the cuj associated
 --      (as we don't care about what's outside cujs)
 DROP TABLE IF EXISTS main_thread_slices_scoped_to_cujs;
-CREATE PERFETTO TABLE main_thread_slices_scoped_to_cujs AS
+CREATE DEJAVIEW TABLE main_thread_slices_scoped_to_cujs AS
 SELECT
     s.id,
     s.id AS slice_id,
@@ -134,7 +134,7 @@ ORDER BY cuj_id;
 
 
 DROP VIEW IF EXISTS android_blocking_calls_cuj_metric_output;
-CREATE PERFETTO VIEW android_blocking_calls_cuj_metric_output AS
+CREATE DEJAVIEW VIEW android_blocking_calls_cuj_metric_output AS
 SELECT AndroidBlockingCallsCujMetric('cuj', (
     SELECT RepeatedField(
         AndroidBlockingCallsCujMetric_Cuj(

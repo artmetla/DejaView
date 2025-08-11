@@ -13,7 +13,7 @@
 // limitations under the License.
 
 import {Trace} from '../../public/trace';
-import {PerfettoPlugin, PluginDescriptor} from '../../public/plugin';
+import {DejaViewPlugin, PluginDescriptor} from '../../public/plugin';
 import {
   SimpleSliceTrack,
   SimpleSliceTrackConfig,
@@ -21,7 +21,7 @@ import {
 import {TrackNode} from '../../public/workspace';
 import {DebugSliceDetailsPanel} from '../../public/lib/debug_tracks/details_tab';
 
-class Plugin implements PerfettoPlugin {
+class Plugin implements DejaViewPlugin {
   async onTraceLoad(ctx: Trace): Promise<void> {
     const traceStartTime = ctx.traceInfo.start;
     const traceDur = ctx.traceInfo.end - ctx.traceInfo.start;
@@ -82,6 +82,6 @@ class Plugin implements PerfettoPlugin {
 }
 
 export const plugin: PluginDescriptor = {
-  pluginId: 'dev.perfetto.ExampleNestedTracks',
+  pluginId: 'dev.dejaview.ExampleNestedTracks',
   plugin: Plugin,
 };

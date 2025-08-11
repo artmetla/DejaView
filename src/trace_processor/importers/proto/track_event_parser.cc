@@ -23,14 +23,14 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/public/compiler.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/public/compiler.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 #include "src/trace_processor/containers/string_pool.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
@@ -57,24 +57,24 @@
 #include "src/trace_processor/util/proto_to_args_parser.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/common/android_log_constants.pbzero.h"
-#include "protos/perfetto/trace/interned_data/interned_data.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_active_processes.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_compositor_scheduler_state.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_histogram_sample.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/chrome_thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/counter_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/debug_annotation.pbzero.h"
-#include "protos/perfetto/trace/track_event/log_message.pbzero.h"
-#include "protos/perfetto/trace/track_event/process_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/source_location.pbzero.h"
-#include "protos/perfetto/trace/track_event/task_execution.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/common/android_log_constants.pbzero.h"
+#include "protos/dejaview/trace/interned_data/interned_data.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_active_processes.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_compositor_scheduler_state.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_histogram_sample.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/chrome_thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/counter_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/debug_annotation.pbzero.h"
+#include "protos/dejaview/trace/track_event/log_message.pbzero.h"
+#include "protos/dejaview/trace/track_event/process_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/source_location.pbzero.h"
+#include "protos/dejaview/trace/track_event/task_execution.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 using BoundInserter = ArgsTracker::BoundInserter;
@@ -202,7 +202,7 @@ class TrackEventParser::EventImporter {
   base::Status Import() {
     // TODO(eseckler): This legacy event field will eventually be replaced by
     // fields in TrackEvent itself.
-    if (PERFETTO_UNLIKELY(!event_.type() && !legacy_event_.has_phase()))
+    if (DEJAVIEW_UNLIKELY(!event_.type() && !legacy_event_.has_phase()))
       return base::ErrStatus("TrackEvent without type or phase");
 
     category_id_ = ParseTrackEventCategory();
@@ -286,7 +286,7 @@ class TrackEventParser::EventImporter {
 
     // If there's a single category, we can avoid building a concatenated
     // string.
-    if (PERFETTO_LIKELY(category_iids.size() == 1 &&
+    if (DEJAVIEW_LIKELY(category_iids.size() == 1 &&
                         category_strings.empty())) {
       auto* decoder = sequence_state_->LookupInternedMessage<
           protos::pbzero::InternedData::kEventCategoriesFieldNumber,
@@ -336,7 +336,7 @@ class TrackEventParser::EventImporter {
     if (!name_iid)
       name_iid = legacy_event_.name_iid();
 
-    if (PERFETTO_LIKELY(name_iid)) {
+    if (DEJAVIEW_LIKELY(name_iid)) {
       auto* decoder = sequence_state_->LookupInternedMessage<
           protos::pbzero::InternedData::kEventNamesFieldNumber,
           protos::pbzero::EventName>(name_iid);
@@ -555,7 +555,7 @@ class TrackEventParser::EventImporter {
       case TrackEvent::TYPE_INSTANT:
         return utid_ ? 'i' : 'n';
       default:
-        PERFETTO_ELOG("unexpected event type %d", event_.type());
+        DEJAVIEW_ELOG("unexpected event type %d", event_.type());
         return 0;
     }
   }
@@ -563,8 +563,8 @@ class TrackEventParser::EventImporter {
   base::Status ParseCounterEvent() {
     // Tokenizer ensures that TYPE_COUNTER events are associated with counter
     // tracks and have values.
-    PERFETTO_DCHECK(storage_->counter_track_table().FindById(track_id_));
-    PERFETTO_DCHECK(event_.has_counter_value() ||
+    DEJAVIEW_DCHECK(storage_->counter_track_table().FindById(track_id_));
+    DEJAVIEW_DCHECK(event_.has_counter_value() ||
                     event_.has_double_counter_value());
 
     context_->event_tracker->PushCounter(
@@ -634,8 +634,8 @@ class TrackEventParser::EventImporter {
     // Tokenizer ensures that there aren't more values than uuids, that we
     // don't have more values than kMaxNumExtraCounters and that the
     // track_uuids are for valid counter tracks.
-    PERFETTO_DCHECK(track_uuid_it);
-    PERFETTO_DCHECK(index < TrackEventData::kMaxNumExtraCounters);
+    DEJAVIEW_DCHECK(track_uuid_it);
+    DEJAVIEW_DCHECK(index < TrackEventData::kMaxNumExtraCounters);
 
     std::optional<TrackId> track_id = track_event_tracker_->GetDescriptorTrack(
         *track_uuid_it, kNullStringId, packet_sequence_id_);
@@ -697,12 +697,12 @@ class TrackEventParser::EventImporter {
     tables::SliceTable::RowReference slice_ref = *opt_thread_slice_ref;
     std::optional<int64_t> tts = slice_ref.thread_ts();
     if (tts) {
-      PERFETTO_DCHECK(thread_timestamp_);
+      DEJAVIEW_DCHECK(thread_timestamp_);
       slice_ref.set_thread_dur(*thread_timestamp_ - *tts);
     }
     std::optional<int64_t> tic = slice_ref.thread_instruction_count();
     if (tic) {
-      PERFETTO_DCHECK(event_data_->thread_instruction_count);
+      DEJAVIEW_DCHECK(event_data_->thread_instruction_count);
       slice_ref.set_thread_instruction_delta(
           *event_data_->thread_instruction_count - *tic);
     }
@@ -881,7 +881,7 @@ class TrackEventParser::EventImporter {
 
       if (phase == 'b')
         return;
-      PERFETTO_DCHECK(phase == 'S');
+      DEJAVIEW_DCHECK(phase == 'S');
       // For legacy ASYNC_BEGIN, add phase for JSON exporter.
       std::string phase_string(1, static_cast<char>(phase));
       StringId phase_id = storage_->InternString(phase_string.c_str());
@@ -898,7 +898,7 @@ class TrackEventParser::EventImporter {
     // store thread timestamps/counters.
     if (legacy_event_.use_async_tts()) {
       auto* vtrack_slices = storage_->mutable_virtual_track_slices();
-      PERFETTO_DCHECK(!vtrack_slices->slice_count() ||
+      DEJAVIEW_DCHECK(!vtrack_slices->slice_count() ||
                       vtrack_slices->slice_ids().back() < opt_slice_id.value());
       int64_t tts = thread_timestamp_.value_or(0);
       int64_t tic = thread_instruction_count_.value_or(0);
@@ -936,7 +936,7 @@ class TrackEventParser::EventImporter {
         [this, phase](BoundInserter* inserter) {
           ParseTrackEventArgs(inserter);
 
-          PERFETTO_DCHECK(phase == 'T' || phase == 'p');
+          DEJAVIEW_DCHECK(phase == 'T' || phase == 'p');
           std::string phase_string(1, static_cast<char>(phase));
           StringId phase_id = storage_->InternString(phase_string.c_str());
           inserter->AddArg(parser_->legacy_event_phase_key_id_,
@@ -961,7 +961,7 @@ class TrackEventParser::EventImporter {
     MaybeParseFlowEvents(opt_slice_id.value());
     if (legacy_event_.use_async_tts()) {
       auto* vtrack_slices = storage_->mutable_virtual_track_slices();
-      PERFETTO_DCHECK(!vtrack_slices->slice_count() ||
+      DEJAVIEW_DCHECK(!vtrack_slices->slice_count() ||
                       vtrack_slices->slice_ids().back() < opt_slice_id.value());
       int64_t tts = thread_timestamp_.value_or(0);
       int64_t tic = thread_instruction_count_.value_or(0);
@@ -979,7 +979,7 @@ class TrackEventParser::EventImporter {
 
     // Parse process and thread names from correspondingly named events.
     NullTermStringView event_name = storage_->GetString(name_id_);
-    PERFETTO_DCHECK(event_name.data());
+    DEJAVIEW_DCHECK(event_name.data());
     if (event_name == "thread_name") {
       if (!utid_) {
         return base::ErrStatus(
@@ -1115,7 +1115,7 @@ class TrackEventParser::EventImporter {
         return;
       // Log error but continue parsing the other args.
       storage_->IncrementStats(stats::track_event_parser_errors);
-      PERFETTO_DLOG("ParseTrackEventArgs error: %s", status.c_message());
+      DEJAVIEW_DLOG("ParseTrackEventArgs error: %s", status.c_message());
     };
 
     if (event_.has_source_location_iid()) {
@@ -1144,7 +1144,7 @@ class TrackEventParser::EventImporter {
                            /*support_json=*/true);
     int unknown_extensions = 0;
     log_errors(parser_->args_parser_.ParseMessage(
-        blob_, ".perfetto.protos.TrackEvent", &parser_->reflect_fields_,
+        blob_, ".dejaview.protos.TrackEvent", &parser_->reflect_fields_,
         args_writer, &unknown_extensions));
     if (unknown_extensions > 0) {
       context_->storage->IncrementStats(stats::unknown_extension_fields,
@@ -1489,7 +1489,7 @@ TrackEventParser::TrackEventParser(TraceProcessorContext* context,
 
   // Parse DebugAnnotations.
   args_parser_.AddParsingOverrideForType(
-      ".perfetto.protos.DebugAnnotation",
+      ".dejaview.protos.DebugAnnotation",
       [&](util::ProtoToArgsParser::ScopedNestedKeyContext& key,
           const protozero::ConstBytes& data,
           util::ProtoToArgsParser::Delegate& delegate) {
@@ -1694,7 +1694,7 @@ void TrackEventParser::ParseTrackEvent(int64_t ts,
       EventImporter(this, ts, event_data, blob, packet_sequence_id).Import();
   if (!status.ok()) {
     context_->storage->IncrementStats(stats::track_event_parser_errors);
-    PERFETTO_DLOG("ParseTrackEvent error: %s", status.c_message());
+    DEJAVIEW_DLOG("ParseTrackEvent error: %s", status.c_message());
   }
 }
 
@@ -1709,4 +1709,4 @@ void TrackEventParser::NotifyEndOfFile() {
   active_chrome_processes_tracker_.NotifyEndOfFile();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

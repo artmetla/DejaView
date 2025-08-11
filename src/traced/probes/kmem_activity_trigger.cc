@@ -18,13 +18,13 @@
 
 #include <unistd.h>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/waitable_event.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/waitable_event.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "src/traced/probes/probes_producer.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr uint32_t kTriggerIntervalMs = 60 * 1000;  // 1 min.
@@ -50,7 +50,7 @@ KmemActivityTrigger::~KmemActivityTrigger() {
 }
 
 KmemActivityTrigger::WorkerData::~WorkerData() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (ftrace_procfs_) {
     ftrace_procfs_->SetTracingOn(false);
     ftrace_procfs_->ClearTrace();
@@ -60,13 +60,13 @@ KmemActivityTrigger::WorkerData::~WorkerData() {
 
 KmemActivityTrigger::WorkerData::WorkerData(base::TaskRunner* task_runner)
     : task_runner_(task_runner), weak_ptr_factory_(this) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 
   ftrace_procfs_ =
       FtraceProcfs::CreateGuessingMountPoint("instances/mm_events/");
   if (!ftrace_procfs_) {
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
-    PERFETTO_DLOG(
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
+    DEJAVIEW_DLOG(
         "mm_events ftrace instance not found. Triggering of traces on memory "
         "pressure will not be available on this device.");
 #endif
@@ -86,7 +86,7 @@ KmemActivityTrigger::WorkerData::WorkerData(base::TaskRunner* task_runner)
     trace_pipe_fds_.emplace_back(ftrace_procfs_->OpenPipeForCpu(cpu));
     auto& scoped_fd = trace_pipe_fds_.back();
     if (!scoped_fd) {
-      PERFETTO_PLOG("Failed to open trace_pipe_raw for cpu %zu", cpu);
+      DEJAVIEW_PLOG("Failed to open trace_pipe_raw for cpu %zu", cpu);
       // Deliberately keeping this into the |trace_pipe_fds_| array so there is
       // a 1:1 mapping between CPU number and index in the array.
     } else {
@@ -105,7 +105,7 @@ KmemActivityTrigger::WorkerData::WorkerData(base::TaskRunner* task_runner)
 }
 
 void KmemActivityTrigger::WorkerData::ArmFtraceFDWatches() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   auto weak_this = weak_ptr_factory_.GetWeakPtr();
   if (fd_watches_armed_)
     return;
@@ -123,7 +123,7 @@ void KmemActivityTrigger::WorkerData::ArmFtraceFDWatches() {
 }
 
 void KmemActivityTrigger::WorkerData::DisarmFtraceFDWatches() {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   if (!fd_watches_armed_)
     return;
   fd_watches_armed_ = false;
@@ -134,8 +134,8 @@ void KmemActivityTrigger::WorkerData::DisarmFtraceFDWatches() {
 }
 
 void KmemActivityTrigger::WorkerData::OnFtracePipeWakeup(size_t cpu) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
-  PERFETTO_DLOG("KmemActivityTrigger ftrace pipe wakeup on cpu %zu", cpu);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DLOG("KmemActivityTrigger ftrace pipe wakeup on cpu %zu", cpu);
   ftrace_procfs_->ClearPerCpuTrace(cpu);
 
   if (!fd_watches_armed_) {
@@ -163,4 +163,4 @@ void KmemActivityTrigger::WorkerData::OnFtracePipeWakeup(size_t cpu) {
       kTriggerIntervalMs);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

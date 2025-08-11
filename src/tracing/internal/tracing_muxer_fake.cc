@@ -16,24 +16,24 @@
 
 #include "src/tracing/internal/tracing_muxer_fake.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace internal {
 namespace {
 
-PERFETTO_NORETURN void FailUninitialized() {
-  PERFETTO_FATAL(
-      "Tracing not initialized. Call perfetto::Tracing::Initialize() first.");
+DEJAVIEW_NORETURN void FailUninitialized() {
+  DEJAVIEW_FATAL(
+      "Tracing not initialized. Call dejaview::Tracing::Initialize() first.");
 }
 
 }  // namespace
 
-#if PERFETTO_HAS_NO_DESTROY()
+#if DEJAVIEW_HAS_NO_DESTROY()
 // static
-PERFETTO_NO_DESTROY TracingMuxerFake::FakePlatform
+DEJAVIEW_NO_DESTROY TracingMuxerFake::FakePlatform
     TracingMuxerFake::FakePlatform::instance{};
 // static
-PERFETTO_NO_DESTROY TracingMuxerFake TracingMuxerFake::instance{};
-#endif  // PERFETTO_HAS_NO_DESTROY()
+DEJAVIEW_NO_DESTROY TracingMuxerFake TracingMuxerFake::instance{};
+#endif  // DEJAVIEW_HAS_NO_DESTROY()
 
 TracingMuxerFake::~TracingMuxerFake() = default;
 
@@ -93,4 +93,4 @@ void TracingMuxerFake::ActivateTriggers(const std::vector<std::string>&,
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

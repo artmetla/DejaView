@@ -20,11 +20,11 @@
 
 #include <set>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -48,7 +48,7 @@ CpuFreqInfo::CpuFreqInfo(std::string sysfs_cpu_path)
     : sysfs_cpu_path_{sysfs_cpu_path} {
   base::ScopedDir cpu_dir(opendir(sysfs_cpu_path_.c_str()));
   if (!cpu_dir) {
-    PERFETTO_PLOG("Failed to opendir(%s)", sysfs_cpu_path_.c_str());
+    DEJAVIEW_PLOG("Failed to opendir(%s)", sysfs_cpu_path_.c_str());
     return;
   }
   // Accumulate cpu and freqs into a set to ensure stable order.
@@ -94,7 +94,7 @@ CpuFreqInfo::~CpuFreqInfo() = default;
 
 CpuFreqInfo::Range CpuFreqInfo::GetFreqs(uint32_t cpu) {
   if (cpu >= frequencies_index_.size() - 1) {
-    PERFETTO_DLOG("No frequencies for cpu%" PRIu32, cpu);
+    DEJAVIEW_DLOG("No frequencies for cpu%" PRIu32, cpu);
     const uint32_t* end = frequencies_.data() + frequencies_.size();
     return {end, end};
   }
@@ -145,4 +145,4 @@ const std::vector<uint32_t>& CpuFreqInfo::ReadCpuCurrFreq() {
   return cpu_curr_freq_;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

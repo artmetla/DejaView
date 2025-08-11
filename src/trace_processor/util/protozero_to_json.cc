@@ -21,15 +21,15 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
 #include "src/trace_processor/util/descriptors.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace protozero_to_json {
 
@@ -343,7 +343,7 @@ bool IsTypeMatch(ProtoWireType wire, uint32_t type) {
           return false;
       }
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 bool IsNumericFieldType(uint32_t type) {
@@ -900,4 +900,4 @@ std::string ProtozeroToJson(const DescriptorPool& pool,
 
 }  // namespace protozero_to_json
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -17,9 +17,9 @@ import {ChromeTracingController} from './chrome_tracing_controller';
 
 let chromeTraceController: ChromeTracingController | undefined = undefined;
 
-enableOnlyOnPerfettoHost();
+enableOnlyOnDejaViewHost();
 
-// Listen for messages from the perfetto ui.
+// Listen for messages from the dejaview ui.
 // eslint-disable-next-line @typescript-eslint/strict-boolean-expressions
 if (globalThis.chrome) {
   chrome.runtime.onConnectExternal.addListener((port) => {
@@ -46,7 +46,7 @@ function onUIMessage(
   chromeTraceController.handleCommand(message.method, requestDataArray);
 }
 
-function enableOnlyOnPerfettoHost() {
+function enableOnlyOnDejaViewHost() {
   function enableOnHostWithSuffix(suffix: string) {
     return {
       conditions: [

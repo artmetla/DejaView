@@ -21,9 +21,9 @@
 #include <atomic>
 #include <cinttypes>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/heap_profile.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/heap_profile.h"
 #include "src/profiling/memory/heap_profile_internal.h"
 
 #include "src/profiling/memory/wrap_allocators.h"
@@ -92,7 +92,7 @@ const MallocDispatch* GetDispatch() {
 // a new signal.
 void ProfileDisabledCallback(void*, const AHeapProfileDisableCallbackInfo*) {
   if (!android_mallopt(M_RESET_HOOKS, nullptr, 0))
-    PERFETTO_PLOG("Unpatching heapprofd hooks failed.");
+    DEJAVIEW_PLOG("Unpatching heapprofd hooks failed.");
 }
 
 uint32_t g_heap_id = AHeapProfile_registerHeap(
@@ -127,33 +127,33 @@ void heapprofd_finalize() {
 }
 
 void* heapprofd_malloc(size_t size) {
-  return perfetto::profiling::wrap_malloc(g_heap_id, GetDispatch()->malloc,
+  return dejaview::profiling::wrap_malloc(g_heap_id, GetDispatch()->malloc,
                                           size);
 }
 
 void* heapprofd_calloc(size_t nmemb, size_t size) {
-  return perfetto::profiling::wrap_calloc(g_heap_id, GetDispatch()->calloc,
+  return dejaview::profiling::wrap_calloc(g_heap_id, GetDispatch()->calloc,
                                           nmemb, size);
 }
 
 void* heapprofd_aligned_alloc(size_t alignment, size_t size) {
   // aligned_alloc is the same as memalign.
-  return perfetto::profiling::wrap_memalign(
+  return dejaview::profiling::wrap_memalign(
       g_heap_id, GetDispatch()->aligned_alloc, alignment, size);
 }
 
 void* heapprofd_memalign(size_t alignment, size_t size) {
-  return perfetto::profiling::wrap_memalign(g_heap_id, GetDispatch()->memalign,
+  return dejaview::profiling::wrap_memalign(g_heap_id, GetDispatch()->memalign,
                                             alignment, size);
 }
 
 int heapprofd_posix_memalign(void** memptr, size_t alignment, size_t size) {
-  return perfetto::profiling::wrap_posix_memalign(
+  return dejaview::profiling::wrap_posix_memalign(
       g_heap_id, GetDispatch()->posix_memalign, memptr, alignment, size);
 }
 
 void heapprofd_free(void* pointer) {
-  return perfetto::profiling::wrap_free(g_heap_id, GetDispatch()->free,
+  return dejaview::profiling::wrap_free(g_heap_id, GetDispatch()->free,
                                         pointer);
 }
 
@@ -166,7 +166,7 @@ void heapprofd_free(void* pointer) {
 // implementation to make sure the address is still exclusive while we're
 // processing it.
 void* heapprofd_realloc(void* pointer, size_t size) {
-  return perfetto::profiling::wrap_realloc(g_heap_id, GetDispatch()->realloc,
+  return dejaview::profiling::wrap_realloc(g_heap_id, GetDispatch()->realloc,
                                            pointer, size);
 }
 
@@ -230,12 +230,12 @@ void heapprofd_malloc_enable() {
 
 #if defined(HAVE_DEPRECATED_MALLOC_FUNCS)
 void* heapprofd_pvalloc(size_t size) {
-  return perfetto::profiling::wrap_pvalloc(g_heap_id, GetDispatch()->pvalloc,
+  return dejaview::profiling::wrap_pvalloc(g_heap_id, GetDispatch()->pvalloc,
                                            size);
 }
 
 void* heapprofd_valloc(size_t size) {
-  return perfetto::profiling::wrap_valloc(g_heap_id, GetDispatch()->valloc,
+  return dejaview::profiling::wrap_valloc(g_heap_id, GetDispatch()->valloc,
                                           size);
 }
 

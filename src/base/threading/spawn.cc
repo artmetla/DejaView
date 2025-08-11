@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/threading/spawn.h"
+#include "dejaview/ext/base/threading/spawn.h"
 
 #include <optional>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/thread_checker.h"
-#include "perfetto/ext/base/threading/future.h"
-#include "perfetto/ext/base/threading/poll.h"
-#include "perfetto/ext/base/threading/stream.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/thread_checker.h"
+#include "dejaview/ext/base/threading/future.h"
+#include "dejaview/ext/base/threading/poll.h"
+#include "dejaview/ext/base/threading/stream.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 // Represents a future which is being polled to completion. Owned by
@@ -33,12 +33,12 @@ class PolledFuture {
  public:
   explicit PolledFuture(TaskRunner* task_runner, Future<FVoid> future)
       : task_runner_(task_runner), future_(std::move(future)) {
-    PERFETTO_DCHECK(task_runner_->RunsTasksOnCurrentThread());
+    DEJAVIEW_DCHECK(task_runner_->RunsTasksOnCurrentThread());
     PollUntilFinish();
   }
 
   ~PolledFuture() {
-    PERFETTO_DCHECK_THREAD(thread_checker);
+    DEJAVIEW_DCHECK_THREAD(thread_checker);
     ClearFutureAndWatches(interested_);
   }
 
@@ -47,7 +47,7 @@ class PolledFuture {
   PolledFuture& operator=(PolledFuture&&) = delete;
 
   void PollUntilFinish() {
-    PERFETTO_DCHECK(task_runner_->RunsTasksOnCurrentThread());
+    DEJAVIEW_DCHECK(task_runner_->RunsTasksOnCurrentThread());
 
     auto pre_poll_interested = std::move(interested_);
     interested_.clear();
@@ -100,7 +100,7 @@ class PolledFuture {
   FlatSet<PlatformHandle> ready_;
   PollContext context_{&interested_, &ready_};
 
-  PERFETTO_THREAD_CHECKER(thread_checker)
+  DEJAVIEW_THREAD_CHECKER(thread_checker)
 
   // Keep this last.
   WeakPtrFactory<PolledFuture> weak_ptr_factory_{this};
@@ -122,4 +122,4 @@ SpawnHandle::~SpawnHandle() {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

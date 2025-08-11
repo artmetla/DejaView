@@ -20,12 +20,12 @@
 
 #include <memory>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 std::string GetTestDataPath(const std::string& path) {
@@ -41,4 +41,4 @@ std::string GetTestDataPath(const std::string& path) {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

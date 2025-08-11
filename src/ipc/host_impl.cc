@@ -20,23 +20,23 @@
 #include <cinttypes>
 #include <utility>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/crash_keys.h"
-#include "perfetto/ext/base/sys_types.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/ipc/service.h"
-#include "perfetto/ext/ipc/service_descriptor.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/crash_keys.h"
+#include "dejaview/ext/base/sys_types.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/ipc/service.h"
+#include "dejaview/ext/ipc/service_descriptor.h"
 
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 
 // TODO(primiano): put limits on #connections/uid and req. queue (b/69093705).
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 namespace {
@@ -64,18 +64,18 @@ base::MachineID GenerateMachineID(base::UnixSocket* sock,
     auto pos = std::string::npos;
     switch (sock->family()) {
       case base::SockFamily::kInet:
-        PERFETTO_FALLTHROUGH;
+        DEJAVIEW_FALLTHROUGH;
       case base::SockFamily::kInet6:
-        PERFETTO_FALLTHROUGH;
+        DEJAVIEW_FALLTHROUGH;
       case base::SockFamily::kVsock:
         pos = host_id.rfind(":");
         if (pos != std::string::npos)
           host_id.resize(pos);
         break;
       case base::SockFamily::kUnspec:
-        PERFETTO_FALLTHROUGH;
+        DEJAVIEW_FALLTHROUGH;
       case base::SockFamily::kUnix:
-        PERFETTO_DFATAL("Should be unreachable.");
+        DEJAVIEW_DFATAL("Should be unreachable.");
         return base::kDefaultMachineID;
     }
     hasher.Update(host_id);
@@ -89,9 +89,9 @@ base::MachineID GenerateMachineID(base::UnixSocket* sock,
 }  // namespace
 
 uid_t HostImpl::ClientConnection::GetPosixPeerUid() const {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
   if (sock->family() == base::SockFamily::kUnix)
     return sock->peer_uid_posix();
 #endif
@@ -104,8 +104,8 @@ uid_t HostImpl::ClientConnection::GetPosixPeerUid() const {
 }
 
 pid_t HostImpl::ClientConnection::GetLinuxPeerPid() const {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   if (sock->family() == base::SockFamily::kUnix)
     return sock->peer_pid_linux();
 #endif
@@ -142,34 +142,34 @@ std::unique_ptr<Host> Host::CreateInstance_Fuchsia(
 HostImpl::HostImpl(base::ScopedSocketHandle socket_fd,
                    base::TaskRunner* task_runner)
     : task_runner_(task_runner), weak_ptr_factory_(this) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   sock_ = base::UnixSocket::Listen(std::move(socket_fd), this, task_runner_,
                                    kHostSockFamily, base::SockType::kStream);
 }
 
 HostImpl::HostImpl(const char* socket_name, base::TaskRunner* task_runner)
     : task_runner_(task_runner), weak_ptr_factory_(this) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   sock_ = base::UnixSocket::Listen(socket_name, this, task_runner_,
                                    base::GetSockFamily(socket_name),
                                    base::SockType::kStream);
   if (!sock_) {
-    PERFETTO_PLOG("Failed to create %s", socket_name);
+    DEJAVIEW_PLOG("Failed to create %s", socket_name);
   }
 }
 
 HostImpl::HostImpl(base::TaskRunner* task_runner)
     : task_runner_(task_runner), weak_ptr_factory_(this) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
 }
 
 HostImpl::~HostImpl() = default;
 
 bool HostImpl::ExposeService(std::unique_ptr<Service> service) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   const std::string& service_name = service->GetDescriptor().service_name;
   if (GetServiceByName(service_name)) {
-    PERFETTO_DLOG("Duplicate ExposeService(): %s", service_name.c_str());
+    DEJAVIEW_DLOG("Duplicate ExposeService(): %s", service_name.c_str());
     return false;
   }
   service->use_shmem_emulation_ =
@@ -183,10 +183,10 @@ bool HostImpl::ExposeService(std::unique_ptr<Service> service) {
 void HostImpl::AdoptConnectedSocket_Fuchsia(
     base::ScopedSocketHandle connected_socket,
     std::function<bool(int)> send_fd_cb) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
-  PERFETTO_DCHECK(connected_socket);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK(connected_socket);
   // Should not be used in conjunction with listen sockets.
-  PERFETTO_DCHECK(!sock_);
+  DEJAVIEW_DCHECK(!sock_);
 
   auto unix_socket = base::UnixSocket::AdoptConnected(
       std::move(connected_socket), this, task_runner_, kHostSockFamily,
@@ -196,11 +196,11 @@ void HostImpl::AdoptConnectedSocket_Fuchsia(
   OnNewIncomingConnection(nullptr, std::move(unix_socket));
   ClientConnection* client_connection = clients_by_socket_[unix_socket_ptr];
   client_connection->send_fd_cb_fuchsia = std::move(send_fd_cb);
-  PERFETTO_DCHECK(client_connection->send_fd_cb_fuchsia);
+  DEJAVIEW_DCHECK(client_connection->send_fd_cb_fuchsia);
 }
 
 void HostImpl::SetSocketSendTimeoutMs(uint32_t timeout_ms) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   // Should be less than the watchdog period (30s).
   socket_tx_timeout_ms_ = timeout_ms;
 }
@@ -208,7 +208,7 @@ void HostImpl::SetSocketSendTimeoutMs(uint32_t timeout_ms) {
 void HostImpl::OnNewIncomingConnection(
     base::UnixSocket*,
     std::unique_ptr<base::UnixSocket> new_conn) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   std::unique_ptr<ClientConnection> client(new ClientConnection());
   ClientID client_id = ++last_client_id_;
   clients_by_socket_[new_conn.get()] = client.get();
@@ -219,7 +219,7 @@ void HostImpl::OnNewIncomingConnection(
 }
 
 void HostImpl::OnDataAvailable(base::UnixSocket* sock) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   auto it = clients_by_socket_.find(sock);
   if (it == clients_by_socket_.end())
     return;
@@ -235,7 +235,7 @@ void HostImpl::OnDataAvailable(base::UnixSocket* sock) {
     base::ScopedFile fd;
     rsize = client->sock->Receive(buf.data, buf.size, &fd);
     if (fd) {
-      PERFETTO_DCHECK(!client->received_fd);
+      DEJAVIEW_DCHECK(!client->received_fd);
       client->received_fd = std::move(fd);
     }
     if (!frame_deserializer.EndReceive(rsize))
@@ -259,7 +259,7 @@ void HostImpl::OnReceivedFrame(ClientConnection* client,
   if (req_frame.has_set_peer_identity())
     return OnSetPeerIdentity(client, req_frame);
 
-  PERFETTO_DLOG("Received invalid RPC frame from client %" PRIu64, client->id);
+  DEJAVIEW_DLOG("Received invalid RPC frame from client %" PRIu64, client->id);
   Frame reply_frame;
   reply_frame.set_request_id(req_frame.request_id());
   reply_frame.mutable_msg_request_error()->set_error("unknown request");
@@ -338,14 +338,14 @@ void HostImpl::OnInvokeMethod(ClientConnection* client,
 void HostImpl::OnSetPeerIdentity(ClientConnection* client,
                                  const Frame& req_frame) {
   if (client->sock->family() == base::SockFamily::kUnix) {
-    PERFETTO_DLOG("SetPeerIdentity is ignored for unix socket connections.");
+    DEJAVIEW_DLOG("SetPeerIdentity is ignored for unix socket connections.");
     return;
   }
 
   // This is can only be set once by the relay service.
   if (client->pid_override != base::kInvalidPid ||
       client->uid_override != base::kInvalidUid) {
-    PERFETTO_DLOG("Already received SetPeerIdentity.");
+    DEJAVIEW_DLOG("Already received SetPeerIdentity.");
     return;
   }
 
@@ -390,7 +390,7 @@ void HostImpl::SendFrame(ClientConnection* client, const Frame& frame, int fd) {
 
   // On Fuchsia, |send_fd_cb_fuchsia_| is used to send the FD to the client
   // and therefore must be set.
-  PERFETTO_DCHECK(!PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA) ||
+  DEJAVIEW_DCHECK(!DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA) ||
                   client->send_fd_cb_fuchsia);
   if (client->send_fd_cb_fuchsia && fd != base::ScopedFile::kInvalid) {
     if (!client->send_fd_cb_fuchsia(fd)) {
@@ -408,11 +408,11 @@ void HostImpl::SendFrame(ClientConnection* client, const Frame& frame, int fd) {
   bool res = client->sock->Send(buf.data(), buf.size(), fd);
   // If we timeout |res| will be false, but the UnixSocket will have called
   // UnixSocket::ShutDown() and thus |is_connected()| is false.
-  PERFETTO_CHECK(res || !client->sock->is_connected());
+  DEJAVIEW_CHECK(res || !client->sock->is_connected());
 }
 
 void HostImpl::OnDisconnect(base::UnixSocket* sock) {
-  PERFETTO_DCHECK_THREAD(thread_checker_);
+  DEJAVIEW_DCHECK_THREAD(thread_checker_);
   auto it = clients_by_socket_.find(sock);
   if (it == clients_by_socket_.end())
     return;
@@ -423,7 +423,7 @@ void HostImpl::OnDisconnect(base::UnixSocket* sock) {
                          client->GetLinuxPeerPid(), client->GetMachineID());
 
   clients_by_socket_.erase(it);
-  PERFETTO_DCHECK(clients_.count(client_id));
+  DEJAVIEW_DCHECK(clients_.count(client_id));
   clients_.erase(client_id);
 
   for (const auto& service_it : services_) {
@@ -459,4 +459,4 @@ HostImpl::ExposedService::~ExposedService() = default;
 HostImpl::ClientConnection::~ClientConnection() = default;
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

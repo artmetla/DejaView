@@ -24,7 +24,7 @@ to get access.
 
 Alternatively, you can build the binaries yourself from AOSP.
 
-First, [check out Perfetto](https://perfetto.dev/docs/contributing/build-instructions):
+First, [check out DejaView](https://perfetto.dev/docs/contributing/build-instructions):
 
 ```
 $ git clone https://android.googlesource.com/platform/external/perfetto/
@@ -34,17 +34,17 @@ Then, change to the project directory, download and build additional
 dependencies, and then build the standalone library:
 
 ```
-$ cd perfetto
-perfetto/ $ tools/install-build-deps --android
-perfetto/ $ tools/setup_all_configs.py --android
-perfetto/ $ ninja -C out/android_release_incl_heapprofd_arm64 \
+$ cd dejaview
+dejaview/ $ tools/install-build-deps --android
+dejaview/ $ tools/setup_all_configs.py --android
+dejaview/ $ ninja -C out/android_release_incl_heapprofd_arm64 \
 libheapprofd_standalone_client.so
 ```
 
 You will find the built library in
 `out/android_release_incl_heapprofd_arm64/libheapprofd_standalone_client.so`.
 The header for the API can be found in
-`src/profiling/memory/include/perfetto/heap_profile.h`. This library is built
+`src/profiling/memory/include/dejaview/heap_profile.h`. This library is built
 against SDK version 29, so will work on Android 10 or newer.
 
 WARNING: Only use the header from the checkout you used to build the library,
@@ -54,7 +54,7 @@ To make debugging in the future easier, make note of the revision at the time
 you built.
 
 ```
-git rev-parse HEAD > perfetto-version.txt
+git rev-parse HEAD > dejaview-version.txt
 ```
 Please include this in any bugs you file.
 
@@ -103,7 +103,7 @@ Then, use the [heap_profile](
 https://raw.githubusercontent.com/google/perfetto/main/tools/heap_profile)
 script to get a profile to generate textpb of the config.
 To convert to a binary proto, you additionally need to download
-[`perfetto_trace.proto`](
+[`dejaview_trace.proto`](
 https://raw.githubusercontent.com/google/perfetto/main/protos/perfetto/trace/perfetto_trace.proto)
 and have recent version of the protoc compiler installed.
 [Learn how to install protoc](https://grpc.io/docs/protoc-installation).
@@ -114,8 +114,8 @@ you registered using `AHeapProfile_registerHeap`):
 
 ```
 heap_profile -n $APP_NAME --heaps $HEAP --print-config | \
- path/to/protoc --encode=perfetto.protos.TraceConfig perfetto_trace.proto | \
- adb shell perfetto -c - -o /data/misc/perfetto-traces/profile
+ path/to/protoc --encode=dejaview.protos.TraceConfig dejaview_trace.proto | \
+ adb shell dejaview -c - -o /data/misc/dejaview-traces/profile
 ```
 
 On Windows, you will need [python 3.6](https://www.python.org/downloads/) or
@@ -125,12 +125,12 @@ the name of the heap you registered using `AHeapProfile_registerHeap`):
 
 ```
 python /path/to/heap_profile -n %APP_NAME% --heaps %HEAP% --print-config | ^
- path/to/protoc --encode=perfetto.protos.TraceConfig perfetto_trace.proto | ^
- adb shell perfetto -c - -o /data/misc/perfetto-traces/profile
+ path/to/protoc --encode=dejaview.protos.TraceConfig dejaview_trace.proto | ^
+ adb shell dejaview -c - -o /data/misc/dejaview-traces/profile
 ```
 
 Play around with the app to make it cause custom allocations, then stop the
-profile using `adb shell killall perfetto`. Once it is done, pull the profile
-from `/data/misc/perfetto-traces/profile` using `adb pull`.
+profile using `adb shell killall dejaview`. Once it is done, pull the profile
+from `/data/misc/dejaview-traces/profile` using `adb pull`.
 
-Upload the profile to the [Perfetto UI](https://ui.perfetto.dev).
+Upload the profile to the [DejaView UI](https://ui.perfetto.dev).

@@ -18,16 +18,16 @@
 #define SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROFILE_PACKET_SEQUENCE_STATE_H_
 
 #include <cstdint>
-#include "perfetto/base/flat_set.h"
-#include "perfetto/ext/base/flat_hash_map.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/ext/base/flat_hash_map.h"
 
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/string_view.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/stack_profile_sequence_state.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class VirtualMemoryMapping;
@@ -116,7 +116,7 @@ class ProfilePacketSequenceState final
   // not intern Mappings, Frames nor Callstacks, instead the profile packed
   // "interned these" and this class keeps those ina  sequence local index. In
   // newer versions, these objects are in InternedData (see
-  // protos/perfetto/trace/interned_data) and are shared across multiple
+  // protos/dejaview/trace/interned_data) and are shared across multiple
   // ProfilePackets. For backwards compatibility, the following methods first
   // look up interned data in the private sequence local index (for values added
   // via the Add* methods), and then, if this lookup fails, in the InternedData
@@ -171,6 +171,6 @@ class ProfilePacketSequenceState final
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PROFILE_PACKET_SEQUENCE_STATE_H_

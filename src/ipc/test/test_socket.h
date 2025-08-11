@@ -22,10 +22,10 @@
 
 #include <cinttypes>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/unix_socket.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/unix_socket.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 struct TestSocket {
@@ -41,7 +41,7 @@ struct TestSocket {
   inline void Destroy();
 };
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 const char* TestSocket::name() {
   uint64_t hash = 5381;
@@ -55,7 +55,7 @@ base::SockFamily TestSocket::family() {
 }
 void TestSocket::Destroy() {}
 
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 
 const char* TestSocket::name() {
   snprintf(buf_, sizeof(buf_), "@%s", test_name_);
@@ -66,7 +66,7 @@ base::SockFamily TestSocket::family() {
 }
 void TestSocket::Destroy() {}
 
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 
 const char* TestSocket::name() {
   return "zx_socket";
@@ -91,6 +91,6 @@ void TestSocket::Destroy() {
 #endif
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_IPC_TEST_TEST_SOCKET_H_

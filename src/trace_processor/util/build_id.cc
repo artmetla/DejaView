@@ -20,11 +20,11 @@
 #include <cstddef>
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 uint8_t HexToBinary(char c) {
@@ -68,7 +68,7 @@ uint8_t HexToBinary(char c) {
     case 'F':
       return 15;
     default:
-      PERFETTO_CHECK(false);
+      DEJAVIEW_CHECK(false);
   }
 }
 
@@ -120,4 +120,4 @@ std::string BuildId::ToHex() const {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

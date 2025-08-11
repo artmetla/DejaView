@@ -20,17 +20,17 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/profiling/symbolizer/local_symbolizer.h"
 #include "src/profiling/symbolizer/symbolize_database.h"
 #include "src/traceconv/utils.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/profiling/pprof_builder.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/profiling/pprof_builder.h"
 #include "src/profiling/symbolizer/symbolizer.h"
 
 namespace {
@@ -46,7 +46,7 @@ std::string GetTemp() {
 }
 }  // namespace
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_to_text {
 namespace {
 
@@ -68,8 +68,8 @@ std::string GetRandomString(size_t n) {
 
 void MaybeSymbolize(trace_processor::TraceProcessor* tp) {
   std::unique_ptr<profiling::Symbolizer> symbolizer =
-      profiling::LocalSymbolizerOrDie(profiling::GetPerfettoBinaryPath(),
-                                      getenv("PERFETTO_SYMBOLIZER_MODE"));
+      profiling::LocalSymbolizerOrDie(profiling::GetDejaViewBinaryPath(),
+                                      getenv("DEJAVIEW_SYMBOLIZER_MODE"));
   if (!symbolizer)
     return;
   profiling::SymbolizeDatabase(tp, symbolizer.get(),
@@ -80,7 +80,7 @@ void MaybeSymbolize(trace_processor::TraceProcessor* tp) {
 }
 
 void MaybeDeobfuscate(trace_processor::TraceProcessor* tp) {
-  auto maybe_map = profiling::GetPerfettoProguardMapPath();
+  auto maybe_map = profiling::GetDejaViewProguardMapPath();
   if (maybe_map.empty()) {
     return;
   }
@@ -122,13 +122,13 @@ int TraceToProfile(
 
   std::string temp_dir = GetTemp() + "/" + dirname_prefix +
                          base::GetTimeFmt("%y%m%d%H%M%S") + GetRandomString(5);
-  PERFETTO_CHECK(base::Mkdir(temp_dir));
+  DEJAVIEW_CHECK(base::Mkdir(temp_dir));
   for (const auto& profile : profiles) {
     std::string filename = temp_dir + "/" + filename_fn(profile);
     base::ScopedFile fd(base::OpenFile(filename, O_CREAT | O_WRONLY, 0700));
     if (!fd)
-      PERFETTO_FATAL("Failed to open %s", filename.c_str());
-    PERFETTO_CHECK(base::WriteAll(*fd, profile.serialized.c_str(),
+      DEJAVIEW_FATAL("Failed to open %s", filename.c_str());
+    DEJAVIEW_CHECK(base::WriteAll(*fd, profile.serialized.c_str(),
                                   profile.serialized.size()) ==
                    static_cast<ssize_t>(profile.serialized.size()));
   }
@@ -186,4 +186,4 @@ int TraceToJavaHeapProfile(std::istream* input,
       ToConversionFlags(annotate_frames), "heap_profile-", filename_fn);
 }
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview

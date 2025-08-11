@@ -23,13 +23,13 @@
 
 #include <string>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Reading /trace produces human readable trace output.
 // Writing to this file clears all trace buffers for all CPUS.
@@ -54,7 +54,7 @@ constexpr char kSuspendResumeMinimalTrigger[] =
 }  // namespace
 
 void KernelLogWrite(const char* s) {
-  PERFETTO_DCHECK(*s && s[strlen(s) - 1] == '\n');
+  DEJAVIEW_DCHECK(*s && s[strlen(s) - 1] == '\n');
   if (FtraceProcfs::g_kmesg_fd != -1)
     base::ignore_result(base::WriteAll(FtraceProcfs::g_kmesg_fd, s, strlen(s)));
 }
@@ -68,7 +68,7 @@ bool WriteFileInternal(const std::string& path,
   ssize_t written = base::WriteAll(fd.get(), str.c_str(), str.length());
   ssize_t length = static_cast<ssize_t>(str.length());
   // This should either fail or write fully.
-  PERFETTO_CHECK(written == length || written == -1);
+  DEJAVIEW_CHECK(written == length || written == -1);
   return written == length;
 }
 
@@ -123,7 +123,7 @@ bool FtraceProcfs::SetSyscallFilter(const std::set<size_t>& filter) {
   for (const char* event : {"sys_enter", "sys_exit"}) {
     std::string path = root_ + "events/raw_syscalls/" + event + "/filter";
     if (!WriteToFile(path, filter_str)) {
-      PERFETTO_ELOG("Failed to write file: %s", path.c_str());
+      DEJAVIEW_ELOG("Failed to write file: %s", path.c_str());
       return false;
     }
   }
@@ -206,7 +206,7 @@ bool FtraceProcfs::AppendFunctionFilters(
   // concurrent ftrace data sources (as the underlying ftrace instance is
   // shared).
   if (base::Contains(filter, ':')) {
-    PERFETTO_ELOG("Filter commands are disallowed.");
+    DEJAVIEW_ELOG("Filter commands are disallowed.");
     return false;
   }
   return AppendToFile(path, filter);
@@ -242,7 +242,7 @@ std::vector<std::string> FtraceProcfs::ReadEventTriggers(
       continue;
 
     base::StringSplitter ts(trigger, ' ');
-    PERFETTO_CHECK(ts.Next());
+    DEJAVIEW_CHECK(ts.Next());
     triggers.push_back(ts.cur_token());
   }
 
@@ -291,7 +291,7 @@ bool FtraceProcfs::MaybeSetUpEventTriggers(const std::string& group,
   }
 
   if (!ret) {
-    PERFETTO_PLOG("Failed to setup event triggers for %s:%s", group.c_str(),
+    DEJAVIEW_PLOG("Failed to setup event triggers for %s:%s", group.c_str(),
                   name.c_str());
   }
 
@@ -312,7 +312,7 @@ bool FtraceProcfs::MaybeTearDownEventTriggers(const std::string& group,
   }
 
   if (!ret) {
-    PERFETTO_PLOG("Failed to tear down event triggers for: %s:%s",
+    DEJAVIEW_PLOG("Failed to tear down event triggers for: %s:%s",
                   group.c_str(), name.c_str());
   }
 
@@ -388,7 +388,7 @@ size_t FtraceProcfs::NumberOfCpus() const {
 
 void FtraceProcfs::ClearTrace() {
   std::string path = root_ + "trace";
-  PERFETTO_CHECK(ClearFile(path));  // Could not clear.
+  DEJAVIEW_CHECK(ClearFile(path));  // Could not clear.
 
   // Truncating the trace file leads to tracing_reset_online_cpus being called
   // in the kernel.
@@ -396,7 +396,7 @@ void FtraceProcfs::ClearTrace() {
   // In case some of the CPUs were not online, their buffer needs to be
   // cleared manually.
   //
-  // We cannot use PERFETTO_CHECK as we might get a permission denied error
+  // We cannot use DEJAVIEW_CHECK as we might get a permission denied error
   // on Android. The permissions to these files are configured in
   // platform/framework/native/cmds/atrace/atrace.rc.
   for (size_t cpu = 0, num_cpus = NumberOfCpus(); cpu < num_cpus; cpu++) {
@@ -406,7 +406,7 @@ void FtraceProcfs::ClearTrace() {
 
 void FtraceProcfs::ClearPerCpuTrace(size_t cpu) {
   if (!ClearFile(root_ + "per_cpu/cpu" + std::to_string(cpu) + "/trace"))
-    PERFETTO_ELOG("Failed to clear buffer for CPU %zd", cpu);
+    DEJAVIEW_ELOG("Failed to clear buffer for CPU %zd", cpu);
 }
 
 bool FtraceProcfs::WriteTraceMarker(const std::string& str) {
@@ -423,22 +423,22 @@ bool FtraceProcfs::GetTracingOn() {
   std::string path = root_ + "tracing_on";
   char tracing_on = ReadOneCharFromFile(path);
   if (tracing_on == '\0')
-    PERFETTO_PLOG("Failed to read %s", path.c_str());
+    DEJAVIEW_PLOG("Failed to read %s", path.c_str());
   return tracing_on == '1';
 }
 
 bool FtraceProcfs::SetTracingOn(bool on) {
   std::string path = root_ + "tracing_on";
   if (!WriteToFile(path, on ? "1" : "0")) {
-    PERFETTO_PLOG("Failed to write %s", path.c_str());
+    DEJAVIEW_PLOG("Failed to write %s", path.c_str());
     return false;
   }
   if (on) {
-    KernelLogWrite("perfetto: enabled ftrace\n");
-    PERFETTO_LOG("enabled ftrace in %s", root_.c_str());
+    KernelLogWrite("dejaview: enabled ftrace\n");
+    DEJAVIEW_LOG("enabled ftrace in %s", root_.c_str());
   } else {
-    KernelLogWrite("perfetto: disabled ftrace\n");
-    PERFETTO_LOG("disabled ftrace in %s", root_.c_str());
+    KernelLogWrite("dejaview: disabled ftrace\n");
+    DEJAVIEW_LOG("disabled ftrace in %s", root_.c_str());
   }
 
   return true;
@@ -549,10 +549,10 @@ base::ScopedFile FtraceProcfs::OpenPipeForCpu(size_t cpu) {
 
 char FtraceProcfs::ReadOneCharFromFile(const std::string& path) {
   base::ScopedFile fd = base::OpenFile(path, O_RDONLY);
-  PERFETTO_CHECK(fd);
+  DEJAVIEW_CHECK(fd);
   char result = '\0';
-  ssize_t bytes = PERFETTO_EINTR(read(fd.get(), &result, 1));
-  PERFETTO_CHECK(bytes == 1 || bytes == -1);
+  ssize_t bytes = DEJAVIEW_EINTR(read(fd.get(), &result, 1));
+  DEJAVIEW_CHECK(bytes == 1 || bytes == -1);
   return result;
 }
 
@@ -581,7 +581,7 @@ const std::set<std::string> FtraceProcfs::GetEventNamesForGroup(
   std::string full_path = root_ + path;
   base::ScopedDir dir(opendir(full_path.c_str()));
   if (!dir) {
-    PERFETTO_DLOG("Unable to read events from %s", full_path.c_str());
+    DEJAVIEW_DLOG("Unable to read events from %s", full_path.c_str());
     return names;
   }
   struct dirent* ent;
@@ -625,4 +625,4 @@ bool FtraceProcfs::CheckRootPath(const std::string& root) {
   return static_cast<bool>(fd);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -21,12 +21,12 @@
 #include <cinttypes>
 #include <optional>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 
 PrintkMap ParsePrintkFormats(const std::string& format) {
   PrintkMap mapping;
@@ -59,4 +59,4 @@ PrintkMap ParsePrintkFormats(const std::string& format) {
   return mapping;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

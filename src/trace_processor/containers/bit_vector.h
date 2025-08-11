@@ -24,11 +24,11 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace protos::pbzero {
 class SerializedColumn_BitVector;
 class SerializedColumn_BitVector_Decoder;
@@ -59,14 +59,14 @@ class BitVector {
           global_bit_offset_(skip),
           size_(size),
           skipped_blocks_(skip / Block::kBits) {
-      PERFETTO_CHECK(global_bit_offset_ <= size_);
+      DEJAVIEW_CHECK(global_bit_offset_ <= size_);
     }
 
     // Appends a single bit to the builder.
     // Note: |AppendWord| is far more efficient than this method so should be
     // preferred.
     void Append(bool value) {
-      PERFETTO_DCHECK(global_bit_offset_ < size_);
+      DEJAVIEW_DCHECK(global_bit_offset_ < size_);
 
       words_[global_bit_offset_ / BitWord::kBits] |=
           static_cast<uint64_t>(value) << global_bit_offset_ % BitWord::kBits;
@@ -76,8 +76,8 @@ class BitVector {
     // Appends a whole word to the Builder. Builder has to end on a word
     // boundary before calling this function.
     void AppendWord(uint64_t word) {
-      PERFETTO_DCHECK(global_bit_offset_ % BitWord::kBits == 0);
-      PERFETTO_DCHECK(global_bit_offset_ + BitWord::kBits <= size_);
+      DEJAVIEW_DCHECK(global_bit_offset_ % BitWord::kBits == 0);
+      DEJAVIEW_DCHECK(global_bit_offset_ + BitWord::kBits <= size_);
 
       words_[global_bit_offset_ / BitWord::kBits] = word;
       global_bit_offset_ += BitWord::kBits;
@@ -89,7 +89,7 @@ class BitVector {
         return {};
 
       std::vector<uint32_t> counts(BlockCount(size_));
-      PERFETTO_CHECK(skipped_blocks_ <= counts.size());
+      DEJAVIEW_CHECK(skipped_blocks_ <= counts.size());
       for (uint32_t i = skipped_blocks_ + 1; i < counts.size(); ++i) {
         counts[i] = counts[i - 1] +
                     ConstBlock(&words_[Block::kWords * (i - 1)]).CountSetBits();
@@ -164,7 +164,7 @@ class BitVector {
 
   // Returns whether the bit at |idx| is set.
   bool IsSet(uint32_t idx) const {
-    PERFETTO_DCHECK(idx < size());
+    DEJAVIEW_DCHECK(idx < size());
     return ConstBitWord(&words_[WordFloor(idx)]).IsSet(idx % BitWord::kBits);
   }
 
@@ -192,7 +192,7 @@ class BitVector {
   // Returns the index of the |n|th set bit. Should only be called with |n| <
   // CountSetBits().
   uint32_t IndexOfNthSet(uint32_t n) const {
-    PERFETTO_DCHECK(n < CountSetBits());
+    DEJAVIEW_DCHECK(n < CountSetBits());
 
     // First search for the block which, up until the start of it, has more than
     // n bits set. Note that this should never return |counts.begin()| as
@@ -201,7 +201,7 @@ class BitVector {
     // binary search followed by a linear search instead of binary searching the
     // full way.
     auto it = std::upper_bound(counts_.begin(), counts_.end(), n);
-    PERFETTO_DCHECK(it != counts_.begin());
+    DEJAVIEW_DCHECK(it != counts_.begin());
 
     // Go back one block to find the block which has the bit we are looking for.
     uint32_t block_idx =
@@ -227,7 +227,7 @@ class BitVector {
         ConstBlockFromIndex(addr.block_idx).IsSet(addr.block_offset);
 
     // If the old value was unset, set the bit and add one to the count.
-    if (PERFETTO_LIKELY(!old_value)) {
+    if (DEJAVIEW_LIKELY(!old_value)) {
       BlockFromIndex(addr.block_idx).Set(addr.block_offset);
 
       auto size = static_cast<uint32_t>(counts_.size());
@@ -248,7 +248,7 @@ class BitVector {
 
     // If the old value was set, clear the bit and subtract one from all the
     // counts.
-    if (PERFETTO_LIKELY(old_value)) {
+    if (DEJAVIEW_LIKELY(old_value)) {
       BlockFromIndex(addr.block_idx).Clear(addr.block_offset);
 
       auto size = static_cast<uint32_t>(counts_.size());
@@ -271,7 +271,7 @@ class BitVector {
     uint32_t old_blocks_size = BlockCount();
     uint32_t new_blocks_size = addr.block_idx + 1;
 
-    if (PERFETTO_UNLIKELY(new_blocks_size > old_blocks_size)) {
+    if (DEJAVIEW_UNLIKELY(new_blocks_size > old_blocks_size)) {
       uint32_t t = CountSetBits();
       words_.resize(words_.size() + Block::kWords);
       counts_.emplace_back(t);
@@ -294,7 +294,7 @@ class BitVector {
   // As an example, suppose RangeForTesting(3, 7, [](x) { return x < 5 }). This
   // would result in the following BitVector: [0 0 0 1 1 0 0]
   template <typename Filler = bool(uint32_t)>
-  PERFETTO_WARN_UNUSED_RESULT static BitVector RangeForTesting(uint32_t start,
+  DEJAVIEW_WARN_UNUSED_RESULT static BitVector RangeForTesting(uint32_t start,
                                                                uint32_t end,
                                                                Filler f) {
     // Compute the block index and BitVector index where we start and end
@@ -321,8 +321,8 @@ class BitVector {
     }
 
     // Assert words_ vector is full and size_ is properly calculated.
-    PERFETTO_DCHECK(bv.words_.size() % Block::kWords == 0);
-    PERFETTO_DCHECK(bv.words_.size() * BitWord::kBits == bv.size_);
+    DEJAVIEW_DCHECK(bv.words_.size() % Block::kWords == 0);
+    DEJAVIEW_DCHECK(bv.words_.size() * BitWord::kBits == bv.size_);
 
     // At this point we can work one block at a time.
     bv.words_.resize(bv.words_.size() +
@@ -348,17 +348,17 @@ class BitVector {
   // - be sorted
   // - have first element >= 0
   // - last value smaller than numeric limit of uint32_t.
-  PERFETTO_WARN_UNUSED_RESULT static BitVector FromSortedIndexVector(
+  DEJAVIEW_WARN_UNUSED_RESULT static BitVector FromSortedIndexVector(
       const std::vector<int64_t>&);
 
   // Creates BitVector from a vector of unsorted indices. Set bits in the
   // resulting BitVector are values from the index vector.
-  PERFETTO_WARN_UNUSED_RESULT static BitVector FromUnsortedIndexVector(
+  DEJAVIEW_WARN_UNUSED_RESULT static BitVector FromUnsortedIndexVector(
       const std::vector<uint32_t>&);
 
   // Creates a BitVector of size `min(range_end, size())` with bits between
   // |start| and |end| filled with corresponding bits from |this| BitVector.
-  PERFETTO_WARN_UNUSED_RESULT BitVector
+  DEJAVIEW_WARN_UNUSED_RESULT BitVector
   IntersectRange(uint32_t range_start, uint32_t range_end) const;
 
   // Requests the removal of unused capacity.
@@ -455,7 +455,7 @@ class BitVector {
 
     // Sets the bit at the given index to true.
     void Set(uint32_t idx) {
-      PERFETTO_DCHECK(idx < kBits);
+      DEJAVIEW_DCHECK(idx < kBits);
 
       // Or the value for the true shifted up to |idx| with the word.
       Or(1ull << idx);
@@ -463,7 +463,7 @@ class BitVector {
 
     // Sets the bit at the given index to false.
     void Clear(uint32_t idx) {
-      PERFETTO_DCHECK(idx < kBits);
+      DEJAVIEW_DCHECK(idx < kBits);
 
       // And the integer of all bits set apart from |idx| with the word.
       *word_ &= ~(1ull << idx);
@@ -475,7 +475,7 @@ class BitVector {
     // Retains all bits up to and including the bit at |idx| and clears
     // all bits after this point.
     void ClearAfter(uint32_t idx) {
-      PERFETTO_DCHECK(idx < kBits);
+      DEJAVIEW_DCHECK(idx < kBits);
       *word_ = WordUntil(idx);
     }
 
@@ -506,7 +506,7 @@ class BitVector {
    private:
     // Returns the bits up to and including the bit at |idx|.
     uint64_t WordUntil(uint32_t idx) const {
-      PERFETTO_DCHECK(idx < kBits);
+      DEJAVIEW_DCHECK(idx < kBits);
 
       // To understand what is happeninng here, consider an example.
       // Suppose we want to all the bits up to the 7th bit in the atom
@@ -535,14 +535,14 @@ class BitVector {
 
     // Returns whether the bit at the given index is set.
     bool IsSet(uint32_t idx) const {
-      PERFETTO_DCHECK(idx < kBits);
+      DEJAVIEW_DCHECK(idx < kBits);
       return (*word_ >> idx) & 1ull;
     }
 
     // Returns the index of the nth set bit.
     // Undefined if |n| >= |CountSetBits()|.
     uint16_t IndexOfNthSet(uint32_t n) const {
-      PERFETTO_DCHECK(n < kBits);
+      DEJAVIEW_DCHECK(n < kBits);
 
       // The below code is very dense but essentially computes the nth set
       // bit inside |atom| in the "broadword" style of programming (sometimes
@@ -575,13 +575,13 @@ class BitVector {
 
     // Returns the number of set bits.
     uint32_t CountSetBits() const {
-      return static_cast<uint32_t>(PERFETTO_POPCOUNT(*word_));
+      return static_cast<uint32_t>(DEJAVIEW_POPCOUNT(*word_));
     }
 
     // Returns the number of set bits up to and including the bit at |idx|.
     uint32_t CountSetBits(uint32_t idx) const {
-      PERFETTO_DCHECK(idx < kBits);
-      return static_cast<uint32_t>(PERFETTO_POPCOUNT(WordUntil(idx)));
+      DEJAVIEW_DCHECK(idx < kBits);
+      return static_cast<uint32_t>(DEJAVIEW_POPCOUNT(WordUntil(idx)));
     }
 
    private:
@@ -607,7 +607,7 @@ class BitVector {
 
     // Returns the bits up to and including the bit at |idx|.
     uint64_t WordUntil(uint32_t idx) const {
-      PERFETTO_DCHECK(idx < kBits);
+      DEJAVIEW_DCHECK(idx < kBits);
 
       // To understand what is happeninng here, consider an example.
       // Suppose we want to all the bits up to the 7th bit in the atom
@@ -644,13 +644,13 @@ class BitVector {
 
     // Sets the bit at the given address to true.
     void Set(const BlockOffset& addr) {
-      PERFETTO_DCHECK(addr.word_idx < kWords);
+      DEJAVIEW_DCHECK(addr.word_idx < kWords);
       BitWord(&start_word_[addr.word_idx]).Set(addr.bit_idx);
     }
 
     // Sets the bit at the given address to false.
     void Clear(const BlockOffset& addr) {
-      PERFETTO_DCHECK(addr.word_idx < kWords);
+      DEJAVIEW_DCHECK(addr.word_idx < kWords);
 
       BitWord(&start_word_[addr.word_idx]).Clear(addr.bit_idx);
     }
@@ -658,7 +658,7 @@ class BitVector {
     // Retains all bits up to and including the bit at |addr| and clears
     // all bits after this point.
     void ClearAfter(const BlockOffset& offset) {
-      PERFETTO_DCHECK(offset.word_idx < kWords);
+      DEJAVIEW_DCHECK(offset.word_idx < kWords);
 
       // In the first atom, keep the bits until the address specified.
       BitWord(&start_word_[offset.word_idx]).ClearAfter(offset.bit_idx);
@@ -740,7 +740,7 @@ class BitVector {
 
     // Returns whether the bit at the given address is set.
     bool IsSet(const BlockOffset& addr) const {
-      PERFETTO_DCHECK(addr.word_idx < kWords);
+      DEJAVIEW_DCHECK(addr.word_idx < kWords);
       return ConstBitWord(start_word_ + addr.word_idx).IsSet(addr.bit_idx);
     }
 
@@ -766,16 +766,16 @@ class BitVector {
         // address of this bit from that.
         uint16_t bit_idx =
             ConstBitWord(start_word_ + i).IndexOfNthSet(set_in_atom);
-        PERFETTO_DCHECK(bit_idx < 64);
+        DEJAVIEW_DCHECK(bit_idx < 64);
         return BlockOffset{i, bit_idx};
       }
-      PERFETTO_FATAL("Index out of bounds");
+      DEJAVIEW_FATAL("Index out of bounds");
     }
 
     // Gets the number of set bits within a block up to and including the bit
     // at the given address.
     uint32_t CountSetBits(const BlockOffset& addr) const {
-      PERFETTO_DCHECK(addr.word_idx < kWords);
+      DEJAVIEW_DCHECK(addr.word_idx < kWords);
 
       // Count all the set bits in the atom until we reach the last atom
       // index.
@@ -813,14 +813,14 @@ class BitVector {
   }
 
   Block BlockFromIndex(uint32_t idx) {
-    PERFETTO_DCHECK(Block::kWords * (idx + 1) <= words_.size());
+    DEJAVIEW_DCHECK(Block::kWords * (idx + 1) <= words_.size());
 
     uint64_t* start_word = &words_[Block::kWords * idx];
     return Block(start_word);
   }
 
   ConstBlock ConstBlockFromIndex(uint32_t idx) const {
-    PERFETTO_DCHECK(Block::kWords * (idx + 1) <= words_.size());
+    DEJAVIEW_DCHECK(Block::kWords * (idx + 1) <= words_.size());
 
     return ConstBlock(&words_[Block::kWords * idx]);
   }
@@ -928,7 +928,7 @@ class BitVector {
   // Updates the counts in |counts| by counting the set bits in |words|.
   static void UpdateCounts(const std::vector<uint64_t>& words,
                            std::vector<uint32_t>& counts) {
-    PERFETTO_CHECK(words.size() == counts.size() * Block::kWords);
+    DEJAVIEW_CHECK(words.size() == counts.size() * Block::kWords);
     for (uint32_t i = 1; i < counts.size(); ++i) {
       counts[i] = counts[i - 1] +
                   ConstBlock(&words[Block::kWords * (i - 1)]).CountSetBits();
@@ -944,6 +944,6 @@ class BitVector {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_CONTAINERS_BIT_VECTOR_H_

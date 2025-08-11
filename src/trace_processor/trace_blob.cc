@@ -14,33 +14,33 @@
  * limitations under the License.
  */
 
-#include "perfetto/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob.h"
 
 #include <stdlib.h>
 #include <string.h>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <sys/mman.h>
 #endif
 
 #include <algorithm>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/scoped_mmap.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/basic_types.h"
-#include "perfetto/trace_processor/ref_counted.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/scoped_mmap.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/basic_types.h"
+#include "dejaview/trace_processor/ref_counted.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // static
 TraceBlob TraceBlob::Allocate(size_t size) {
   TraceBlob blob(Ownership::kHeapBuf, new uint8_t[size], size);
-  PERFETTO_CHECK(blob.data_);
+  DEJAVIEW_CHECK(blob.data_);
   return blob;
 }
 
@@ -55,13 +55,13 @@ TraceBlob TraceBlob::CopyFrom(const void* src, size_t size) {
 // static
 TraceBlob TraceBlob::TakeOwnership(std::unique_ptr<uint8_t[]> buf,
                                    size_t size) {
-  PERFETTO_CHECK(buf);
+  DEJAVIEW_CHECK(buf);
   return TraceBlob(Ownership::kHeapBuf, buf.release(), size);
 }
 
 // static
 TraceBlob TraceBlob::FromMmap(base::ScopedMmap mapped) {
-  PERFETTO_CHECK(mapped.IsValid());
+  DEJAVIEW_CHECK(mapped.IsValid());
   TraceBlob blob(Ownership::kNullOrMmaped, static_cast<uint8_t*>(mapped.data()),
                  mapped.length());
   blob.mapping_ = std::make_unique<base::ScopedMmap>(std::move(mapped));
@@ -70,10 +70,10 @@ TraceBlob TraceBlob::FromMmap(base::ScopedMmap mapped) {
 
 // static
 TraceBlob TraceBlob::FromMmap(void* data, size_t size) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
-  PERFETTO_CHECK(data);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
+  DEJAVIEW_CHECK(data);
   TraceBlob blob(Ownership::kNullOrMmaped, static_cast<uint8_t*>(data), size);
   blob.mapping_ = std::make_unique<base::ScopedMmap>(
       base::ScopedMmap::InheritMmappedRange(data, size));
@@ -81,7 +81,7 @@ TraceBlob TraceBlob::FromMmap(void* data, size_t size) {
 #else
   base::ignore_result(data);
   base::ignore_result(size);
-  PERFETTO_FATAL("mmap not supported");
+  DEJAVIEW_FATAL("mmap not supported");
 #endif
 }
 
@@ -96,7 +96,7 @@ TraceBlob::~TraceBlob() {
 
     case Ownership::kNullOrMmaped:
       if (mapping_) {
-        PERFETTO_CHECK(mapping_->reset());
+        DEJAVIEW_CHECK(mapping_->reset());
       }
       break;
   }
@@ -130,4 +130,4 @@ TraceBlob& TraceBlob::operator=(TraceBlob&& other) noexcept {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

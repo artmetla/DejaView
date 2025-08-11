@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("perfetto.gni")
-import("perfetto_component.gni")
+import("dejaview.gni")
+import("dejaview_component.gni")
 
 # This gni file defines rules for proto generation. There are various types of
 # proto targets that can be defined in our codebase:
@@ -23,11 +23,11 @@ import("perfetto_component.gni")
 #     are used pretty much everywhere.
 # "descriptor" targets: they are used to generate a proto-encoded reflection
 #     descriptor that describes the schema of the proto using protobuf itself.
-# All these targets can be generated using the perfetto_proto_library rule. It
+# All these targets can be generated using the dejaview_proto_library rule. It
 # wraps the instantiation of several proto targets using a convenience template.
 #
 # For instance:
-# perfetto_proto_library("xxx_@TYPE@") {
+# dejaview_proto_library("xxx_@TYPE@") {
 #   proto_generators = [ "lite", "zero" ]  # lite+zero+cpp is the default value.
 #   sources = [ "one.proto", "two.proto" ]
 #   deps = [ "dep:@TYPE@" ]
@@ -38,42 +38,42 @@ import("perfetto_component.gni")
 # protozero_library("xxx_zero") { sources = [...], deps = [ "dep:zero"] }
 
 # Load the protobuf's proto_library() definition.
-if (!defined(perfetto_protobuf_target_prefix)) {
-  if (perfetto_root_path == "//") {
-    perfetto_protobuf_target_prefix = "//buildtools"
+if (!defined(dejaview_protobuf_target_prefix)) {
+  if (dejaview_root_path == "//") {
+    dejaview_protobuf_target_prefix = "//buildtools"
   } else {
-    perfetto_protobuf_target_prefix = "//third_party/protobuf"
+    dejaview_protobuf_target_prefix = "//third_party/protobuf"
   }
 }
-if (!defined(perfetto_protobuf_gni)) {
-  if (perfetto_root_path == "//") {
-    perfetto_protobuf_gni = "//gn/standalone/proto_library.gni"
+if (!defined(dejaview_protobuf_gni)) {
+  if (dejaview_root_path == "//") {
+    dejaview_protobuf_gni = "//gn/standalone/proto_library.gni"
   } else {
-    perfetto_protobuf_gni = "//third_party/protobuf/proto_library.gni"
+    dejaview_protobuf_gni = "//third_party/protobuf/proto_library.gni"
   }
 }
-if (!defined(perfetto_protobuf_src_dir)) {
-  if (perfetto_root_path == "//") {
-    perfetto_protobuf_src_dir = "//buildtools/protobuf/src"
+if (!defined(dejaview_protobuf_src_dir)) {
+  if (dejaview_root_path == "//") {
+    dejaview_protobuf_src_dir = "//buildtools/protobuf/src"
   } else {
-    perfetto_protobuf_src_dir = "//third_party/protobuf/src"
+    dejaview_protobuf_src_dir = "//third_party/protobuf/src"
   }
 }
-import(perfetto_protobuf_gni)
+import(dejaview_protobuf_gni)
 
 # Equivalent to proto_library (generation of .h/.cc from .proto files) but
 # enables also generation using the protozero plugin.
 # The generated files will have the .pbzero.{cc,h} suffix, as opposed to the
 # .pb.{cc,h} of the official proto library.
-# DO NOT use this target directly, use perfetto_proto_library() below.
+# DO NOT use this target directly, use dejaview_proto_library() below.
 template("protozero_library") {
   proto_library(target_name) {
-    perfetto_root_path = invoker.perfetto_root_path
+    dejaview_root_path = invoker.dejaview_root_path
 
     generate_cc = false
     generate_python = false
     generator_plugin_label =
-        perfetto_root_path + "src/protozero/protoc_plugin:protozero_plugin"
+        dejaview_root_path + "src/protozero/protoc_plugin:protozero_plugin"
     generator_plugin_suffix = ".pbzero"
     if (build_with_chromium) {
       component_build_force_source_set = true
@@ -95,7 +95,7 @@ template("protozero_library") {
     #
     # TODO(b/173041866): use fine-grained components instead when available
     if (!(defined(invoker.omit_protozero_dep) && invoker.omit_protozero_dep)) {
-      link_deps += [ perfetto_root_path + "src/protozero" ]
+      link_deps += [ dejaview_root_path + "src/protozero" ]
     }
 
     if (defined(invoker.link_deps)) {
@@ -124,24 +124,24 @@ template("protozero_library") {
 # sources are actual C++ classes that can be moved and copied around, very
 # similar to the libprotobuf generated ones API-wise, but use protozero under
 # the hoods, without any zero-copy benefit though.
-# They are mainly used for the perfetto IPC layer and tests.
+# They are mainly used for the dejaview IPC layer and tests.
 template("protozero_cpp_library") {
   proto_library(target_name) {
-    perfetto_root_path = invoker.perfetto_root_path
+    dejaview_root_path = invoker.dejaview_root_path
 
     generate_cc = false
     generate_python = false
     generator_plugin_label =
-        perfetto_root_path + "src/protozero/protoc_plugin:cppgen_plugin"
+        dejaview_root_path + "src/protozero/protoc_plugin:cppgen_plugin"
     generator_plugin_suffix = ".gen"
     if (build_with_chromium) {
       component_build_force_source_set = true
     }
 
     link_deps = [
-      "$perfetto_root_path/gn:default_deps",
-      "$perfetto_root_path/include/perfetto/base",
-      "$perfetto_root_path/src/protozero",
+      "$dejaview_root_path/gn:default_deps",
+      "$dejaview_root_path/include/dejaview/base",
+      "$dejaview_root_path/src/protozero",
     ]
     if (defined(invoker.link_deps)) {
       link_deps += invoker.link_deps
@@ -173,18 +173,18 @@ template("protozero_cpp_library") {
 # Generates .ipc.{h,cc} stubs for IPC services defined in .proto files.
 template("ipc_library") {
   proto_library(target_name) {
-    perfetto_root_path = invoker.perfetto_root_path
+    dejaview_root_path = invoker.dejaview_root_path
     generate_cc = false
     generate_python = false
     generator_plugin_label =
-        "$perfetto_root_path/src/ipc/protoc_plugin:ipc_plugin"
+        "$dejaview_root_path/src/ipc/protoc_plugin:ipc_plugin"
     generator_plugin_suffix = ".ipc"
     deps = []
-    link_deps = [ "$perfetto_root_path/gn:default_deps" ]
-    if (perfetto_component_type == "static_library") {
-      link_deps += [ "$perfetto_root_path/src/ipc:perfetto_ipc" ]
+    link_deps = [ "$dejaview_root_path/gn:default_deps" ]
+    if (dejaview_component_type == "static_library") {
+      link_deps += [ "$dejaview_root_path/src/ipc:dejaview_ipc" ]
     } else {
-      link_deps += [ "$perfetto_root_path/src/ipc:common" ]
+      link_deps += [ "$dejaview_root_path/src/ipc:common" ]
     }
     if (is_win) {
       # TODO(primiano): investigate this. In Windows standalone builds, some
@@ -194,10 +194,10 @@ template("ipc_library") {
       # the client-side code in the generated .ipc.cc effectively depends on the
       # client-side IPC library. Perhaps we just should do this unconditionally
       # on all platforms?
-      if (perfetto_component_type == "static_library") {
-        link_deps += [ "$perfetto_root_path/src/ipc:perfetto_ipc" ]
+      if (dejaview_component_type == "static_library") {
+        link_deps += [ "$dejaview_root_path/src/ipc:dejaview_ipc" ]
       } else {
-        link_deps += [ "$perfetto_root_path/src/ipc:client" ]
+        link_deps += [ "$dejaview_root_path/src/ipc:client" ]
       }
     }
 
@@ -225,21 +225,21 @@ template("ipc_library") {
 # Generates .grpc.{h,cc} stubs for services defined in .proto files.
 # We require explicit opt-in as gRPC is very heavyweight so we do not
 # want accidental dependencies on this.
-if (enable_perfetto_grpc) {
-  template("perfetto_grpc_library") {
+if (enable_dejaview_grpc) {
+  template("dejaview_grpc_library") {
     proto_library(target_name) {
-      proto_in_dir = perfetto_root_path
-      proto_out_dir = perfetto_root_path
+      proto_in_dir = dejaview_root_path
+      proto_out_dir = dejaview_root_path
       propagate_imports_configs = false
 
-      perfetto_root_path = perfetto_root_path
+      dejaview_root_path = dejaview_root_path
       generate_cc = false
       generate_python = false
       generator_plugin_label =
-          "$perfetto_root_path/buildtools/grpc:grpc_cpp_plugin"
+          "$dejaview_root_path/buildtools/grpc:grpc_cpp_plugin"
       generator_plugin_suffix = ".grpc.pb"
-      deps = [ "$perfetto_root_path/buildtools/grpc:grpc++" ]
-      public_configs = [ "$perfetto_root_path/buildtools:grpc_gen_config" ]
+      deps = [ "$dejaview_root_path/buildtools/grpc:grpc++" ]
+      public_configs = [ "$dejaview_root_path/buildtools:grpc_gen_config" ]
       if (defined(invoker.deps)) {
         deps += invoker.deps
       }
@@ -257,7 +257,7 @@ if (enable_perfetto_grpc) {
 }
 
 # The template used everywhere in the codebase.
-template("perfetto_proto_library") {
+template("dejaview_proto_library") {
   if (defined(invoker.proto_generators)) {
     proto_generators = invoker.proto_generators
   } else {
@@ -273,7 +273,7 @@ template("perfetto_proto_library") {
   if (defined(invoker.proto_path)) {
     proto_path = invoker.proto_path
   } else {
-    proto_path = perfetto_root_path
+    proto_path = dejaview_root_path
   }
 
   if (defined(invoker.import_dirs)) {
@@ -380,7 +380,7 @@ template("perfetto_proto_library") {
         rebased_out_path =
             rebase_path(target_gen_dir, root_build_dir) + "/" + target_name_
 
-        script = "$perfetto_root_path/tools/touch_file.py"
+        script = "$dejaview_root_path/tools/touch_file.py"
         args = [
           "--output",
           rebased_out_path,

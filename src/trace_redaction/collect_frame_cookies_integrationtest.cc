@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/base/test/status_matchers.h"
 #include "src/trace_redaction/trace_redaction_integration_fixture.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 namespace {
 constexpr auto kTrace = "test/data/trace-redaction-api-capture.pftrace";
 
@@ -112,4 +112,4 @@ TEST_F(CollectFrameCookiesIntegrationTest,
   ASSERT_OK(rows.Status());
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

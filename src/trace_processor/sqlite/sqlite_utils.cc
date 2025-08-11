@@ -25,18 +25,18 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/sqlite/scoped_db.h"
 
-namespace perfetto::trace_processor::sqlite::utils {
+namespace dejaview::trace_processor::sqlite::utils {
 namespace internal {
 namespace {
 std::string ToExpectedTypesString(ExpectedTypesSet expected_types) {
-  PERFETTO_CHECK(expected_types.any());
+  DEJAVIEW_CHECK(expected_types.any());
   std::stringstream ss;
   if (expected_types.count() > 1) {
     ss << "any of ";
@@ -85,9 +85,9 @@ base::StatusOr<SqlValue> ExtractArgument(size_t argc,
 }  // namespace internal
 
 std::wstring SqliteValueToWString(sqlite3_value* value) {
-  PERFETTO_CHECK(sqlite3_value_type(value) == SQLITE_TEXT);
+  DEJAVIEW_CHECK(sqlite3_value_type(value) == SQLITE_TEXT);
   int len = sqlite3_value_bytes16(value);
-  PERFETTO_CHECK(len >= 0);
+  DEJAVIEW_CHECK(len >= 0);
   size_t count = static_cast<size_t>(len) / sizeof(wchar_t);
   return {reinterpret_cast<const wchar_t*>(sqlite3_value_text16(value)), count};
 }
@@ -96,14 +96,14 @@ base::Status GetColumnsForTable(
     sqlite3* db,
     const std::string& raw_table_name,
     std::vector<std::pair<SqlValue::Type, std::string>>& columns) {
-  PERFETTO_DCHECK(columns.empty());
+  DEJAVIEW_DCHECK(columns.empty());
   char sql[1024];
   const char kRawSql[] = "SELECT name, type from pragma_table_info(\"%s\")";
 
   // Support names which are table valued functions with arguments.
   std::string table_name = raw_table_name.substr(0, raw_table_name.find('('));
   size_t n = base::SprintfTrunc(sql, sizeof(sql), kRawSql, table_name.c_str());
-  PERFETTO_DCHECK(n > 0);
+  DEJAVIEW_DCHECK(n > 0);
 
   sqlite3_stmt* raw_stmt = nullptr;
   int err =
@@ -112,7 +112,7 @@ base::Status GetColumnsForTable(
     return base::ErrStatus("Preparing database failed");
   }
   ScopedStmt stmt(raw_stmt);
-  PERFETTO_DCHECK(sqlite3_column_count(*stmt) == 2);
+  DEJAVIEW_DCHECK(sqlite3_column_count(*stmt) == 2);
 
   for (;;) {
     err = sqlite3_step(raw_stmt);
@@ -148,7 +148,7 @@ base::Status GetColumnsForTable(
     } else if (base::CaseInsensitiveEqual(raw_type, "BLOB")) {
       type = SqlValue::Type::kBytes;
     } else if (!*raw_type) {
-      PERFETTO_DLOG("Unknown column type for %s %s", raw_table_name.c_str(),
+      DEJAVIEW_DLOG("Unknown column type for %s %s", raw_table_name.c_str(),
                     name);
       type = SqlValue::Type::kNull;
     } else {
@@ -183,7 +183,7 @@ const char* SqliteTypeToFriendlyString(SqlValue::Type type) {
     case SqlValue::Type::kBytes:
       return "BYTES/PROTO";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 base::Status CheckArgCount(const char* function_name,
@@ -207,7 +207,7 @@ base::StatusOr<int64_t> ExtractIntArg(const char* function_name,
     return base::ErrStatus("%s(%s): %s", function_name, arg_name,
                            status.message().c_str());
   }
-  PERFETTO_CHECK(result);
+  DEJAVIEW_CHECK(result);
   return *result;
 }
 
@@ -222,7 +222,7 @@ base::StatusOr<double> ExtractDoubleArg(const char* function_name,
     return base::ErrStatus("%s(%s): %s", function_name, arg_name,
                            status.message().c_str());
   }
-  PERFETTO_CHECK(result);
+  DEJAVIEW_CHECK(result);
   return *result;
 }
 
@@ -237,7 +237,7 @@ base::StatusOr<std::string> ExtractStringArg(const char* function_name,
     return base::ErrStatus("%s(%s): %s", function_name, arg_name,
                            status.message().c_str());
   }
-  PERFETTO_CHECK(result);
+  DEJAVIEW_CHECK(result);
   return std::string(*result);
 }
 
@@ -340,4 +340,4 @@ base::Status ToInvalidArgumentError(const char* argument_name,
                          arg_index + 1, error.message().c_str());
 }
 
-}  // namespace perfetto::trace_processor::sqlite::utils
+}  // namespace dejaview::trace_processor::sqlite::utils

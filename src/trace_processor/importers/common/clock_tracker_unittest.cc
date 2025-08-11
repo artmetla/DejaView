@@ -25,10 +25,10 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 class ClockTrackerTest : public ::testing::Test {
@@ -289,7 +289,7 @@ TEST_F(ClockTrackerTest, CacheDoesntAffectResults) {
       } else if (j == 4) {
         std::tie(src, tgt) = std::make_tuple(MONOTONIC_RAW, MONOTONIC);
       } else {
-        PERFETTO_FATAL("j out of bounds");
+        DEJAVIEW_FATAL("j out of bounds");
       }
       // It will still write the cache, just not lookup.
       ct_.set_cache_lookups_disabled_for_testing(true);
@@ -419,4 +419,4 @@ TEST_F(ClockTrackerTest, NonDefaultTraceTimeClock) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

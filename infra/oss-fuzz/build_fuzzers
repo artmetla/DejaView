@@ -2,7 +2,7 @@
 
 set -euo pipefail
 
-$SRC/perfetto/tools/install-build-deps
+$SRC/dejaview/tools/install-build-deps
 
 mkdir -p $WORK/build
 
@@ -21,12 +21,12 @@ if [ "$SANITIZER" = "address" ]; then
 fi;
 
 OUTDIR=$WORK/build
-$SRC/perfetto/tools/gn gen "$OUTDIR" --args="${GN_ARGS}" --check
+$SRC/dejaview/tools/gn gen "$OUTDIR" --args="${GN_ARGS}" --check
 
-$SRC/perfetto/tools/ninja -C $WORK/build fuzzers -v
+$SRC/dejaview/tools/ninja -C $WORK/build fuzzers -v
 cp $WORK/build/*fuzzer $OUT
 mkdir -p $OUT/src/traced/probes/ftrace/test/data
-cp -a $SRC/perfetto/src/traced/probes/ftrace/test/data/synthetic \
+cp -a $SRC/dejaview/src/traced/probes/ftrace/test/data/synthetic \
   $OUT/src/traced/probes/ftrace/test/data
 
 if [ "$SANITIZER" = "undefined" ]; then

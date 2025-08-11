@@ -60,8 +60,8 @@ export class ActiveCPUCountTrack extends BaseCounterTrack {
 
   async onInit() {
     await this.engine.query(`
-      INCLUDE PERFETTO MODULE sched.thread_level_parallelism;
-      INCLUDE PERFETTO MODULE android.cpu.cluster_type;
+      INCLUDE DEJAVIEW MODULE sched.thread_level_parallelism;
+      INCLUDE DEJAVIEW MODULE android.cpu.cluster_type;
     `);
   }
 

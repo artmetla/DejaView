@@ -19,12 +19,12 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
+#include "dejaview/base/status.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
 #include "src/trace_processor/importers/android_bugreport/android_bugreport_reader.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_event.h"
 #include "src/trace_processor/importers/android_bugreport/android_log_reader.h"
@@ -36,9 +36,9 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/common/android_log_constants.pbzero.h"
+#include "protos/dejaview/common/android_log_constants.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 static void PrintTo(const AndroidLogEvent& event, std::ostream* os) {
   *os << "(pid: " << event.pid << ", "
@@ -75,7 +75,7 @@ class AndroidLogReaderTest : public ::testing::Test {
     context_.android_log_event_parser.reset(mock_parser_);
   }
 
-  using P = ::perfetto::protos::pbzero::AndroidLogPriority;
+  using P = ::dejaview::protos::pbzero::AndroidLogPriority;
 
   StringId S(const char* str) { return context_.storage->InternString(str); }
   EventParserMock& mock_parser() { return *mock_parser_; }
@@ -241,4 +241,4 @@ TEST_F(AndroidLogReaderTest, Dedupe) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

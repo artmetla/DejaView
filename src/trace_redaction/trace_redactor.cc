@@ -20,13 +20,13 @@
 #include <string>
 #include <string_view>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/scoped_mmap.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_mmap.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_redaction/broadphase_packet_filter.h"
 #include "src/trace_redaction/collect_frame_cookies.h"
@@ -43,9 +43,9 @@
 #include "src/trace_redaction/trace_redaction_framework.h"
 #include "src/trace_redaction/verify_integrity.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 using Trace = protos::pbzero::Trace;
 using TracePacket = protos::pbzero::TracePacket;
@@ -271,4 +271,4 @@ std::unique_ptr<TraceRedactor> TraceRedactor::CreateInstance(
   return redactor;
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

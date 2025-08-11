@@ -192,7 +192,7 @@ class KeyMappingsHelp implements m.ClassComponent {
 
 function showHelp() {
   showModal({
-    title: 'Perfetto Help',
+    title: 'DejaView Help',
     content: () => m(KeyMappingsHelp),
     buttons: [],
   });

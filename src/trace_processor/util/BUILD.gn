@@ -12,8 +12,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
-import("../../../gn/perfetto_cc_proto_descriptor.gni")
+import("../../../gn/dejaview.gni")
+import("../../../gn/dejaview_cc_proto_descriptor.gni")
 
 # Track event args parsing logic here is tentatitively planned to eventually
 # move to src/util and will be used to implement writing typed args in console
@@ -26,7 +26,7 @@ source_set("util") {
   sources = [ "status_macros.h" ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/trace_processor:basic_types",
+    "../../../include/dejaview/trace_processor:basic_types",
   ]
 }
 
@@ -52,11 +52,11 @@ source_set("gzip") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/base",
+    "../../../include/dejaview/base",
   ]
 
   # gzip_utils optionally depends on zlib.
-  if (enable_perfetto_zlib) {
+  if (enable_dejaview_zlib) {
     deps += [ "../../../gn:zlib" ]
   }
 }
@@ -68,7 +68,7 @@ source_set("build_id") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/base:base",
+    "../../../include/dejaview/ext/base:base",
   ]
 }
 
@@ -79,8 +79,8 @@ source_set("profiler_util") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/base:base",
-    "../../../protos/perfetto/trace/profiling:zero",
+    "../../../include/dejaview/ext/base:base",
+    "../../../protos/dejaview/trace/profiling:zero",
     "../storage:storage",
   ]
 }
@@ -93,8 +93,8 @@ source_set("protozero_to_text") {
   deps = [
     ":descriptors",
     "../../../gn:default_deps",
-    "../../../protos/perfetto/common:zero",
-    "../../../protos/perfetto/trace/track_event:zero",
+    "../../../protos/dejaview/common:zero",
+    "../../../protos/dejaview/trace/track_event:zero",
     "../../base",
     "../../protozero",
     "../importers/proto:gen_cc_track_event_descriptor",
@@ -109,8 +109,8 @@ source_set("protozero_to_json") {
   deps = [
     ":descriptors",
     "../../../gn:default_deps",
-    "../../../protos/perfetto/common:zero",
-    "../../../protos/perfetto/trace/track_event:zero",
+    "../../../protos/dejaview/common:zero",
+    "../../../protos/dejaview/trace/track_event:zero",
     "../../base",
     "../../protozero",
     "../importers/proto:gen_cc_track_event_descriptor",
@@ -119,7 +119,7 @@ source_set("protozero_to_json") {
 
 source_set("interned_message_view") {
   sources = [ "interned_message_view.h" ]
-  public_deps = [ "../../../include/perfetto/trace_processor" ]
+  public_deps = [ "../../../include/dejaview/trace_processor" ]
   deps = [
     "../../../gn:default_deps",
     "../../base",
@@ -134,8 +134,8 @@ source_set("descriptors") {
   deps = [
     ":util",
     "../../../gn:default_deps",
-    "../../../protos/perfetto/common:zero",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../protos/dejaview/common:zero",
+    "../../../protos/dejaview/trace_processor:zero",
     "../../base",
     "../../protozero",
     "../importers/proto:gen_cc_track_event_descriptor",
@@ -151,11 +151,11 @@ source_set("proto_to_args_parser") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../protos/perfetto/common:zero",
-    "../../../protos/perfetto/trace/interned_data:zero",
-    "../../../protos/perfetto/trace/profiling:zero",
-    "../../../protos/perfetto/trace/track_event:zero",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../protos/dejaview/common:zero",
+    "../../../protos/dejaview/trace/interned_data:zero",
+    "../../../protos/dejaview/trace/profiling:zero",
+    "../../../protos/dejaview/trace/track_event:zero",
+    "../../../protos/dejaview/trace_processor:zero",
     "../../protozero",
     "../importers/proto:gen_cc_track_event_descriptor",
   ]
@@ -180,10 +180,10 @@ source_set("zip_reader") {
     ":trace_blob_view_reader",
     ":util",
     "../../../gn:default_deps",
-    "../../../include/perfetto/trace_processor:storage",
+    "../../../include/dejaview/trace_processor:storage",
     "../../base",
   ]
-  if (enable_perfetto_zlib) {
+  if (enable_dejaview_zlib) {
     deps += [ "../../../gn:zlib" ]
   }
 }
@@ -214,9 +214,9 @@ source_set("sql_argument") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/base",
-    "../../../include/perfetto/ext/base",
-    "../../../include/perfetto/trace_processor",
+    "../../../include/dejaview/base",
+    "../../../include/dejaview/ext/base",
+    "../../../include/dejaview/trace_processor",
     "../containers",
   ]
 }
@@ -229,7 +229,7 @@ source_set("proto_profiler") {
   deps = [
     ":descriptors",
     "../../../gn:default_deps",
-    "../../../protos/perfetto/common:zero",
+    "../../../protos/dejaview/common:zero",
     "../../../protos/third_party/pprof:zero",
     "../../base",
     "../../protozero",
@@ -245,9 +245,9 @@ source_set("profile_builder") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/trace_processor:demangle",
-    "../../../include/perfetto/protozero:protozero",
-    "../../../protos/perfetto/trace_processor:zero",
+    "../../../include/dejaview/ext/trace_processor:demangle",
+    "../../../include/dejaview/protozero:protozero",
+    "../../../protos/dejaview/trace_processor:zero",
     "../../../protos/third_party/pprof:zero",
     "../../base",
     "../containers",
@@ -264,8 +264,8 @@ source_set("trace_blob_view_reader") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/base",
-    "../../../include/perfetto/trace_processor:storage",
+    "../../../include/dejaview/ext/base",
+    "../../../include/dejaview/trace_processor:storage",
   ]
 }
 
@@ -276,8 +276,8 @@ source_set("trace_type") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/base",
-    "../../../protos/perfetto/trace:non_minimal_zero",
+    "../../../include/dejaview/ext/base",
+    "../../../protos/dejaview/trace:non_minimal_zero",
     "../../protozero",
     "../importers/android_bugreport:android_log_event",
     "../importers/perf_text:perf_text_sample_line_parser",
@@ -314,11 +314,11 @@ source_set("unittests") {
     "..:gen_cc_test_messages_descriptor",
     "../../../gn:default_deps",
     "../../../gn:gtest_and_gmock",
-    "../../../protos/perfetto/common:zero",
-    "../../../protos/perfetto/trace:non_minimal_zero",
-    "../../../protos/perfetto/trace/interned_data:zero",
-    "../../../protos/perfetto/trace/profiling:zero",
-    "../../../protos/perfetto/trace/track_event:zero",
+    "../../../protos/dejaview/common:zero",
+    "../../../protos/dejaview/trace:non_minimal_zero",
+    "../../../protos/dejaview/trace/interned_data:zero",
+    "../../../protos/dejaview/trace/profiling:zero",
+    "../../../protos/dejaview/trace/track_event:zero",
     "../../base:test_support",
     "../../protozero",
     "../../protozero:testing_messages_zero",
@@ -328,19 +328,19 @@ source_set("unittests") {
     "../storage",
     "../types",
   ]
-  if (perfetto_build_standalone) {
+  if (dejaview_build_standalone) {
     deps += [
-      "../../../protos/perfetto/metrics/chrome:lite",
+      "../../../protos/dejaview/metrics/chrome:lite",
       "../metrics:gen_cc_all_chrome_metrics_descriptor",
     ]
   }
-  if (enable_perfetto_zlib) {
+  if (enable_dejaview_zlib) {
     sources += [ "gzip_utils_unittest.cc" ]
     deps += [ "../../../gn:zlib" ]
   }
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [

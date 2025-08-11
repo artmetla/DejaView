@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/watchdog.h"
+#include "dejaview/ext/base/watchdog.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/thread_utils.h"
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/thread_utils.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/scoped_file.h"
 #include "test/gtest_and_gmock.h"
 
 #include <signal.h>
@@ -32,7 +32,7 @@
 #include <thread>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -174,4 +174,4 @@ TEST(WatchdogTest, TimerCrashDeliveredToCallerThread) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

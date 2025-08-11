@@ -16,13 +16,13 @@
 
 #include "src/traced/probes/ftrace/cpu_stats_parser.h"
 
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/traced/probes/ftrace/ftrace_controller.h"
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 #include "src/traced/probes/ftrace/ftrace_stats.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 uint32_t ExtractInt(const char* s) {
@@ -85,4 +85,4 @@ bool DumpAllCpuStats(FtraceProcfs* ftrace, FtraceStats* stats) {
   return true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

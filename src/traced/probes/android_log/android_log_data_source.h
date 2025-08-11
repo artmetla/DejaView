@@ -21,15 +21,15 @@
 #include <unordered_set>
 #include <vector>
 
-#include "perfetto/ext/base/paged_memory.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/tracing/core/forward_decls.h"
+#include "dejaview/ext/base/paged_memory.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/tracing/core/forward_decls.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class TraceWriter;
 namespace base {
@@ -138,6 +138,6 @@ class AndroidLogDataSource : public ProbesDataSource {
   base::WeakPtrFactory<AndroidLogDataSource> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_ANDROID_LOG_ANDROID_LOG_DATA_SOURCE_H_

@@ -14,7 +14,7 @@
 
 import {ErrorDetails} from '../base/logging';
 import {getCurrentChannel} from '../common/channels';
-import {VERSION} from '../gen/perfetto_version';
+import {VERSION} from '../gen/dejaview_version';
 import {globals} from './globals';
 import {Router} from '../core/router';
 
@@ -151,12 +151,12 @@ class AnalyticsImpl implements Analytics {
       page_referrer: getReferrer(),
       send_page_view: false,
       page_title: PAGE_TITLE,
-      perfetto_is_internal_user: globals.isInternalUser ? '1' : '0',
-      perfetto_version: VERSION,
+      dejaview_is_internal_user: globals.isInternalUser ? '1' : '0',
+      dejaview_version: VERSION,
       // Release channel (canary, stable, autopush)
-      perfetto_channel: getCurrentChannel(),
+      dejaview_channel: getCurrentChannel(),
       // Referrer *if overridden* via the query string else empty string.
-      perfetto_referrer_override: getReferrerOverride() ?? '',
+      dejaview_referrer_override: getReferrerOverride() ?? '',
     });
     this.updatePath(route);
   }

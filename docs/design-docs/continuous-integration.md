@@ -1,4 +1,4 @@
-# Perfetto CI design document
+# DejaView CI design document
 
 This CI is used on-top of (not in replacement of) AOSP's TreeHugger.
 It gives early testing signals and coverage on other OSes and older Android
@@ -216,7 +216,7 @@ full-copy of the DB.
             # ┃         retrieved within the same read() batch.
             # ┃
             # ┗━ Hex-encoded timestamp, relative since start of test.
-            /00a053-0001: "+ chown perfetto.perfetto /ci/ramdisk"
+            /00a053-0001: "+ chown dejaview.dejaview /ci/ramdisk"
             ...
 
 ```
@@ -245,7 +245,7 @@ docker run worker-N ...
     ┇  ...
     ┇  # This env var is passed by the test definition
     ┇  # specified in /infra/ci/config.py .
-    ┗━ $PERFETTO_TEST_SCRIPT
+    ┗━ $DEJAVIEW_TEST_SCRIPT
        ┣━ # Which is one of these:
        ┣━ /test/ci/android_tests.sh
        ┣━ /test/ci/fuzzer_tests.sh

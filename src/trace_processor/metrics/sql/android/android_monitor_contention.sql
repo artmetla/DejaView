@@ -14,10 +14,10 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.monitor_contention;
+INCLUDE DEJAVIEW MODULE android.monitor_contention;
 
 DROP VIEW IF EXISTS android_monitor_contention_output;
-CREATE PERFETTO VIEW android_monitor_contention_output AS
+CREATE DEJAVIEW VIEW android_monitor_contention_output AS
 SELECT AndroidMonitorContentionMetric(
   'node', (
     SELECT RepeatedField(

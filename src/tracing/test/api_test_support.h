@@ -19,21 +19,21 @@
 
 // This header is intended to be used only for api_integrationtest.cc and solves
 // the following problem: api_integrationtest.cc doesn't pull any non-public
-// perfetto header, to spot accidental public->non-public dependencies.
-// Sometimes, however, we need to use some internal perfetto code for the test
+// dejaview header, to spot accidental public->non-public dependencies.
+// Sometimes, however, we need to use some internal dejaview code for the test
 // itself. This header exposes wrapper functions to achieve that without leaking
 // internal headers.
 
-//  IMPORTANT: This header must not pull any non-public perfetto header.
+//  IMPORTANT: This header must not pull any non-public dejaview header.
 
 #include <stdint.h>
 
 #include <functional>
 #include <string>
 
-#include "perfetto/tracing.h"
+#include "dejaview/tracing.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace test {
 
 int32_t GetCurrentProcessId();
@@ -109,6 +109,6 @@ class TracingMuxerImplInternalsForTest {
 };
 
 }  // namespace test
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_API_TEST_SUPPORT_H_

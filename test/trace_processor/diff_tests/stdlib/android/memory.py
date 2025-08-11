@@ -26,7 +26,7 @@ class AndroidMemory(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('sched_wakeup_trace.atr'),
         query="""
-        INCLUDE PERFETTO MODULE android.memory.process;
+        INCLUDE DEJAVIEW MODULE android.memory.process;
         SELECT *
         FROM memory_oom_score_with_rss_and_swap_per_process
         WHERE oom_adj_reason IS NOT NULL
@@ -132,7 +132,7 @@ class AndroidMemory(TestSuite):
           }
         }"""),
         query="""
-        INCLUDE PERFETTO MODULE android.memory.dmabuf;
+        INCLUDE DEJAVIEW MODULE android.memory.dmabuf;
         SELECT * FROM android_dmabuf_allocs;
         """,
         out=Csv("""

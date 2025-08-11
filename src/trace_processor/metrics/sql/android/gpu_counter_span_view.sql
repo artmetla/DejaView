@@ -15,7 +15,7 @@
 --
 
 DROP VIEW IF EXISTS {{table_name}}_span;
-CREATE PERFETTO VIEW {{table_name}}_span AS
+CREATE DEJAVIEW VIEW {{table_name}}_span AS
 SELECT
   ts,
   LEAD(ts, 1, trace_end()) OVER (PARTITION BY track_id ORDER BY ts) - ts AS dur,

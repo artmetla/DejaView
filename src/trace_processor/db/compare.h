@@ -22,10 +22,10 @@
 #include <algorithm>
 #include <optional>
 
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/basic_types.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace compare {
 
@@ -94,8 +94,8 @@ inline int Bytes(const void* a, size_t a_n, const void* b, size_t b_n) {
 // This code matches the behaviour of sqlite3BlobCompare which is called when
 // there is no collation sequence defined in sqlite3MemCompare.
 inline int String(base::StringView a, base::StringView b) {
-  PERFETTO_DCHECK(a.data() != nullptr);
-  PERFETTO_DCHECK(b.data() != nullptr);
+  DEJAVIEW_DCHECK(a.data() != nullptr);
+  DEJAVIEW_DCHECK(b.data() != nullptr);
   return Bytes(a.data(), a.size(), b.data(), b.size());
 }
 
@@ -179,7 +179,7 @@ inline int SqlValue(const SqlValue& a, const SqlValue& b) {
     case SqlValue::Type::kNull:
       return 0;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 // Implements a comparator for SqlValues to use for std algorithms.
@@ -192,6 +192,6 @@ inline int SqlValueComparator(const trace_processor::SqlValue& a,
 
 }  // namespace compare
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_DB_COMPARE_H_

@@ -51,7 +51,7 @@ def main():
     sql_files = args.sql_files
 
   # Unfortunately we cannot pass this in as an arg as soong does not provide
-  # us a way to get the path to the Perfetto source directory. This fails on
+  # us a way to get the path to the DejaView source directory. This fails on
   # empty path but it's a price worth paying to have to use gross hacks in
   # Soong.
   root_dir = os.path.commonpath(sql_files)

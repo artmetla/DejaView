@@ -24,7 +24,7 @@
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::art_method {
+namespace dejaview::trace_processor::art_method {
 
 class ArtMethodParserImpl : public ArtMethodParser {
  public:
@@ -40,6 +40,6 @@ class ArtMethodParserImpl : public ArtMethodParser {
   StringPool::Id line_number_id_;
 };
 
-}  // namespace perfetto::trace_processor::art_method
+}  // namespace dejaview::trace_processor::art_method
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_ART_METHOD_ART_METHOD_PARSER_IMPL_H_

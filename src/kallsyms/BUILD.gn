@@ -17,7 +17,7 @@ import("../../gn/test.gni")
 source_set("kallsyms") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/protozero",
+    "../../include/dejaview/protozero",
     "../base",
   ]
   sources = [
@@ -28,7 +28,7 @@ source_set("kallsyms") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":kallsyms",
@@ -42,7 +42,7 @@ perfetto_unittest_source_set("unittests") {
   ]
 }
 
-if (enable_perfetto_benchmarks) {
+if (enable_dejaview_benchmarks) {
   source_set("benchmarks") {
     testonly = true
     deps = [

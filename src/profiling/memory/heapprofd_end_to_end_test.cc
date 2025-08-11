@@ -27,33 +27,33 @@
 #include <unistd.h>
 #include <optional>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/subprocess.h"
-#include "perfetto/heap_profile.h"
-#include "perfetto/trace_processor/trace_processor.h"
-#include "perfetto/tracing/default_socket.h"
-#include "protos/perfetto/trace/trace.gen.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/subprocess.h"
+#include "dejaview/heap_profile.h"
+#include "dejaview/trace_processor/trace_processor.h"
+#include "dejaview/tracing/default_socket.h"
+#include "protos/dejaview/trace/trace.gen.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/profiling/memory/heapprofd_producer.h"
 #include "test/gtest_and_gmock.h"
 #include "test/integrationtest_initializer.h"
 #include "test/test_helper.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/system_properties.h>
 #endif
 
-#include "protos/perfetto/config/profiling/heapprofd_config.gen.h"
-#include "protos/perfetto/trace/interned_data/interned_data.gen.h"
-#include "protos/perfetto/trace/profiling/profile_common.gen.h"
-#include "protos/perfetto/trace/profiling/profile_packet.gen.h"
+#include "protos/dejaview/config/profiling/heapprofd_config.gen.h"
+#include "protos/dejaview/trace/interned_data/interned_data.gen.h"
+#include "protos/dejaview/trace/profiling/profile_common.gen.h"
+#include "protos/dejaview/trace/profiling/profile_packet.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace profiling {
 namespace {
@@ -139,7 +139,7 @@ std::vector<FlamegraphNode> GetFlamegraph(trace_processor::TraceProcessor* tp) {
                              : std::optional<int64_t>(it.Get(11).AsLong()),
     });
   }
-  PERFETTO_CHECK(it.Status().ok());
+  DEJAVIEW_CHECK(it.Status().ok());
   return result;
 }
 
@@ -157,7 +157,7 @@ AllocatorMode AllocatorModeFromNameOrDie(std::string s) {
     return AllocatorMode::kMalloc;
   if (s == "test")
     return AllocatorMode::kCustom;
-  PERFETTO_FATAL("Invalid allocator mode [malloc | test]: %s", s.c_str());
+  DEJAVIEW_FATAL("Invalid allocator mode [malloc | test]: %s", s.c_str());
 }
 
 void ContinuousDump(HeapprofdConfig* cfg) {
@@ -237,7 +237,7 @@ void StartAndWaitForHandshake(base::Subprocess* child) {
   // We cannot use base::Pipe because that assumes we want CLOEXEC.
   // We do NOT want CLOEXEC as this gets used by the RunReInit in the child.
   int ready_pipe[2];
-  PERFETTO_CHECK(pipe(ready_pipe) == 0);  // NOLINT(android-cloexec-pipe)
+  DEJAVIEW_CHECK(pipe(ready_pipe) == 0);  // NOLINT(android-cloexec-pipe)
 
   int ready_pipe_rd = ready_pipe[0];
   int ready_pipe_wr = ready_pipe[1];
@@ -249,7 +249,7 @@ void StartAndWaitForHandshake(base::Subprocess* child) {
   // Wait for libc to initialize the signal handler. If we signal before the
   // handler is installed, we can kill the process.
   char buf[1];
-  PERFETTO_CHECK(PERFETTO_EINTR(read(ready_pipe_rd, buf, sizeof(buf))) == 0);
+  DEJAVIEW_CHECK(DEJAVIEW_EINTR(read(ready_pipe_rd, buf, sizeof(buf))) == 0);
   close(ready_pipe_rd);
 }
 
@@ -298,7 +298,7 @@ void RunContinuousMalloc() {
   exit(0);
 }
 
-void PERFETTO_NO_INLINE RunAccurateMalloc() {
+void DEJAVIEW_NO_INLINE RunAccurateMalloc() {
   const char* a0 = getenv("HEAPPROFD_TESTING_RUN_ACCURATE_MALLOC");
   if (a0 == nullptr)
     return;
@@ -321,12 +321,12 @@ void PERFETTO_NO_INLINE RunAccurateMalloc() {
   // wait a bit for the assignment to happen.
   usleep(100000);
   if (!AHeapProfile_reportAllocation(heap_id, 0x1, 10u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   AHeapProfile_reportFree(heap_id, 0x1);
   if (!AHeapProfile_reportAllocation(heap_id, 0x2, 15u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   if (!AHeapProfile_reportAllocation(heap_id, 0x3, 15u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   AHeapProfile_reportFree(heap_id, 0x2);
 
   // Wait around so we can verify it did't crash.
@@ -356,19 +356,19 @@ void __attribute__((noreturn)) RunAccurateMallocWithVforkCommon() {
   // wait a bit for the assignment to happen.
   usleep(100000);
   if (!AHeapProfile_reportAllocation(heap_id, 0x1, 10u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   AHeapProfile_reportFree(heap_id, 0x1);
   pid_t pid = vfork();
-  PERFETTO_CHECK(pid != -1);
+  DEJAVIEW_CHECK(pid != -1);
   if (pid == 0) {
     AHeapProfile_reportAllocation(heap_id, 0x2, 15u);
     AHeapProfile_reportAllocation(heap_id, 0x3, 15u);
     exit(0);
   }
   if (!AHeapProfile_reportAllocation(heap_id, 0x2, 15u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   if (!AHeapProfile_reportAllocation(heap_id, 0x3, 15u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   AHeapProfile_reportFree(heap_id, 0x2);
 
   // Wait around so we can verify it did't crash.
@@ -402,12 +402,12 @@ void RunAccurateSample() {
   // wait a bit for the assignment to happen.
   usleep(100000);
   if (!AHeapProfile_reportSample(heap_id, 0x1, 10u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   AHeapProfile_reportFree(heap_id, 0x1);
   if (!AHeapProfile_reportSample(heap_id, 0x2, 15u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   if (!AHeapProfile_reportSample(heap_id, 0x3, 15u))
-    PERFETTO_FATAL("Expected allocation to be sampled.");
+    DEJAVIEW_FATAL("Expected allocation to be sampled.");
   AHeapProfile_reportFree(heap_id, 0x2);
 
   // Wait around so we can verify it did't crash.
@@ -442,7 +442,7 @@ void RunReInit() {
   AllocatorMode mode = AllocatorModeFromNameOrDie(a0);
   const char* a1 = getenv("HEAPPROFD_TESTING_RUN_REINIT_ARG1");
   const char* a2 = getenv("HEAPPROFD_TESTING_RUN_REINIT_ARG2");
-  PERFETTO_CHECK(a1 != nullptr && a2 != nullptr);
+  DEJAVIEW_CHECK(a1 != nullptr && a2 != nullptr);
   int signal_pipe_rd = static_cast<int>(base::StringToInt64(a1).value());
   int ack_pipe_wr = static_cast<int>(base::StringToInt64(a2).value());
 
@@ -461,12 +461,12 @@ void RunReInit() {
       DoAllocation(mode, bytes);
 
       bytes = kSecondIterationBytes;
-      PERFETTO_CHECK(PERFETTO_EINTR(write(ack_pipe_wr, "1", 1)) == 1);
+      DEJAVIEW_CHECK(DEJAVIEW_EINTR(write(ack_pipe_wr, "1", 1)) == 1);
       close(ack_pipe_wr);
     }
     usleep(10 * kMsToUs);
   }
-  PERFETTO_FATAL("Should be unreachable");
+  DEJAVIEW_FATAL("Should be unreachable");
 }
 
 void RunCustomLifetime() {
@@ -477,7 +477,7 @@ void RunCustomLifetime() {
   uint64_t arg0 = a0 ? base::StringToUInt64(a0).value() : 0;
   uint64_t arg1 = a0 ? base::StringToUInt64(a1).value() : 0;
 
-  PERFETTO_CHECK(arg1);
+  DEJAVIEW_CHECK(arg1);
 
   static std::atomic<bool> initialized{false};
   static std::atomic<bool> disabled{false};
@@ -491,7 +491,7 @@ void RunCustomLifetime() {
     initialized = true;
   };
   auto disabled_callback = [](void*, const AHeapProfileDisableCallbackInfo*) {
-    PERFETTO_CHECK(other_heap_id);
+    DEJAVIEW_CHECK(other_heap_id);
     AHeapProfile_reportFree(other_heap_id, 0);
     disabled = true;
   };
@@ -509,14 +509,14 @@ void RunCustomLifetime() {
     AllocateAndFree(1);
 
   if (sampling_interval.load() != arg0) {
-    PERFETTO_FATAL("%" PRIu64 " != %" PRIu64, sampling_interval.load(), arg0);
+    DEJAVIEW_FATAL("%" PRIu64 " != %" PRIu64, sampling_interval.load(), arg0);
   }
 
   while (!disabled)
     AHeapProfile_reportFree(heap_id, 0x2);
 
   char x = 'x';
-  PERFETTO_CHECK(base::WriteAll(static_cast<int>(arg1), &x, sizeof(x)) == 1);
+  DEJAVIEW_CHECK(base::WriteAll(static_cast<int>(arg1), &x, sizeof(x)) == 1);
   close(static_cast<int>(arg1));
 
   // Wait around so we can verify it didn't crash.
@@ -549,7 +549,7 @@ void MainInitializer() {
   RunAccurateSample();
 }
 
-int PERFETTO_UNUSED initializer =
+int DEJAVIEW_UNUSED initializer =
     integration_tests::RegisterHeapprofdEndToEndTestInitializer(
         MainInitializer);
 
@@ -570,7 +570,7 @@ class TraceProcessorTestHelper : public TestHelper {
           std::unique_ptr<uint8_t[]>(new uint8_t[buf_size]);
       memcpy(&buf[0], preamble_payload, preamble_size);
       memcpy(&buf[preamble_size], payload.data(), payload.size());
-      PERFETTO_CHECK(tp_->Parse(std::move(buf), buf_size).ok());
+      DEJAVIEW_CHECK(tp_->Parse(std::move(buf), buf_size).ok());
     }
     TestHelper::ReadTraceData(std::move(packets));
   }
@@ -686,9 +686,9 @@ class HeapprofdEndToEnd
         std::string(outdir) + "/" + basename(filename) + ":" +
         std::to_string(lineno) + "_" + Suffix(GetParam());
     base::ScopedFile fd(base::OpenFile(fq_filename, O_WRONLY | O_CREAT, 0666));
-    PERFETTO_CHECK(*fd);
+    DEJAVIEW_CHECK(*fd);
     std::string trace_string = ToTraceString(packets);
-    PERFETTO_CHECK(
+    DEJAVIEW_CHECK(
         base::WriteAll(*fd, trace_string.data(), trace_string.size()) >= 0);
   }
 
@@ -722,13 +722,13 @@ class HeapprofdEndToEnd
     for (const protos::gen::TracePacket& packet : packets) {
       for (const auto& dump : packet.profile_packet().process_dumps()) {
         // protobuf uint64 does not like the PRIu64 formatter.
-        PERFETTO_LOG("Stats for %s: %s", std::to_string(dump.pid()).c_str(),
+        DEJAVIEW_LOG("Stats for %s: %s", std::to_string(dump.pid()).c_str(),
                      FormatStats(dump.stats()).c_str());
       }
     }
     std::vector<std::string> errors = GetUnwindingErrors(helper);
     for (const std::string& err : errors) {
-      PERFETTO_LOG("Unwinding error: %s", err.c_str());
+      DEJAVIEW_LOG("Unwinding error: %s", err.c_str());
     }
   }
 
@@ -839,7 +839,7 @@ class HeapprofdEndToEnd
 void KillAssertRunning(base::Subprocess* child) {
   ASSERT_EQ(child->Poll(), base::Subprocess::kRunning)
       << "Target process not running. CHECK CRASH LOGS.";
-  PERFETTO_LOG("Shutting down profile target.");
+  DEJAVIEW_LOG("Shutting down profile target.");
   child->KillAndWaitForTermination();
 }
 
@@ -990,7 +990,7 @@ TEST_P(HeapprofdEndToEnd, AccurateCustomReportAllocation) {
   EXPECT_EQ(total_freed, 25u);
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #define MAYBE_AccurateCustomReportAllocationWithVfork \
   AccurateCustomReportAllocationWithVfork
 #define MAYBE_AccurateCustomReportAllocationWithVforkThread \
@@ -1178,7 +1178,7 @@ TEST_P(HeapprofdEndToEnd, CustomLifetime) {
     GTEST_SKIP();
 
   int disabled_pipe[2];
-  PERFETTO_CHECK(pipe(disabled_pipe) == 0);  // NOLINT(android-cloexec-pipe)
+  DEJAVIEW_CHECK(pipe(disabled_pipe) == 0);  // NOLINT(android-cloexec-pipe)
 
   int disabled_pipe_rd = disabled_pipe[0];
   int disabled_pipe_wr = disabled_pipe[1];
@@ -1521,15 +1521,15 @@ TEST_P(HeapprofdEndToEnd, ReInit) {
   int signal_pipe[2];
   int ack_pipe[2];
 
-  PERFETTO_CHECK(pipe(signal_pipe) == 0);  // NOLINT(android-cloexec-pipe)
-  PERFETTO_CHECK(pipe(ack_pipe) == 0);     // NOLINT(android-cloexec-pipe)
+  DEJAVIEW_CHECK(pipe(signal_pipe) == 0);  // NOLINT(android-cloexec-pipe)
+  DEJAVIEW_CHECK(pipe(ack_pipe) == 0);     // NOLINT(android-cloexec-pipe)
 
   int cur_flags = fcntl(signal_pipe[0], F_GETFL, 0);
-  PERFETTO_CHECK(cur_flags >= 0);
-  PERFETTO_CHECK(fcntl(signal_pipe[0], F_SETFL, cur_flags | O_NONBLOCK) == 0);
+  DEJAVIEW_CHECK(cur_flags >= 0);
+  DEJAVIEW_CHECK(fcntl(signal_pipe[0], F_SETFL, cur_flags | O_NONBLOCK) == 0);
   cur_flags = fcntl(signal_pipe[1], F_GETFL, 0);
-  PERFETTO_CHECK(cur_flags >= 0);
-  PERFETTO_CHECK(fcntl(signal_pipe[1], F_SETFL, cur_flags | O_NONBLOCK) == 0);
+  DEJAVIEW_CHECK(cur_flags >= 0);
+  DEJAVIEW_CHECK(fcntl(signal_pipe[1], F_SETFL, cur_flags | O_NONBLOCK) == 0);
 
   int signal_pipe_rd = signal_pipe[0];
   int signal_pipe_wr = signal_pipe[1];
@@ -1567,17 +1567,17 @@ TEST_P(HeapprofdEndToEnd, ReInit) {
   ValidateOnlyPID(helper.get(), pid);
   ValidateSampleSizes(helper.get(), pid, kFirstIterationBytes);
 
-  PERFETTO_CHECK(PERFETTO_EINTR(write(signal_pipe_wr, "1", 1)) == 1);
+  DEJAVIEW_CHECK(DEJAVIEW_EINTR(write(signal_pipe_wr, "1", 1)) == 1);
   close(signal_pipe_wr);
   char buf[1];
-  ASSERT_EQ(PERFETTO_EINTR(read(ack_pipe_rd, buf, sizeof(buf))), 1);
+  ASSERT_EQ(DEJAVIEW_EINTR(read(ack_pipe_rd, buf, sizeof(buf))), 1);
   close(ack_pipe_rd);
 
   // A brief sleep to allow the client to notice that the profiling session is
   // to be torn down (as it rejects concurrent sessions).
   usleep(500 * kMsToUs);
 
-  PERFETTO_LOG("HeapprofdEndToEnd::Reinit: Starting second");
+  DEJAVIEW_LOG("HeapprofdEndToEnd::Reinit: Starting second");
 
   // We must keep alive the original helper because it owns the service thread.
   std::unique_ptr<TraceProcessorTestHelper> helper2 =
@@ -1606,15 +1606,15 @@ TEST_P(HeapprofdEndToEnd, ReInitAfterInvalid) {
   int signal_pipe[2];
   int ack_pipe[2];
 
-  PERFETTO_CHECK(pipe(signal_pipe) == 0);  // NOLINT(android-cloexec-pipe)
-  PERFETTO_CHECK(pipe(ack_pipe) == 0);     // NOLINT(android-cloexec-pipe)
+  DEJAVIEW_CHECK(pipe(signal_pipe) == 0);  // NOLINT(android-cloexec-pipe)
+  DEJAVIEW_CHECK(pipe(ack_pipe) == 0);     // NOLINT(android-cloexec-pipe)
 
   int cur_flags = fcntl(signal_pipe[0], F_GETFL, 0);
-  PERFETTO_CHECK(cur_flags >= 0);
-  PERFETTO_CHECK(fcntl(signal_pipe[0], F_SETFL, cur_flags | O_NONBLOCK) == 0);
+  DEJAVIEW_CHECK(cur_flags >= 0);
+  DEJAVIEW_CHECK(fcntl(signal_pipe[0], F_SETFL, cur_flags | O_NONBLOCK) == 0);
   cur_flags = fcntl(signal_pipe[1], F_GETFL, 0);
-  PERFETTO_CHECK(cur_flags >= 0);
-  PERFETTO_CHECK(fcntl(signal_pipe[1], F_SETFL, cur_flags | O_NONBLOCK) == 0);
+  DEJAVIEW_CHECK(cur_flags >= 0);
+  DEJAVIEW_CHECK(fcntl(signal_pipe[1], F_SETFL, cur_flags | O_NONBLOCK) == 0);
 
   int signal_pipe_rd = signal_pipe[0];
   int signal_pipe_wr = signal_pipe[1];
@@ -1652,17 +1652,17 @@ TEST_P(HeapprofdEndToEnd, ReInitAfterInvalid) {
   ValidateOnlyPID(helper.get(), pid);
   ValidateSampleSizes(helper.get(), pid, kFirstIterationBytes);
 
-  PERFETTO_CHECK(PERFETTO_EINTR(write(signal_pipe_wr, "1", 1)) == 1);
+  DEJAVIEW_CHECK(DEJAVIEW_EINTR(write(signal_pipe_wr, "1", 1)) == 1);
   close(signal_pipe_wr);
   char buf[1];
-  ASSERT_EQ(PERFETTO_EINTR(read(ack_pipe_rd, buf, sizeof(buf))), 1);
+  ASSERT_EQ(DEJAVIEW_EINTR(read(ack_pipe_rd, buf, sizeof(buf))), 1);
   close(ack_pipe_rd);
 
   // A brief sleep to allow the client to notice that the profiling session is
   // to be torn down (as it rejects concurrent sessions).
   usleep(500 * kMsToUs);
 
-  PERFETTO_LOG("HeapprofdEndToEnd::Reinit: Starting second");
+  DEJAVIEW_LOG("HeapprofdEndToEnd::Reinit: Starting second");
 
   // We must keep alive the original helper because it owns the service thread.
   std::unique_ptr<TraceProcessorTestHelper> helper2 =
@@ -1703,7 +1703,7 @@ TEST_P(HeapprofdEndToEnd, ConcurrentSession) {
   helper->StartTracing(trace_config);
   sleep(1);
 
-  PERFETTO_LOG("Starting concurrent.");
+  DEJAVIEW_LOG("Starting concurrent.");
   std::unique_ptr<TraceProcessorTestHelper> helper_concurrent(
       new TraceProcessorTestHelper(&task_runner));
   helper_concurrent->ConnectConsumer();
@@ -1745,8 +1745,8 @@ TEST_P(HeapprofdEndToEnd, NativeProfilingActiveAtProcessExit) {
                            std::to_string(200));
   child.args.preserve_fds.push_back(start_pipe_wr);
   child.args.posix_entrypoint_for_testing = [start_pipe_wr] {
-    PERFETTO_CHECK(PERFETTO_EINTR(write(start_pipe_wr, "1", 1)) == 1);
-    PERFETTO_CHECK(close(start_pipe_wr) == 0 || errno == EINTR);
+    DEJAVIEW_CHECK(DEJAVIEW_EINTR(write(start_pipe_wr, "1", 1)) == 1);
+    DEJAVIEW_CHECK(close(start_pipe_wr) == 0 || errno == EINTR);
   };
 
   StartAndWaitForHandshake(&child);
@@ -1759,7 +1759,7 @@ TEST_P(HeapprofdEndToEnd, NativeProfilingActiveAtProcessExit) {
 
   // Wait for child to have been scheduled at least once.
   char buf[1] = {};
-  ASSERT_EQ(PERFETTO_EINTR(read(*start_pipe.rd, buf, sizeof(buf))), 1);
+  ASSERT_EQ(DEJAVIEW_EINTR(read(*start_pipe.rd, buf, sizeof(buf))), 1);
   start_pipe.rd.reset();
 
   TraceConfig trace_config = MakeTraceConfig([this, pid](HeapprofdConfig* cfg) {
@@ -1810,8 +1810,8 @@ TEST_P(HeapprofdEndToEnd, NativeProfilingActiveAtProcessExit) {
 // On in-tree Android, we use the system heapprofd in fork or central mode.
 // For Linux and out-of-tree Android, we statically include a copy of
 // heapprofd and use that. This one does not support intercepting malloc.
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
-#if !PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
 #error "Need to start daemons for Linux test."
 #endif
 
@@ -1820,7 +1820,7 @@ INSTANTIATE_TEST_SUITE_P(Run,
                          Values(std::make_tuple(TestMode::kStatic,
                                                 AllocatorMode::kCustom)),
                          TestSuffix);
-#elif !PERFETTO_BUILDFLAG(PERFETTO_START_DAEMONS)
+#elif !DEJAVIEW_BUILDFLAG(DEJAVIEW_START_DAEMONS)
 INSTANTIATE_TEST_SUITE_P(
     Run,
     HeapprofdEndToEnd,
@@ -1831,4 +1831,4 @@ INSTANTIATE_TEST_SUITE_P(
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

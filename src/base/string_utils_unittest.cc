@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
 #include <optional>
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -497,4 +497,4 @@ TEST(FindLineTest, EndsWithBreakLine) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

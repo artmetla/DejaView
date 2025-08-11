@@ -16,10 +16,10 @@
 
 #include "src/trace_processor/importers/systrace/systrace_trace_parser.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
 #include "src/trace_processor/importers/common/process_tracker.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
@@ -29,7 +29,7 @@
 #include <string>
 #include <unordered_map>
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -155,7 +155,7 @@ util::Status SystraceTraceParser::Parse(TraceBlobView blob) {
               cmd_start,
               static_cast<size_t>((buffer.data() + buffer.size()) - cmd_start));
           if (!pid || !ppid) {
-            PERFETTO_ELOG("Could not parse line '%s'", buffer.c_str());
+            DEJAVIEW_ELOG("Could not parse line '%s'", buffer.c_str());
             return util::ErrStatus("Could not parse PROCESS DUMP line");
           }
           ctx_->process_tracker->SetProcessMetadata(pid.value(), ppid, name,
@@ -176,7 +176,7 @@ util::Status SystraceTraceParser::Parse(TraceBlobView blob) {
           StringId cmd_id =
               ctx_->storage->mutable_string_pool()->InternString(cmd);
           if (!tid || !tgid) {
-            PERFETTO_ELOG("Could not parse line '%s'", buffer.c_str());
+            DEJAVIEW_ELOG("Could not parse line '%s'", buffer.c_str());
             return util::ErrStatus("Could not parse PROCESS DUMP line");
           }
           UniqueTid utid =
@@ -206,4 +206,4 @@ base::Status SystraceTraceParser::NotifyEndOfFile() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -16,7 +16,7 @@ class ChromeStdlib(TestSuite):
         trace=DataPath(
             'chrome_page_load_all_categories_not_extended.pftrace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.tasks;
+        INCLUDE DEJAVIEW MODULE chrome.tasks;
 
         SELECT full_name as name, task_type, count() AS count
         FROM chrome_tasks
@@ -31,7 +31,7 @@ class ChromeStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('top_level_java_choreographer_slices'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.tasks;
+        INCLUDE DEJAVIEW MODULE chrome.tasks;
 
         SELECT
           full_name,
@@ -50,7 +50,7 @@ class ChromeStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_custom_navigation_trace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.tasks;
+        INCLUDE DEJAVIEW MODULE chrome.tasks;
 
         SELECT full_name, task_type, count() AS count
         FROM chrome_tasks
@@ -75,7 +75,7 @@ class ChromeStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('chrome_5672_histograms.pftrace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.histograms;
+        INCLUDE DEJAVIEW MODULE chrome.histograms;
 
         SELECT
           name,
@@ -111,9 +111,9 @@ class ChromeStdlib(TestSuite):
 
   def test_speedometer_2_1_score(self):
     return DiffTestBlueprint(
-        trace=DataPath('speedometer_21.perfetto_trace.gz'),
+        trace=DataPath('speedometer_21.dejaview_trace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.speedometer;
+        INCLUDE DEJAVIEW MODULE chrome.speedometer;
 
         SELECT format("%.1f", chrome_speedometer_score()) AS score
         """,
@@ -124,9 +124,9 @@ class ChromeStdlib(TestSuite):
 
   def test_speedometer_2_1_iteration(self):
     return DiffTestBlueprint(
-        trace=DataPath('speedometer_21.perfetto_trace.gz'),
+        trace=DataPath('speedometer_21.dejaview_trace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.speedometer;
+        INCLUDE DEJAVIEW MODULE chrome.speedometer;
 
         SELECT
          ts,dur,name,iteration,
@@ -151,9 +151,9 @@ class ChromeStdlib(TestSuite):
 
   def test_speedometer_2_1_renderer_main_utid(self):
     return DiffTestBlueprint(
-        trace=DataPath('speedometer_21.perfetto_trace.gz'),
+        trace=DataPath('speedometer_21.dejaview_trace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.speedometer;
+        INCLUDE DEJAVIEW MODULE chrome.speedometer;
 
         SELECT chrome_speedometer_renderer_main_utid();
         """,
@@ -164,9 +164,9 @@ class ChromeStdlib(TestSuite):
 
   def test_speedometer_3_score(self):
     return DiffTestBlueprint(
-        trace=DataPath('speedometer_3.perfetto_trace.gz'),
+        trace=DataPath('speedometer_3.dejaview_trace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.speedometer;
+        INCLUDE DEJAVIEW MODULE chrome.speedometer;
 
         SELECT format("%.2f", chrome_speedometer_score()) AS score
         """,
@@ -177,9 +177,9 @@ class ChromeStdlib(TestSuite):
 
   def test_speedometer_3_iteration(self):
     return DiffTestBlueprint(
-        trace=DataPath('speedometer_3.perfetto_trace.gz'),
+        trace=DataPath('speedometer_3.dejaview_trace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.speedometer;
+        INCLUDE DEJAVIEW MODULE chrome.speedometer;
 
         SELECT
          ts,dur,name,iteration,
@@ -204,9 +204,9 @@ class ChromeStdlib(TestSuite):
 
   def test_speedometer_3_renderer_main_utid(self):
     return DiffTestBlueprint(
-        trace=DataPath('speedometer_3.perfetto_trace.gz'),
+        trace=DataPath('speedometer_3.dejaview_trace.gz'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.speedometer;
+        INCLUDE DEJAVIEW MODULE chrome.speedometer;
 
         SELECT chrome_speedometer_renderer_main_utid();
         """,
@@ -220,7 +220,7 @@ class ChromeStdlib(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('cpu_powerups_1.pb'),
         query="""
-        INCLUDE PERFETTO MODULE chrome.cpu_powerups;
+        INCLUDE DEJAVIEW MODULE chrome.cpu_powerups;
         SELECT * FROM chrome_cpu_power_first_toplevel_slice_after_powerup;
         """,
         out=Csv("""

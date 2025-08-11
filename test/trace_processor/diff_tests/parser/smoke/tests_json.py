@@ -21,7 +21,7 @@ from python.generators.diff_tests.testing import TestSuite
 
 class SmokeJson(TestSuite):
   # Contains smoke tests which test the most fundamentally important features
-  # trace processor  Note: new tests here should only be added by the Perfetto
+  # trace processor  Note: new tests here should only be added by the DejaView
   # JSON trace parsing
   def test_sfgate_smoke(self):
     return DiffTestBlueprint(

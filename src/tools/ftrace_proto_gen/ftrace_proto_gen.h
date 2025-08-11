@@ -27,7 +27,7 @@
 #include "src/tools/ftrace_proto_gen/proto_gen_utils.h"
 #include "src/traced/probes/ftrace/format_parser/format_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 
 std::vector<Proto::Field> ToProtoFields(const FtraceEvent& format);
 
@@ -40,13 +40,13 @@ std::vector<FtraceEventName> ReadAllowList(const std::string& filename);
 void GenerateFtraceEventProto(const std::vector<FtraceEventName>& raw_eventlist,
                               const std::set<std::string>& groups,
                               std::ostream* fout);
-std::string SingleEventInfo(perfetto::Proto proto,
+std::string SingleEventInfo(dejaview::Proto proto,
                             const std::string& group,
                             const uint32_t proto_field_id);
 void GenerateEventInfo(const std::vector<std::string>& events_info,
                        std::ostream* fout);
 std::string ProtoHeader();
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TOOLS_FTRACE_PROTO_GEN_FTRACE_PROTO_GEN_H_

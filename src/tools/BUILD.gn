@@ -12,10 +12,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 # Prevent that this file is accidentally included in embedder builds.
-assert(enable_perfetto_tools)
+assert(enable_dejaview_tools)
 
 # Lists all tools. The root "all" target depends on this.
 group("tools") {
@@ -38,7 +38,7 @@ group("tools") {
   }
 }
 
-if (is_linux && enable_perfetto_heapprofd) {
+if (is_linux && enable_dejaview_heapprofd) {
   executable("profiling_sample_distribution") {
     sources = [ "profiling_sample_distribution.cc" ]
     deps = [

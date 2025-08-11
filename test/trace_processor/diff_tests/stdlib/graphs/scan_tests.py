@@ -25,7 +25,7 @@ class GraphScanTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.scan;
+          INCLUDE DEJAVIEW MODULE graphs.scan;
 
           WITH foo AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -49,7 +49,7 @@ class GraphScanTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.scan;
+          INCLUDE DEJAVIEW MODULE graphs.scan;
 
           WITH foo AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -74,7 +74,7 @@ class GraphScanTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.scan;
+          INCLUDE DEJAVIEW MODULE graphs.scan;
 
           WITH
             edges(source_node_id, dest_node_id) AS (
@@ -111,7 +111,7 @@ class GraphScanTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.scan;
+          INCLUDE DEJAVIEW MODULE graphs.scan;
 
           WITH foo AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -135,7 +135,7 @@ class GraphScanTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.scan;
+          INCLUDE DEJAVIEW MODULE graphs.scan;
 
           WITH foo AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -160,7 +160,7 @@ class GraphScanTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.scan;
+          INCLUDE DEJAVIEW MODULE graphs.scan;
 
           WITH
             edges(source_node_id, dest_node_id) AS (
@@ -195,7 +195,7 @@ class GraphScanTests(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.scan;
+          INCLUDE DEJAVIEW MODULE graphs.scan;
 
           WITH
             edges(source_node_id, dest_node_id) AS (

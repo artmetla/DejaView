@@ -15,13 +15,13 @@
  */
 
 #include "src/trace_processor/importers/ftrace/thermal_tracker.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "protos/perfetto/trace/ftrace/thermal.pbzero.h"
-#include "protos/perfetto/trace/ftrace/thermal_exynos.pbzero.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "protos/dejaview/trace/ftrace/thermal.pbzero.h"
+#include "protos/dejaview/trace/ftrace/thermal_exynos.pbzero.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/track_tracker.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 constexpr const char* kTemperatureSuffix = "Temperature";
@@ -110,4 +110,4 @@ void ThermalTracker::PushCounter(int64_t timestamp,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

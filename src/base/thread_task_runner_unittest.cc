@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/thread_task_runner.h"
+#include "dejaview/ext/base/thread_task_runner.h"
 
 #include <thread>
 
-#include "perfetto/ext/base/no_destructor.h"
-#include "perfetto/ext/base/thread_checker.h"
+#include "dejaview/ext/base/no_destructor.h"
+#include "dejaview/ext/base/thread_checker.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -145,4 +145,4 @@ TEST_F(ThreadTaskRunnerTest, EnqueuedTasksDestructedOnTaskThread) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

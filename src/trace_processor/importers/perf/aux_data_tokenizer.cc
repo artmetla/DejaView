@@ -19,8 +19,8 @@
 #include <cstdint>
 #include <memory>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/perf/aux_record.h"
 #include "src/trace_processor/importers/perf/aux_stream_manager.h"
 #include "src/trace_processor/importers/perf/itrace_start_record.h"
@@ -28,7 +28,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 AuxDataTokenizer::~AuxDataTokenizer() = default;
 AuxDataTokenizerFactory::~AuxDataTokenizerFactory() = default;
@@ -54,4 +54,4 @@ base::Status DummyAuxDataTokenizer::OnItraceStartRecord(ItraceStartRecord) {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer

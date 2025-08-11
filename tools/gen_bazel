@@ -42,20 +42,20 @@ from compat import itervalues, iteritems, basestring
 
 # Visibility option for targets which we want an allowlist of public targets
 # which can depend on it.
-ALLOWLIST_PUBLIC_VISIBILITY = 'PERFETTO_CONFIG.public_visibility'
+ALLOWLIST_PUBLIC_VISIBILITY = 'DEJAVIEW_CONFIG.public_visibility'
 
 # Arguments for the GN output directory.
 # host_os="linux" is to generate the right build files from Mac OS.
 gn_args_base = {
     'host_os': '"linux"',
     'is_debug': 'false',
-    'is_perfetto_build_generator': 'true',
+    'is_dejaview_build_generator': 'true',
     'monolithic_binaries': 'true',
     'target_os': '"linux"',
-    'enable_perfetto_heapprofd': 'false',
-    'enable_perfetto_traced_perf': 'false',
-    'perfetto_force_dcheck': '"off"',
-    'enable_perfetto_llvm_demangle': 'true',
+    'enable_dejaview_heapprofd': 'false',
+    'enable_dejaview_traced_perf': 'false',
+    'dejaview_force_dcheck': '"off"',
+    'enable_dejaview_llvm_demangle': 'true',
 }
 gn_args = ' '.join((map(lambda x:'='.join(x), gn_args_base.items())))
 
@@ -76,9 +76,9 @@ gn_args_win = ' '.join((map(lambda x:'='.join(x), gn_args_win_base.items())))
 
 # These targets will be exported with public visibility in the generated BUILD.
 public_targets = [
-    '//:libperfetto_client_experimental',
-    '//src/perfetto_cmd:perfetto',
-    '//src/shared_lib:libperfetto_c',
+    '//:libdejaview_client_experimental',
+    '//src/dejaview_cmd:dejaview',
+    '//src/shared_lib:libdejaview_c',
     '//src/traced/probes:traced_probes',
     '//src/traced/service:traced',
     '//src/trace_processor:trace_processor_shell',
@@ -90,8 +90,8 @@ public_targets = [
 # These targets are required by internal build rules but don't need to be
 # exported publicly.
 default_targets = [
-    '//src/base:perfetto_base_default_platform',
-    '//src/ipc:perfetto_ipc',
+    '//src/base:dejaview_base_default_platform',
+    '//src/ipc:dejaview_ipc',
     '//src/ipc/protoc_plugin:ipc_plugin',
     '//src/protozero:protozero',
     '//src/protozero/protoc_plugin:cppgen_plugin',
@@ -105,18 +105,18 @@ default_targets = [
 # Proto target groups which will be made public.
 proto_groups = {
     'config': {
-        'sources': ['//protos/perfetto/config:source_set'],
+        'sources': ['//protos/dejaview/config:source_set'],
         'visibility': ['//visibility:public'],
     },
     'trace': {
         'sources': [
-            '//protos/perfetto/trace:non_minimal_source_set',
-            '//protos/perfetto/trace:minimal_source_set'
+            '//protos/dejaview/trace:non_minimal_source_set',
+            '//protos/dejaview/trace:minimal_source_set'
         ],
         'visibility': ALLOWLIST_PUBLIC_VISIBILITY,
     },
     'metrics': {
-        'sources': ['//protos/perfetto/metrics:source_set',],
+        'sources': ['//protos/dejaview/metrics:source_set',],
         'visibility': ['//visibility:public'],
     },
     'chromium': {
@@ -124,11 +124,11 @@ proto_groups = {
         'visibility': ALLOWLIST_PUBLIC_VISIBILITY,
     },
     'chrome_metrics': {
-        'sources': ['//protos/perfetto/metrics/chrome:source_set',],
+        'sources': ['//protos/dejaview/metrics/chrome:source_set',],
         'visibility': ALLOWLIST_PUBLIC_VISIBILITY,
     },
     'trace_processor': {
-        'sources': ['//protos/perfetto/trace_processor:source_set',],
+        'sources': ['//protos/dejaview/trace_processor:source_set',],
         'visibility': [],
     },
 }
@@ -136,29 +136,29 @@ proto_groups = {
 # Path for the protobuf sources in the standalone build.
 buildtools_protobuf_src = '//buildtools/protobuf/src'
 
-# The directory where the generated perfetto_build_flags.h will be copied into.
-buildflags_dir = 'include/perfetto/base/build_configs/bazel'
+# The directory where the generated dejaview_build_flags.h will be copied into.
+buildflags_dir = 'include/dejaview/base/build_configs/bazel'
 
 # Internal equivalents for third-party libraries that the upstream project
 # depends on.
 external_deps = {
     '//gn:default_deps': [],
-    '//gn:base_platform': ['PERFETTO_CONFIG.deps.base_platform'],
-    '//gn:expat': ['PERFETTO_CONFIG.deps.expat'],
-    '//gn:jsoncpp': ['PERFETTO_CONFIG.deps.jsoncpp'],
-    '//gn:linenoise': ['PERFETTO_CONFIG.deps.linenoise'],
-    '//gn:protobuf_full': ['PERFETTO_CONFIG.deps.protobuf_full'],
-    '//gn:protobuf_lite': ['PERFETTO_CONFIG.deps.protobuf_lite'],
-    '//gn:protoc_lib': ['PERFETTO_CONFIG.deps.protoc_lib'],
-    '//gn:protoc': ['PERFETTO_CONFIG.deps.protoc'],
+    '//gn:base_platform': ['DEJAVIEW_CONFIG.deps.base_platform'],
+    '//gn:expat': ['DEJAVIEW_CONFIG.deps.expat'],
+    '//gn:jsoncpp': ['DEJAVIEW_CONFIG.deps.jsoncpp'],
+    '//gn:linenoise': ['DEJAVIEW_CONFIG.deps.linenoise'],
+    '//gn:protobuf_full': ['DEJAVIEW_CONFIG.deps.protobuf_full'],
+    '//gn:protobuf_lite': ['DEJAVIEW_CONFIG.deps.protobuf_lite'],
+    '//gn:protoc_lib': ['DEJAVIEW_CONFIG.deps.protoc_lib'],
+    '//gn:protoc': ['DEJAVIEW_CONFIG.deps.protoc'],
     '//gn:sqlite': [
-        'PERFETTO_CONFIG.deps.sqlite',
-        'PERFETTO_CONFIG.deps.sqlite_ext_percentile'
+        'DEJAVIEW_CONFIG.deps.sqlite',
+        'DEJAVIEW_CONFIG.deps.sqlite_ext_percentile'
     ],
-    '//gn:zlib': ['PERFETTO_CONFIG.deps.zlib'],
-    '//gn:llvm_demangle': ['PERFETTO_CONFIG.deps.llvm_demangle'],
-    '//src/trace_processor:demangle': ['PERFETTO_CONFIG.deps.demangle_wrapper'],
-    gn_utils.GEN_VERSION_TARGET: ['PERFETTO_CONFIG.deps.version_header'],
+    '//gn:zlib': ['DEJAVIEW_CONFIG.deps.zlib'],
+    '//gn:llvm_demangle': ['DEJAVIEW_CONFIG.deps.llvm_demangle'],
+    '//src/trace_processor:demangle': ['DEJAVIEW_CONFIG.deps.demangle_wrapper'],
+    gn_utils.GEN_VERSION_TARGET: ['DEJAVIEW_CONFIG.deps.version_header'],
 }
 
 # These are Python targets which are exposed with public visibility.
@@ -179,22 +179,22 @@ default_python_targets = [
 
 # Internal equivalents for third-party Python libraries.
 external_python_deps: Dict[str, List[str]] = {
-    '//gn:pandas_py': ['PERFETTO_CONFIG.deps.pandas_py'],
-    '//gn:protobuf_py': ['PERFETTO_CONFIG.deps.protobuf_py'],
-    '//gn:tp_vendor_py': ['PERFETTO_CONFIG.deps.tp_vendor_py'],
-    '//gn:tp_resolvers_py': ['PERFETTO_CONFIG.deps.tp_resolvers_py'],
+    '//gn:pandas_py': ['DEJAVIEW_CONFIG.deps.pandas_py'],
+    '//gn:protobuf_py': ['DEJAVIEW_CONFIG.deps.protobuf_py'],
+    '//gn:tp_vendor_py': ['DEJAVIEW_CONFIG.deps.tp_vendor_py'],
+    '//gn:tp_resolvers_py': ['DEJAVIEW_CONFIG.deps.tp_resolvers_py'],
 }
 
 # Additional arguments
 target_overrides = {
-  '//src/trace_processor/perfetto_sql/stdlib/chrome:chrome_sql': {
-    'srcs': 'glob(["src/trace_processor/perfetto_sql/stdlib/chrome/**/*.sql"])'
+  '//src/trace_processor/dejaview_sql/stdlib/chrome:chrome_sql': {
+    'srcs': 'glob(["src/trace_processor/dejaview_sql/stdlib/chrome/**/*.sql"])'
   }
 }
 
 # Defines required for Bazel.
 bazel_required_defines = [
-  "PERFETTO_SHLIB_SDK_IMPLEMENTATION"
+  "DEJAVIEW_SHLIB_SDK_IMPLEMENTATION"
 ]
 
 # Targets with the "avoid_dep" tag;
@@ -208,7 +208,7 @@ def filter_defines(defines):
 
 
 def gen_version_header(target):
-  label = BazelLabel(get_bazel_label_name(target.name), 'perfetto_genrule')
+  label = BazelLabel(get_bazel_label_name(target.name), 'dejaview_genrule')
   label.srcs += [gn_utils.label_to_path(x) for x in sorted(target.inputs)]
   label.outs += target.outputs
   label.cmd = r'$(location gen_version_header_py)'
@@ -249,12 +249,12 @@ class PythonBuildGenerator:
 
   def python_data_to_path(self, gn_name: str):
     """Converts a Python GN data label into a Bazel data label."""
-    return re.sub(r'^\.\.(.*)', r'PERFETTO_CONFIG.root + "\1"', gn_name)
+    return re.sub(r'^\.\.(.*)', r'DEJAVIEW_CONFIG.root + "\1"', gn_name)
 
   def gen_python_library(self, target: GnParser.Target):
     """Creates a Bazel target for a Python library GN target."""
     label = BazelLabel(
-        get_bazel_python_label_name(target.name), 'perfetto_py_library')
+        get_bazel_python_label_name(target.name), 'dejaview_py_library')
     label.comment = target.name
     label.srcs += (self.python_label_to_path(x) for x in target.sources)
     label.data += (self.python_data_to_path(x) for x in target.data)
@@ -268,7 +268,7 @@ class PythonBuildGenerator:
   def gen_python_binary(self, target: GnParser.Target):
     """Creates a Bazel target for a Python binary GN target."""
     label = BazelLabel(
-        get_bazel_python_label_name(target.name), 'perfetto_py_binary')
+        get_bazel_python_label_name(target.name), 'dejaview_py_binary')
     label.comment = target.name
     label.srcs += (self.python_label_to_path(x) for x in target.sources)
     label.data += (self.python_data_to_path(x) for x in target.data)
@@ -318,16 +318,16 @@ class PythonBuildGenerator:
 #
 # This file is automatically generated by {}. Do not edit.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 load(
-    "@perfetto//bazel:rules.bzl",
-    "perfetto_py_binary",
-    "perfetto_py_library",
+    "@dejaview//bazel:rules.bzl",
+    "dejaview_py_binary",
+    "dejaview_py_library",
 )
 
 licenses(["notice"])
 
-package(default_visibility = [PERFETTO_CONFIG.root + ":__subpackages__"])
+package(default_visibility = [DEJAVIEW_CONFIG.root + ":__subpackages__"])
 
 '''.format(tool_name).lstrip()
 
@@ -399,7 +399,7 @@ class BazelLabel(object):
         continue
       res += '    %s = ' % k
       if isinstance(v, basestring):
-        if v.startswith('PERFETTO_CONFIG.') or v.startswith('glob'):
+        if v.startswith('DEJAVIEW_CONFIG.') or v.startswith('glob'):
           res += '%s,\n' % v
         else:
           res += '"%s",\n' % v
@@ -419,7 +419,7 @@ class BazelLabel(object):
         for entry in sorted(v):
           if entry in non_win_srcs:
             continue
-          if entry.startswith('PERFETTO_CONFIG.'):
+          if entry.startswith('DEJAVIEW_CONFIG.'):
             res += '%s    %s,\n' % (indent, entry)
           else:
             res += '%s    "%s",\n' % (indent, entry)
@@ -454,10 +454,10 @@ def get_bazel_label_name(gn_name: str):
   """Converts a GN target name into a Bazel label name.
 
   If target is in the public target list, returns only the GN target name,
-  e.g.: //src/ipc:perfetto_ipc -> perfetto_ipc
+  e.g.: //src/ipc:dejaview_ipc -> dejaview_ipc
 
   Otherwise, in the case of an intermediate target, returns a mangled path.
-  e.g.:  //include/perfetto/base:base -> include_perfetto_base_base.
+  e.g.:  //include/dejaview/base:base -> include_dejaview_base_base.
   """
   if gn_name in default_targets:
     return gn_utils.label_without_toolchain(gn_name).split(':')[1]
@@ -485,7 +485,7 @@ def gen_proto_label(target: GnParser.Target):
   # For 'source_set' plugins, we don't want to generate any plugin-dependent
   # targets so just return the label of the proto sources only.
   if target.proto_plugin == 'source_set':
-    sources_label = BazelLabel(sources_label_name, 'perfetto_proto_library')
+    sources_label = BazelLabel(sources_label_name, 'dejaview_proto_library')
     sources_label.comment = target.name
     assert (all(x.startswith('//') for x in target.sources))
     assert (all(x.endswith('.proto') for x in target.sources))
@@ -503,10 +503,10 @@ def gen_proto_label(target: GnParser.Target):
     # This will be exposed by the |protobuf_descriptor_proto| dep.
     if buildtools_protobuf_src in target.proto_paths:
       sources_label.external_deps = [
-          'PERFETTO_CONFIG.deps.protobuf_descriptor_proto'
+          'DEJAVIEW_CONFIG.deps.protobuf_descriptor_proto'
       ]
 
-    sources_label.visibility = ['PERFETTO_CONFIG.proto_library_visibility']
+    sources_label.visibility = ['DEJAVIEW_CONFIG.proto_library_visibility']
 
     sources_label.exports = sorted(
         [':' + get_bazel_proto_sources_label(d) for d in target.proto_exports])
@@ -514,15 +514,15 @@ def gen_proto_label(target: GnParser.Target):
 
   # For all other types of plugins, we need to generate
   if target.proto_plugin == 'proto':
-    plugin_label_type = 'perfetto_cc_proto_library'
+    plugin_label_type = 'dejaview_cc_proto_library'
   elif target.proto_plugin == 'protozero':
-    plugin_label_type = 'perfetto_cc_protozero_library'
+    plugin_label_type = 'dejaview_cc_protozero_library'
   elif target.proto_plugin == 'cppgen':
-    plugin_label_type = 'perfetto_cc_protocpp_library'
+    plugin_label_type = 'dejaview_cc_protocpp_library'
   elif target.proto_plugin == 'ipc':
-    plugin_label_type = 'perfetto_cc_ipc_library'
+    plugin_label_type = 'dejaview_cc_ipc_library'
   elif target.proto_plugin == 'descriptor':
-    plugin_label_type = 'perfetto_proto_descriptor'
+    plugin_label_type = 'dejaview_proto_descriptor'
   else:
     raise Error('Unknown proto plugin: %s' % target.proto_plugin)
   plugin_label_name = get_bazel_label_name(target.name)
@@ -571,27 +571,27 @@ def gen_proto_group_target(gn: GnParser, name: str, desc: Dict[str, Any]):
   # First, create a root source set target which references all the child
   # source set targets. We publish this as well as depending on this in all
   # subsequent targets.
-  sources_label = BazelLabel(name + '_proto', 'perfetto_proto_library')
+  sources_label = BazelLabel(name + '_proto', 'dejaview_proto_library')
   sources_label.deps = [
       ':' + get_bazel_proto_sources_label(name)
       for name in sorted(list(deps_set))
   ]
   sources_label.comment = f'''[{', '.join(desc['sources'])}]'''
 
-  cc_label = BazelLabel(name + '_cc_proto', 'perfetto_cc_proto_library')
+  cc_label = BazelLabel(name + '_cc_proto', 'dejaview_cc_proto_library')
   cc_label.deps = [':' + sources_label.name]
   cc_label.comment = sources_label.comment
 
-  java_label = BazelLabel(name + '_java_proto', 'perfetto_java_proto_library')
+  java_label = BazelLabel(name + '_java_proto', 'dejaview_java_proto_library')
   java_label.deps = [':' + sources_label.name]
   java_label.comment = sources_label.comment
 
   lite_name = name + '_java_proto_lite'
-  java_lite_label = BazelLabel(lite_name, 'perfetto_java_lite_proto_library')
+  java_lite_label = BazelLabel(lite_name, 'dejaview_java_lite_proto_library')
   java_lite_label.deps = [':' + sources_label.name]
   java_lite_label.comment = sources_label.comment
 
-  py_label = BazelLabel(name + '_py_pb2', 'perfetto_py_proto_library')
+  py_label = BazelLabel(name + '_py_pb2', 'dejaview_py_proto_library')
   py_label.deps = [':' + sources_label.name]
   py_label.comment = sources_label.comment
 
@@ -608,7 +608,7 @@ def gen_proto_group_target(gn: GnParser, name: str, desc: Dict[str, Any]):
 
 def gen_cc_proto_descriptor(target: GnParser.Target):
   label = BazelLabel(
-      get_bazel_label_name(target.name), 'perfetto_cc_proto_descriptor')
+      get_bazel_label_name(target.name), 'dejaview_cc_proto_descriptor')
   label.comment = target.name
   label.deps += [
       ':' + get_bazel_label_name(x.name) for x in target.proto_deps()
@@ -625,7 +625,7 @@ def gen_cc_proto_descriptor(target: GnParser.Target):
 
 def gen_cc_amalgamated_sql(target: GnParser.Target):
   label = BazelLabel(
-      get_bazel_label_name(target.name), 'perfetto_cc_amalgamated_sql')
+      get_bazel_label_name(target.name), 'dejaview_cc_amalgamated_sql')
 
   def find_arg(name):
     for i, arg in enumerate(target.args):
@@ -642,14 +642,14 @@ def gen_cc_amalgamated_sql(target: GnParser.Target):
 
 
 def gen_sql_source_set(target: GnParser.Target):
-  label = BazelLabel(get_bazel_label_name(target.name), 'perfetto_filegroup')
+  label = BazelLabel(get_bazel_label_name(target.name), 'dejaview_filegroup')
   label.comment = target.name
   label.srcs += (gn_utils.label_to_path(x) for x in target.inputs)
   return [label]
 
 
 def gen_cc_tp_tables(target: GnParser.Target):
-  label = BazelLabel(get_bazel_label_name(target.name), 'perfetto_cc_tp_tables')
+  label = BazelLabel(get_bazel_label_name(target.name), 'dejaview_cc_tp_tables')
   label.comment = target.name
   label.srcs += (gn_utils.label_to_path(x) for x in target.sources)
   label.deps += sorted(':' + get_bazel_label_name(x.name)
@@ -677,13 +677,13 @@ def gen_target_helper(gn_target: GnParser.Target, win_target: GnParser.Target = 
   elif gn_target.type == 'group':
     return []
   elif gn_target.type == 'executable':
-    bazel_type = 'perfetto_cc_binary'
+    bazel_type = 'dejaview_cc_binary'
   elif gn_target.type == 'shared_library':
-    bazel_type = 'perfetto_cc_library'
+    bazel_type = 'dejaview_cc_library'
   elif gn_target.type == 'static_library':
-    bazel_type = 'perfetto_cc_library'
+    bazel_type = 'dejaview_cc_library'
   elif gn_target.type == 'source_set':
-    bazel_type = 'perfetto_filegroup'
+    bazel_type = 'dejaview_filegroup'
   elif gn_target.type == 'generated_file':
     return []
   else:
@@ -695,7 +695,7 @@ def gen_target_helper(gn_target: GnParser.Target, win_target: GnParser.Target = 
   # Supporting 'public' on source_sets would require not converting them to
   # filegroups in bazel.
   if gn_target.public_headers:
-    if bazel_type == 'perfetto_cc_library':
+    if bazel_type == 'dejaview_cc_library':
       label.hdrs += [x[2:] for x in gn_target.public_headers]
     else:
       raise Error('%s: \'public\' currently supported only for cc_library' %
@@ -703,11 +703,11 @@ def gen_target_helper(gn_target: GnParser.Target, win_target: GnParser.Target = 
 
   raw_srcs = [x[2:] for x in gn_target.sources]
   raw_srcs += [x[2:] for x in gn_target.inputs]
-  if bazel_type == 'perfetto_cc_library':
+  if bazel_type == 'dejaview_cc_library':
     label.srcs += [x for x in raw_srcs if not x.startswith('include')]
     label.hdrs += [x for x in raw_srcs if x.startswith('include')]
 
-    # Most Perfetto libraries cannot be dynamically linked as they would
+    # Most DejaView libraries cannot be dynamically linked as they would
     # cause ODR violations.
     label.__dict__['linkstatic'] = True
   else:
@@ -724,7 +724,7 @@ def gen_target_helper(gn_target: GnParser.Target, win_target: GnParser.Target = 
     for trans_dep in gn_target.transitive_source_set_deps():
       name = ':' + get_bazel_label_name(trans_dep.name)
       if name.startswith(
-          ':include_perfetto_') and gn_target.type != 'executable':
+          ':include_dejaview_') and gn_target.type != 'executable':
         label.hdrs += [name]
       else:
         if win_target:
@@ -813,33 +813,33 @@ def generate_build(gn_desc, gn_desc_win, targets, extras):
 #
 # This file is automatically generated by {}. Do not edit.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 load(
-    "@perfetto//bazel:rules.bzl",
-    "perfetto_build_config_cc_library",
-    "perfetto_cc_amalgamated_sql",
-    "perfetto_cc_binary",
-    "perfetto_cc_ipc_library",
-    "perfetto_cc_library",
-    "perfetto_cc_proto_descriptor",
-    "perfetto_cc_proto_library",
-    "perfetto_cc_protocpp_library",
-    "perfetto_cc_protozero_library",
-    "perfetto_cc_tp_tables",
-    "perfetto_filegroup",
-    "perfetto_genrule",
-    "perfetto_go_proto_library",
-    "perfetto_java_lite_proto_library",
-    "perfetto_java_proto_library",
-    "perfetto_proto_descriptor",
-    "perfetto_proto_library",
-    "perfetto_py_binary",
-    "perfetto_py_library",
-    "perfetto_py_proto_library",
-    "perfetto_jspb_proto_library",
+    "@dejaview//bazel:rules.bzl",
+    "dejaview_build_config_cc_library",
+    "dejaview_cc_amalgamated_sql",
+    "dejaview_cc_binary",
+    "dejaview_cc_ipc_library",
+    "dejaview_cc_library",
+    "dejaview_cc_proto_descriptor",
+    "dejaview_cc_proto_library",
+    "dejaview_cc_protocpp_library",
+    "dejaview_cc_protozero_library",
+    "dejaview_cc_tp_tables",
+    "dejaview_filegroup",
+    "dejaview_genrule",
+    "dejaview_go_proto_library",
+    "dejaview_java_lite_proto_library",
+    "dejaview_java_proto_library",
+    "dejaview_proto_descriptor",
+    "dejaview_proto_library",
+    "dejaview_py_binary",
+    "dejaview_py_library",
+    "dejaview_py_proto_library",
+    "dejaview_jspb_proto_library",
 )
 
-package(default_visibility = [PERFETTO_CONFIG.root + ":__subpackages__"])
+package(default_visibility = [DEJAVIEW_CONFIG.root + ":__subpackages__"])
 
 licenses(["notice"])
 
@@ -931,7 +931,7 @@ def main():
       '(e.g., gn desc out --format=json --all-toolchains "//*"')
   parser.add_argument(
       '--repo-root',
-      help='Standalone Perfetto repository to generate a GN description',
+      help='Standalone DejaView repository to generate a GN description',
       default=gn_utils.repo_root(),
   )
   parser.add_argument(
@@ -952,7 +952,7 @@ def main():
   parser.add_argument(
       'targets',
       nargs=argparse.REMAINDER,
-      help='Targets to include in the BUILD file (e.g., "//:perfetto_tests")')
+      help='Targets to include in the BUILD file (e.g., "//:dejaview_tests")')
   args = parser.parse_args()
 
   if args.desc:
@@ -981,7 +981,7 @@ def main():
     out_f.write(python_contents)
 
   # Generate the build flags file.
-  out_files.append(os.path.join(buildflags_dir, 'perfetto_build_flags.h.swp'))
+  out_files.append(os.path.join(buildflags_dir, 'dejaview_build_flags.h.swp'))
   gn_utils.gen_buildflags(gn_args, out_files[-1])
 
   return gn_utils.check_or_commit_generated_files(out_files, args.check_only)

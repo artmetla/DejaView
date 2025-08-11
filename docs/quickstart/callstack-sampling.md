@@ -26,7 +26,7 @@ follows:
 export ANDROID_SERIAL=SER123456
 ```
 
-Download `cpu_profile` (if you don't have a Perfetto checkout):
+Download `cpu_profile` (if you don't have a DejaView checkout):
 
 ```bash
 curl -LO https://raw.githubusercontent.com/google/perfetto/main/tools/cpu_profile
@@ -63,11 +63,11 @@ running when profiling is started. For instance, to profile the processes
 ./cpu_profile -n "foo,bar" -p
 ```
 
-You can also pass in a custom [Perfetto config](/docs/concepts/config.md), which
+You can also pass in a custom [DejaView config](/docs/concepts/config.md), which
 overrides all of the options above, using the `-c` argument:
 
 ```bash
-./cpu_profile -c "path/to/perfetto.config"
+./cpu_profile -c "path/to/dejaview.config"
 ```
 
 To change where profiles are output, use the `-o` argument:
@@ -114,13 +114,13 @@ For example, to profile and symbolize the profiles for the process
 `com.android.foo`, run:
 
 ```bash
-PERFETTO_SYMBOLIZER_MODE=index PERFETTO_BINARY_PATH=path/to/directory/with/symbols/ ./cpu_profile -n "com.android.foo"
+DEJAVIEW_SYMBOLIZER_MODE=index DEJAVIEW_BINARY_PATH=path/to/directory/with/symbols/ ./cpu_profile -n "com.android.foo"
 ```
 
 ## View profile
 
 Upload the `raw-trace` or `symbolized-trace` file from the output directory to
-the [Perfetto UI](https://ui.perfetto.dev) and click and drag over one or more
+the [DejaView UI](https://ui.perfetto.dev) and click and drag over one or more
 of the diamond markers in the UI track named "Perf Samples" for the processes
 that you selected for profiling. Each diamond marker represents a snapshot of
 the call-stack at that point on the timeline.

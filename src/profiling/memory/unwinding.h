@@ -19,16 +19,16 @@
 
 #include <unwindstack/Regs.h>
 
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/thread_task_runner.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/thread_task_runner.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 #include "src/profiling/common/unwind_support.h"
 #include "src/profiling/memory/bookkeeping.h"
 #include "src/profiling/memory/unwound_messages.h"
 #include "src/profiling/memory/wire_protocol.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 std::unique_ptr<unwindstack::Regs> CreateRegsFromRawData(
@@ -103,7 +103,7 @@ class UnwindingWorker : public base::UnixSocket::EventListener {
   void OnDisconnect(base::UnixSocket* self) override;
   void OnNewIncomingConnection(base::UnixSocket*,
                                std::unique_ptr<base::UnixSocket>) override {
-    PERFETTO_DFATAL_OR_ELOG("This should not happen.");
+    DEJAVIEW_DFATAL_OR_ELOG("This should not happen.");
   }
   void OnDataAvailable(base::UnixSocket* self) override;
 
@@ -164,6 +164,6 @@ class UnwindingWorker : public base::UnixSocket::EventListener {
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_MEMORY_UNWINDING_H_

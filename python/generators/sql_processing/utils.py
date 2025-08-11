@@ -40,7 +40,7 @@ def update_pattern(pattern):
 
 CREATE_TABLE_VIEW_PATTERN = update_pattern(
     # Match create table/view and catch type
-    fr'^CREATE (OR REPLACE)? (VIRTUAL|PERFETTO)?'
+    fr'^CREATE (OR REPLACE)? (VIRTUAL|DEJAVIEW)?'
     fr' (TABLE|VIEW) (?:IF NOT EXISTS)?'
     # Catch the name and optional schema.
     fr' ({NAME}) (?: \( ({ARGS}) \) )? (?:AS|USING)? .*')
@@ -53,11 +53,11 @@ DROP_TABLE_VIEW_PATTERN = update_pattern(
     fr'^DROP (VIEW|TABLE|INDEX) (?:IF EXISTS)? ({NAME});$')
 
 INCLUDE_ALL_PATTERN = update_pattern(
-    fr'^INCLUDE PERFETTO MODULE [a-zA-Z0-9_\.]*\*;')
+    fr'^INCLUDE DEJAVIEW MODULE [a-zA-Z0-9_\.]*\*;')
 
 CREATE_FUNCTION_PATTERN = update_pattern(
     # Function name.
-    fr"CREATE (OR REPLACE)? PERFETTO FUNCTION ({NAME}) "
+    fr"CREATE (OR REPLACE)? DEJAVIEW FUNCTION ({NAME}) "
     # Args: anything in the brackets.
     fr" \( ({ARGS}) \)"
     # Type: word after RETURNS.
@@ -65,7 +65,7 @@ CREATE_FUNCTION_PATTERN = update_pattern(
     fr" RETURNS ({TYPE}) AS ")
 
 CREATE_TABLE_FUNCTION_PATTERN = update_pattern(
-    fr"CREATE (OR REPLACE)? PERFETTO FUNCTION ({NAME}) "
+    fr"CREATE (OR REPLACE)? DEJAVIEW FUNCTION ({NAME}) "
     # Args: anything in the brackets.
     fr" \( ({ARGS}) \) "
     # Type: table definition after RETURNS.
@@ -73,14 +73,14 @@ CREATE_TABLE_FUNCTION_PATTERN = update_pattern(
     fr" RETURNS TABLE \( ({ARGS}) \) AS ")
 
 CREATE_MACRO_PATTERN = update_pattern(
-    fr"CREATE (OR REPLACE)? PERFETTO MACRO ({NAME}) "
+    fr"CREATE (OR REPLACE)? DEJAVIEW MACRO ({NAME}) "
     # Args: anything in the brackets.
     fr" \( ({ARGS}) \) "
     # Type: word after RETURNS.
     fr"({COMMENTS})"
     fr" RETURNS ({TYPE})")
 
-INCLUDE_PATTERN = update_pattern(fr'^INCLUDE PERFETTO MODULE ([A-Za-z_.*]*);$')
+INCLUDE_PATTERN = update_pattern(fr'^INCLUDE DEJAVIEW MODULE ([A-Za-z_.*]*);$')
 
 COLUMN_ANNOTATION_PATTERN = update_pattern(fr'^ ({NAME}) ({ANY_WORDS})')
 
@@ -177,15 +177,15 @@ def check_banned_words(sql: str) -> List[str]:
 
     if 'create_function' in line.casefold():
       errors.append('CREATE_FUNCTION is deprecated in trace processor. '
-                    'Use CREATE PERFETTO FUNCTION instead.')
+                    'Use CREATE DEJAVIEW FUNCTION instead.')
 
     if 'create_view_function' in line.casefold():
       errors.append('CREATE_VIEW_FUNCTION is deprecated in trace processor. '
-                    'Use CREATE PERFETTO FUNCTION $name RETURNS TABLE instead.')
+                    'Use CREATE DEJAVIEW FUNCTION $name RETURNS TABLE instead.')
 
     if 'import(' in line.casefold():
       errors.append('SELECT IMPORT is deprecated in trace processor. '
-                    'Use INCLUDE PERFETTO MODULE instead.')
+                    'Use INCLUDE DEJAVIEW MODULE instead.')
 
   return errors
 
@@ -199,7 +199,7 @@ def check_banned_create_table_as(sql: str) -> List[str]:
     if name != "trace_bounds":
       errors.append(
           f"Table '{name}' uses CREATE TABLE which is deprecated "
-          "and this table is not allowlisted. Use CREATE PERFETTO TABLE.")
+          "and this table is not allowlisted. Use CREATE DEJAVIEW TABLE.")
   return errors
 
 
@@ -209,7 +209,7 @@ def check_banned_create_view_as(sql: str) -> List[str]:
   for _, matches in match_pattern(CREATE_VIEW_AS_PATTERN, sql).items():
     name = matches[0]
     errors.append(f"CREATE VIEW '{name}' is deprecated. "
-                  "Use CREATE PERFETTO VIEW instead.")
+                  "Use CREATE DEJAVIEW VIEW instead.")
   return errors
 
 
@@ -228,6 +228,6 @@ def check_banned_include_all(sql: str) -> List[str]:
   errors = []
   for _, matches in match_pattern(INCLUDE_ALL_PATTERN, sql).items():
     errors.append(
-        "INCLUDE PERFETTO MODULE with wildcards is not allowed in stdlib. "
+        "INCLUDE DEJAVIEW MODULE with wildcards is not allowed in stdlib. "
         "Import specific modules instead.")
   return errors

@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/trace_processor/export_json.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/ext/trace_processor/export_json.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/trace_processor/status.h"
 #include "src/trace_processor/export_json.h"
 
 #include <json/config.h>
@@ -34,8 +34,8 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/common/cpu_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
@@ -53,7 +53,7 @@
 #include "src/trace_processor/types/variadic.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor::json {
+namespace dejaview::trace_processor::json {
 namespace {
 
 std::string ReadFile(FILE* input) {
@@ -2039,4 +2039,4 @@ TEST_F(ExportJsonTest, MemorySnapshotChromeDumpEvent) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor::json
+}  // namespace dejaview::trace_processor::json

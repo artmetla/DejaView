@@ -16,17 +16,17 @@
 
 #include "src/trace_processor/importers/ftrace/ftrace_module_impl.h"
 
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/ftrace/ftrace_parser.h"
 #include "src/trace_processor/importers/ftrace/ftrace_tokenizer.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 FtraceModuleImpl::FtraceModuleImpl(TraceProcessorContext* context)
     : tokenizer_(context), parser_(context) {
@@ -56,4 +56,4 @@ ModuleResult FtraceModuleImpl::TokenizePacket(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

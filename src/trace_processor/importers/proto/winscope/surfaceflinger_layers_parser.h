@@ -21,7 +21,7 @@
 #include "src/trace_processor/util/descriptors.h"
 #include "src/trace_processor/util/proto_to_args_parser.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace trace_processor {
 
@@ -36,8 +36,8 @@ class SurfaceFlingerLayersParser {
   const std::vector<std::uint32_t> kLayersSnapshotFieldsToArgsParse{1, 2, 4, 5,
                                                                     6, 7, 8};
   static constexpr auto* kLayersSnapshotProtoName =
-      ".perfetto.protos.LayersSnapshotProto";
-  static constexpr auto* kLayerProtoName = ".perfetto.protos.LayerProto";
+      ".dejaview.protos.LayersSnapshotProto";
+  static constexpr auto* kLayerProtoName = ".dejaview.protos.LayerProto";
 
   void ParseLayer(int64_t timestamp,
                   protozero::ConstBytes blob,
@@ -48,6 +48,6 @@ class SurfaceFlingerLayersParser {
   util::ProtoToArgsParser args_parser_;
 };
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_WINSCOPE_SURFACEFLINGER_LAYERS_PARSER_H_

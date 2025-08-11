@@ -30,7 +30,7 @@
 #include "src/trace_processor/storage/trace_storage.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 constexpr int kOneWay = 0x01;
 
@@ -337,4 +337,4 @@ TEST_F(BinderTrackerTest, OneWayWithCommandsFailAfterTxn) {
 }
 
 }  // namespace
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

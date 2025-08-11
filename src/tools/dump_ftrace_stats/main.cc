@@ -16,14 +16,14 @@
 
 #include <signal.h>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_writer.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_writer.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 // This dumps the ftrace stats into trace marker every 500ms. This is useful for
@@ -65,7 +65,7 @@ void DumpAllCpuStats() {
   base::ScopedFile file(
       base::OpenFile("/sys/kernel/debug/tracing/trace_marker", O_RDWR));
   if (!file) {
-    PERFETTO_ELOG("Unable to open trace marker file");
+    DEJAVIEW_ELOG("Unable to open trace marker file");
     g_task_runner->PostDelayedTask(&DumpAllCpuStats, 500);
     return;
   }
@@ -96,7 +96,7 @@ void DumpAllCpuStats() {
       writer.AppendLiteral("\n");
 
       auto output = writer.GetStringView();
-      PERFETTO_CHECK(write(*file, output.data(), output.size()) ==
+      DEJAVIEW_CHECK(write(*file, output.data(), output.size()) ==
                      static_cast<ssize_t>(output.size()));
     }
   }
@@ -129,9 +129,9 @@ int DumpFtraceStatsMain() {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 
 int main(int argc, char** argv) {
-  perfetto::base::ignore_result(argc, argv);
-  return perfetto::DumpFtraceStatsMain();
+  dejaview::base::ignore_result(argc, argv);
+  return dejaview::DumpFtraceStatsMain();
 }

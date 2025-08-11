@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-load("@perfetto_cfg//:perfetto_cfg.bzl", "PERFETTO_CONFIG")
+load("@dejaview_cfg//:dejaview_cfg.bzl", "DEJAVIEW_CONFIG")
 
 cc_library(
     name = "llvm_demangle",
@@ -33,7 +33,7 @@ cc_library(
       "llvm/include/llvm/Demangle/StringView.h",
       "llvm/include/llvm/Demangle/Utility.h",
     ],
-    copts = ["-std=c++14"] + PERFETTO_CONFIG.deps_copts.llvm_demangle,
+    copts = ["-std=c++14"] + DEJAVIEW_CONFIG.deps_copts.llvm_demangle,
     includes = ["llvm/include"],
     visibility = ["//visibility:public"],
 )

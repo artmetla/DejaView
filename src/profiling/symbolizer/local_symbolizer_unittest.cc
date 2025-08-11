@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 #include "test/gtest_and_gmock.h"
 
 // This translation unit is built only on Linux and MacOS. See //gn/BUILD.gn.
-#if PERFETTO_BUILDFLAG(PERFETTO_LOCAL_SYMBOLIZER)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_LOCAL_SYMBOLIZER)
 
 #include <cstddef>
 
@@ -28,13 +28,13 @@
 #include "src/profiling/symbolizer/local_symbolizer.h"
 #include "src/profiling/symbolizer/subprocess.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 #include <unistd.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
 
@@ -119,7 +119,7 @@ TEST(LocalBinaryIndexerTest, NOMSAN_SimpleTree) {
   std::optional<FoundBinary> bin1 =
       indexer.FindBinary("", "AAAAAAAAAAAAAAAAAAAA");
   ASSERT_TRUE(bin1.has_value());
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   EXPECT_EQ(bin1.value().file_name, tmp.path() + "/dir1\\elf1");
 #else
   EXPECT_EQ(bin1.value().file_name, tmp.path() + "/dir1/elf1");
@@ -127,16 +127,16 @@ TEST(LocalBinaryIndexerTest, NOMSAN_SimpleTree) {
   std::optional<FoundBinary> bin2 =
       indexer.FindBinary("", "BBBBBBBBBBBBBBBBBBBB");
   ASSERT_TRUE(bin2.has_value());
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   EXPECT_EQ(bin2.value().file_name, tmp.path() + "/dir2\\elf1");
 #else
   EXPECT_EQ(bin2.value().file_name, tmp.path() + "/dir2/elf1");
 #endif
 }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 
 #if defined(MEMORY_SANITIZER)
 // fts_read() causes some error under msan.
@@ -203,9 +203,9 @@ TEST(LocalBinaryIndexerTest, NOMSAN_RecursiveSymlinks) {
   EXPECT_EQ(bin1.value().file_name, tmp.AbsolutePath("main/elf1"));
 }
 
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||
-        // PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) ||
-        // PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||
+        // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) ||
+        // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 
 TEST(LocalBinaryFinderTest, AbsolutePath) {
   base::TmpDirTree tmp;
@@ -282,6 +282,6 @@ TEST(LocalBinaryFinderTest, BuildIdSubdir) {
 
 }  // namespace
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif

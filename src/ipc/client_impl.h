@@ -21,13 +21,13 @@
 #include <map>
 #include <memory>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/ipc/client.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/ipc/client.h"
 #include "src/ipc/buffered_frame_deserializer.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos {
 namespace gen {
@@ -110,6 +110,6 @@ class ClientImpl : public Client, public base::UnixSocket::EventListener {
 };
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_IPC_CLIENT_IMPL_H_

@@ -323,7 +323,7 @@ export class FlowManager {
 
     const query = `
     -- Include slices.flow to initialise indexes on 'flow.slice_in' and 'flow.slice_out'.
-    INCLUDE PERFETTO MODULE slices.flow;
+    INCLUDE DEJAVIEW MODULE slices.flow;
 
     select
       f.slice_out as beginSliceId,

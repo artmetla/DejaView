@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/ipc/service_proxy.h"
+#include "dejaview/ext/ipc/service_proxy.h"
 
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/ipc/service_descriptor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/ipc/service_descriptor.h"
 #include "src/ipc/client_impl.h"
 
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 ServiceProxy::ServiceProxy(EventListener* event_listener)
@@ -51,7 +51,7 @@ void ServiceProxy::BeginInvoke(const std::string& method_name,
                                int fd) {
   // |reply| will auto-resolve if it gets out of scope early.
   if (!connected()) {
-    PERFETTO_DFATAL("Not connected.");
+    DEJAVIEW_DFATAL("Not connected.");
     return;
   }
   if (!client_)
@@ -67,15 +67,15 @@ void ServiceProxy::BeginInvoke(const std::string& method_name,
                           request, drop_reply, weak_ptr_factory_.GetWeakPtr(),
                           fd);
   } else {
-    PERFETTO_DLOG("Cannot find method \"%s\" on the host", method_name.c_str());
+    DEJAVIEW_DLOG("Cannot find method \"%s\" on the host", method_name.c_str());
   }
 
   // When passing |drop_reply| == true, the returned |request_id| should be 0.
-  PERFETTO_DCHECK(!drop_reply || !request_id);
+  DEJAVIEW_DCHECK(!drop_reply || !request_id);
 
   if (!request_id)
     return;
-  PERFETTO_DCHECK(pending_callbacks_.count(request_id) == 0);
+  DEJAVIEW_DCHECK(pending_callbacks_.count(request_id) == 0);
   pending_callbacks_.emplace(request_id, std::move(reply));
 }
 
@@ -87,7 +87,7 @@ void ServiceProxy::EndInvoke(RequestID request_id,
     // Either we are getting a reply for a method we never invoked, or we are
     // getting a reply to a method marked drop_reply (that has been invoked
     // without binding any callback in the Defererd response object).
-    PERFETTO_DFATAL("Unexpected reply received.");
+    DEJAVIEW_DFATAL("Unexpected reply received.");
     return;
   }
   DeferredBase& reply_callback = callback_it->second;
@@ -99,7 +99,7 @@ void ServiceProxy::EndInvoke(RequestID request_id,
 
 void ServiceProxy::OnConnect(bool success) {
   if (success) {
-    PERFETTO_DCHECK(service_id_);
+    DEJAVIEW_DCHECK(service_id_);
     return event_listener_->OnConnect();
   }
   return event_listener_->OnDisconnect();
@@ -115,4 +115,4 @@ base::WeakPtr<ServiceProxy> ServiceProxy::GetWeakPtr() const {
 }
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

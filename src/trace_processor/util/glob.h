@@ -21,11 +21,11 @@
 #include <string_view>
 #include <vector>
 
-#include "perfetto/ext/base/small_vector.h"
-#include "perfetto/ext/base/string_splitter.h"
-#include "perfetto/ext/base/string_view.h"
+#include "dejaview/ext/base/small_vector.h"
+#include "dejaview/ext/base/string_splitter.h"
+#include "dejaview/ext/base/string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
@@ -172,6 +172,6 @@ class GlobMatcher {
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_GLOB_H_

@@ -27,14 +27,14 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/public/compiler.h"
 #include "src/trace_processor/importers/common/clock_tracker.h"
 #include "src/trace_processor/importers/common/event_tracker.h"
 #include "src/trace_processor/importers/common/metadata_tracker.h"
@@ -48,17 +48,17 @@
 #include "src/trace_processor/types/variadic.h"
 #include "src/trace_processor/util/descriptors.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
-#include "protos/perfetto/common/trace_stats.pbzero.h"
-#include "protos/perfetto/config/trace_config.pbzero.h"
-#include "protos/perfetto/trace/clock_snapshot.pbzero.h"
-#include "protos/perfetto/trace/extension_descriptor.pbzero.h"
-#include "protos/perfetto/trace/perfetto/tracing_service_event.pbzero.h"
-#include "protos/perfetto/trace/remote_clock_sync.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/common/trace_stats.pbzero.h"
+#include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/clock_snapshot.pbzero.h"
+#include "protos/dejaview/trace/extension_descriptor.pbzero.h"
+#include "protos/dejaview/trace/dejaview/tracing_service_event.pbzero.h"
+#include "protos/dejaview/trace/remote_clock_sync.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 ProtoTraceReader::ProtoTraceReader(TraceProcessorContext* ctx)
     : context_(ctx),
@@ -86,28 +86,28 @@ base::Status ProtoTraceReader::ParseExtensionDescriptor(ConstBytes descriptor) {
 
 base::Status ProtoTraceReader::ParsePacket(TraceBlobView packet) {
   protos::pbzero::TracePacket::Decoder decoder(packet.data(), packet.length());
-  if (PERFETTO_UNLIKELY(decoder.bytes_left())) {
+  if (DEJAVIEW_UNLIKELY(decoder.bytes_left())) {
     return base::ErrStatus(
         "Failed to parse proto packet fully; the trace is probably corrupt.");
   }
 
   // Any compressed packets should have been handled by the tokenizer.
-  PERFETTO_CHECK(!decoder.has_compressed_packets());
+  DEJAVIEW_CHECK(!decoder.has_compressed_packets());
 
   // When the trace packet is emitted from a remote machine: parse the packet
   // using a different ProtoTraceReader instance. The packet will be parsed
   // in the context of the remote machine.
-  if (PERFETTO_UNLIKELY(decoder.has_machine_id())) {
+  if (DEJAVIEW_UNLIKELY(decoder.has_machine_id())) {
     if (!context_->machine_id()) {
       // Default context: switch to another reader instance to parse the packet.
-      PERFETTO_DCHECK(context_->multi_machine_trace_manager);
+      DEJAVIEW_DCHECK(context_->multi_machine_trace_manager);
       auto* reader = context_->multi_machine_trace_manager->GetOrCreateReader(
           decoder.machine_id());
       return reader->ParsePacket(std::move(packet));
     }
   }
   // Assert that the packet is parsed using the right instance of reader.
-  PERFETTO_DCHECK(decoder.has_machine_id() == !!context_->machine_id());
+  DEJAVIEW_DCHECK(decoder.has_machine_id() == !!context_->machine_id());
 
   const uint32_t seq_id = decoder.trusted_packet_sequence_id();
   auto* state = GetIncrementalStateForPacketSequence(seq_id);
@@ -157,12 +157,12 @@ base::Status ProtoTraceReader::ParsePacket(TraceBlobView packet) {
   }
 
   if (decoder.has_remote_clock_sync()) {
-    PERFETTO_DCHECK(context_->machine_id());
+    DEJAVIEW_DCHECK(context_->machine_id());
     return ParseRemoteClockSync(decoder.remote_clock_sync());
   }
 
   if (decoder.has_service_event()) {
-    PERFETTO_DCHECK(decoder.has_timestamp());
+    DEJAVIEW_DCHECK(decoder.has_timestamp());
     int64_t ts = static_cast<int64_t>(decoder.timestamp());
     return ParseServiceEvent(ts, decoder.service_event());
   }
@@ -288,7 +288,7 @@ base::Status ProtoTraceReader::ParsePacket(TraceBlobView packet) {
 void ProtoTraceReader::ParseTraceConfig(protozero::ConstBytes blob) {
   protos::pbzero::TraceConfig::Decoder trace_config(blob);
   if (trace_config.write_into_file() && !trace_config.flush_period_ms()) {
-    PERFETTO_ELOG(
+    DEJAVIEW_ELOG(
         "It is strongly recommended to have flush_period_ms set when "
         "write_into_file is turned on. This trace will be loaded fully "
         "into memory before sorting which increases the likelihood of "
@@ -298,8 +298,8 @@ void ProtoTraceReader::ParseTraceConfig(protozero::ConstBytes blob) {
 
 void ProtoTraceReader::HandleIncrementalStateCleared(
     const protos::pbzero::TracePacket::Decoder& packet_decoder) {
-  if (PERFETTO_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
-    PERFETTO_ELOG(
+  if (DEJAVIEW_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
+    DEJAVIEW_ELOG(
         "incremental_state_cleared without trusted_packet_sequence_id");
     context_->storage->IncrementStats(stats::interned_data_tokenizer_errors);
     return;
@@ -322,8 +322,8 @@ void ProtoTraceReader::HandleFirstPacketOnSequence(
 
 void ProtoTraceReader::HandlePreviousPacketDropped(
     const protos::pbzero::TracePacket::Decoder& packet_decoder) {
-  if (PERFETTO_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
-    PERFETTO_ELOG("previous_packet_dropped without trusted_packet_sequence_id");
+  if (DEJAVIEW_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
+    DEJAVIEW_ELOG("previous_packet_dropped without trusted_packet_sequence_id");
     context_->storage->IncrementStats(stats::interned_data_tokenizer_errors);
     return;
   }
@@ -335,8 +335,8 @@ void ProtoTraceReader::HandlePreviousPacketDropped(
 void ProtoTraceReader::ParseTracePacketDefaults(
     const protos::pbzero::TracePacket_Decoder& packet_decoder,
     TraceBlobView trace_packet_defaults) {
-  if (PERFETTO_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
-    PERFETTO_ELOG(
+  if (DEJAVIEW_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
+    DEJAVIEW_ELOG(
         "TracePacketDefaults packet without trusted_packet_sequence_id");
     context_->storage->IncrementStats(stats::interned_data_tokenizer_errors);
     return;
@@ -350,8 +350,8 @@ void ProtoTraceReader::ParseTracePacketDefaults(
 void ProtoTraceReader::ParseInternedData(
     const protos::pbzero::TracePacket::Decoder& packet_decoder,
     TraceBlobView interned_data) {
-  if (PERFETTO_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
-    PERFETTO_ELOG("InternedData packet without trusted_packet_sequence_id");
+  if (DEJAVIEW_UNLIKELY(!packet_decoder.has_trusted_packet_sequence_id())) {
+    DEJAVIEW_ELOG("InternedData packet without trusted_packet_sequence_id");
     context_->storage->IncrementStats(stats::interned_data_tokenizer_errors);
     return;
   }
@@ -406,7 +406,7 @@ base::Status ProtoTraceReader::ParseClockSnapshot(ConstBytes blob,
   base::StatusOr<uint32_t> snapshot_id =
       context_->clock_tracker->AddSnapshot(clock_timestamps);
   if (!snapshot_id.ok()) {
-    PERFETTO_ELOG("%s", snapshot_id.status().c_message());
+    DEJAVIEW_ELOG("%s", snapshot_id.status().c_message());
     return base::OkStatus();
   }
 
@@ -429,7 +429,7 @@ base::Status ProtoTraceReader::ParseClockSnapshot(ConstBytes blob,
       // This can happen if |AddSnapshot| failed to resolve this clock, e.g. if
       // clock is not monotonic. Try to fetch trace time from snapshot.
       if (!trace_time_from_snapshot) {
-        PERFETTO_DLOG("%s", opt_trace_ts.status().c_message());
+        DEJAVIEW_DLOG("%s", opt_trace_ts.status().c_message());
         continue;
       }
       opt_trace_ts = *trace_time_from_snapshot;
@@ -437,7 +437,7 @@ base::Status ProtoTraceReader::ParseClockSnapshot(ConstBytes blob,
 
     // Double check that all the clocks in this snapshot resolve to the same
     // trace timestamp value.
-    PERFETTO_DCHECK(!trace_ts_for_check ||
+    DEJAVIEW_DCHECK(!trace_ts_for_check ||
                     opt_trace_ts.value() == trace_ts_for_check.value());
     trace_ts_for_check = *opt_trace_ts;
 
@@ -757,4 +757,4 @@ base::Status ProtoTraceReader::NotifyEndOfFile() {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

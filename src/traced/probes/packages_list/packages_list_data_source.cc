@@ -16,17 +16,17 @@
 
 #include "src/traced/probes/packages_list/packages_list_data_source.h"
 
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_splitter.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_splitter.h"
 
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 #include "src/traced/probes/packages_list/packages_list_parser.h"
 
-using perfetto::protos::pbzero::PackagesListConfig;
+using dejaview::protos::pbzero::PackagesListConfig;
 
-namespace perfetto {
+namespace dejaview {
 
 // static
 const ProbesDataSource::Descriptor PackagesListDataSource::descriptor = {
@@ -76,7 +76,7 @@ void PackagesListDataSource::Start() {
   auto trace_packet = writer_->NewTracePacket();
   auto* packages_list_packet = trace_packet->set_packages_list();
   if (!fs) {
-    PERFETTO_ELOG("Failed to open packages.list");
+    DEJAVIEW_ELOG("Failed to open packages.list");
     packages_list_packet->set_read_error(true);
     trace_packet->Finalize();
     writer_->Flush();
@@ -103,4 +103,4 @@ void PackagesListDataSource::Flush(FlushRequestID,
 
 PackagesListDataSource::~PackagesListDataSource() = default;
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -32,7 +32,7 @@ export class CpuSliceSelectionAggregator implements AreaSelectionAggregator {
     if (selectedCpus.length === 0) return false;
 
     await engine.query(`
-      create or replace perfetto table ${this.id} as
+      create or replace dejaview table ${this.id} as
       select
         process.name as process_name,
         pid,

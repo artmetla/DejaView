@@ -26,7 +26,7 @@ class Memory(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_postboot_unlock.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE linux.memory.process;
+        INCLUDE DEJAVIEW MODULE linux.memory.process;
 
         SELECT *
         FROM memory_rss_and_swap_per_process
@@ -46,7 +46,7 @@ class Memory(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_postboot_unlock.pftrace'),
         query="""
-        INCLUDE PERFETTO MODULE linux.memory.high_watermark;
+        INCLUDE DEJAVIEW MODULE linux.memory.high_watermark;
 
         SELECT *
         FROM memory_rss_high_watermark_per_process

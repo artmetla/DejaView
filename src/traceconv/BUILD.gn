@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
-import("../../gn/perfetto_cc_proto_descriptor.gni")
-import("../../gn/perfetto_host_executable.gni")
+import("../../gn/dejaview.gni")
+import("../../gn/dejaview_cc_proto_descriptor.gni")
+import("../../gn/dejaview_host_executable.gni")
 import("../../gn/test.gni")
 import("../../gn/wasm.gni")
 
@@ -29,17 +29,17 @@ executable("traceconv") {
 source_set("utils") {
   deps = [
     "../../gn:default_deps",
-    "../../include/perfetto/protozero",
-    "../../include/perfetto/trace_processor",
-    "../../protos/perfetto/trace:zero",
-    "../../protos/perfetto/trace/interned_data:zero",
-    "../../protos/perfetto/trace/profiling:zero",
+    "../../include/dejaview/protozero",
+    "../../include/dejaview/trace_processor",
+    "../../protos/dejaview/trace:zero",
+    "../../protos/dejaview/trace/interned_data:zero",
+    "../../protos/dejaview/trace/profiling:zero",
     "../../src/profiling:deobfuscator",
     "../../src/profiling/symbolizer",
     "../../src/profiling/symbolizer:symbolize_database",
   ]
-  public_deps = [ "../../include/perfetto/ext/base" ]
-  if (enable_perfetto_zlib) {
+  public_deps = [ "../../include/dejaview/ext/base" ]
+  if (enable_dejaview_zlib) {
     public_deps += [ "../../gn:zlib" ]
   }
   sources = [
@@ -49,15 +49,15 @@ source_set("utils") {
 }
 
 source_set("pprofbuilder") {
-  public_deps = [ "../../include/perfetto/profiling:pprof_builder" ]
+  public_deps = [ "../../include/dejaview/profiling:pprof_builder" ]
   deps = [
     ":utils",
     "../../gn:default_deps",
-    "../../include/perfetto/base",
-    "../../include/perfetto/protozero",
-    "../../include/perfetto/trace_processor",
-    "../../protos/perfetto/trace:zero",
-    "../../protos/perfetto/trace/profiling:zero",
+    "../../include/dejaview/base",
+    "../../include/dejaview/protozero",
+    "../../include/dejaview/trace_processor",
+    "../../protos/dejaview/trace:zero",
+    "../../protos/dejaview/trace/profiling:zero",
     "../../protos/third_party/pprof:zero",
     "../../src/profiling/symbolizer",
     "../../src/profiling/symbolizer:symbolize_database",
@@ -79,10 +79,10 @@ source_set("lib") {
     ":pprofbuilder",
     ":utils",
     "../../gn:default_deps",
-    "../../include/perfetto/base",
-    "../../include/perfetto/ext/traced:sys_stats_counters",
-    "../../include/perfetto/protozero",
-    "../../protos/perfetto/trace:zero",
+    "../../include/dejaview/base",
+    "../../include/dejaview/ext/traced:sys_stats_counters",
+    "../../include/dejaview/protozero",
+    "../../protos/dejaview/trace:zero",
     "../../src/profiling:deobfuscator",
     "../../src/profiling/symbolizer",
     "../../src/profiling/symbolizer:symbolize_database",
@@ -121,13 +121,13 @@ source_set("main") {
   deps = [
     ":lib",
     "../../gn:default_deps",
-    "../../include/perfetto/ext/base:base",
+    "../../include/dejaview/ext/base:base",
     "../base:version",
   ]
   sources = [ "main.cc" ]
 }
 
-if (enable_perfetto_ui) {
+if (enable_dejaview_ui) {
   wasm_lib("traceconv_wasm") {
     name = "traceconv"
     deps = [
@@ -137,14 +137,14 @@ if (enable_perfetto_ui) {
   }
 }
 
-perfetto_cc_proto_descriptor("gen_cc_trace_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_trace_descriptor") {
   descriptor_name = "trace.descriptor"
-  descriptor_target = "../../protos/perfetto/trace:descriptor"
+  descriptor_target = "../../protos/dejaview/trace:descriptor"
 }
 
-perfetto_cc_proto_descriptor("gen_cc_winscope_descriptor") {
+dejaview_cc_proto_descriptor("gen_cc_winscope_descriptor") {
   descriptor_name = "winscope.descriptor"
-  descriptor_target = "../../protos/perfetto/trace/android:winscope_descriptor"
+  descriptor_target = "../../protos/dejaview/trace/android:winscope_descriptor"
 }
 
 source_set("integrationtests") {
@@ -153,8 +153,8 @@ source_set("integrationtests") {
     ":lib",
     "../../gn:default_deps",
     "../../gn:gtest_and_gmock",
-    "../../include/perfetto/base",
-    "../../include/perfetto/ext/base:base",
+    "../../include/dejaview/base",
+    "../../include/dejaview/ext/base:base",
     "../../protos/third_party/pprof:cpp",
     "../../protos/third_party/pprof:zero",
     "../../src/base:test_support",

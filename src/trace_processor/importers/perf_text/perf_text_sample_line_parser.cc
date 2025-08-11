@@ -24,9 +24,9 @@
 #include <string_view>
 #include <vector>
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto::trace_processor::perf_text_importer {
+namespace dejaview::trace_processor::perf_text_importer {
 
 namespace {
 
@@ -150,4 +150,4 @@ bool IsPerfTextFormatTrace(const uint8_t* ptr, size_t size) {
   return ParseSampleLine(str.substr(0, nl)).has_value();
 }
 
-}  // namespace perfetto::trace_processor::perf_text_importer
+}  // namespace dejaview::trace_processor::perf_text_importer

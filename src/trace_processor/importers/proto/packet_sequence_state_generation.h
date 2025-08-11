@@ -20,16 +20,16 @@
 #include <optional>
 #include <unordered_map>
 
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/proto/track_event_sequence_state.h"
 #include "src/trace_processor/util/interned_message_view.h"
 
-#include "protos/perfetto/trace/trace_packet_defaults.pbzero.h"
-#include "protos/perfetto/trace/track_event/thread_descriptor.pbzero.h"
-#include "protos/perfetto/trace/track_event/track_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet_defaults.pbzero.h"
+#include "protos/dejaview/trace/track_event/thread_descriptor.pbzero.h"
+#include "protos/dejaview/trace/track_event/track_event.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 using InternedMessageMap =
@@ -282,7 +282,7 @@ std::remove_cv_t<T>* PacketSequenceStateGeneration::GetCustomState() {
   constexpr size_t index = FindUniqueType<CustomStateClasses, T>();
   static_assert(index < std::tuple_size_v<CustomStateClasses>, "Not found");
   auto& ptr = custom_state_[index];
-  if (PERFETTO_UNLIKELY(ptr.get() == nullptr)) {
+  if (DEJAVIEW_UNLIKELY(ptr.get() == nullptr)) {
     ptr.reset(new T(context_));
     ptr->set_generation(this);
   }
@@ -291,6 +291,6 @@ std::remove_cv_t<T>* PacketSequenceStateGeneration::GetCustomState() {
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PACKET_SEQUENCE_STATE_GENERATION_H_

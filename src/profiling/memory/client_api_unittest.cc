@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/heap_profile.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/heap_profile.h"
 #include "src/profiling/memory/heap_profile_internal.h"
 
 #include "src/profiling/memory/client.h"
@@ -27,7 +27,7 @@
 
 #include <memory>
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -54,15 +54,15 @@ void DisconnectGlobalServerSocket() {
 // details. This is is used to create a test Client here.
 void StartHeapprofdIfStatic() {}
 std::shared_ptr<Client> ConstructClient(
-    UnhookedAllocator<perfetto::profiling::Client> unhooked_allocator) {
+    UnhookedAllocator<dejaview::profiling::Client> unhooked_allocator) {
   base::UnixSocketRaw cli_sock;
   base::UnixSocketRaw& srv_sock = GlobalServerSocket();
   std::tie(cli_sock, srv_sock) = base::UnixSocketRaw::CreatePairPosix(
       base::SockFamily::kUnix, base::SockType::kStream);
   auto ringbuf = SharedRingBuffer::Create(8 * 1048576);
-  PERFETTO_CHECK(ringbuf);
-  PERFETTO_CHECK(cli_sock);
-  PERFETTO_CHECK(srv_sock);
+  DEJAVIEW_CHECK(ringbuf);
+  DEJAVIEW_CHECK(cli_sock);
+  DEJAVIEW_CHECK(srv_sock);
   g_shmem_fd = ringbuf->fd();
   return std::allocate_shared<Client>(unhooked_allocator, std::move(cli_sock),
                                       g_client_config, std::move(*ringbuf),
@@ -88,10 +88,10 @@ TEST(ClientApiTest, ClientEnabledHeap) {
   g_client_config = client_config;
 
   AHeapProfile_initSession(malloc, free);
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
   g_shmem_fd = 0;
-  PERFETTO_CHECK(ringbuf);
+  DEJAVIEW_CHECK(ringbuf);
   EXPECT_TRUE(AHeapProfile_reportAllocation(heap_id, 1, 1));
   // Check that the service received something on the shmem.
   EXPECT_TRUE(ringbuf->BeginRead());
@@ -110,10 +110,10 @@ TEST(ClientApiTest, ClientAllHeaps) {
   g_client_config = client_config;
 
   AHeapProfile_initSession(malloc, free);
-  PERFETTO_CHECK(g_shmem_fd);
+  DEJAVIEW_CHECK(g_shmem_fd);
   auto ringbuf = SharedRingBuffer::Attach(base::ScopedFile(dup(g_shmem_fd)));
   g_shmem_fd = 0;
-  PERFETTO_CHECK(ringbuf);
+  DEJAVIEW_CHECK(ringbuf);
   EXPECT_TRUE(AHeapProfile_reportAllocation(heap_id, 1, 1));
   // Check that the service received something on the shmem.
   EXPECT_TRUE(ringbuf->BeginRead());
@@ -125,4 +125,4 @@ TEST(ClientApiTest, ClientAllHeaps) {
 }  // namespace
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

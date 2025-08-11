@@ -19,9 +19,9 @@
 #include <cinttypes>
 #include <fstream>
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 
-namespace perfetto::pprof {
+namespace dejaview::pprof {
 
 using namespace third_party::perftools::profiles::gen;
 
@@ -40,7 +40,7 @@ int64_t PprofProfileReader::get_string_index(const std::string& str) const {
                             profile_.string_table().end(), str);
 
   if (it == profile_.string_table().end()) {
-    PERFETTO_FATAL("String %s not found in string table", str.c_str());
+    DEJAVIEW_FATAL("String %s not found in string table", str.c_str());
   }
 
   return std::distance(profile_.string_table().begin(), it);
@@ -49,7 +49,7 @@ int64_t PprofProfileReader::get_string_index(const std::string& str) const {
 std::string PprofProfileReader::get_string_by_index(
     const uint64_t string_index) const {
   if (string_index >= profile_.string_table().size()) {
-    PERFETTO_FATAL("String %" PRIu64 " is out of range in string table",
+    DEJAVIEW_FATAL("String %" PRIu64 " is out of range in string table",
                    string_index);
   }
 
@@ -72,7 +72,7 @@ uint64_t PprofProfileReader::find_location_id(
   }
 
   if (!found_function_id) {
-    PERFETTO_FATAL("Function %s not found", function_name.c_str());
+    DEJAVIEW_FATAL("Function %s not found", function_name.c_str());
   }
 
   // Find a location for the function
@@ -84,7 +84,7 @@ uint64_t PprofProfileReader::find_location_id(
     }
   }
 
-  PERFETTO_FATAL("Location for function %s not found", function_name.c_str());
+  DEJAVIEW_FATAL("Location for function %s not found", function_name.c_str());
 }
 
 Location PprofProfileReader::find_location(const uint64_t location_id) const {
@@ -96,7 +96,7 @@ Location PprofProfileReader::find_location(const uint64_t location_id) const {
     return *it;
   }
 
-  PERFETTO_FATAL("Location with id %" PRIu64 " not found", location_id);
+  DEJAVIEW_FATAL("Location with id %" PRIu64 " not found", location_id);
 }
 
 Function PprofProfileReader::find_function(const uint64_t function_id) const {
@@ -108,7 +108,7 @@ Function PprofProfileReader::find_function(const uint64_t function_id) const {
     return *it;
   }
 
-  PERFETTO_FATAL("Function with id %" PRIu64 " not found", function_id);
+  DEJAVIEW_FATAL("Function with id %" PRIu64 " not found", function_id);
 }
 
 std::vector<std::string> PprofProfileReader::get_sample_function_names(
@@ -164,7 +164,7 @@ uint64_t PprofProfileReader::get_sample_value_index(
         std::distance(profile_.sample_type().begin(), it));
   }
 
-  PERFETTO_FATAL("Can't find value type with name \"%s\"", value_name.c_str());
+  DEJAVIEW_FATAL("Can't find value type with name \"%s\"", value_name.c_str());
 }
 
 int64_t PprofProfileReader::get_samples_value_sum(
@@ -178,4 +178,4 @@ int64_t PprofProfileReader::get_samples_value_sum(
   }
   return total;
 }
-}  // namespace perfetto::pprof
+}  // namespace dejaview::pprof

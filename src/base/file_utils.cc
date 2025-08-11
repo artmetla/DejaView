@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 
 #include <sys/stat.h>
 #include <sys/types.h>
@@ -25,17 +25,17 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/base/platform_handle.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/platform.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/platform_handle.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/platform.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/utils.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #include <direct.h>
 #include <io.h>
@@ -45,10 +45,10 @@
 #include <unistd.h>
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
-#define PERFETTO_SET_FILE_PERMISSIONS
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
+#define DEJAVIEW_SET_FILE_PERMISSIONS
 #include <fcntl.h>
 #include <grp.h>
 #include <sys/stat.h>
@@ -56,12 +56,12 @@
 #include <unistd.h>
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 constexpr size_t kBufSize = 2048;
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 // Wrap FindClose to: (1) make the return unix-style; (2) deal with stdcall.
 int CloseFindHandle(HANDLE h) {
   return FindClose(h) ? 0 : -1;
@@ -81,7 +81,7 @@ std::optional<std::wstring> ToUtf16(const std::string str) {
   if (len < 0) {
     return std::nullopt;
   }
-  PERFETTO_CHECK(static_cast<std::vector<wchar_t>::size_type>(len) ==
+  DEJAVIEW_CHECK(static_cast<std::vector<wchar_t>::size_type>(len) ==
                  tmp.size());
   return std::wstring(tmp.data(), tmp.size());
 }
@@ -93,10 +93,10 @@ std::optional<std::wstring> ToUtf16(const std::string str) {
 ssize_t Read(int fd, void* dst, size_t dst_size) {
   ssize_t ret;
   platform::BeforeMaybeBlockingSyscall();
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   ret = _read(fd, dst, static_cast<unsigned>(dst_size));
 #else
-  ret = PERFETTO_EINTR(read(fd, dst, dst_size));
+  ret = DEJAVIEW_EINTR(read(fd, dst, dst_size));
 #endif
   platform::AfterMaybeBlockingSyscall();
   return ret;
@@ -128,7 +128,7 @@ bool ReadFileDescriptor(int fd, std::string* out) {
 }
 
 bool ReadPlatformHandle(PlatformHandle h, std::string* out) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // Do not override existing data in string.
   size_t i = out->size();
 
@@ -175,7 +175,7 @@ ssize_t WriteAll(int fd, const void* buf, size_t count) {
     uint32_t bytes_left = static_cast<uint32_t>(
         std::min(count - written, static_cast<size_t>(UINT32_MAX)));
     platform::BeforeMaybeBlockingSyscall();
-    ssize_t wr = PERFETTO_EINTR(
+    ssize_t wr = DEJAVIEW_EINTR(
         write(fd, static_cast<const char*>(buf) + written, bytes_left));
     platform::AfterMaybeBlockingSyscall();
     if (wr == 0)
@@ -188,7 +188,7 @@ ssize_t WriteAll(int fd, const void* buf, size_t count) {
 }
 
 ssize_t WriteAllHandle(PlatformHandle h, const void* buf, size_t count) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   DWORD wsize = 0;
   if (::WriteFile(h, buf, static_cast<DWORD>(count), &wsize, nullptr)) {
     return wsize;
@@ -201,19 +201,19 @@ ssize_t WriteAllHandle(PlatformHandle h, const void* buf, size_t count) {
 }
 
 bool FlushFile(int fd) {
-  PERFETTO_DCHECK(fd != 0);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
-  return !PERFETTO_EINTR(fdatasync(fd));
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-  return !PERFETTO_EINTR(_commit(fd));
+  DEJAVIEW_DCHECK(fd != 0);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
+  return !DEJAVIEW_EINTR(fdatasync(fd));
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+  return !DEJAVIEW_EINTR(_commit(fd));
 #else
-  return !PERFETTO_EINTR(fsync(fd));
+  return !DEJAVIEW_EINTR(fsync(fd));
 #endif
 }
 
 bool Mkdir(const std::string& path) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   return _mkdir(path.c_str()) == 0;
 #else
   return mkdir(path.c_str(), 0755) == 0;
@@ -221,7 +221,7 @@ bool Mkdir(const std::string& path) {
 }
 
 bool Rmdir(const std::string& path) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   return _rmdir(path.c_str()) == 0;
 #else
   return rmdir(path.c_str()) == 0;
@@ -235,8 +235,8 @@ int CloseFile(int fd) {
 ScopedFile OpenFile(const std::string& path, int flags, FileOpenMode mode) {
   // If a new file might be created, ensure that the permissions for the new
   // file are explicitly specified.
-  PERFETTO_CHECK((flags & O_CREAT) == 0 || mode != kFileModeInvalid);
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+  DEJAVIEW_CHECK((flags & O_CREAT) == 0 || mode != kFileModeInvalid);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // Always use O_BINARY on Windows, to avoid silly EOL translations.
   ScopedFile fd(_open(path.c_str(), flags | O_BINARY, mode));
 #else
@@ -251,7 +251,7 @@ ScopedFstream OpenFstream(const char* path, const char* mode) {
 // On Windows fopen interprets filename using the ANSI or OEM codepage but
 // sqlite3_value_text returns a UTF-8 string. To make sure we interpret the
 // filename correctly we use _wfopen and a UTF-16 string on windows.
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   auto w_path = ToUtf16(path);
   auto w_mode = ToUtf16(mode);
   if (w_path && w_mode) {
@@ -264,7 +264,7 @@ ScopedFstream OpenFstream(const char* path, const char* mode) {
 }
 
 bool FileExists(const std::string& path) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   return _access(path.c_str(), 0) == 0;
 #else
   return access(path.c_str(), F_OK) == 0;
@@ -273,7 +273,7 @@ bool FileExists(const std::string& path) {
 
 // Declared in base/platform_handle.h.
 int ClosePlatformHandle(PlatformHandle handle) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // Make the return value UNIX-style.
   return CloseHandle(handle) ? 0 : -1;
 #else
@@ -298,9 +298,9 @@ base::Status ListFilesRecursive(const std::string& dir_path,
   while (!dir_queue.empty()) {
     const std::string cur_dir = std::move(dir_queue.front());
     dir_queue.pop_front();
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_NACL)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_NACL)
     return base::ErrStatus("ListFilesRecursive not supported yet");
-#elif PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#elif DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     std::string glob_path = cur_dir + "*";
     // + 1 because we also have to count the NULL terminator.
     if (glob_path.length() + 1 > MAX_PATH)
@@ -324,7 +324,7 @@ base::Status ListFilesRecursive(const std::string& dir_path,
         dir_queue.push_back(subdir_path);
       } else {
         const std::string full_path = cur_dir + ffd.cFileName;
-        PERFETTO_CHECK(full_path.length() > root_dir_path.length());
+        DEJAVIEW_CHECK(full_path.length() > root_dir_path.length());
         output.push_back(full_path.substr(root_dir_path.length()));
       }
     } while (FindNextFileA(*hFind, &ffd));
@@ -343,7 +343,7 @@ base::Status ListFilesRecursive(const std::string& dir_path,
         dir_queue.push_back(cur_dir + dirent->d_name + '/');
       } else if (dirent->d_type == DT_REG) {
         const std::string full_path = cur_dir + dirent->d_name;
-        PERFETTO_CHECK(full_path.length() > root_dir_path.length());
+        DEJAVIEW_CHECK(full_path.length() > root_dir_path.length());
         output.push_back(full_path.substr(root_dir_path.length()));
       }
     }
@@ -362,9 +362,9 @@ std::string GetFileExtension(const std::string& filename) {
 base::Status SetFilePermissions(const std::string& file_path,
                                 const std::string& group_name_or_id,
                                 const std::string& mode_bits) {
-#ifdef PERFETTO_SET_FILE_PERMISSIONS
-  PERFETTO_CHECK(!file_path.empty());
-  PERFETTO_CHECK(!group_name_or_id.empty());
+#ifdef DEJAVIEW_SET_FILE_PERMISSIONS
+  DEJAVIEW_CHECK(!file_path.empty());
+  DEJAVIEW_CHECK(!group_name_or_id.empty());
 
   // Default |group_id| to -1 for not changing the group ownership.
   gid_t group_id = static_cast<gid_t>(-1);
@@ -384,7 +384,7 @@ base::Status SetFilePermissions(const std::string& file_path,
     group_id = file_group->gr_gid;
   }
 
-  if (PERFETTO_EINTR(chown(file_path.c_str(), geteuid(), group_id))) {
+  if (DEJAVIEW_EINTR(chown(file_path.c_str(), geteuid(), group_id))) {
     return base::ErrStatus("Failed to chown %s ", file_path.c_str());
   }
 
@@ -394,7 +394,7 @@ base::Status SetFilePermissions(const std::string& file_path,
     return base::ErrStatus(
         "The chmod mode bits must be a 4-digit octal number, e.g. 0660");
   }
-  if (PERFETTO_EINTR(
+  if (DEJAVIEW_EINTR(
           chmod(file_path.c_str(), static_cast<mode_t>(mode_value.value())))) {
     return base::ErrStatus("Failed to chmod %s", file_path.c_str());
   }
@@ -409,7 +409,7 @@ base::Status SetFilePermissions(const std::string& file_path,
 }
 
 std::optional<uint64_t> GetFileSize(const std::string& file_path) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // This does not use base::OpenFile to avoid getting an exclusive lock.
   base::ScopedPlatformHandle fd(
       CreateFileA(file_path.c_str(), GENERIC_READ, FILE_SHARE_READ, nullptr,
@@ -424,7 +424,7 @@ std::optional<uint64_t> GetFileSize(const std::string& file_path) {
 }
 
 std::optional<uint64_t> GetFileSize(PlatformHandle fd) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   LARGE_INTEGER file_size;
   file_size.QuadPart = 0;
   if (!GetFileSizeEx(fd, &file_size)) {
@@ -443,4 +443,4 @@ std::optional<uint64_t> GetFileSize(PlatformHandle fd) {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

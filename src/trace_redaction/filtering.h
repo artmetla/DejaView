@@ -21,7 +21,7 @@
 #ifndef SRC_TRACE_REDACTION_FILTERING_H_
 #define SRC_TRACE_REDACTION_FILTERING_H_
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 class PidFilter {
  public:
@@ -53,6 +53,6 @@ class AllowAll : public PidFilter, public FtraceEventFilter {
   bool Includes(const Context& context, protozero::Field event) const override;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_FILTERING_H_

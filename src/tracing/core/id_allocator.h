@@ -23,7 +23,7 @@
 #include <type_traits>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 
 // Handles assigment of IDs (int types) from a fixed-size pool.
 // Zero is not considered a valid ID.
@@ -84,6 +84,6 @@ class IdAllocator : public IdAllocatorGeneric {
   void Free(T id) { FreeGeneric(id); }
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_CORE_ID_ALLOCATOR_H_

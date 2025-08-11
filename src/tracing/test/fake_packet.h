@@ -24,10 +24,10 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class TraceBuffer;
 
@@ -91,6 +91,6 @@ class FakeChunk {
   std::vector<uint8_t> data;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACING_TEST_FAKE_PACKET_H_

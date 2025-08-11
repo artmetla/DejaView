@@ -50,9 +50,9 @@ source_set("column") {
     "..:compare",
     "../..:metatrace",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/trace_processor",
-    "../../../../include/perfetto/trace_processor:basic_types",
-    "../../../../protos/perfetto/trace_processor:zero",
+    "../../../../include/dejaview/trace_processor",
+    "../../../../include/dejaview/trace_processor:basic_types",
+    "../../../../protos/dejaview/trace_processor:zero",
     "../../../base",
     "../../containers",
     "../../util:glob",
@@ -60,7 +60,7 @@ source_set("column") {
   ]
 }
 
-perfetto_unittest_source_set("fake_storage") {
+dejaview_unittest_source_set("fake_storage") {
   testonly = true
   sources = [
     "fake_storage.cc",
@@ -70,12 +70,12 @@ perfetto_unittest_source_set("fake_storage") {
     ":column",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../include/perfetto/trace_processor:basic_types",
+    "../../../../include/dejaview/trace_processor:basic_types",
     "../../containers",
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [
     "arrangement_overlay_unittest.cc",
@@ -95,7 +95,7 @@ perfetto_unittest_source_set("unittests") {
     "../:compare",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../include/perfetto/trace_processor:basic_types",
+    "../../../../include/dejaview/trace_processor:basic_types",
     "../../../base",
     "../../containers",
   ]

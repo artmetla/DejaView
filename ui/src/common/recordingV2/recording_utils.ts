@@ -141,7 +141,7 @@ export function findInterfaceAndEndpoint(
 export const EXTENSION_ID = 'lfmkphfpdbjijhpomgecfikhfohaoine';
 export const EXTENSION_URL = `https://chrome.google.com/webstore/detail/perfetto-ui/${EXTENSION_ID}`;
 export const EXTENSION_NAME = 'Chrome extension';
-export const EXTENSION_NOT_INSTALLED = `To trace Chrome from the Perfetto UI, you need to install our
+export const EXTENSION_NOT_INSTALLED = `To trace Chrome from the DejaView UI, you need to install our
     ${EXTENSION_URL} and then reload this page.`;
 
 export const MALFORMED_EXTENSION_MESSAGE = 'Malformed extension message.';

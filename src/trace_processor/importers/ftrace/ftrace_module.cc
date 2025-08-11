@@ -18,7 +18,7 @@
 #include <cstdint>
 #include "src/trace_processor/importers/common/parser_types.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 void FtraceModule::ParseFtraceEventData(uint32_t /*cpu*/,
@@ -34,4 +34,4 @@ void FtraceModule::ParseInlineSchedWaking(uint32_t /*cpu*/,
                                           const InlineSchedWaking&) {}
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

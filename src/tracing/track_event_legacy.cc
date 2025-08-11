@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/track_event_legacy.h"
-#include "perfetto/ext/base/hash.h"
+#include "dejaview/tracing/track_event_legacy.h"
+#include "dejaview/ext/base/hash.h"
 
-#include "perfetto/tracing/track.h"
+#include "dejaview/tracing/track.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace legacy {
 
 template <>
-ThreadTrack ConvertThreadId(const PerfettoLegacyCurrentThreadId&) {
-  // Because of the short-circuit in PERFETTO_INTERNAL_LEGACY_EVENT, we should
+ThreadTrack ConvertThreadId(const DejaViewLegacyCurrentThreadId&) {
+  // Because of the short-circuit in DEJAVIEW_INTERNAL_LEGACY_EVENT, we should
   // never get here.
-  PERFETTO_DCHECK(false);
+  DEJAVIEW_DCHECK(false);
   return ThreadTrack::Current();
 }
 
@@ -73,4 +73,4 @@ void LegacyTraceId::Write(protos::pbzero::TrackEvent::LegacyEvent* event,
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

@@ -65,7 +65,7 @@ class ChromeV8Parser(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('parser/v8.code.trace.pb.gz'),
         query="""
-INCLUDE PERFETTO MODULE stack_trace.jit;
+INCLUDE DEJAVIEW MODULE stack_trace.jit;
 WITH
   view AS (
     SELECT
@@ -105,7 +105,7 @@ WHERE
     return DiffTestBlueprint(
         trace=DataPath('v8-samples.pftrace'),
         query='''
-          include perfetto module callstacks.stack_profile;
+          include dejaview module callstacks.stack_profile;
 
           select name, source_file, self_count
           from _callstacks_for_cpu_profile_stack_samples!(

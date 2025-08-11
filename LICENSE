@@ -193,7 +193,7 @@ Files: * except those files noted below
 
 ------------------
 
-Files: src/trace_processor/perfetto_sql/stdlib/chromium/*, protos/third_party/chromium/*, test/trace_processor/diff_tests/stdlib/chrome/*
+Files: src/trace_processor/dejaview_sql/stdlib/chromium/*, protos/third_party/chromium/*, test/trace_processor/diff_tests/stdlib/chrome/*
 
    Copyright 2015 The Chromium Authors
 
@@ -226,7 +226,7 @@ Files: src/trace_processor/perfetto_sql/stdlib/chromium/*, protos/third_party/ch
 
 ------------------
 
-Files: src/trace_processor/perfetto_sql/preprocessor/preprocessor_grammar.{c, h}
+Files: src/trace_processor/dejaview_sql/preprocessor/preprocessor_grammar.{c, h}
 
 The author disclaims copyright to this source code. In place of a legal notice, here is a blessing:
 

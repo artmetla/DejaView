@@ -13,17 +13,17 @@
 # limitations under the License.
 
 cmake_minimum_required(VERSION 3.13)
-project(perfetto-sdk-example)
+project(dejaview-sdk-example)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(Threads)
 
-# Define a static library for Perfetto. In this example, we expect the SDK
-# (perfetto.cc and perfetto.h) to live in the top level sdk/ directory.
+# Define a static library for DejaView. In this example, we expect the SDK
+# (dejaview.cc and dejaview.h) to live in the top level sdk/ directory.
 include_directories(../../sdk)
-add_library(perfetto STATIC ../../sdk/perfetto.cc)
+add_library(dejaview STATIC ../../sdk/dejaview.cc)
 
 # Link the library to the main executables.
 add_executable(example example.cc trace_categories.cc)
@@ -33,15 +33,15 @@ add_executable(example_custom_data_source example_custom_data_source.cc)
 add_executable(example_console example_console.cc trace_categories.cc)
 add_executable(example_startup_trace example_startup_trace.cc)
 
-target_link_libraries(example perfetto
+target_link_libraries(example dejaview
                       ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(example_system_wide perfetto
+target_link_libraries(example_system_wide dejaview
                       ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(example_custom_data_source perfetto
+target_link_libraries(example_custom_data_source dejaview
                       ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(example_console perfetto
+target_link_libraries(example_console dejaview
                       ${CMAKE_THREAD_LIBS_INIT})
-target_link_libraries(example_startup_trace perfetto
+target_link_libraries(example_startup_trace dejaview
                       ${CMAKE_THREAD_LIBS_INIT})
 
 # On Android we also need the logging library.
@@ -54,9 +54,9 @@ if (ANDROID)
 endif (ANDROID)
 
 if (WIN32)
-  # The perfetto library contains many symbols, so it needs the big object
+  # The dejaview library contains many symbols, so it needs the big object
   # format.
-  target_compile_options(perfetto PRIVATE "/bigobj")
+  target_compile_options(dejaview PRIVATE "/bigobj")
   # Disable legacy features in windows.h.
   add_definitions(-DWIN32_LEAN_AND_MEAN -DNOMINMAX)
   # On Windows we should link to WinSock2.

@@ -16,9 +16,9 @@
 
 #include "src/tracing/ipc/posix_shared_memory.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_LINUX) ||   \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID) || \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_APPLE)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX) ||   \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID) || \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_APPLE)
 
 #include <errno.h>
 #include <fcntl.h>
@@ -27,17 +27,17 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/base/test/vm_test_utils.h"
 #include "src/tracing/ipc/memfd.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 
 bool IsFileDescriptorClosed(int fd) {
@@ -147,5 +147,5 @@ TEST(PosixSharedMemoryTest, CreateAndMap) {
 }
 
 }  // namespace
-}  // namespace perfetto
+}  // namespace dejaview
 #endif  // OS_LINUX || OS_ANDROID || OS_APPLE

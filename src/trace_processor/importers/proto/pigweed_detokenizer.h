@@ -20,11 +20,11 @@
 #include <string_view>
 #include <variant>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/protozero/field.h"
 
-namespace perfetto::trace_processor::pigweed {
+namespace dejaview::trace_processor::pigweed {
 
 // We only distinguish between the int types that we need to; we need
 // to know different lengths for unsigned due to varint encoding.
@@ -106,6 +106,6 @@ PigweedDetokenizer CreateNullDetokenizer();
 base::StatusOr<PigweedDetokenizer> CreateDetokenizer(
     const protozero::ConstBytes& blob);
 
-}  // namespace perfetto::trace_processor::pigweed
+}  // namespace dejaview::trace_processor::pigweed
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_PIGWEED_DETOKENIZER_H_

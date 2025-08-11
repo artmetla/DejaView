@@ -20,12 +20,12 @@
 #include <bitset>
 #include <memory>
 
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 class TraceWriter;
 namespace base {
@@ -80,6 +80,6 @@ class AndroidPowerDataSource : public ProbesDataSource {
   base::WeakPtrFactory<AndroidPowerDataSource> weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_POWER_ANDROID_POWER_DATA_SOURCE_H_

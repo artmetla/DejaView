@@ -17,24 +17,24 @@
 #ifndef SRC_PROFILING_COMMON_UNWIND_SUPPORT_H_
 #define SRC_PROFILING_COMMON_UNWIND_SUPPORT_H_
 
-// defines PERFETTO_BUILDFLAG
-#include "perfetto/base/build_config.h"
+// defines DEJAVIEW_BUILDFLAG
+#include "dejaview/base/build_config.h"
 
 #include <memory>
 #include <string>
 
 #include <unwindstack/Maps.h>
 #include <unwindstack/Unwinder.h>
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
 #include <unwindstack/DexFiles.h>
 #include <unwindstack/JitDebug.h>
 #endif
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/scoped_file.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/scoped_file.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // Read /proc/[pid]/maps from an open file descriptor.
@@ -102,7 +102,7 @@ struct UnwindingMetadata {
 
   void ReparseMaps();
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   unwindstack::JitDebug* GetJitDebug(unwindstack::ArchEnum arch);
   unwindstack::DexFiles* GetDexFiles(unwindstack::ArchEnum arch);
 #endif
@@ -115,7 +115,7 @@ struct UnwindingMetadata {
   std::shared_ptr<unwindstack::Memory> fd_mem;
   uint64_t reparses = 0;
   base::TimeMillis last_maps_reparse_time{0};
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   std::unique_ptr<unwindstack::JitDebug> jit_debug;
   std::unique_ptr<unwindstack::DexFiles> dex_files;
 #endif
@@ -124,6 +124,6 @@ struct UnwindingMetadata {
 std::string StringifyLibUnwindstackError(unwindstack::ErrorCode);
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_COMMON_UNWIND_SUPPORT_H_

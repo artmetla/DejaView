@@ -14,19 +14,19 @@
  * limitations under the License.
  */
 
-#include "perfetto/tracing/track_event_category_registry.h"
+#include "dejaview/tracing/track_event_category_registry.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // static
 Category Category::FromDynamicCategory(const char* name) {
   if (GetNthNameSize(1, name, name)) {
     Category group(Group(name));
-    PERFETTO_DCHECK(group.name);
+    DEJAVIEW_DCHECK(group.name);
     return group;
   }
   Category category(name);
-  PERFETTO_DCHECK(category.name);
+  DEJAVIEW_DCHECK(category.name);
   return category;
 }
 
@@ -37,15 +37,15 @@ Category Category::FromDynamicCategory(
 
 namespace internal {
 
-perfetto::DynamicCategory NullCategory(const perfetto::DynamicCategory&) {
-  return perfetto::DynamicCategory{};
+dejaview::DynamicCategory NullCategory(const dejaview::DynamicCategory&) {
+  return dejaview::DynamicCategory{};
 }
 
 void TrackEventCategoryRegistry::EnableCategoryForInstance(
     size_t category_index,
     uint32_t instance_index) const {
-  PERFETTO_DCHECK(instance_index < kMaxDataSourceInstances);
-  PERFETTO_DCHECK(category_index < category_count_);
+  DEJAVIEW_DCHECK(instance_index < kMaxDataSourceInstances);
+  DEJAVIEW_DCHECK(category_index < category_count_);
   // Matches the acquire_load in DataSource::Trace().
   state_storage_[category_index].fetch_or(
       static_cast<uint8_t>(1u << instance_index), std::memory_order_release);
@@ -54,12 +54,12 @@ void TrackEventCategoryRegistry::EnableCategoryForInstance(
 void TrackEventCategoryRegistry::DisableCategoryForInstance(
     size_t category_index,
     uint32_t instance_index) const {
-  PERFETTO_DCHECK(instance_index < kMaxDataSourceInstances);
-  PERFETTO_DCHECK(category_index < category_count_);
+  DEJAVIEW_DCHECK(instance_index < kMaxDataSourceInstances);
+  DEJAVIEW_DCHECK(category_index < category_count_);
   // Matches the acquire_load in DataSource::Trace().
   state_storage_[category_index].fetch_and(
       static_cast<uint8_t>(~(1u << instance_index)), std::memory_order_release);
 }
 
 }  // namespace internal
-}  // namespace perfetto
+}  // namespace dejaview

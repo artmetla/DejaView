@@ -18,21 +18,21 @@
 
 #include <cinttypes>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/ipc/basic_types.h"
-#include "perfetto/ext/ipc/host.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/slice.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_stats.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/tracing/core/trace_config.h"
-#include "perfetto/tracing/core/tracing_service_capabilities.h"
-#include "perfetto/tracing/core/tracing_service_state.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/ipc/basic_types.h"
+#include "dejaview/ext/ipc/host.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/slice.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_stats.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/tracing/core/trace_config.h"
+#include "dejaview/tracing/core/tracing_service_capabilities.h"
+#include "dejaview/tracing/core/tracing_service_state.h"
 
-namespace perfetto {
+namespace dejaview {
 
 ConsumerIPCService::ConsumerIPCService(TracingService* core_service)
     : core_service_(core_service), weak_ptr_factory_(this) {}
@@ -43,7 +43,7 @@ ConsumerIPCService::RemoteConsumer*
 ConsumerIPCService::GetConsumerForCurrentRequest() {
   const ipc::ClientID ipc_client_id = ipc::Service::client_info().client_id();
   const uid_t uid = ipc::Service::client_info().uid();
-  PERFETTO_CHECK(ipc_client_id);
+  DEJAVIEW_CHECK(ipc_client_id);
   auto it = consumers_.find(ipc_client_id);
   if (it == consumers_.end()) {
     auto* remote_consumer = new RemoteConsumer();
@@ -236,12 +236,12 @@ void ConsumerIPCService::OnQueryServiceCallback(
   bool sent_eof = false;
   auto send_chunked_reply = [&chunked_reply, &response,
                              &sent_eof](bool has_more) {
-    PERFETTO_CHECK(!sent_eof);
+    DEJAVIEW_CHECK(!sent_eof);
     sent_eof = !has_more;
     auto resp =
         ipc::AsyncResult<protos::gen::QueryServiceStateResponse>::Create();
     resp.set_has_more(has_more);
-    PERFETTO_CHECK(resp->mutable_service_state()->ParseFromArray(
+    DEJAVIEW_CHECK(resp->mutable_service_state()->ParseFromArray(
         chunked_reply.data(), chunked_reply.size()));
     chunked_reply.clear();
     response.Resolve(std::move(resp));
@@ -267,9 +267,9 @@ void ConsumerIPCService::OnQueryServiceCallback(
     }
   }
 
-  PERFETTO_DCHECK(!chunked_reply.empty());
+  DEJAVIEW_DCHECK(!chunked_reply.empty());
   send_chunked_reply(/*has_more=*/false);
-  PERFETTO_CHECK(sent_eof);
+  DEJAVIEW_CHECK(sent_eof);
 }
 
 // Called by the service in response to a service_endpoint->Flush() request.
@@ -419,7 +419,7 @@ void ConsumerIPCService::RemoteConsumer::OnTraceData(
       const size_t approx_slice_size = slice.size + 16;
       if (approx_reply_size + approx_slice_size > ipc::kIPCBufferSize - 64) {
         // If we hit this CHECK we got a single slice that is > kIPCBufferSize.
-        PERFETTO_CHECK(result->slices_size() > 0);
+        DEJAVIEW_CHECK(result->slices_size() > 0);
         send_ipc_reply(/*has_more=*/true);
         approx_reply_size = 0;
       }
@@ -499,4 +499,4 @@ void ConsumerIPCService::RemoteConsumer::OnSessionCloned(
   std::move(clone_session_response).Resolve(std::move(resp));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

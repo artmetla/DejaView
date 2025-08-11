@@ -14,12 +14,12 @@
  * limitations under the License.
  */
 
-#include "perfetto/trace_processor/trace_processor_storage.h"
+#include "dejaview/trace_processor/trace_processor_storage.h"
 
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/trace_processor_storage_impl.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // static
@@ -37,4 +37,4 @@ util::Status TraceProcessorStorage::Parse(std::unique_ptr<uint8_t[]> buf,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

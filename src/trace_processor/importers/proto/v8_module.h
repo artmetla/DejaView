@@ -20,14 +20,14 @@
 #include <cstdint>
 #include <optional>
 
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/protozero/field.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/protozero/field.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/importers/proto/proto_importer_module.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/v8_tables_py.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace protos {
 namespace pbzero {
 class TracePacket_Decoder;
@@ -96,6 +96,6 @@ class V8Module : public ProtoImporterModule {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PROTO_V8_MODULE_H_

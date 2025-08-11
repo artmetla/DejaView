@@ -85,7 +85,7 @@ export class DatabaseSchema {
 // participate in cacheing.
 async function createSchema(engine: Engine): Promise<DatabaseSchema> {
   const tables: TableInfo[] = [];
-  const result = await engine.query(`SELECT name from perfetto_tables;`);
+  const result = await engine.query(`SELECT name from dejaview_tables;`);
   const it = result.iter({
     name: STR,
   });

@@ -19,11 +19,11 @@
 
 #include <stdio.h>
 
-#include "perfetto/ext/trace_processor/export_json.h"
-#include "perfetto/trace_processor/status.h"
+#include "dejaview/ext/trace_processor/export_json.h"
+#include "dejaview/trace_processor/status.h"
 #include "src/trace_processor/storage/trace_storage.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace json {
 
@@ -39,6 +39,6 @@ util::Status ExportJson(const TraceStorage* storage,
 
 }  // namespace json
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_EXPORT_JSON_H_

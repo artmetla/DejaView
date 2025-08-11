@@ -17,30 +17,30 @@
 #include <stdio.h>
 #include <algorithm>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/getopt.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/base/version.h"
-#include "perfetto/ext/base/watchdog.h"
-#include "perfetto/ext/traced/traced.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
-#include "perfetto/ext/tracing/ipc/service_ipc_host.h"
-#include "perfetto/tracing/default_socket.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/getopt.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/base/version.h"
+#include "dejaview/ext/base/watchdog.h"
+#include "dejaview/ext/traced/traced.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/tracing/ipc/service_ipc_host.h"
+#include "dejaview/tracing/default_socket.h"
 #include "src/traced/service/builtin_producer.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
 #include <sys/system_properties.h>
 #endif
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
 #include "src/tracing/service/zlib_compressor.h"
 #endif
 
-namespace perfetto {
+namespace dejaview {
 namespace {
 void PrintUsage(const char* prog_name) {
   fprintf(stderr, R"(
@@ -69,7 +69,7 @@ Example:
 }
 }  // namespace
 
-int PERFETTO_EXPORT_ENTRYPOINT ServiceMain(int argc, char** argv) {
+int DEJAVIEW_EXPORT_ENTRYPOINT ServiceMain(int argc, char** argv) {
   enum LongOption {
     OPT_VERSION = 1000,
     OPT_SET_SOCKET_PERMISSIONS = 1001,
@@ -106,8 +106,8 @@ int PERFETTO_EXPORT_ENTRYPOINT ServiceMain(int argc, char** argv) {
       case OPT_SET_SOCKET_PERMISSIONS: {
         // Check that the socket permission argument is well formed.
         auto parts = base::SplitString(std::string(optarg), ":");
-        PERFETTO_CHECK(parts.size() == 4);
-        PERFETTO_CHECK(
+        DEJAVIEW_CHECK(parts.size() == 4);
+        DEJAVIEW_CHECK(
             std::all_of(parts.cbegin(), parts.cend(),
                         [](const std::string& part) { return !part.empty(); }));
         producer_socket_group = parts[0];
@@ -132,7 +132,7 @@ int PERFETTO_EXPORT_ENTRYPOINT ServiceMain(int argc, char** argv) {
   base::UnixTaskRunner task_runner;
   std::unique_ptr<ServiceIPCHost> svc;
   TracingService::InitOpts init_opts = {};
-#if PERFETTO_BUILDFLAG(PERFETTO_ZLIB)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ZLIB)
   init_opts.compressor_fn = &ZlibCompressFn;
 #endif
   if (enable_relay_endpoint)
@@ -144,11 +144,11 @@ int PERFETTO_EXPORT_ENTRYPOINT ServiceMain(int argc, char** argv) {
   // See libcutils' android_get_control_socket().
   const char* env_prod = getenv("ANDROID_SOCKET_traced_producer");
   const char* env_cons = getenv("ANDROID_SOCKET_traced_consumer");
-  PERFETTO_CHECK((!env_prod && !env_cons) || (env_prod && env_cons));
+  DEJAVIEW_CHECK((!env_prod && !env_cons) || (env_prod && env_cons));
   bool started;
   if (env_prod) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
-    PERFETTO_CHECK(false);
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
+    DEJAVIEW_CHECK(false);
 #else
     base::ScopedFile producer_fd(atoi(env_prod));
     base::ScopedFile consumer_fd(atoi(env_cons));
@@ -173,28 +173,28 @@ int PERFETTO_EXPORT_ENTRYPOINT ServiceMain(int argc, char** argv) {
         status = base::SetFilePermissions(
             producer_socket, producer_socket_group, producer_socket_mode);
         if (!status.ok()) {
-          PERFETTO_ELOG("%s", status.c_message());
+          DEJAVIEW_ELOG("%s", status.c_message());
           return 1;
         }
       }
       status = base::SetFilePermissions(
           GetConsumerSocket(), consumer_socket_group, consumer_socket_mode);
       if (!status.ok()) {
-        PERFETTO_ELOG("%s", status.c_message());
+        DEJAVIEW_ELOG("%s", status.c_message());
         return 1;
       }
     }
   }
 
   if (!started) {
-    PERFETTO_ELOG("Failed to start the traced service");
+    DEJAVIEW_ELOG("Failed to start the traced service");
     return 1;
   }
 
   // Advertise builtin producers only on in-tree builds. These producers serve
   // only to dynamically start heapprofd and other services via sysprops, but
   // that can only ever happen in in-tree builds.
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD)
   BuiltinProducer builtin_producer(&task_runner, /*lazy_stop_delay_ms=*/30000);
   builtin_producer.ConnectInProcess(svc->service());
 #endif
@@ -213,25 +213,25 @@ int PERFETTO_EXPORT_ENTRYPOINT ServiceMain(int argc, char** argv) {
   const char* env_notif = getenv("TRACED_NOTIFY_FD");
   if (env_notif) {
     int notif_fd = atoi(env_notif);
-    PERFETTO_CHECK(base::WriteAll(notif_fd, "1", 1) == 1);
-    PERFETTO_CHECK(base::CloseFile(notif_fd) == 0);
+    DEJAVIEW_CHECK(base::WriteAll(notif_fd, "1", 1) == 1);
+    DEJAVIEW_CHECK(base::CloseFile(notif_fd) == 0);
   }
 
-#if PERFETTO_BUILDFLAG(PERFETTO_ANDROID_BUILD) && \
-    PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
-  // Notify init (perfetto.rc) that traced has been started. Used only by
-  // the perfetto_trace_on_boot init service.
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_ANDROID_BUILD) && \
+    DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
+  // Notify init (dejaview.rc) that traced has been started. Used only by
+  // the dejaview_trace_on_boot init service.
   // This property can be set only in in-tree builds. shell.te doesn't have
   // SELinux permissions to set sys.trace.* properties.
   if (__system_property_set("sys.trace.traced_started", "1") != 0) {
-    PERFETTO_PLOG("Failed to set property sys.trace.traced_started");
+    DEJAVIEW_PLOG("Failed to set property sys.trace.traced_started");
   }
 #endif
 
-  PERFETTO_ILOG("Started traced, listening on %s %s", GetProducerSocket(),
+  DEJAVIEW_ILOG("Started traced, listening on %s %s", GetProducerSocket(),
                 GetConsumerSocket());
   task_runner.Run();
   return 0;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

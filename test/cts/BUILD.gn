@@ -12,23 +12,23 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 assert(is_android)
 
-static_library("perfetto_cts_deps") {
+static_library("dejaview_cts_deps") {
   complete_static_lib = true
   testonly = true
   deps = [
-    "../..:libperfetto_client_experimental",
+    "../..:libdejaview_client_experimental",
     "../../gn:default_deps",
     "../../gn:gtest_and_gmock",
-    "../../include/perfetto/ext/tracing/core",
-    "../../protos/perfetto/config:cpp",
-    "../../protos/perfetto/config/process_stats:cpp",
-    "../../protos/perfetto/config/profiling:cpp",
-    "../../protos/perfetto/trace:cpp",
-    "../../protos/perfetto/trace/profiling:cpp",
+    "../../include/dejaview/ext/tracing/core",
+    "../../protos/dejaview/config:cpp",
+    "../../protos/dejaview/config/process_stats:cpp",
+    "../../protos/dejaview/config/profiling:cpp",
+    "../../protos/dejaview/trace:cpp",
+    "../../protos/dejaview/trace/profiling:cpp",
     "../../src/base:test_support",
     "../../src/protozero/filtering:bytecode_generator",
     "../../test:test_helper",
@@ -42,7 +42,7 @@ static_library("perfetto_cts_deps") {
   ]
 }
 
-static_library("perfetto_cts_jni_deps") {
+static_library("dejaview_cts_jni_deps") {
   complete_static_lib = true
   testonly = true
   deps = [

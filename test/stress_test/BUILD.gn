@@ -12,21 +12,21 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../gn/perfetto.gni")
+import("../../gn/dejaview.gni")
 
 executable("stress_test") {
   testonly = true
   sources = [ "stress_test.cc" ]
   data_deps = [
-    "../../src/perfetto_cmd:perfetto",
+    "../../src/dejaview_cmd:dejaview",
     "../../src/traced/service:traced",
   ]
   deps = [
     ":stress_producer",
-    "../..:libperfetto_client_experimental",
+    "../..:libdejaview_client_experimental",
     "../../gn:default_deps",
-    "../../include/perfetto/tracing",
-    "../../protos/perfetto/trace:zero",
+    "../../include/dejaview/tracing",
+    "../../protos/dejaview/trace:zero",
     "../../src/base",
     "../../src/base:test_support",
     "configs",
@@ -37,10 +37,10 @@ executable("stress_producer") {
   testonly = true
   sources = [ "stress_producer.cc" ]
   deps = [
-    "../..:libperfetto_client_experimental",
+    "../..:libdejaview_client_experimental",
     "../../gn:default_deps",
-    "../../include/perfetto/tracing",
-    "../../protos/perfetto/trace:zero",
+    "../../include/dejaview/tracing",
+    "../../protos/dejaview/trace:zero",
     "../../src/base",
     "../../src/base:test_support",
   ]

@@ -87,7 +87,7 @@ def main():
   parser = argparse.ArgumentParser()
   parser.add_argument('--cpp_out', required=True)
   parser.add_argument('--gen_dir', default='')
-  parser.add_argument('--namespace', default='perfetto')
+  parser.add_argument('--namespace', default='dejaview')
   parser.add_argument('descriptor')
   args = parser.parse_args()
 

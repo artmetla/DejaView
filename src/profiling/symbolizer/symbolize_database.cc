@@ -20,17 +20,17 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
-#include "protos/perfetto/trace/profiling/profile_common.pbzero.h"
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/profiling/profile_common.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 namespace {
@@ -61,7 +61,7 @@ std::map<UnsymbolizedMapping, std::vector<uint64_t>> GetUnsymbolizedFrames(
   Iterator it = tp->ExecuteQuery(kQueryUnsymbolized);
   while (it.Next()) {
     int64_t load_bias = it.Get(3).AsLong();
-    PERFETTO_CHECK(load_bias >= 0);
+    DEJAVIEW_CHECK(load_bias >= 0);
     trace_processor::BuildId build_id =
         trace_processor::BuildId::FromHex(it.Get(1).AsString());
     UnsymbolizedMapping unsymbolized_mapping{
@@ -70,7 +70,7 @@ std::map<UnsymbolizedMapping, std::vector<uint64_t>> GetUnsymbolizedFrames(
     res[unsymbolized_mapping].emplace_back(rel_pc);
   }
   if (!it.Status().ok()) {
-    PERFETTO_DFATAL_OR_ELOG("Invalid iterator: %s",
+    DEJAVIEW_DFATAL_OR_ELOG("Invalid iterator: %s",
                             it.Status().message().c_str());
     return {};
   }
@@ -81,7 +81,7 @@ std::map<UnsymbolizedMapping, std::vector<uint64_t>> GetUnsymbolizedFrames(
 void SymbolizeDatabase(trace_processor::TraceProcessor* tp,
                        Symbolizer* symbolizer,
                        std::function<void(const std::string&)> callback) {
-  PERFETTO_CHECK(symbolizer);
+  DEJAVIEW_CHECK(symbolizer);
   auto unsymbolized = GetUnsymbolizedFrames(tp);
   for (auto it = unsymbolized.cbegin(); it != unsymbolized.cend(); ++it) {
     const auto& unsymbolized_mapping = it->first;
@@ -92,12 +92,12 @@ void SymbolizeDatabase(trace_processor::TraceProcessor* tp,
     if (res.empty())
       continue;
 
-    protozero::HeapBuffered<perfetto::protos::pbzero::Trace> trace;
+    protozero::HeapBuffered<dejaview::protos::pbzero::Trace> trace;
     auto* packet = trace->add_packet();
     auto* module_symbols = packet->set_module_symbols();
     module_symbols->set_path(unsymbolized_mapping.name);
     module_symbols->set_build_id(unsymbolized_mapping.build_id);
-    PERFETTO_DCHECK(res.size() == rel_pcs.size());
+    DEJAVIEW_DCHECK(res.size() == rel_pcs.size());
     for (size_t i = 0; i < res.size(); ++i) {
       auto* address_symbols = module_symbols->add_address_symbols();
       address_symbols->set_address(rel_pcs[i]);
@@ -112,10 +112,10 @@ void SymbolizeDatabase(trace_processor::TraceProcessor* tp,
   }
 }
 
-std::vector<std::string> GetPerfettoBinaryPath() {
-  const char* root = getenv("PERFETTO_BINARY_PATH");
+std::vector<std::string> GetDejaViewBinaryPath() {
+  const char* root = getenv("DEJAVIEW_BINARY_PATH");
   if (root != nullptr) {
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
     const char* delimiter = ";";
 #else
     const char* delimiter = ":";
@@ -126,4 +126,4 @@ std::vector<std::string> GetPerfettoBinaryPath() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

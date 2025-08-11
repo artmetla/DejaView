@@ -38,7 +38,7 @@ packet {
   trusted_pid: 2798
   first_packet_on_sequence: true
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.inputmethod_clients] {
+    [dejaview.protos.WinscopeExtensionsImpl.inputmethod_clients] {
       where: "InputMethodManager#showSoftInput"
       client {
         input_method_manager {
@@ -146,7 +146,7 @@ packet {
   trusted_pid: 2798
 
   winscope_extensions {
-    [perfetto.protos.WinscopeExtensionsImpl.inputmethod_clients] {
+    [dejaview.protos.WinscopeExtensionsImpl.inputmethod_clients] {
       where: "InputMethodManager#showSoftInput"
       client {
         input_method_manager {

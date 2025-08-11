@@ -13,10 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 
-INCLUDE PERFETTO MODULE wattson.curves.ungrouped;
+INCLUDE DEJAVIEW MODULE wattson.curves.ungrouped;
 
 DROP VIEW IF EXISTS _wattson_period_windows;
-CREATE PERFETTO VIEW _wattson_period_windows AS
+CREATE DEJAVIEW VIEW _wattson_period_windows AS
 SELECT
   -- Requirement is there is exactly one pair of start/stop
   (SELECT ts FROM slice WHERE name == 'wattson_start') as ts,
@@ -31,7 +31,7 @@ SELECT RUN_METRIC(
 );
 
 DROP VIEW IF EXISTS wattson_markers_rails_output;
-CREATE PERFETTO VIEW wattson_markers_rails_output AS
+CREATE DEJAVIEW VIEW wattson_markers_rails_output AS
 SELECT AndroidWattsonTimePeriodMetric(
   'metric_version', 3,
   'period_info', (

@@ -20,15 +20,15 @@
 #include <cstdint>
 #include <type_traits>
 #include <vector>
-#include "perfetto/ext/base/flat_hash_map.h"
-#include "perfetto/ext/base/hash.h"
-#include "perfetto/ext/base/small_vector.h"
+#include "dejaview/ext/base/flat_hash_map.h"
+#include "dejaview/ext/base/hash.h"
+#include "dejaview/ext/base/small_vector.h"
 #include "src/trace_processor/db/column.h"
 #include "src/trace_processor/storage/trace_storage.h"
 #include "src/trace_processor/tables/metadata_tables_py.h"
 #include "src/trace_processor/types/variadic.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Interns args into the storage from all ArgsTrackers across trace processor.
@@ -115,7 +115,7 @@ class GlobalArgsTracker {
         if (args[i].update_policy == UpdatePolicy::kSkipIfExists) {
           continue;
         } else {
-          PERFETTO_DCHECK(args[i].update_policy == UpdatePolicy::kAddOrUpdate);
+          DEJAVIEW_DCHECK(args[i].update_policy == UpdatePolicy::kAddOrUpdate);
           valid_indexes.pop_back();
         }
       }
@@ -196,6 +196,6 @@ class GlobalArgsTracker {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_GLOBAL_ARGS_TRACKER_H_

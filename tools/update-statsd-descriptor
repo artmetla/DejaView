@@ -36,7 +36,7 @@ PROTO_LOGGING_URL = "https://android.googlesource.com/platform/frameworks/proto_
 ATOM_RE = r"  message_type {\n.   name: \"Atom\"(\n    .+)+(\n  })"
 FIELD_RE = r"    field {\n      name: \"([^\"]+)\"\n      number: ([0-9]+)"
 EXTENSIONS_RE = r" extension {\n    name: \"([^\"]+)\"\n    extendee: \".android.os.statsd.Atom\"\n    number: ([0-9]+)(\n    .+)+(\n  })"
-ATOM_IDS_PATH = os.path.join(ROOT_DIR, "protos", "perfetto", "config", "statsd",
+ATOM_IDS_PATH = os.path.join(ROOT_DIR, "protos", "dejaview", "config", "statsd",
                              "atom_ids.proto")
 
 ATOM_IDS_TEMPLATE = """/*
@@ -56,11 +56,11 @@ ATOM_IDS_TEMPLATE = """/*
  */
 syntax = "proto2";
 
-package perfetto.protos;
+package dejaview.protos;
 
 // This enum is obtained by post-processing
 // AOSP/frameworks/proto_logging/stats/atoms.proto through
-// AOSP/external/perfetto/tools/update-statsd-descriptor, which extracts one
+// AOSP/external/dejaview/tools/update-statsd-descriptor, which extracts one
 // enum value for each proto field defined in the upstream atoms.proto.
 enum AtomId {{
   ATOM_UNSPECIFIED = 0;

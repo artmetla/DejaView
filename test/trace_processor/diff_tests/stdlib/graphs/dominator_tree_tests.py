@@ -25,7 +25,7 @@ class DominatorTree(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.dominator_tree;
+          INCLUDE DEJAVIEW MODULE graphs.dominator_tree;
 
           WITH foo AS (
             SELECT 0 as source_node_id, 0 AS dest_node_id
@@ -41,7 +41,7 @@ class DominatorTree(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.dominator_tree;
+          INCLUDE DEJAVIEW MODULE graphs.dominator_tree;
 
           WITH foo AS (
             SELECT 5 AS source_node_id, 10 AS dest_node_id
@@ -60,9 +60,9 @@ class DominatorTree(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.dominator_tree;
+          INCLUDE DEJAVIEW MODULE graphs.dominator_tree;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source_node_id, NULL AS dest_node_id WHERE FALSE
           UNION ALL
           VALUES (10, 11)
@@ -82,9 +82,9 @@ class DominatorTree(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.dominator_tree;
+          INCLUDE DEJAVIEW MODULE graphs.dominator_tree;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source, NULL AS dest WHERE FALSE
           UNION ALL
           VALUES ('R', 'A'), ('R', 'B'), ('R', 'C'), ('A', 'D')
@@ -136,9 +136,9 @@ class DominatorTree(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.dominator_tree;
+          INCLUDE DEJAVIEW MODULE graphs.dominator_tree;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source_node_id, NULL AS dest_node_id WHERE FALSE
           UNION ALL
           VALUES (1, 10), (10, 10), (10, 11), (10, 12)
@@ -163,9 +163,9 @@ class DominatorTree(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('counters.json'),
         query="""
-          INCLUDE PERFETTO MODULE graphs.dominator_tree;
+          INCLUDE DEJAVIEW MODULE graphs.dominator_tree;
 
-          CREATE PERFETTO TABLE foo AS
+          CREATE DEJAVIEW TABLE foo AS
           SELECT NULL AS source_node_id, NULL AS dest_node_id WHERE FALSE
           UNION ALL
           VALUES (1, 2), (1, 3), (2, 4), (2, 5), (3, 6), (3, 6), (3, 6)

@@ -16,7 +16,7 @@
 
 #include "src/trace_processor/tp_metatrace.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace metatrace {
 
@@ -108,4 +108,4 @@ void RingBuffer::ReadAll(std::function<void(Record*)> fn) {
 
 }  // namespace metatrace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

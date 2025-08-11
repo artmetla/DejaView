@@ -20,10 +20,10 @@
 #include <regex>
 #include <string_view>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/public/compiler.h"
 
 namespace protozero {
 namespace {
@@ -76,7 +76,7 @@ void RedactMatches(const Matches& matches) {
   // Go through every group in the matches.
   for (size_t i = 1; i < matches.size(); ++i) {
     const auto& match = matches[i];
-    PERFETTO_CHECK(match.second >= match.first);
+    DEJAVIEW_CHECK(match.second >= match.first);
 
     // Overwrite the match with characters from |kRedacted|. If match is
     // smaller, we will not use all of |kRedacted| but that's fine (i.e. we

@@ -5,7 +5,7 @@
 # List of .proto files used when defining Chromium extensions for typed events.
 # New files should be added to this list.
 #
-# DO NOT EDIT THIS AT THE MOMENT. This file has to be supported in Perfetto
+# DO NOT EDIT THIS AT THE MOMENT. This file has to be supported in DejaView
 # first in order to be useful.
-# TODO(b/181318121): Implement the support in Perfetto and remove the warning.
+# TODO(b/181318121): Implement the support in DejaView and remove the warning.
 chrome_track_event_sources = [ "chrome_track_event.proto" ]

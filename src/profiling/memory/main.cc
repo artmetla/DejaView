@@ -17,5 +17,5 @@
 #include "src/profiling/memory/heapprofd.h"
 
 int main(int argc, char** argv) {
-  return perfetto::profiling::HeapprofdMain(argc, argv);
+  return dejaview::profiling::HeapprofdMain(argc, argv);
 }

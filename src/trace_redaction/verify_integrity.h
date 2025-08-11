@@ -16,12 +16,12 @@
 
 #include "src/trace_redaction/trace_redaction_framework.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 #ifndef SRC_TRACE_REDACTION_VERIFY_INTEGRITY_H_
 #define SRC_TRACE_REDACTION_VERIFY_INTEGRITY_H_
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 
 // This breaks the normal collect primitive pattern. Rather than collecting
 // information, it looks at packets and returns an error if the packet violates
@@ -41,6 +41,6 @@ class VerifyIntegrity : public CollectPrimitive {
   base::Status OnBufferStats(const protozero::ConstBytes bytes) const;
 };
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction
 
 #endif  // SRC_TRACE_REDACTION_VERIFY_INTEGRITY_H_

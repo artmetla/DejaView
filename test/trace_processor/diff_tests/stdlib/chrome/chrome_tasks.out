@@ -6,7 +6,7 @@
 "Choreographer(java_views=)","choreographer",627
 "VSync","other",624
 "viz.mojom.BeginFrameObserver message (hash=2365631060)","mojo",344
-"RunTask(posted_from=base/tracing/perfetto_task_runner.cc:PostDelayedTask)","scheduler",342
+"RunTask(posted_from=base/tracing/dejaview_task_runner.cc:PostDelayedTask)","scheduler",342
 "RunTask(posted_from=mojo/public/cpp/system/simple_watcher.cc:Notify)","scheduler",269
 "RunTask(posted_from=ipc/ipc_mojo_bootstrap.cc:SendMessage)","scheduler",262
 "RunTask(posted_from=base/task/thread_pool/delayed_task_manager.cc:ScheduleProcessRipeTasksOnServiceThread)","scheduler",218
@@ -125,7 +125,7 @@
 "device.mojom.DeviceService message (hash=3372813913)","mojo",9
 "device.mojom.PowerMonitor message (hash=1428246654)","mojo",9
 "memory_instrumentation.mojom.CoordinatorConnector message (hash=3189782928)","mojo",9
-"tracing.mojom.PerfettoService message (hash=3821615380)","mojo",9
+"tracing.mojom.DejaViewService message (hash=3821615380)","mojo",9
 "tracing.mojom.TracedProcess reply (hash=2621133919)","mojo",9
 "tracing.mojom.TracingService message (hash=2713683366)","mojo",9
 "ChildProcessConnection.ChildServiceConnection.onServiceConnected","java",8
@@ -184,8 +184,8 @@
 "RunTask(posted_from=mojo/core/node_controller.cc:AcceptBrokerClientInvitation)","scheduler",6
 "RunTask(posted_from=mojo/core/node_controller.cc:Create)","scheduler",6
 "RunTask(posted_from=services/device/public/cpp/power_monitor/power_monitor_broadcast_source.cc:Init)","scheduler",6
-"RunTask(posted_from=services/tracing/public/cpp/perfetto/perfetto_traced_process.cc:CreateProducerConnection)","scheduler",6
-"RunTask(posted_from=services/tracing/public/cpp/perfetto/producer_client.cc:Connect)","scheduler",6
+"RunTask(posted_from=services/tracing/public/cpp/dejaview/dejaview_traced_process.cc:CreateProducerConnection)","scheduler",6
+"RunTask(posted_from=services/tracing/public/cpp/dejaview/producer_client.cc:Connect)","scheduler",6
 "RunTask(posted_from=third_party/blink/renderer/platform/scheduler/main_thread/main_thread_scheduler_impl.cc:UpdateForInputEventOnCompositorThread)","scheduler",6
 "blink.mojom.PageBroadcast message (hash=1682824955)","mojo",6
 "network.mojom.NetworkService message (hash=121963099)","mojo",6

@@ -66,11 +66,11 @@ source_set("full") {
     ":ftrace_descriptors",
     ":minimal",
     "../../../../gn:default_deps",
-    "../../../../protos/perfetto/common:zero",
-    "../../../../protos/perfetto/trace:zero",
-    "../../../../protos/perfetto/trace/ftrace:zero",
-    "../../../../protos/perfetto/trace/interned_data:zero",
-    "../../../../protos/perfetto/trace/profiling:zero",
+    "../../../../protos/dejaview/common:zero",
+    "../../../../protos/dejaview/trace:zero",
+    "../../../../protos/dejaview/trace/ftrace:zero",
+    "../../../../protos/dejaview/trace/interned_data:zero",
+    "../../../../protos/dejaview/trace/profiling:zero",
     "../../../protozero",
     "../../sorter",
     "../../storage",
@@ -92,12 +92,12 @@ source_set("ftrace_descriptors") {
   ]
   deps = [
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/base:base",
+    "../../../../include/dejaview/ext/base:base",
     "../../../protozero",
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   sources = [
     "binder_tracker_unittest.cc",

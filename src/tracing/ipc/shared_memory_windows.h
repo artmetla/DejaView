@@ -17,17 +17,17 @@
 #ifndef SRC_TRACING_IPC_SHARED_MEMORY_WINDOWS_H_
 #define SRC_TRACING_IPC_SHARED_MEMORY_WINDOWS_H_
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 
 #include <string>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/tracing/core/shared_memory.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/tracing/core/shared_memory.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Implements the SharedMemory and its factory for the Windows IPC transport.
 // This used only for standalone builds and NOT in chromium, which instead uses
@@ -70,7 +70,7 @@ class SharedMemoryWindows : public SharedMemory {
   base::ScopedPlatformHandle handle_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // OS_WIN
 

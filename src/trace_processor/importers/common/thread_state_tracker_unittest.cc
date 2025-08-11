@@ -26,7 +26,7 @@
 #include "src/trace_processor/types/trace_processor_context.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -227,4 +227,4 @@ TEST_F(ThreadStateTrackerUnittest, RunningOnMultipleCPUsForcedMigration) {
 
 }  // namespace
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/message.h"
+#include "dejaview/protozero/message.h"
 
 #include <limits>
 #include <memory>
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/protozero/message_handle.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/root_message.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/protozero/message_handle.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/root_message.h"
 #include "src/base/test/utils.h"
 #include "src/protozero/test/fake_scattered_buffer.h"
 #include "test/gtest_and_gmock.h"
@@ -396,8 +396,8 @@ TEST_F(MessageTest, MessageHandle) {
   handle_swp = std::move(another_handle);
   ASSERT_EQ(0x90u, msg3_size[0]);  // |msg3| should be finalized at this point.
 
-#if PERFETTO_DCHECK_IS_ON()
-  // In developer builds w/ PERFETTO_DCHECK on a finalized message should
+#if DEJAVIEW_DCHECK_IS_ON()
+  // In developer builds w/ DEJAVIEW_DCHECK on a finalized message should
   // invalidate the handle, in order to early catch bugs in the client code.
   FakeRootMessage* msg4 = NewMessage();
   MessageHandle<FakeRootMessage> handle4(msg4);

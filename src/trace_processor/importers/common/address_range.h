@@ -25,9 +25,9 @@
 #include <tuple>
 #include <utility>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // A range in the form [start, end), i.e. start is inclusive and end is
@@ -62,7 +62,7 @@ class AddressRange {
 
   constexpr AddressRange(uint64_t start, uint64_t end)
       : start_(start), end_(end) {
-    PERFETTO_CHECK(start <= end);
+    DEJAVIEW_CHECK(start <= end);
   }
 
   // Checks whether the given `addr` lies withing this range.
@@ -146,7 +146,7 @@ class AddressSet {
     // before.
     auto it = ranges_.lower_bound(start);
 
-    PERFETTO_DCHECK(it == ranges_.end() || range.start() <= it->end());
+    DEJAVIEW_DCHECK(it == ranges_.end() || range.start() <= it->end());
 
     while (it != ranges_.end() && range.end() >= it->start()) {
       start = std::min(start, it->start());
@@ -162,13 +162,13 @@ class AddressSet {
       return;
     }
     auto it = ranges_.upper_bound(range.start());
-    PERFETTO_DCHECK(it == ranges_.end() || range.start() < it->end());
+    DEJAVIEW_DCHECK(it == ranges_.end() || range.start() < it->end());
 
     while (it != ranges_.end() && range.end() > it->start()) {
       if (range.start() > it->start()) {
         // range.start() is contained in *it. Split *it at range.start() into
         // two ranges. Continue the loop at the second of them.
-        PERFETTO_DCHECK(it->Contains(range.start()));
+        DEJAVIEW_DCHECK(it->Contains(range.start()));
         auto old = *it;
         it = ranges_.erase(it);
         ranges_.emplace_hint(it, old.start(), range.start());
@@ -176,13 +176,13 @@ class AddressSet {
       } else if (range.end() < it->end()) {
         // range.end() is contained in *it. Split *it at range.end() into two
         // ranges. The first of them needs to be deleted.
-        PERFETTO_DCHECK(it->Contains(range.end()));
+        DEJAVIEW_DCHECK(it->Contains(range.end()));
         auto old_end = it->end();
         it = ranges_.erase(it);
         ranges_.emplace_hint(it, range.end(), old_end);
       } else {
         // range fully contains *it, so it can be removed
-        PERFETTO_DCHECK(range.Contains(*it));
+        DEJAVIEW_DCHECK(range.Contains(*it));
         it = ranges_.erase(it);
       }
     }
@@ -238,7 +238,7 @@ class AddressRangeMap {
   // the empty range but that would mean we need to return all the ranges here.
   // So we chose to just ban that case.
   iterator FindRangeThatContains(AddressRange range) {
-    PERFETTO_CHECK(!range.empty());
+    DEJAVIEW_CHECK(!range.empty());
     auto it = Find(range.start());
     if (it != end() && it->first.end() >= range.end()) {
       return it;
@@ -285,7 +285,7 @@ class AddressRangeMap {
       return false;
     }
     auto it = ranges_.upper_bound(range.start());
-    PERFETTO_DCHECK(it == ranges_.end() || range.start() < it->first.end());
+    DEJAVIEW_DCHECK(it == ranges_.end() || range.start() < it->first.end());
 
     // First check if we need to trim the first overlapping range, if any.
     if (it != ranges_.end() && it->first.start() < range.start()) {
@@ -293,7 +293,7 @@ class AddressRangeMap {
       // so overlaps it:
       //   it->first:   |-----------?
       //       range:        |------?
-      PERFETTO_DCHECK(it->first.Overlaps(range));
+      DEJAVIEW_DCHECK(it->first.Overlaps(range));
 
       // Cache it->first since we'll be mutating it in TrimEntryRange.
       AddressRange existing_range = it->first;
@@ -308,7 +308,7 @@ class AddressRangeMap {
         // Range also ends before existing_range, thus strictly containing it.
         //   existing_range:   |-----------|    (previously it->first)
         //            range:        |----|
-        PERFETTO_DCHECK(existing_range.Contains(range));
+        DEJAVIEW_DCHECK(existing_range.Contains(range));
 
         // In this special case, we need to split existing_range into two
         // ranges, with the same value, and insert the new range between them:
@@ -326,7 +326,7 @@ class AddressRangeMap {
       // range. This means it no longer ends after the new range starts, and we
       // need to advance the iterator to the new upper_bound.
       ++it;
-      PERFETTO_DCHECK(it == ranges_.upper_bound(range.start()));
+      DEJAVIEW_DCHECK(it == ranges_.upper_bound(range.start()));
     }
 
     // Now, check for any ranges which are _fully_ contained inside
@@ -340,7 +340,7 @@ class AddressRangeMap {
       // starts before it->first (because we've already handled the first
       // overlap), so this existing range is fully contained inside the new
       // range
-      PERFETTO_DCHECK(range.Contains(it->first));
+      DEJAVIEW_DCHECK(range.Contains(it->first));
       it = ranges_.erase(it);
     }
 
@@ -352,7 +352,7 @@ class AddressRangeMap {
       // Range overlaps with it->first, and ends before `it->first`:
       //   it->first:     |----------|
       //       range:   |-----|
-      PERFETTO_DCHECK(range.Overlaps(it->first));
+      DEJAVIEW_DCHECK(range.Overlaps(it->first));
 
       // Trim this overlap to end after the end of the range, and insert it
       // after where the range will be inserted.
@@ -385,7 +385,7 @@ class AddressRangeMap {
       return false;
     }
     auto it = ranges_.upper_bound(range.start());
-    PERFETTO_DCHECK(it == ranges_.end() || range.start() < it->first.end());
+    DEJAVIEW_DCHECK(it == ranges_.end() || range.start() < it->first.end());
 
     while (it != ranges_.end() && range.end() > it->first.start()) {
       cb(*it);
@@ -419,8 +419,8 @@ class AddressRangeMap {
   // the trimming process invalidates the iterator.
   typename Impl::iterator TrimEntryRange(typename Impl::iterator it,
                                          AddressRange new_range) {
-    PERFETTO_DCHECK(it->first.Contains(new_range));
-    PERFETTO_DCHECK(!new_range.empty());
+    DEJAVIEW_DCHECK(it->first.Contains(new_range));
+    DEJAVIEW_DCHECK(!new_range.empty());
 
     // Advance the iterator so that it stays valid -- it now also conveniently
     // points to the entry after the current entry, which is exactly the hint we
@@ -440,6 +440,6 @@ class AddressRangeMap {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_ADDRESS_RANGE_H_

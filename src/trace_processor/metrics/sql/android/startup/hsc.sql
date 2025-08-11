@@ -14,11 +14,11 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.startup.startups;
+INCLUDE DEJAVIEW MODULE android.startup.startups;
 
 -- Must be invoked after populating launches table in android_startup.
 DROP VIEW IF EXISTS functions;
-CREATE PERFETTO VIEW functions AS
+CREATE DEJAVIEW VIEW functions AS
 SELECT
   slices.ts AS ts,
   slices.dur AS dur,
@@ -32,7 +32,7 @@ JOIN process USING(upid);
 
 -- Animators don't occur on threads, so add them here.
 DROP VIEW IF EXISTS animators;
-CREATE PERFETTO VIEW animators AS
+CREATE DEJAVIEW VIEW animators AS
 SELECT
   slices.ts AS ts,
   slices.dur AS dur,
@@ -44,7 +44,7 @@ JOIN thread USING(upid)
 WHERE slices.name GLOB "animator*";
 
 DROP VIEW IF EXISTS android_frame_times;
-CREATE PERFETTO VIEW android_frame_times AS
+CREATE DEJAVIEW VIEW android_frame_times AS
 SELECT
   functions.ts AS ts,
   functions.ts + functions.dur AS ts_end,
@@ -56,7 +56,7 @@ JOIN android_startups launches ON launches.package GLOB '*' || functions.process
 WHERE functions.function_name GLOB "Choreographer#doFrame*" AND functions.ts > launches.ts;
 
 DROP VIEW IF EXISTS android_render_frame_times;
-CREATE PERFETTO VIEW android_render_frame_times AS
+CREATE DEJAVIEW VIEW android_render_frame_times AS
 SELECT
   functions.ts AS ts,
   functions.ts + functions.dur AS ts_end,
@@ -68,7 +68,7 @@ JOIN android_startups launches ON launches.package GLOB '*' || functions.process
 WHERE functions.function_name GLOB "DrawFrame*" AND functions.ts > launches.ts;
 
 DROP VIEW IF EXISTS frame_times;
-CREATE PERFETTO VIEW frame_times AS
+CREATE DEJAVIEW VIEW frame_times AS
 SELECT startup_id AS launch_id, * FROM android_frame_times;
 
 DROP TABLE IF EXISTS hsc_based_startup_times;

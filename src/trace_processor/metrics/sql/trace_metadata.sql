@@ -13,10 +13,10 @@
 -- See the License for the specific language governing permissions and
 -- limitations under the License.
 --
-INCLUDE PERFETTO MODULE android.suspend;
+INCLUDE DEJAVIEW MODULE android.suspend;
 
 DROP VIEW IF EXISTS trace_metadata_output;
-CREATE PERFETTO VIEW trace_metadata_output AS
+CREATE DEJAVIEW VIEW trace_metadata_output AS
 SELECT TraceMetadata(
   'trace_duration_ns', CAST(trace_dur() AS INT),
   'trace_uuid', (SELECT str_value FROM metadata WHERE name = 'trace_uuid'),

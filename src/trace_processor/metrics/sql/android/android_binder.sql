@@ -14,15 +14,15 @@
 -- limitations under the License.
 --
 
-INCLUDE PERFETTO MODULE android.binder_breakdown;
+INCLUDE DEJAVIEW MODULE android.binder_breakdown;
 
 -- Count Binder transactions per process
 DROP VIEW IF EXISTS binder_metrics_by_process;
-CREATE PERFETTO VIEW binder_metrics_by_process AS
+CREATE DEJAVIEW VIEW binder_metrics_by_process AS
 SELECT * FROM android_binder_metrics_by_process;
 
 DROP TABLE IF EXISTS logical_binder_breakdown;
-CREATE PERFETTO TABLE logical_binder_breakdown AS
+CREATE DEJAVIEW TABLE logical_binder_breakdown AS
 SELECT binder_txn_id, 'binder_txn' AS thread_state_type, reason, SUM(dur) AS reason_dur
 FROM android_binder_client_breakdown GROUP BY binder_txn_id, reason
 UNION ALL
@@ -30,7 +30,7 @@ SELECT binder_txn_id, 'binder_reply' AS thread_state_type, reason, SUM(dur) AS r
 FROM android_binder_server_breakdown GROUP BY binder_txn_id, reason;
 
 DROP VIEW IF EXISTS android_binder_output;
-CREATE PERFETTO VIEW android_binder_output AS
+CREATE DEJAVIEW VIEW android_binder_output AS
 SELECT AndroidBinderMetric(
   'process_breakdown', (
     SELECT RepeatedField(

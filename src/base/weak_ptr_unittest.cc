@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/weak_ptr.h"
+#include "dejaview/ext/base/weak_ptr.h"
 
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -69,4 +69,4 @@ TEST(WeakPtrTest, AllCases) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

@@ -18,11 +18,11 @@
 #define SRC_TRACE_PROCESSOR_UTIL_SQL_ARGUMENT_H_
 #include <optional>
 
-#include "perfetto/base/status.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/status.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/null_term_string_view.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace sql_argument {
 
@@ -49,7 +49,7 @@ class ArgumentDefinition {
  public:
   ArgumentDefinition(std::string dollar_name, Type type)
       : dollar_name_(std::move(dollar_name)), type_(type) {
-    PERFETTO_DCHECK(!dollar_name_.empty() && dollar_name_[0] == '$');
+    DEJAVIEW_DCHECK(!dollar_name_.empty() && dollar_name_[0] == '$');
   }
 
   NullTermStringView dollar_name() const {
@@ -106,6 +106,6 @@ std::string SerializeArguments(const std::vector<ArgumentDefinition>& args);
 
 }  // namespace sql_argument
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_UTIL_SQL_ARGUMENT_H_

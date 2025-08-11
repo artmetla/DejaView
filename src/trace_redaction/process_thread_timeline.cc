@@ -20,9 +20,9 @@
 #include <cstddef>
 #include <cstdint>
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
-namespace perfetto::trace_redaction {
+namespace dejaview::trace_redaction {
 namespace {
 // Limit the number of iterations to avoid an infinite loop. 10 is a generous
 // number of iterations.
@@ -48,7 +48,7 @@ void ProcessThreadTimeline::Sort() {
 const ProcessThreadTimeline::Event* ProcessThreadTimeline::GetOpeningEvent(
     uint64_t ts,
     int32_t pid) const {
-  PERFETTO_DCHECK(mode_ == Mode::kRead);
+  DEJAVIEW_DCHECK(mode_ == Mode::kRead);
 
   auto prev_open = QueryLeftMax(ts, pid, Event::Type::kOpen);
   auto prev_close = QueryLeftMax(ts, pid, Event::Type::kClose);
@@ -77,7 +77,7 @@ const ProcessThreadTimeline::Event* ProcessThreadTimeline::GetOpeningEvent(
 bool ProcessThreadTimeline::PidConnectsToUid(uint64_t ts,
                                              int32_t pid,
                                              uint64_t uid) const {
-  PERFETTO_DCHECK(mode_ == Mode::kRead);
+  DEJAVIEW_DCHECK(mode_ == Mode::kRead);
 
   const auto* prev_open = QueryLeftMax(ts, pid, Event::Type::kOpen);
   const auto* prev_close = QueryLeftMax(ts, pid, Event::Type::kClose);
@@ -161,4 +161,4 @@ const ProcessThreadTimeline::Event* ProcessThreadTimeline::QueryLeftMax(
   return best;
 }
 
-}  // namespace perfetto::trace_redaction
+}  // namespace dejaview::trace_redaction

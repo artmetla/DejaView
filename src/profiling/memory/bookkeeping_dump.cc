@@ -16,10 +16,10 @@
 
 #include "src/profiling/memory/bookkeeping_dump.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 namespace {
-using ::perfetto::protos::pbzero::ProfilePacket;
+using ::dejaview::protos::pbzero::ProfilePacket;
 // This needs to be lower than the maximum acceptable chunk size, because this
 // is checked *before* writing another submessage. We conservatively assume
 // submessages can be up to 100k here for a 500k chunk size.
@@ -112,4 +112,4 @@ protos::pbzero::InternedData* DumpState::GetCurrentInternedData() {
 }
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview

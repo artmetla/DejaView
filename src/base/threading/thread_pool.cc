@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/threading/thread_pool.h"
+#include "dejaview/ext/base/threading/thread_pool.h"
 #include <mutex>
 #include <thread>
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
 ThreadPool::ThreadPool(uint32_t thread_count) {
@@ -70,4 +70,4 @@ void ThreadPool::RunThreadLoop() {
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

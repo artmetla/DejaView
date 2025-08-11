@@ -21,12 +21,12 @@
 #include <type_traits>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 
 namespace {
@@ -37,8 +37,8 @@ constexpr size_t kHeaderSize = sizeof(uint32_t);
 
 BufferedFrameDeserializer::BufferedFrameDeserializer(size_t max_capacity)
     : capacity_(max_capacity) {
-  PERFETTO_CHECK(max_capacity % base::GetSysPageSize() == 0);
-  PERFETTO_CHECK(max_capacity >= base::GetSysPageSize());
+  DEJAVIEW_CHECK(max_capacity % base::GetSysPageSize() == 0);
+  DEJAVIEW_CHECK(max_capacity >= base::GetSysPageSize());
 }
 
 BufferedFrameDeserializer::~BufferedFrameDeserializer() = default;
@@ -49,7 +49,7 @@ BufferedFrameDeserializer::BeginReceive() {
   // release the physical memory for all but the first page. The kernel will
   // automatically give us physical pages back as soon as we page-fault on them.
   if (!buf_.IsValid()) {
-    PERFETTO_DCHECK(size_ == 0);
+    DEJAVIEW_DCHECK(size_ == 0);
     // TODO(eseckler): Don't commit all of the buffer at once on Windows.
     buf_ = base::PagedMemory::Allocate(capacity_);
 
@@ -59,13 +59,13 @@ BufferedFrameDeserializer::BeginReceive() {
     buf_.AdviseDontNeed(buf() + page_size, capacity_ - page_size);
   }
 
-  PERFETTO_CHECK(capacity_ > size_);
+  DEJAVIEW_CHECK(capacity_ > size_);
   return ReceiveBuffer{buf() + size_, capacity_ - size_};
 }
 
 bool BufferedFrameDeserializer::EndReceive(size_t recv_size) {
   const auto page_size = base::GetSysPageSize();
-  PERFETTO_CHECK(recv_size + size_ <= capacity_);
+  DEJAVIEW_CHECK(recv_size + size_ <= capacity_);
   size_ += recv_size;
 
   // At this point the contents buf_ can contain:
@@ -111,7 +111,7 @@ bool BufferedFrameDeserializer::EndReceive(size_t recv_size) {
         // The caller is expected to shut down the socket and give up at this
         // point. If it doesn't do that and insists going on at some point it
         // will hit the capacity check in BeginReceive().
-        PERFETTO_LOG("IPC Frame too large (size %zu)", next_frame_size);
+        DEJAVIEW_LOG("IPC Frame too large (size %zu)", next_frame_size);
         return false;
       }
       break;
@@ -122,7 +122,7 @@ bool BufferedFrameDeserializer::EndReceive(size_t recv_size) {
     consumed_size += next_frame_size;
   }
 
-  PERFETTO_DCHECK(consumed_size <= size_);
+  DEJAVIEW_DCHECK(consumed_size <= size_);
   if (consumed_size > 0) {
     // Shift out the consumed data from the buffer. In the typical case (C)
     // there is nothing to shift really, just setting size_ = 0 is enough.
@@ -133,8 +133,8 @@ bool BufferedFrameDeserializer::EndReceive(size_t recv_size) {
       // the buffer. Shift out the consumed bytes, so that on the next round
       // |buf_| starts with the header of the next unconsumed frame.
       const char* move_begin = buf() + consumed_size;
-      PERFETTO_CHECK(move_begin > buf());
-      PERFETTO_CHECK(move_begin + size_ <= buf() + capacity_);
+      DEJAVIEW_CHECK(move_begin > buf());
+      DEJAVIEW_CHECK(move_begin + size_ <= buf() + capacity_);
       memmove(buf(), move_begin, size_);
     }
     // If we just finished decoding a large frame that used more than one page,
@@ -145,8 +145,8 @@ bool BufferedFrameDeserializer::EndReceive(size_t recv_size) {
       if (size_rounded_up < capacity_) {
         char* madvise_begin = buf() + size_rounded_up;
         const size_t madvise_size = capacity_ - size_rounded_up;
-        PERFETTO_CHECK(madvise_begin > buf() + size_);
-        PERFETTO_CHECK(madvise_begin + madvise_size <= buf() + capacity_);
+        DEJAVIEW_CHECK(madvise_begin > buf() + size_);
+        DEJAVIEW_CHECK(madvise_begin + madvise_size <= buf() + capacity_);
         buf_.AdviseDontNeed(madvise_begin, madvise_size);
       }
     }
@@ -183,4 +183,4 @@ std::string BufferedFrameDeserializer::Serialize(const Frame& frame) {
 }
 
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

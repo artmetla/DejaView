@@ -305,7 +305,7 @@ class Tables(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE sched.thread_state_flattened;
+      INCLUDE DEJAVIEW MODULE sched.thread_state_flattened;
       select * from _get_flattened_thread_state_aggregated(11155, NULL);
       """,
         out=Path('thread_state_flattened_aggregated_csv.out'))
@@ -314,7 +314,7 @@ class Tables(TestSuite):
     return DiffTestBlueprint(
         trace=DataPath('android_monitor_contention_trace.atr'),
         query="""
-      INCLUDE PERFETTO MODULE sched.thread_state_flattened;
+      INCLUDE DEJAVIEW MODULE sched.thread_state_flattened;
       select * from _get_flattened_thread_state(11155, NULL);
       """,
         out=Path('thread_state_flattened_csv.out'))
@@ -324,7 +324,7 @@ class Tables(TestSuite):
         trace=TextProto(r"""
         packet {
           system_info {
-            tracing_service_version: "Perfetto v38.0-0bb49ab54 (0bb49ab54dbe55ce5b9dfea3a2ada68b87aecb65)"
+            tracing_service_version: "DejaView v38.0-0bb49ab54 (0bb49ab54dbe55ce5b9dfea3a2ada68b87aecb65)"
             timezone_off_mins: 60
             utsname {
               sysname: "Darwin"

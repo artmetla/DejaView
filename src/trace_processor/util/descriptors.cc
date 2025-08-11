@@ -20,18 +20,18 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/protozero/message.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/common/descriptor.pbzero.h"
-#include "protos/perfetto/trace_processor/trace_processor.pbzero.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/protozero/message.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/common/descriptor.pbzero.h"
+#include "protos/dejaview/trace_processor/trace_processor.pbzero.h"
 #include "src/trace_processor/util/status_macros.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 FieldDescriptor CreateFieldFromDecoder(
@@ -83,7 +83,7 @@ base::Status CheckExtensionField(const ProtoDescriptor& proto_descriptor,
 std::optional<uint32_t> DescriptorPool::ResolveShortType(
     const std::string& parent_path,
     const std::string& short_type) {
-  PERFETTO_DCHECK(!short_type.empty());
+  DEJAVIEW_DCHECK(!short_type.empty());
 
   std::string search_path = short_type[0] == '.'
                                 ? parent_path + short_type
@@ -456,4 +456,4 @@ FieldDescriptor::FieldDescriptor(std::string name,
       is_extension_(is_extension) {}
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

@@ -25,12 +25,12 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/status.h"
-#include "perfetto/ext/protozero/proto_ring_buffer.h"
-#include "perfetto/protozero/field.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/protozero/proto_ring_buffer.h"
+#include "dejaview/protozero/field.h"
+#include "dejaview/trace_processor/basic_types.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace protos::pbzero {
 class ComputeMetricResult;
@@ -43,7 +43,7 @@ class Iterator;
 class TraceProcessor;
 
 // This class handles the binary {,un}marshalling for the Trace Processor RPC
-// API (see protos/perfetto/trace_processor/trace_processor.proto).
+// API (see protos/dejaview/trace_processor/trace_processor.proto).
 // This is to deal with cases where the client of the trace processor is not
 // some in-process C++ code but a remote process:
 // There are two use cases of this:
@@ -70,7 +70,7 @@ class Rpc {
   // it needs is a byte-oriented pipe (e.g., a TCP socket, a pipe(2) between two
   // processes or a postmessage channel in the JS+Wasm case). The messages
   // exchanged on these pipes are TraceProcessorRpc protos (defined in
-  // trace_processor.proto). This has been introduced in Perfetto v15.
+  // trace_processor.proto). This has been introduced in DejaView v15.
 
   // Pushes data received by the RPC channel into the parser. Inbound messages
   // are tokenized and turned into TraceProcessor method invocations. |data|
@@ -154,6 +154,6 @@ class Rpc {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_RPC_RPC_H_

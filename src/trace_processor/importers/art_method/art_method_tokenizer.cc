@@ -24,13 +24,13 @@
 #include <string_view>
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/status_or.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/status_or.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/art_method/art_method_event.h"
 #include "src/trace_processor/importers/common/stack_profile_tracker.h"
 #include "src/trace_processor/sorter/trace_sorter.h"
@@ -39,9 +39,9 @@
 #include "src/trace_processor/util/status_macros.h"
 #include "src/trace_processor/util/trace_blob_view_reader.h"
 
-#include "protos/perfetto/common/builtin_clock.pbzero.h"
+#include "protos/dejaview/common/builtin_clock.pbzero.h"
 
-namespace perfetto::trace_processor::art_method {
+namespace dejaview::trace_processor::art_method {
 namespace {
 
 constexpr uint32_t kTraceMagic = 0x574f4c53;  // 'SLOW'
@@ -117,7 +117,7 @@ base::Status ArtMethodTokenizer::Parse(TraceBlobView blob) {
         for (size_t i = s;; i += record_size_) {
           auto record = reader_.SliceOff(i, record_size_);
           if (!record) {
-            PERFETTO_CHECK(it.MaybeAdvance(i - s));
+            DEJAVIEW_CHECK(it.MaybeAdvance(i - s));
             cnt = false;
             break;
           }
@@ -315,7 +315,7 @@ base::StatusOr<bool> ArtMethodTokenizer::ParseDataHeader(Iterator& it) {
       record_size_ = ToShort(header->slice_off(16, 2));
       break;
     default:
-      PERFETTO_FATAL("Illegal version %u", version_);
+      DEJAVIEW_FATAL("Illegal version %u", version_);
   }
   mode_ = kData;
   return true;
@@ -353,4 +353,4 @@ base::Status ArtMethodTokenizer::NotifyEndOfFile() {
   return base::OkStatus();
 }
 
-}  // namespace perfetto::trace_processor::art_method
+}  // namespace dejaview::trace_processor::art_method

@@ -18,7 +18,7 @@ SELECT RUN_METRIC('android/process_oom_score.sql');
 
 -- All LMK events ordered by timestamp
 DROP TABLE IF EXISTS lmk_events;
-CREATE PERFETTO TABLE lmk_events AS
+CREATE DEJAVIEW TABLE lmk_events AS
 WITH raw_events AS (
   SELECT upid, MAX(ts) AS ts
   FROM instant
@@ -38,7 +38,7 @@ LEFT JOIN oom_score_span oom_scores
 ORDER BY 1;
 
 DROP VIEW IF EXISTS android_lmk_event;
-CREATE PERFETTO VIEW android_lmk_event AS
+CREATE DEJAVIEW VIEW android_lmk_event AS
 WITH raw_events AS (
   SELECT
     ts,
@@ -78,7 +78,7 @@ SELECT
 FROM lmks_with_proc_name AS lmk;
 
 DROP VIEW IF EXISTS android_lmk_output;
-CREATE PERFETTO VIEW android_lmk_output AS
+CREATE DEJAVIEW VIEW android_lmk_output AS
 WITH lmk_counts AS (
   SELECT score, COUNT(1) AS count
   FROM lmk_events

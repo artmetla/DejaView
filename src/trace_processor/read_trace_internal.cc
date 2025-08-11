@@ -16,26 +16,26 @@
 
 #include "src/trace_processor/read_trace_internal.h"
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/scoped_mmap.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/scoped_mmap.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/trace_processor/trace_processor.h"
 
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/forwarding_trace_parser.h"
 #include "src/trace_processor/importers/gzip/gzip_trace_parser.h"
 #include "src/trace_processor/importers/proto/proto_trace_tokenizer.h"
 #include "src/trace_processor/util/gzip_utils.h"
 #include "src/trace_processor/util/status_macros.h"
 
-#include "protos/perfetto/trace/trace.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/trace.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace {
 
@@ -76,7 +76,7 @@ util::Status ReadTraceUnfinalized(
     const std::function<void(uint64_t parsed_size)>& progress_callback) {
   uint64_t bytes_read = 0;
 
-#if PERFETTO_HAS_MMAP()
+#if DEJAVIEW_HAS_MMAP()
   char* no_mmap = getenv("TRACE_PROCESSOR_NO_MMAP");
   bool use_mmap = !no_mmap || *no_mmap != '1';
 
@@ -98,8 +98,8 @@ util::Status ReadTraceUnfinalized(
     }    // if (mapped.IsValid())
   }      // if (use_mmap)
   if (bytes_read == 0)
-    PERFETTO_LOG("Cannot use mmap on this system. Falling back on read()");
-#endif  // PERFETTO_HAS_MMAP()
+    DEJAVIEW_LOG("Cannot use mmap on this system. Falling back on read()");
+#endif  // DEJAVIEW_HAS_MMAP()
   if (bytes_read == 0) {
     base::ScopedFile fd(base::OpenFile(filename, O_RDONLY));
     if (!fd)
@@ -114,4 +114,4 @@ util::Status ReadTraceUnfinalized(
   return util::OkStatus();
 }
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

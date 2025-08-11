@@ -19,7 +19,7 @@
 
 #include "src/trace_processor/containers/string_pool.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 // Variadic type representing value of different possible types.
@@ -140,6 +140,6 @@ struct Variadic {
 };
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACE_PROCESSOR_TYPES_VARIADIC_H_

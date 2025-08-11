@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-#include "perfetto/protozero/message_handle.h"
+#include "dejaview/protozero/message_handle.h"
 
-#include "perfetto/protozero/root_message.h"
+#include "dejaview/protozero/root_message.h"
 #include "test/gtest_and_gmock.h"
 
 namespace protozero {

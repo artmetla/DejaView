@@ -31,7 +31,7 @@ bazel build //python:all --verbose_failures
 ./bazel-bin/traced_probes &
 sleep 5
 TRACE=/ci/artifacts/bazel.trace
-./bazel-bin/perfetto -c :test -o $TRACE
+./bazel-bin/dejaview -c :test -o $TRACE
 kill $(jobs -p)
 ./bazel-bin/trace_processor_shell -q <(echo 'select count(1) from sched') $TRACE
 

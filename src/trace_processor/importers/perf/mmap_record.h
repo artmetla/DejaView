@@ -20,11 +20,11 @@
 #include <cstdint>
 #include <optional>
 #include <string>
-#include "perfetto/base/status.h"
-#include "protos/perfetto/trace/profiling/profile_packet.pbzero.h"
+#include "dejaview/base/status.h"
+#include "protos/dejaview/trace/profiling/profile_packet.pbzero.h"
 #include "src/trace_processor/util/build_id.h"
 
-namespace perfetto::trace_processor::perf_importer {
+namespace dejaview::trace_processor::perf_importer {
 
 struct Record;
 
@@ -76,6 +76,6 @@ struct Mmap2Record : public BaseMmap2Record {
   std::optional<BuildId> GetBuildId() const;
 };
 
-}  // namespace perfetto::trace_processor::perf_importer
+}  // namespace dejaview::trace_processor::perf_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_PERF_MMAP_RECORD_H_

@@ -24,7 +24,7 @@
 #include <binder/Status.h>
 #include <utils/String16.h>
 
-namespace perfetto {
+namespace dejaview {
 namespace android_internal {
 
 using android::sp;
@@ -74,7 +74,7 @@ bool ReportTrace(const char* reporter_package_name,
 
   Status s = service->reportTrace(std::move(params));
   if (!s.isOk()) {
-    __android_log_print(ANDROID_LOG_ERROR, "perfetto", "reportTrace failed: %s",
+    __android_log_print(ANDROID_LOG_ERROR, "dejaview", "reportTrace failed: %s",
                         s.toString8().c_str());
   }
 
@@ -82,4 +82,4 @@ bool ReportTrace(const char* reporter_package_name,
 }
 
 }  // namespace android_internal
-}  // namespace perfetto
+}  // namespace dejaview

@@ -16,13 +16,13 @@
 
 #include "src/trace_processor/importers/proto/winscope/surfaceflinger_layers_parser.h"
 
-#include "protos/perfetto/trace/android/surfaceflinger_layers.pbzero.h"
+#include "protos/dejaview/trace/android/surfaceflinger_layers.pbzero.h"
 #include "src/trace_processor/importers/common/args_tracker.h"
 #include "src/trace_processor/importers/proto/args_parser.h"
 #include "src/trace_processor/importers/proto/winscope/winscope.descriptor.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 SurfaceFlingerLayersParser::SurfaceFlingerLayersParser(
@@ -79,4 +79,4 @@ void SurfaceFlingerLayersParser::ParseLayer(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

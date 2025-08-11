@@ -20,13 +20,13 @@
 #include "src/trace_processor/importers/common/slice_translation_table.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
-#include "protos/perfetto/trace/translation/translation_table.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/translation/translation_table.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
-using perfetto::protos::pbzero::TracePacket;
+using dejaview::protos::pbzero::TracePacket;
 
 TranslationTableModule::TranslationTableModule(TraceProcessorContext* context)
     : context_(context) {
@@ -129,4 +129,4 @@ void TranslationTableModule::ParseProcessTrackNameRules(
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

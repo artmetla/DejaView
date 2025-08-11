@@ -20,7 +20,7 @@
 #include <sys/stat.h>
 #include <sys/types.h>
 
-#include "perfetto/ext/base/file_utils.h"
+#include "dejaview/ext/base/file_utils.h"
 #include "src/traced/probes/ftrace/compact_sched.h"
 #include "src/traced/probes/ftrace/cpu_reader.h"
 #include "src/traced/probes/ftrace/ftrace_config_muxer.h"
@@ -31,10 +31,10 @@
 #include "src/tracing/core/trace_writer_for_testing.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_stats.gen.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.gen.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.gen.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.gen.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
 using testing::_;
 using testing::AnyNumber;
@@ -49,9 +49,9 @@ using testing::Pair;
 using testing::Return;
 using testing::UnorderedElementsAre;
 
-using Table = perfetto::ProtoTranslationTable;
+using Table = dejaview::ProtoTranslationTable;
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 
@@ -159,7 +159,7 @@ class MockFtraceProcfs : public FtraceProcfs {
   }
 
   bool WriteTracingOn(const std::string& /*path*/, const std::string& value) {
-    PERFETTO_CHECK(value == "1" || value == "0");
+    DEJAVIEW_CHECK(value == "1" || value == "0");
     tracing_on_ = value == "1";
     return true;
   }
@@ -256,14 +256,14 @@ class TestFtraceController : public FtraceController,
 
   MockFtraceProcfs* GetInstanceMockProcfs(const std::string& instance_name) {
     auto* instance = GetInstance(instance_name);
-    PERFETTO_CHECK(instance);
+    DEJAVIEW_CHECK(instance);
     return reinterpret_cast<MockFtraceProcfs*>(instance->ftrace_procfs.get());
   }
 
   std::unique_ptr<FtraceInstanceState> CreateSecondaryInstance(
       const std::string& instance_name) override {
     auto ftrace_procfs = std::move(pending_instance_procfs_[instance_name]);
-    PERFETTO_CHECK(ftrace_procfs);
+    DEJAVIEW_CHECK(ftrace_procfs);
 
     auto table = FakeTable(ftrace_procfs.get());
     auto muxer = FakeMuxer(ftrace_procfs.get(), atrace_wrapper(), table.get());
@@ -842,4 +842,4 @@ TEST(FtraceControllerTest, PollSupportedOnKernelVersion) {
   EXPECT_FALSE(test("6.1.87-android13-4-0"));
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

@@ -22,8 +22,8 @@
 #include <vector>
 
 #include <sys/types.h>
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/basic_types.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/basic_types.h"
 #include "src/trace_processor/containers/bit_vector.h"
 #include "src/trace_processor/containers/row_map.h"
 #include "src/trace_processor/db/column/data_layer.h"
@@ -31,7 +31,7 @@
 #include "src/trace_processor/db/query_executor.h"
 #include "src/trace_processor/db/table.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 namespace {
 
@@ -126,12 +126,12 @@ void QueryExecutor::IndexSearch(const Constraint& c,
   Indices indices = Indices::Create(table_indices, Indices::State::kMonotonic);
   chain.IndexSearch(c.op, c.value, indices);
 
-  PERFETTO_DCHECK(indices.tokens.size() <= table_indices.size());
+  DEJAVIEW_DCHECK(indices.tokens.size() <= table_indices.size());
   for (uint32_t i = 0; i < indices.tokens.size(); ++i) {
     table_indices[i] = indices.tokens[i].payload;
   }
   table_indices.resize(indices.tokens.size());
-  PERFETTO_DCHECK(std::is_sorted(table_indices.begin(), table_indices.end()));
+  DEJAVIEW_DCHECK(std::is_sorted(table_indices.begin(), table_indices.end()));
   *rm = RowMap(std::move(table_indices));
 }
 
@@ -208,4 +208,4 @@ void QueryExecutor::IndexedColumnFilterForTesting(
   IndexSearch(c, col, rm);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

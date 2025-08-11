@@ -28,7 +28,7 @@ import {App} from './app';
 // one factory invoked on each new trace. Such a model would be incredibly more
 // robust.
 
-export interface PerfettoPlugin {
+export interface DejaViewPlugin {
   // Lifecycle methods.
   onActivate?(ctx: App): void;
   onTraceLoad?(ctx: Trace): Promise<void>;
@@ -51,11 +51,11 @@ export interface PerfettoPlugin {
 
 export interface PluginClass {
   // Instantiate the plugin.
-  new (): PerfettoPlugin;
+  new (): DejaViewPlugin;
 }
 // Plugins can be class refs or concrete plugin implementations.
 
-export type PluginFactory = PluginClass | PerfettoPlugin;
+export type PluginFactory = PluginClass | DejaViewPlugin;
 
 export interface PluginDescriptor {
   // A unique string for your plugin. To ensure the name is unique you

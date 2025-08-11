@@ -22,42 +22,42 @@
 
 #include <benchmark/benchmark.h>
 
-#include "perfetto/public/abi/atomic.h"
-#include "perfetto/public/data_source.h"
-#include "perfetto/public/pb_utils.h"
-#include "perfetto/public/producer.h"
-#include "perfetto/public/protos/trace/test_event.pzc.h"
-#include "perfetto/public/protos/trace/trace.pzc.h"
-#include "perfetto/public/protos/trace/trace_packet.pzc.h"
-#include "perfetto/public/protos/trace/track_event/debug_annotation.pzc.h"
-#include "perfetto/public/protos/trace/track_event/track_event.pzc.h"
-#include "perfetto/public/te_category_macros.h"
-#include "perfetto/public/te_macros.h"
-#include "perfetto/public/track_event.h"
+#include "dejaview/public/abi/atomic.h"
+#include "dejaview/public/data_source.h"
+#include "dejaview/public/pb_utils.h"
+#include "dejaview/public/producer.h"
+#include "dejaview/public/protos/trace/test_event.pzc.h"
+#include "dejaview/public/protos/trace/trace.pzc.h"
+#include "dejaview/public/protos/trace/trace_packet.pzc.h"
+#include "dejaview/public/protos/trace/track_event/debug_annotation.pzc.h"
+#include "dejaview/public/protos/trace/track_event/track_event.pzc.h"
+#include "dejaview/public/te_category_macros.h"
+#include "dejaview/public/te_macros.h"
+#include "dejaview/public/track_event.h"
 
 #include "src/shared_lib/test/utils.h"
 
-static struct PerfettoDs custom = PERFETTO_DS_INIT();
+static struct DejaViewDs custom = DEJAVIEW_DS_INIT();
 
 #define BENCHMARK_CATEGORIES(C) C(benchmark_cat, "benchmark", "")
 
-PERFETTO_TE_CATEGORIES_DEFINE(BENCHMARK_CATEGORIES)
+DEJAVIEW_TE_CATEGORIES_DEFINE(BENCHMARK_CATEGORIES)
 
 namespace {
 
-using ::perfetto::shlib::test_utils::FieldView;
-using ::perfetto::shlib::test_utils::IdFieldView;
-using ::perfetto::shlib::test_utils::TracingSession;
+using ::dejaview::shlib::test_utils::FieldView;
+using ::dejaview::shlib::test_utils::IdFieldView;
+using ::dejaview::shlib::test_utils::TracingSession;
 
 constexpr char kDataSourceName[] = "com.example.custom_data_source";
 
 bool Initialize() {
-  struct PerfettoProducerInitArgs args = PERFETTO_PRODUCER_INIT_ARGS_INIT();
-  args.backends = PERFETTO_BACKEND_IN_PROCESS;
-  PerfettoProducerInit(args);
-  PerfettoDsRegister(&custom, kDataSourceName, PerfettoDsParamsDefault());
-  PerfettoTeInit();
-  PERFETTO_TE_REGISTER_CATEGORIES(BENCHMARK_CATEGORIES);
+  struct DejaViewProducerInitArgs args = DEJAVIEW_PRODUCER_INIT_ARGS_INIT();
+  args.backends = DEJAVIEW_BACKEND_IN_PROCESS;
+  DejaViewProducerInit(args);
+  DejaViewDsRegister(&custom, kDataSourceName, DejaViewDsParamsDefault());
+  DejaViewTeInit();
+  DEJAVIEW_TE_REGISTER_CATEGORIES(BENCHMARK_CATEGORIES);
   return true;
 }
 
@@ -67,14 +67,14 @@ void EnsureInitialized() {
 }
 
 size_t DecodePacketSizes(const std::vector<uint8_t>& data) {
-  for (struct PerfettoPbDecoderField field :
-       IdFieldView(data, perfetto_protos_Trace_packet_field_number)) {
-    if (field.status != PERFETTO_PB_DECODER_OK ||
-        field.wire_type != PERFETTO_PB_WIRE_TYPE_DELIMITED) {
+  for (struct DejaViewPbDecoderField field :
+       IdFieldView(data, dejaview_protos_Trace_packet_field_number)) {
+    if (field.status != DEJAVIEW_PB_DECODER_OK ||
+        field.wire_type != DEJAVIEW_PB_WIRE_TYPE_DELIMITED) {
       abort();
     }
     IdFieldView for_testing_fields(
-        field, perfetto_protos_TracePacket_for_testing_field_number);
+        field, dejaview_protos_TracePacket_for_testing_field_number);
     if (!for_testing_fields.ok()) {
       abort();
     }
@@ -82,7 +82,7 @@ size_t DecodePacketSizes(const std::vector<uint8_t>& data) {
       continue;
     }
     if (for_testing_fields.size() > 1 || for_testing_fields.front().wire_type !=
-                                             PERFETTO_PB_WIRE_TYPE_DELIMITED) {
+                                             DEJAVIEW_PB_WIRE_TYPE_DELIMITED) {
       abort();
     }
     return field.value.delimited.len;
@@ -94,7 +94,7 @@ size_t DecodePacketSizes(const std::vector<uint8_t>& data) {
 void BM_Shlib_DataSource_Disabled(benchmark::State& state) {
   EnsureInitialized();
   for (auto _ : state) {
-    PERFETTO_DS_TRACE(custom, ctx) {}
+    DEJAVIEW_DS_TRACE(custom, ctx) {}
     benchmark::ClobberMemory();
   }
 }
@@ -110,27 +110,27 @@ void BM_Shlib_DataSource_DifferentPacketSize(benchmark::State& state) {
   const size_t kNumFields = static_cast<size_t>(state.range(0));
 
   for (auto _ : state) {
-    PERFETTO_DS_TRACE(custom, ctx) {
-      struct PerfettoDsRootTracePacket trace_packet;
-      PerfettoDsTracerPacketBegin(&ctx, &trace_packet);
+    DEJAVIEW_DS_TRACE(custom, ctx) {
+      struct DejaViewDsRootTracePacket trace_packet;
+      DejaViewDsTracerPacketBegin(&ctx, &trace_packet);
 
       {
-        struct perfetto_protos_TestEvent for_testing;
-        perfetto_protos_TracePacket_begin_for_testing(&trace_packet.msg,
+        struct dejaview_protos_TestEvent for_testing;
+        dejaview_protos_TracePacket_begin_for_testing(&trace_packet.msg,
                                                       &for_testing);
         {
-          struct perfetto_protos_TestEvent_TestPayload payload;
-          perfetto_protos_TestEvent_begin_payload(&for_testing, &payload);
+          struct dejaview_protos_TestEvent_TestPayload payload;
+          dejaview_protos_TestEvent_begin_payload(&for_testing, &payload);
           for (size_t i = 0; i < kNumFields; i++) {
-            perfetto_protos_TestEvent_TestPayload_set_cstr_str(&payload,
+            dejaview_protos_TestEvent_TestPayload_set_cstr_str(&payload,
                                                                "ABCDEFGH");
           }
-          perfetto_protos_TestEvent_end_payload(&for_testing, &payload);
+          dejaview_protos_TestEvent_end_payload(&for_testing, &payload);
         }
-        perfetto_protos_TracePacket_end_for_testing(&trace_packet.msg,
+        dejaview_protos_TracePacket_end_for_testing(&trace_packet.msg,
                                                     &for_testing);
       }
-      PerfettoDsTracerPacketEnd(&ctx, &trace_packet);
+      DejaViewDsTracerPacketEnd(&ctx, &trace_packet);
     }
     benchmark::ClobberMemory();
   }
@@ -145,7 +145,7 @@ void BM_Shlib_DataSource_DifferentPacketSize(benchmark::State& state) {
 void BM_Shlib_TeDisabled(benchmark::State& state) {
   EnsureInitialized();
   while (state.KeepRunning()) {
-    PERFETTO_TE(benchmark_cat, PERFETTO_TE_SLICE_BEGIN("DisabledEvent"));
+    DEJAVIEW_TE(benchmark_cat, DEJAVIEW_TE_SLICE_BEGIN("DisabledEvent"));
     benchmark::ClobberMemory();
   }
 }
@@ -158,7 +158,7 @@ void BM_Shlib_TeBasic(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    PERFETTO_TE(benchmark_cat, PERFETTO_TE_SLICE_BEGIN("Event"));
+    DEJAVIEW_TE(benchmark_cat, DEJAVIEW_TE_SLICE_BEGIN("Event"));
     benchmark::ClobberMemory();
   }
 }
@@ -171,8 +171,8 @@ void BM_Shlib_TeBasicNoIntern(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    PERFETTO_TE(benchmark_cat, PERFETTO_TE_SLICE_BEGIN("Event"),
-                PERFETTO_TE_NO_INTERN());
+    DEJAVIEW_TE(benchmark_cat, DEJAVIEW_TE_SLICE_BEGIN("Event"),
+                DEJAVIEW_TE_NO_INTERN());
     benchmark::ClobberMemory();
   }
 }
@@ -185,8 +185,8 @@ void BM_Shlib_TeDebugAnnotations(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    PERFETTO_TE(benchmark_cat, PERFETTO_TE_SLICE_BEGIN("Event"),
-                PERFETTO_TE_ARG_UINT64("value", 42));
+    DEJAVIEW_TE(benchmark_cat, DEJAVIEW_TE_SLICE_BEGIN("Event"),
+                DEJAVIEW_TE_ARG_UINT64("value", 42));
     benchmark::ClobberMemory();
   }
 }
@@ -199,14 +199,14 @@ void BM_Shlib_TeCustomProto(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    PERFETTO_TE(
-        benchmark_cat, PERFETTO_TE_SLICE_BEGIN("Event"),
-        PERFETTO_TE_PROTO_FIELDS(PERFETTO_TE_PROTO_FIELD_NESTED(
-            perfetto_protos_TrackEvent_debug_annotations_field_number,
-            PERFETTO_TE_PROTO_FIELD_CSTR(
-                perfetto_protos_DebugAnnotation_name_field_number, "value"),
-            PERFETTO_TE_PROTO_FIELD_VARINT(
-                perfetto_protos_DebugAnnotation_uint_value_field_number, 42))));
+    DEJAVIEW_TE(
+        benchmark_cat, DEJAVIEW_TE_SLICE_BEGIN("Event"),
+        DEJAVIEW_TE_PROTO_FIELDS(DEJAVIEW_TE_PROTO_FIELD_NESTED(
+            dejaview_protos_TrackEvent_debug_annotations_field_number,
+            DEJAVIEW_TE_PROTO_FIELD_CSTR(
+                dejaview_protos_DebugAnnotation_name_field_number, "value"),
+            DEJAVIEW_TE_PROTO_FIELD_VARINT(
+                dejaview_protos_DebugAnnotation_uint_value_field_number, 42))));
     benchmark::ClobberMemory();
   }
 }
@@ -219,44 +219,44 @@ void BM_Shlib_TeLlBasic(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    if (PERFETTO_UNLIKELY(PERFETTO_ATOMIC_LOAD_EXPLICIT(
-            benchmark_cat.enabled, PERFETTO_MEMORY_ORDER_RELAXED))) {
-      struct PerfettoTeTimestamp timestamp = PerfettoTeGetTimestamp();
-      int32_t type = PERFETTO_TE_TYPE_SLICE_BEGIN;
+    if (DEJAVIEW_UNLIKELY(DEJAVIEW_ATOMIC_LOAD_EXPLICIT(
+            benchmark_cat.enabled, DEJAVIEW_MEMORY_ORDER_RELAXED))) {
+      struct DejaViewTeTimestamp timestamp = DejaViewTeGetTimestamp();
+      int32_t type = DEJAVIEW_TE_TYPE_SLICE_BEGIN;
       const char* name = "Event";
-      for (struct PerfettoTeLlIterator ctx =
-               PerfettoTeLlBeginSlowPath(&benchmark_cat, timestamp);
+      for (struct DejaViewTeLlIterator ctx =
+               DejaViewTeLlBeginSlowPath(&benchmark_cat, timestamp);
            ctx.impl.ds.tracer != nullptr;
-           PerfettoTeLlNext(&benchmark_cat, timestamp, &ctx)) {
+           DejaViewTeLlNext(&benchmark_cat, timestamp, &ctx)) {
         uint64_t name_iid;
         {
-          struct PerfettoDsRootTracePacket trace_packet;
-          PerfettoTeLlPacketBegin(&ctx, &trace_packet);
-          PerfettoTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
-          perfetto_protos_TracePacket_set_sequence_flags(
+          struct DejaViewDsRootTracePacket trace_packet;
+          DejaViewTeLlPacketBegin(&ctx, &trace_packet);
+          DejaViewTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
+          dejaview_protos_TracePacket_set_sequence_flags(
               &trace_packet.msg,
-              perfetto_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
+              dejaview_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
           {
-            struct PerfettoTeLlInternContext intern_ctx;
-            PerfettoTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
+            struct DejaViewTeLlInternContext intern_ctx;
+            DejaViewTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
                                           &trace_packet.msg);
-            PerfettoTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
-            name_iid = PerfettoTeLlInternEventName(&intern_ctx, name);
-            PerfettoTeLlInternContextDestroy(&intern_ctx);
+            DejaViewTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
+            name_iid = DejaViewTeLlInternEventName(&intern_ctx, name);
+            DejaViewTeLlInternContextDestroy(&intern_ctx);
           }
           {
-            struct perfetto_protos_TrackEvent te_msg;
-            perfetto_protos_TracePacket_begin_track_event(&trace_packet.msg,
+            struct dejaview_protos_TrackEvent te_msg;
+            dejaview_protos_TracePacket_begin_track_event(&trace_packet.msg,
                                                           &te_msg);
-            perfetto_protos_TrackEvent_set_type(
+            dejaview_protos_TrackEvent_set_type(
                 &te_msg,
-                static_cast<enum perfetto_protos_TrackEvent_Type>(type));
-            PerfettoTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
-            PerfettoTeLlWriteInternedEventName(&te_msg, name_iid);
-            perfetto_protos_TracePacket_end_track_event(&trace_packet.msg,
+                static_cast<enum dejaview_protos_TrackEvent_Type>(type));
+            DejaViewTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
+            DejaViewTeLlWriteInternedEventName(&te_msg, name_iid);
+            dejaview_protos_TracePacket_end_track_event(&trace_packet.msg,
                                                         &te_msg);
           }
-          PerfettoTeLlPacketEnd(&ctx, &trace_packet);
+          DejaViewTeLlPacketEnd(&ctx, &trace_packet);
         }
       }
     }
@@ -273,42 +273,42 @@ void BM_Shlib_TeLlBasicNoIntern(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    if (PERFETTO_UNLIKELY(PERFETTO_ATOMIC_LOAD_EXPLICIT(
-            benchmark_cat.enabled, PERFETTO_MEMORY_ORDER_RELAXED))) {
-      struct PerfettoTeTimestamp timestamp = PerfettoTeGetTimestamp();
-      int32_t type = PERFETTO_TE_TYPE_SLICE_BEGIN;
+    if (DEJAVIEW_UNLIKELY(DEJAVIEW_ATOMIC_LOAD_EXPLICIT(
+            benchmark_cat.enabled, DEJAVIEW_MEMORY_ORDER_RELAXED))) {
+      struct DejaViewTeTimestamp timestamp = DejaViewTeGetTimestamp();
+      int32_t type = DEJAVIEW_TE_TYPE_SLICE_BEGIN;
       const char* name = "Event";
-      for (struct PerfettoTeLlIterator ctx =
-               PerfettoTeLlBeginSlowPath(&benchmark_cat, timestamp);
+      for (struct DejaViewTeLlIterator ctx =
+               DejaViewTeLlBeginSlowPath(&benchmark_cat, timestamp);
            ctx.impl.ds.tracer != nullptr;
-           PerfettoTeLlNext(&benchmark_cat, timestamp, &ctx)) {
+           DejaViewTeLlNext(&benchmark_cat, timestamp, &ctx)) {
         {
-          struct PerfettoDsRootTracePacket trace_packet;
-          PerfettoTeLlPacketBegin(&ctx, &trace_packet);
-          PerfettoTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
-          perfetto_protos_TracePacket_set_sequence_flags(
+          struct DejaViewDsRootTracePacket trace_packet;
+          DejaViewTeLlPacketBegin(&ctx, &trace_packet);
+          DejaViewTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
+          dejaview_protos_TracePacket_set_sequence_flags(
               &trace_packet.msg,
-              perfetto_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
+              dejaview_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
           {
-            struct PerfettoTeLlInternContext intern_ctx;
-            PerfettoTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
+            struct DejaViewTeLlInternContext intern_ctx;
+            DejaViewTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
                                           &trace_packet.msg);
-            PerfettoTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
-            PerfettoTeLlInternContextDestroy(&intern_ctx);
+            DejaViewTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
+            DejaViewTeLlInternContextDestroy(&intern_ctx);
           }
           {
-            struct perfetto_protos_TrackEvent te_msg;
-            perfetto_protos_TracePacket_begin_track_event(&trace_packet.msg,
+            struct dejaview_protos_TrackEvent te_msg;
+            dejaview_protos_TracePacket_begin_track_event(&trace_packet.msg,
                                                           &te_msg);
-            perfetto_protos_TrackEvent_set_type(
+            dejaview_protos_TrackEvent_set_type(
                 &te_msg,
-                static_cast<enum perfetto_protos_TrackEvent_Type>(type));
-            PerfettoTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
-            PerfettoTeLlWriteEventName(&te_msg, name);
-            perfetto_protos_TracePacket_end_track_event(&trace_packet.msg,
+                static_cast<enum dejaview_protos_TrackEvent_Type>(type));
+            DejaViewTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
+            DejaViewTeLlWriteEventName(&te_msg, name);
+            dejaview_protos_TracePacket_end_track_event(&trace_packet.msg,
                                                         &te_msg);
           }
-          PerfettoTeLlPacketEnd(&ctx, &trace_packet);
+          DejaViewTeLlPacketEnd(&ctx, &trace_packet);
         }
       }
     }
@@ -324,56 +324,56 @@ void BM_Shlib_TeLlDebugAnnotations(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    if (PERFETTO_UNLIKELY(PERFETTO_ATOMIC_LOAD_EXPLICIT(
-            benchmark_cat.enabled, PERFETTO_MEMORY_ORDER_RELAXED))) {
-      struct PerfettoTeTimestamp timestamp = PerfettoTeGetTimestamp();
-      int32_t type = PERFETTO_TE_TYPE_SLICE_BEGIN;
+    if (DEJAVIEW_UNLIKELY(DEJAVIEW_ATOMIC_LOAD_EXPLICIT(
+            benchmark_cat.enabled, DEJAVIEW_MEMORY_ORDER_RELAXED))) {
+      struct DejaViewTeTimestamp timestamp = DejaViewTeGetTimestamp();
+      int32_t type = DEJAVIEW_TE_TYPE_SLICE_BEGIN;
       const char* name = "Event";
-      for (struct PerfettoTeLlIterator ctx =
-               PerfettoTeLlBeginSlowPath(&benchmark_cat, timestamp);
+      for (struct DejaViewTeLlIterator ctx =
+               DejaViewTeLlBeginSlowPath(&benchmark_cat, timestamp);
            ctx.impl.ds.tracer != nullptr;
-           PerfettoTeLlNext(&benchmark_cat, timestamp, &ctx)) {
+           DejaViewTeLlNext(&benchmark_cat, timestamp, &ctx)) {
         uint64_t name_iid;
         uint64_t dbg_arg_iid;
         {
-          struct PerfettoDsRootTracePacket trace_packet;
-          PerfettoTeLlPacketBegin(&ctx, &trace_packet);
-          PerfettoTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
-          perfetto_protos_TracePacket_set_sequence_flags(
+          struct DejaViewDsRootTracePacket trace_packet;
+          DejaViewTeLlPacketBegin(&ctx, &trace_packet);
+          DejaViewTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
+          dejaview_protos_TracePacket_set_sequence_flags(
               &trace_packet.msg,
-              perfetto_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
+              dejaview_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
           {
-            struct PerfettoTeLlInternContext intern_ctx;
-            PerfettoTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
+            struct DejaViewTeLlInternContext intern_ctx;
+            DejaViewTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
                                           &trace_packet.msg);
-            PerfettoTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
-            name_iid = PerfettoTeLlInternEventName(&intern_ctx, name);
-            dbg_arg_iid = PerfettoTeLlInternDbgArgName(&intern_ctx, "value");
-            PerfettoTeLlInternContextDestroy(&intern_ctx);
+            DejaViewTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
+            name_iid = DejaViewTeLlInternEventName(&intern_ctx, name);
+            dbg_arg_iid = DejaViewTeLlInternDbgArgName(&intern_ctx, "value");
+            DejaViewTeLlInternContextDestroy(&intern_ctx);
           }
           {
-            struct perfetto_protos_TrackEvent te_msg;
-            perfetto_protos_TracePacket_begin_track_event(&trace_packet.msg,
+            struct dejaview_protos_TrackEvent te_msg;
+            dejaview_protos_TracePacket_begin_track_event(&trace_packet.msg,
                                                           &te_msg);
-            perfetto_protos_TrackEvent_set_type(
+            dejaview_protos_TrackEvent_set_type(
                 &te_msg,
-                static_cast<enum perfetto_protos_TrackEvent_Type>(type));
-            PerfettoTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
-            PerfettoTeLlWriteInternedEventName(&te_msg, name_iid);
+                static_cast<enum dejaview_protos_TrackEvent_Type>(type));
+            DejaViewTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
+            DejaViewTeLlWriteInternedEventName(&te_msg, name_iid);
             {
-              struct perfetto_protos_DebugAnnotation dbg_arg;
-              perfetto_protos_TrackEvent_begin_debug_annotations(&te_msg,
+              struct dejaview_protos_DebugAnnotation dbg_arg;
+              dejaview_protos_TrackEvent_begin_debug_annotations(&te_msg,
                                                                  &dbg_arg);
-              perfetto_protos_DebugAnnotation_set_name_iid(&dbg_arg,
+              dejaview_protos_DebugAnnotation_set_name_iid(&dbg_arg,
                                                            dbg_arg_iid);
-              perfetto_protos_DebugAnnotation_set_uint_value(&dbg_arg, 42);
-              perfetto_protos_TrackEvent_end_debug_annotations(&te_msg,
+              dejaview_protos_DebugAnnotation_set_uint_value(&dbg_arg, 42);
+              dejaview_protos_TrackEvent_end_debug_annotations(&te_msg,
                                                                &dbg_arg);
             }
-            perfetto_protos_TracePacket_end_track_event(&trace_packet.msg,
+            dejaview_protos_TracePacket_end_track_event(&trace_packet.msg,
                                                         &te_msg);
           }
-          PerfettoTeLlPacketEnd(&ctx, &trace_packet);
+          DejaViewTeLlPacketEnd(&ctx, &trace_packet);
         }
       }
     }
@@ -389,53 +389,53 @@ void BM_Shlib_TeLlCustomProto(benchmark::State& state) {
                                        .Build();
 
   while (state.KeepRunning()) {
-    if (PERFETTO_UNLIKELY(PERFETTO_ATOMIC_LOAD_EXPLICIT(
-            benchmark_cat.enabled, PERFETTO_MEMORY_ORDER_RELAXED))) {
-      struct PerfettoTeTimestamp timestamp = PerfettoTeGetTimestamp();
-      int32_t type = PERFETTO_TE_TYPE_SLICE_BEGIN;
+    if (DEJAVIEW_UNLIKELY(DEJAVIEW_ATOMIC_LOAD_EXPLICIT(
+            benchmark_cat.enabled, DEJAVIEW_MEMORY_ORDER_RELAXED))) {
+      struct DejaViewTeTimestamp timestamp = DejaViewTeGetTimestamp();
+      int32_t type = DEJAVIEW_TE_TYPE_SLICE_BEGIN;
       const char* name = "Event";
-      for (struct PerfettoTeLlIterator ctx =
-               PerfettoTeLlBeginSlowPath(&benchmark_cat, timestamp);
+      for (struct DejaViewTeLlIterator ctx =
+               DejaViewTeLlBeginSlowPath(&benchmark_cat, timestamp);
            ctx.impl.ds.tracer != nullptr;
-           PerfettoTeLlNext(&benchmark_cat, timestamp, &ctx)) {
+           DejaViewTeLlNext(&benchmark_cat, timestamp, &ctx)) {
         uint64_t name_iid;
         {
-          struct PerfettoDsRootTracePacket trace_packet;
-          PerfettoTeLlPacketBegin(&ctx, &trace_packet);
-          PerfettoTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
-          perfetto_protos_TracePacket_set_sequence_flags(
+          struct DejaViewDsRootTracePacket trace_packet;
+          DejaViewTeLlPacketBegin(&ctx, &trace_packet);
+          DejaViewTeLlWriteTimestamp(&trace_packet.msg, &timestamp);
+          dejaview_protos_TracePacket_set_sequence_flags(
               &trace_packet.msg,
-              perfetto_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
+              dejaview_protos_TracePacket_SEQ_NEEDS_INCREMENTAL_STATE);
           {
-            struct PerfettoTeLlInternContext intern_ctx;
-            PerfettoTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
+            struct DejaViewTeLlInternContext intern_ctx;
+            DejaViewTeLlInternContextInit(&intern_ctx, ctx.impl.incr,
                                           &trace_packet.msg);
-            PerfettoTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
-            name_iid = PerfettoTeLlInternEventName(&intern_ctx, name);
-            PerfettoTeLlInternContextDestroy(&intern_ctx);
+            DejaViewTeLlInternRegisteredCat(&intern_ctx, &benchmark_cat);
+            name_iid = DejaViewTeLlInternEventName(&intern_ctx, name);
+            DejaViewTeLlInternContextDestroy(&intern_ctx);
           }
           {
-            struct perfetto_protos_TrackEvent te_msg;
-            perfetto_protos_TracePacket_begin_track_event(&trace_packet.msg,
+            struct dejaview_protos_TrackEvent te_msg;
+            dejaview_protos_TracePacket_begin_track_event(&trace_packet.msg,
                                                           &te_msg);
-            perfetto_protos_TrackEvent_set_type(
+            dejaview_protos_TrackEvent_set_type(
                 &te_msg,
-                static_cast<enum perfetto_protos_TrackEvent_Type>(type));
-            PerfettoTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
-            PerfettoTeLlWriteInternedEventName(&te_msg, name_iid);
+                static_cast<enum dejaview_protos_TrackEvent_Type>(type));
+            DejaViewTeLlWriteRegisteredCat(&te_msg, &benchmark_cat);
+            DejaViewTeLlWriteInternedEventName(&te_msg, name_iid);
             {
-              struct perfetto_protos_DebugAnnotation dbg_arg;
-              perfetto_protos_TrackEvent_begin_debug_annotations(&te_msg,
+              struct dejaview_protos_DebugAnnotation dbg_arg;
+              dejaview_protos_TrackEvent_begin_debug_annotations(&te_msg,
                                                                  &dbg_arg);
-              perfetto_protos_DebugAnnotation_set_cstr_name(&dbg_arg, "value");
-              perfetto_protos_DebugAnnotation_set_uint_value(&dbg_arg, 42);
-              perfetto_protos_TrackEvent_end_debug_annotations(&te_msg,
+              dejaview_protos_DebugAnnotation_set_cstr_name(&dbg_arg, "value");
+              dejaview_protos_DebugAnnotation_set_uint_value(&dbg_arg, 42);
+              dejaview_protos_TrackEvent_end_debug_annotations(&te_msg,
                                                                &dbg_arg);
             }
-            perfetto_protos_TracePacket_end_track_event(&trace_packet.msg,
+            dejaview_protos_TracePacket_end_track_event(&trace_packet.msg,
                                                         &te_msg);
           }
-          PerfettoTeLlPacketEnd(&ctx, &trace_packet);
+          DejaViewTeLlPacketEnd(&ctx, &trace_packet);
         }
       }
     }

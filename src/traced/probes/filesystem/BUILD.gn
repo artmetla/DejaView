@@ -16,15 +16,15 @@ import("../../../../gn/test.gni")
 
 source_set("filesystem") {
   public_deps = [
-    "../../../../protos/perfetto/trace/filesystem:zero",
+    "../../../../protos/dejaview/trace/filesystem:zero",
     "../../../tracing/core",
   ]
   deps = [
     "..:data_source",
     "../../../../gn:default_deps",
-    "../../../../include/perfetto/ext/traced",
-    "../../../../protos/perfetto/config/inode_file:zero",
-    "../../../../protos/perfetto/trace:zero",
+    "../../../../include/dejaview/ext/traced",
+    "../../../../protos/dejaview/config/inode_file:zero",
+    "../../../../protos/dejaview/trace:zero",
     "../../../base",
   ]
   sources = [
@@ -43,14 +43,14 @@ source_set("filesystem") {
   ]
 }
 
-perfetto_unittest_source_set("unittests") {
+dejaview_unittest_source_set("unittests") {
   testonly = true
   deps = [
     ":filesystem",
     "../../../../gn:default_deps",
     "../../../../gn:gtest_and_gmock",
-    "../../../../include/perfetto/protozero",
-    "../../../../protos/perfetto/config/inode_file:zero",
+    "../../../../include/dejaview/protozero",
+    "../../../../protos/dejaview/config/inode_file:zero",
     "../../../../src/base:test_support",
   ]
   sources = [

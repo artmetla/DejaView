@@ -14,18 +14,18 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/base64.h"
+#include "dejaview/ext/base/base64.h"
 #include "test/gtest_and_gmock.h"
 
 #include <random>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "protos/perfetto/trace/trace.pb.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "protos/dejaview/trace/trace.pb.h"
 #include "src/protozero/filtering/filter_util.h"
 #include "src/protozero/filtering/message_filter.h"
 
@@ -34,7 +34,7 @@ namespace protozero {
 namespace {
 
 TEST(MessageFilterTest, EndToEnd) {
-  auto schema = perfetto::base::TempFile::Create();
+  auto schema = dejaview::base::TempFile::Create();
   static const char kSchema[] = R"(
   syntax = "proto2";
   message FilterSchema {
@@ -58,8 +58,8 @@ TEST(MessageFilterTest, EndToEnd) {
   };
   )";
 
-  perfetto::base::WriteAll(*schema, kSchema, strlen(kSchema));
-  perfetto::base::FlushFile(*schema);
+  dejaview::base::WriteAll(*schema, kSchema, strlen(kSchema));
+  dejaview::base::FlushFile(*schema);
 
   FilterUtil filter;
   ASSERT_TRUE(filter.LoadMessageDefinition(schema.path(), "", ""));
@@ -130,7 +130,7 @@ TEST(MessageFilterTest, EndToEnd) {
 }
 
 TEST(MessageFilterTest, Passthrough) {
-  auto schema = perfetto::base::TempFile::Create();
+  auto schema = dejaview::base::TempFile::Create();
   static const char kSchema[] = R"(
   syntax = "proto2";
   message TracePacket {
@@ -149,8 +149,8 @@ TEST(MessageFilterTest, Passthrough) {
   }
   )";
 
-  perfetto::base::WriteAll(*schema, kSchema, strlen(kSchema));
-  perfetto::base::FlushFile(*schema);
+  dejaview::base::WriteAll(*schema, kSchema, strlen(kSchema));
+  dejaview::base::FlushFile(*schema);
 
   FilterUtil filter;
   ASSERT_TRUE(filter.LoadMessageDefinition(
@@ -212,7 +212,7 @@ TEST(MessageFilterTest, Passthrough) {
 }
 
 TEST(MessageFilterTest, ChangeRoot) {
-  auto schema = perfetto::base::TempFile::Create();
+  auto schema = dejaview::base::TempFile::Create();
   static const char kSchema[] = R"(
   syntax = "proto2";
   message FilterSchema {
@@ -228,8 +228,8 @@ TEST(MessageFilterTest, ChangeRoot) {
   };
   )";
 
-  perfetto::base::WriteAll(*schema, kSchema, strlen(kSchema));
-  perfetto::base::FlushFile(*schema);
+  dejaview::base::WriteAll(*schema, kSchema, strlen(kSchema));
+  dejaview::base::FlushFile(*schema);
 
   FilterUtil filter;
   ASSERT_TRUE(filter.LoadMessageDefinition(schema.path(), "", ""));
@@ -279,7 +279,7 @@ TEST(MessageFilterTest, ChangeRoot) {
 }
 
 TEST(MessageFilterTest, StringFilter) {
-  auto schema = perfetto::base::TempFile::Create();
+  auto schema = dejaview::base::TempFile::Create();
   static const char kSchema[] = R"(
   syntax = "proto2";
   message TracePacket {
@@ -290,16 +290,16 @@ TEST(MessageFilterTest, StringFilter) {
   }
   )";
 
-  perfetto::base::WriteAll(*schema, kSchema, strlen(kSchema));
-  perfetto::base::FlushFile(*schema);
+  dejaview::base::WriteAll(*schema, kSchema, strlen(kSchema));
+  dejaview::base::FlushFile(*schema);
 
   FilterUtil filter;
   ASSERT_TRUE(filter.LoadMessageDefinition(schema.path(), "", "", {},
                                            {"TraceConfig:f2"}));
   std::string bytecode = filter.GenerateFilterBytecode();
   ASSERT_GT(bytecode.size(), 0u);
-  PERFETTO_LOG(
-      "%s", perfetto::base::Base64Encode(perfetto::base::StringView(bytecode))
+  DEJAVIEW_LOG(
+      "%s", dejaview::base::Base64Encode(dejaview::base::StringView(bytecode))
                 .c_str());
 
   HeapBuffered<Message> msg;
@@ -322,7 +322,7 @@ TEST(MessageFilterTest, StringFilter) {
 
 TEST(MessageFilterTest, MalformedInput) {
   // Create and load a simple filter.
-  auto schema = perfetto::base::TempFile::Create();
+  auto schema = dejaview::base::TempFile::Create();
   static const char kSchema[] = R"(
   syntax = "proto2";
   message FilterSchema {
@@ -335,8 +335,8 @@ TEST(MessageFilterTest, MalformedInput) {
     repeated Nested nest = 3;
   };
   )";
-  perfetto::base::WriteAll(*schema, kSchema, strlen(kSchema));
-  perfetto::base::FlushFile(*schema);
+  dejaview::base::WriteAll(*schema, kSchema, strlen(kSchema));
+  dejaview::base::FlushFile(*schema);
   FilterUtil filter;
   ASSERT_TRUE(filter.LoadMessageDefinition(schema.path(), "", ""));
   std::string bytecode = filter.GenerateFilterBytecode();
@@ -398,7 +398,7 @@ TEST(MessageFilterTest, MalformedInput) {
 }
 
 // It processes a real test trace with a real filter. The filter has been
-// obtained from the full upstream perfetto proto (+ re-adding the for_testing
+// obtained from the full upstream dejaview proto (+ re-adding the for_testing
 // field which got removed after adding most test traces). This covers the most
 // complex case of filtering a real trace with a filter that allows all possible
 // fields, hence re-entering deeply in most nested fields.
@@ -909,10 +909,10 @@ TEST(MessageFilterTest, RealTracePassthrough) {
   EXPECT_GT(filtered_data.size, 0u);
   EXPECT_LE(filtered_data.size, sizeof(kTraceData));
 
-  perfetto::protos::Trace original_trace;
+  dejaview::protos::Trace original_trace;
   ASSERT_TRUE(original_trace.ParseFromArray(kTraceData, sizeof(kTraceData)));
 
-  perfetto::protos::Trace filtered_trace;
+  dejaview::protos::Trace filtered_trace;
   ASSERT_TRUE(filtered_trace.ParseFromArray(
       filtered_data.data.get(), static_cast<int>(filtered_data.size)));
 

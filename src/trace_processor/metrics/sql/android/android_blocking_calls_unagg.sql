@@ -15,9 +15,9 @@
 
 SELECT RUN_METRIC('android/process_metadata.sql');
 
-INCLUDE PERFETTO MODULE android.slices;
-INCLUDE PERFETTO MODULE android.binder;
-INCLUDE PERFETTO MODULE android.critical_blocking_calls;
+INCLUDE DEJAVIEW MODULE android.slices;
+INCLUDE DEJAVIEW MODULE android.binder;
+INCLUDE DEJAVIEW MODULE android.critical_blocking_calls;
 
 DROP TABLE IF EXISTS process_info;
 CREATE TABLE process_info AS
@@ -61,7 +61,7 @@ FROM process_info pi WHERE pi.upid IN
   (SELECT DISTINCT upid FROM _android_critical_blocking_calls);
 
 DROP VIEW IF EXISTS android_blocking_calls_unagg_output;
-CREATE PERFETTO VIEW android_blocking_calls_unagg_output AS
+CREATE DEJAVIEW VIEW android_blocking_calls_unagg_output AS
 SELECT AndroidBlockingCallsUnagg(
   'process_with_blocking_calls', (
      SELECT RepeatedField(

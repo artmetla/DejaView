@@ -25,18 +25,18 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/build_config.h"
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/public/compiler.h"
+#include "dejaview/base/build_config.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/public/compiler.h"
 
-#include "protos/perfetto/trace_processor/serialization.pbzero.h"
+#include "protos/dejaview/trace_processor/serialization.pbzero.h"
 
-#if PERFETTO_BUILDFLAG(PERFETTO_X64_CPU_OPT)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_X64_CPU_OPT)
 #include <immintrin.h>
 #endif
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 // This function implements the PDEP instruction in x64 as a loop.
@@ -45,7 +45,7 @@ namespace {
 // Unfortunately, as we're emulating this in software, it scales with the number
 // of set bits in |mask| rather than being a constant time instruction:
 // therefore, this should be avoided where real instructions are available.
-PERFETTO_ALWAYS_INLINE uint64_t PdepSlow(uint64_t word, uint64_t mask) {
+DEJAVIEW_ALWAYS_INLINE uint64_t PdepSlow(uint64_t word, uint64_t mask) {
   if (word == 0 || mask == std::numeric_limits<uint64_t>::max())
     return word;
 
@@ -63,8 +63,8 @@ PERFETTO_ALWAYS_INLINE uint64_t PdepSlow(uint64_t word, uint64_t mask) {
 }
 
 // See |PdepSlow| for information on PDEP.
-PERFETTO_ALWAYS_INLINE uint64_t Pdep(uint64_t word, uint64_t mask) {
-#if PERFETTO_BUILDFLAG(PERFETTO_X64_CPU_OPT)
+DEJAVIEW_ALWAYS_INLINE uint64_t Pdep(uint64_t word, uint64_t mask) {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_X64_CPU_OPT)
   base::ignore_result(PdepSlow);
   return _pdep_u64(word, mask);
 #else
@@ -78,7 +78,7 @@ PERFETTO_ALWAYS_INLINE uint64_t Pdep(uint64_t word, uint64_t mask) {
 // Unfortunately, as we're emulating this in software, it scales with the number
 // of set bits in |mask| rather than being a constant time instruction:
 // therefore, this should be avoided where real instructions are available.
-PERFETTO_ALWAYS_INLINE uint64_t PextSlow(uint64_t word, uint64_t mask) {
+DEJAVIEW_ALWAYS_INLINE uint64_t PextSlow(uint64_t word, uint64_t mask) {
   if (word == 0 || mask == std::numeric_limits<uint64_t>::max())
     return word;
 
@@ -96,8 +96,8 @@ PERFETTO_ALWAYS_INLINE uint64_t PextSlow(uint64_t word, uint64_t mask) {
 }
 
 // See |PextSlow| for information on PEXT.
-PERFETTO_ALWAYS_INLINE uint64_t Pext(uint64_t word, uint64_t mask) {
-#if PERFETTO_BUILDFLAG(PERFETTO_X64_CPU_OPT)
+DEJAVIEW_ALWAYS_INLINE uint64_t Pext(uint64_t word, uint64_t mask) {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_X64_CPU_OPT)
   base::ignore_result(PextSlow);
   return _pext_u64(word, mask);
 #else
@@ -107,8 +107,8 @@ PERFETTO_ALWAYS_INLINE uint64_t Pext(uint64_t word, uint64_t mask) {
 
 // This function implements the tzcnt instruction.
 // See https://www.felixcloutier.com/x86/tzcnt for details on what tzcnt does.
-PERFETTO_ALWAYS_INLINE uint32_t Tzcnt(uint64_t value) {
-#if PERFETTO_BUILDFLAG(PERFETTO_X64_CPU_OPT)
+DEJAVIEW_ALWAYS_INLINE uint32_t Tzcnt(uint64_t value) {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_X64_CPU_OPT)
   return static_cast<uint32_t>(_tzcnt_u64(value));
 #elif defined(__GNUC__) || defined(__clang__)
   return value ? static_cast<uint32_t>(__builtin_ctzll(value)) : 64u;
@@ -140,7 +140,7 @@ BitVector::BitVector(std::vector<uint64_t> words,
                      std::vector<uint32_t> counts,
                      uint32_t size)
     : size_(size), counts_(std::move(counts)), words_(std::move(words)) {
-  PERFETTO_CHECK(words_.size() % Block::kWords == 0);
+  DEJAVIEW_CHECK(words_.size() % Block::kWords == 0);
 }
 
 void BitVector::Resize(uint32_t new_size, bool filler) {
@@ -237,7 +237,7 @@ void BitVector::Not() {
 }
 
 void BitVector::Or(const BitVector& sec) {
-  PERFETTO_CHECK(size_ == sec.size());
+  DEJAVIEW_CHECK(size_ == sec.size());
   for (uint32_t i = 0; i < words_.size(); ++i) {
     BitWord(&words_[i]).Or(sec.words_[i]);
   }
@@ -257,7 +257,7 @@ void BitVector::UpdateSetBits(const BitVector& update) {
     *this = BitVector();
     return;
   }
-  PERFETTO_DCHECK(update.size() <= CountSetBits());
+  DEJAVIEW_DCHECK(update.size() <= CountSetBits());
 
   // Get the start and end ptrs for the current bitvector.
   // Safe because of the static_assert above.
@@ -284,11 +284,11 @@ void BitVector::UpdateSetBits(const BitVector& update) {
     uint64_t current = *ptr;
 
     // If the current value is all zeros, there's nothing to update.
-    if (PERFETTO_UNLIKELY(current == 0))
+    if (DEJAVIEW_UNLIKELY(current == 0))
       continue;
 
-    auto popcount = static_cast<uint8_t>(PERFETTO_POPCOUNT(current));
-    PERFETTO_DCHECK(popcount >= 1);
+    auto popcount = static_cast<uint8_t>(DEJAVIEW_POPCOUNT(current));
+    DEJAVIEW_DCHECK(popcount >= 1);
 
     // Check if we have enough unused bits from the previous iteration - if so,
     // we don't need to read anything from |update|.
@@ -322,7 +322,7 @@ void BitVector::UpdateSetBits(const BitVector& update) {
     }
 
     // We should never end up with more than 64 bits available.
-    PERFETTO_CHECK(unused_bits_count <= 64);
+    DEJAVIEW_CHECK(unused_bits_count <= 64);
 
     // PDEP precisely captures the notion of "updating set bits" for a single
     // word.
@@ -334,20 +334,20 @@ void BitVector::UpdateSetBits(const BitVector& update) {
   // |unused_bits_count| because it's possible for the above algorithm to use
   // some bits which are "past the end" of |update|; as long as these bits are
   // zero, it meets the pre-condition of this function.
-  PERFETTO_DCHECK(update_unused_bits == 0);
-  PERFETTO_DCHECK(update_ptr == update_ptr_end);
+  DEJAVIEW_DCHECK(update_unused_bits == 0);
+  DEJAVIEW_DCHECK(update_ptr == update_ptr_end);
 
   UpdateCounts(words_, counts_);
 
   // After the loop, we should have precisely the same number of bits
   // set as |update|.
-  PERFETTO_DCHECK(update.CountSetBits() == CountSetBits());
+  DEJAVIEW_DCHECK(update.CountSetBits() == CountSetBits());
 }
 
 void BitVector::SelectBits(const BitVector& mask_bv) {
   // Verify the precondition on the function: the algorithm relies on this
   // being the case.
-  PERFETTO_DCHECK(size() <= mask_bv.size());
+  DEJAVIEW_DCHECK(size() <= mask_bv.size());
 
   // Get the set bits in the mask up to the end of |this|: this will precisely
   // equal the number of bits in |this| at the end of this function.
@@ -364,7 +364,7 @@ void BitVector::SelectBits(const BitVector& mask_bv) {
   for (; cur_word != end_word; ++cur_word, ++cur_mask) {
     // Loop invariant: we should always have out_word and out_word_bits set
     // such that there is room for at least one more bit.
-    PERFETTO_DCHECK(out_word_bits < 64);
+    DEJAVIEW_DCHECK(out_word_bits < 64);
 
     // The crux of this function: efficient parallel extract all bits in |this|
     // which correspond to set bit positions in |this|.
@@ -377,7 +377,7 @@ void BitVector::SelectBits(const BitVector& mask_bv) {
 
     // Update the number of bits used in |out_word| by adding the number of set
     // bit positions in |mask|.
-    auto popcount = static_cast<uint32_t>(PERFETTO_POPCOUNT(*cur_mask));
+    auto popcount = static_cast<uint32_t>(DEJAVIEW_POPCOUNT(*cur_mask));
     out_word_bits += popcount;
 
     // The below is a branch-free way to increment |out_word| pointer when we've
@@ -397,7 +397,7 @@ void BitVector::SelectBits(const BitVector& mask_bv) {
 
   // Loop post-condition: we must have written as many words as is required
   // to store |set_bits_in_mask|.
-  PERFETTO_DCHECK(static_cast<uint32_t>(out_word - words_.data()) <=
+  DEJAVIEW_DCHECK(static_cast<uint32_t>(out_word - words_.data()) <=
                   WordCount(set_bits_in_mask));
 
   // Resize the BitVector to equal to the number of elements in the  mask we
@@ -479,7 +479,7 @@ BitVector BitVector::IntersectRange(uint32_t range_start,
     builder.Append(IsSet(cur_index));
   }
 
-  PERFETTO_DCHECK(cur_index == end_idx || cur_index % BitWord::kBits == 0);
+  DEJAVIEW_DCHECK(cur_index == end_idx || cur_index % BitWord::kBits == 0);
   uint32_t cur_words = cur_index / BitWord::kBits;
   uint32_t full_words = builder.BitsInCompleteWordsUntilFull() / BitWord::kBits;
   uint32_t total_full_words = cur_words + full_words;
@@ -547,4 +547,4 @@ void BitVector::Deserialize(
   }
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

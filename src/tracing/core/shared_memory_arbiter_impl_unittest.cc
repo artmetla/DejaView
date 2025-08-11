@@ -17,13 +17,13 @@
 #include "src/tracing/core/shared_memory_arbiter_impl.h"
 
 #include <bitset>
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/commit_data_request.h"
-#include "perfetto/ext/tracing/core/shared_memory_abi.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/commit_data_request.h"
+#include "dejaview/ext/tracing/core/shared_memory_abi.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/tracing/core/in_process_shared_memory.h"
 #include "src/tracing/core/patch_list.h"
@@ -31,10 +31,10 @@
 #include "src/tracing/test/mock_producer_endpoint.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/trace/test_event.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/trace/test_event.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 using testing::_;
 using testing::Between;
@@ -747,4 +747,4 @@ TEST_P(SharedMemoryArbiterImplStartupTracingTest,
 
 // TODO(primiano): add multi-threaded tests.
 
-}  // namespace perfetto
+}  // namespace dejaview

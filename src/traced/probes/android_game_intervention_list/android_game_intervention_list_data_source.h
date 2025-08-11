@@ -21,14 +21,14 @@
 #include <string>
 #include <vector>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/pipe.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/pipe.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
 
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // forward declaration of protos to be loaded
 namespace protos {
@@ -71,6 +71,6 @@ class AndroidGameInterventionListDataSource : public ProbesDataSource {
   std::unique_ptr<TraceWriter> trace_writer_;
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_ANDROID_GAME_INTERVENTION_LIST_ANDROID_GAME_INTERVENTION_LIST_DATA_SOURCE_H_

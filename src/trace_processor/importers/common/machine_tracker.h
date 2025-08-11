@@ -21,7 +21,7 @@
 
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 
 // Tracks information in the machine table.
 class MachineTracker {
@@ -36,6 +36,6 @@ class MachineTracker {
   TraceProcessorContext* const context_;
 };
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_COMMON_MACHINE_TRACKER_H_

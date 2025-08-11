@@ -15,7 +15,7 @@
 
 set -eu
 
-# For perfetto maintainers. Pulls out demangling-related sources out of
+# For dejaview maintainers. Pulls out demangling-related sources out of
 # llvm-project and repackages them as a single tar archive. This works around
 # the fact that gitiles, when generating an on-demand archive, uses a current
 # timestamp, so the hash of the archive is different every time you fetch.

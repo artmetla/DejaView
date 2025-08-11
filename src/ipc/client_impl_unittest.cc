@@ -20,26 +20,26 @@
 
 #include <string>
 
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/temp_file.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/utils.h"
-#include "perfetto/ext/ipc/service_descriptor.h"
-#include "perfetto/ext/ipc/service_proxy.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/temp_file.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/utils.h"
+#include "dejaview/ext/ipc/service_descriptor.h"
+#include "dejaview/ext/ipc/service_proxy.h"
 #include "src/base/test/test_task_runner.h"
 #include "src/ipc/buffered_frame_deserializer.h"
 #include "src/ipc/test/test_socket.h"
 #include "test/gtest_and_gmock.h"
 
-#include "protos/perfetto/ipc/wire_protocol.gen.h"
+#include "protos/dejaview/ipc/wire_protocol.gen.h"
 #include "src/ipc/test/client_unittest_messages.gen.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace ipc {
 namespace {
 
-using ::perfetto::ipc::gen::ReplyProto;
-using ::perfetto::ipc::gen::RequestProto;
+using ::dejaview::ipc::gen::ReplyProto;
+using ::dejaview::ipc::gen::RequestProto;
 using ::testing::_;
 using ::testing::InSequence;
 using ::testing::Invoke;
@@ -216,7 +216,7 @@ class ClientImplTest : public ::testing::Test {
   void SetUp() override {
     task_runner_.reset(new base::TestTaskRunner());
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
     auto socket_pair = base::UnixSocketRaw::CreatePairPosix(
         base::SockFamily::kUnix, base::SockType::kStream);
     host_.reset(new FakeHost(false, task_runner_.get()));
@@ -232,7 +232,7 @@ class ClientImplTest : public ::testing::Test {
     host_.reset(new FakeHost(true, task_runner_.get()));
     cli_ = Client::CreateInstance({kTestSocket.name(), /*retry=*/false},
                                   task_runner_.get());
-#endif  // PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#endif  // DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
   }
 
   void TearDown() override {
@@ -367,8 +367,8 @@ TEST_F(ClientImplTest, BindAndInvokeStreamingMethod) {
   ASSERT_EQ(kNumReplies, replies_seen);
 }
 
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_WIN) && \
-    !PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN) && \
+    !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 // File descriptor sending over IPC is not supported on Windows or Fuchsia.
 TEST_F(ClientImplTest, ReceiveFileDescriptor) {
   auto* host_svc = host_->AddFakeService("FakeSvc");
@@ -412,7 +412,7 @@ TEST_F(ClientImplTest, ReceiveFileDescriptor) {
   char buf[sizeof(kFileContent)] = {};
   ASSERT_EQ(0, lseek(*rx_fd, 0, SEEK_SET));
   ASSERT_EQ(static_cast<long>(sizeof(buf)),
-            PERFETTO_EINTR(read(*rx_fd, buf, sizeof(buf))));
+            DEJAVIEW_EINTR(read(*rx_fd, buf, sizeof(buf))));
   ASSERT_STREQ(kFileContent, buf);
 }
 
@@ -456,7 +456,7 @@ TEST_F(ClientImplTest, SendFileDescriptor) {
   char buf[sizeof(kFileContent)] = {};
   ASSERT_EQ(0, lseek(*rx_fd, 0, SEEK_SET));
   ASSERT_EQ(static_cast<long>(sizeof(buf)),
-            PERFETTO_EINTR(read(*rx_fd, buf, sizeof(buf))));
+            DEJAVIEW_EINTR(read(*rx_fd, buf, sizeof(buf))));
   ASSERT_STREQ(kFileContent, buf);
 }
 #endif  // !OS_WIN
@@ -630,7 +630,7 @@ TEST_F(ClientImplTest, HostDisconnectionBeforeBindReply) {
 
 // Disabled on Fuchsia because Fuchsia kernel sockets are non-addressable
 // so there is no connect() step which may fail.
-#if !PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#if !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 TEST_F(ClientImplTest, HostConnectionFailure) {
   ipc::TestSocket kNonexistentSock{"client_impl_unittest_nonexistent"};
   std::unique_ptr<Client> client = Client::CreateInstance(
@@ -651,11 +651,11 @@ TEST_F(ClientImplTest, HostConnectionFailure) {
   EXPECT_CALL(proxy_events_, OnDisconnect()).WillOnce(Invoke(on_disconnect));
   task_runner_->RunUntilCheckpoint("on_disconnect");
 }
-#endif  // !PERFETTO_BUILDFLAG(PERFETTO_OS_FUCHSIA)
+#endif  // !DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_FUCHSIA)
 
 // TODO(primiano): add the tests below.
 // TEST(ClientImplTest, UnparsableReply) {}
 
 }  // namespace
 }  // namespace ipc
-}  // namespace perfetto
+}  // namespace dejaview

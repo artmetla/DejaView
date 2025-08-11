@@ -15,18 +15,18 @@
  */
 
 #include "src/trace_processor/importers/proto/proto_trace_tokenizer.h"
-#include "perfetto/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob.h"
 
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/ext/base/utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 ProtoTraceTokenizer::ProtoTraceTokenizer() = default;
 
 util::Status ProtoTraceTokenizer::Decompress(TraceBlobView input,
                                              TraceBlobView* output) {
-  PERFETTO_DCHECK(util::IsGzipSupported());
+  DEJAVIEW_DCHECK(util::IsGzipSupported());
 
   std::vector<uint8_t> data;
   data.reserve(input.length());
@@ -51,4 +51,4 @@ util::Status ProtoTraceTokenizer::Decompress(TraceBlobView input,
 }
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

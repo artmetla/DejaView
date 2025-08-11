@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-import("../../../gn/perfetto.gni")
+import("../../../gn/dejaview.gni")
 
 source_set("storage") {
   sources = [
@@ -23,8 +23,8 @@ source_set("storage") {
   ]
   deps = [
     "../../../gn:default_deps",
-    "../../../include/perfetto/ext/base",
-    "../../../include/perfetto/trace_processor",
+    "../../../include/dejaview/ext/base",
+    "../../../include/dejaview/trace_processor",
     "../containers",
     "../db:minimal",
     "../db/column",

@@ -19,20 +19,20 @@
 
 #include <algorithm>
 
-#include "perfetto/base/flat_set.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/utils.h"
+#include "dejaview/base/flat_set.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/utils.h"
 #include "src/traced/probes/ftrace/cpu_reader.h"
 #include "src/traced/probes/ftrace/ftrace_config_muxer.h"
 #include "src/traced/probes/ftrace/test/cpu_reader_support.h"
 #include "src/tracing/core/null_trace_writer.h"
 
-#include "protos/perfetto/trace/ftrace/ftrace_event_bundle.pbzero.h"
-#include "protos/perfetto/trace/ftrace/ftrace_stats.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_event_bundle.pbzero.h"
+#include "protos/dejaview/trace/ftrace/ftrace_stats.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
-using perfetto::protos::pbzero::FtraceEventBundle;
+using dejaview::protos::pbzero::FtraceEventBundle;
 
 void FuzzCpuReaderProcessPagesForDataSource(const uint8_t* data, size_t size);
 
@@ -40,7 +40,7 @@ void FuzzCpuReaderProcessPagesForDataSource(const uint8_t* data, size_t size);
 void FuzzCpuReaderProcessPagesForDataSource(const uint8_t* data, size_t size) {
   ProtoTranslationTable* table = GetTable("synthetic");
   if (!table) {
-    PERFETTO_FATAL(
+    DEJAVIEW_FATAL(
         "Could not read table. "
         "This fuzzer must be run in the root directory.");
   }
@@ -77,11 +77,11 @@ void FuzzCpuReaderProcessPagesForDataSource(const uint8_t* data, size_t size) {
       protos::pbzero::FTRACE_CLOCK_UNSPECIFIED);
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size);
 
 extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
-  perfetto::FuzzCpuReaderProcessPagesForDataSource(data, size);
+  dejaview::FuzzCpuReaderProcessPagesForDataSource(data, size);
   return 0;
 }

@@ -22,7 +22,7 @@
 #include "src/trace_processor/importers/common/trace_parser.h"
 #include "src/trace_processor/types/trace_processor_context.h"
 
-namespace perfetto::trace_processor::gecko_importer {
+namespace dejaview::trace_processor::gecko_importer {
 
 class GeckoTraceParserImpl : public GeckoTraceParser {
  public:
@@ -35,6 +35,6 @@ class GeckoTraceParserImpl : public GeckoTraceParser {
   TraceProcessorContext* const context_;
 };
 
-}  // namespace perfetto::trace_processor::gecko_importer
+}  // namespace dejaview::trace_processor::gecko_importer
 
 #endif  // SRC_TRACE_PROCESSOR_IMPORTERS_GECKO_GECKO_TRACE_PARSER_IMPL_H_

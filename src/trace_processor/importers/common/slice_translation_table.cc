@@ -16,11 +16,11 @@
 
 #include "src/trace_processor/importers/common/slice_translation_table.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 
 SliceTranslationTable::SliceTranslationTable(TraceStorage* storage)
     : storage_(storage) {}
 
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

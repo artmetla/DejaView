@@ -27,7 +27,7 @@ lucicfg.config(
 )
 
 luci.project(
-    name = "perfetto",
+    name = "dejaview",
     buildbucket = "cr-buildbucket.appspot.com",
     logdog = "luci-logdog",
     milo = "luci-milo",
@@ -43,7 +43,7 @@ luci.project(
             ],
             groups = ["all"],
         ),
-        acl.entry(roles = acl.SCHEDULER_OWNER, groups = "mdb/perfetto-cloud-infra"),
+        acl.entry(roles = acl.SCHEDULER_OWNER, groups = "mdb/dejaview-cloud-infra"),
         acl.entry([acl.LOGDOG_WRITER], groups = ["luci-logdog-chromium-writers"]),
     ],
 )
@@ -65,7 +65,7 @@ luci.bucket(
     acls = [
         acl.entry(
             roles = [acl.BUILDBUCKET_TRIGGERER],
-            groups = ["mdb/perfetto-cloud-infra"],
+            groups = ["mdb/dejaview-cloud-infra"],
         ),
         acl.entry(
             roles = [acl.SCHEDULER_TRIGGERER, acl.BUILDBUCKET_TRIGGERER],
@@ -79,20 +79,20 @@ def official_builder(name, os, caches=[]):
         name = name,
         bucket = "official",
         executable = luci.recipe(
-            name = "perfetto",
-            cipd_package = "infra/recipe_bundles/android.googlesource.com/platform/external/perfetto",
+            name = "dejaview",
+            cipd_package = "infra/recipe_bundles/android.googlesource.com/platform/external/dejaview",
             cipd_version = "refs/heads/master",
             use_python3 = True,
         ),
         dimensions = {
-            "pool": "luci.perfetto.official",
+            "pool": "luci.dejaview.official",
             "os": os,
             "cpu": "x86-64",
         },
-        service_account = "perfetto-luci-official-builder@chops-service-accounts.iam.gserviceaccount.com",
+        service_account = "dejaview-luci-official-builder@chops-service-accounts.iam.gserviceaccount.com",
         triggered_by = [
             luci.gitiles_poller(
-                name = "perfetto-gitiles-trigger",
+                name = "dejaview-gitiles-trigger",
                 bucket = "official",
                 repo = "https://android.googlesource.com/platform/external/perfetto",
                 refs = ["refs/tags/v.+"],
@@ -104,7 +104,7 @@ def official_builder(name, os, caches=[]):
         ]
     )
 
-official_builder("perfetto-official-builder-linux", "Linux")
-official_builder("perfetto-official-builder-mac", "Mac", ["macos_sdk"])
-official_builder("perfetto-official-builder-windows", "Windows", ["windows_sdk"])
-official_builder("perfetto-official-builder-android", "Linux")
+official_builder("dejaview-official-builder-linux", "Linux")
+official_builder("dejaview-official-builder-mac", "Mac", ["macos_sdk"])
+official_builder("dejaview-official-builder-windows", "Windows", ["windows_sdk"])
+official_builder("dejaview-official-builder-android", "Linux")

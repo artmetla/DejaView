@@ -17,21 +17,21 @@
 #ifndef SRC_SHARED_LIB_STREAM_WRITER_H_
 #define SRC_SHARED_LIB_STREAM_WRITER_H_
 
-#include "perfetto/public/abi/stream_writer_abi.h"
+#include "dejaview/public/abi/stream_writer_abi.h"
 
-#include "perfetto/protozero/scattered_stream_writer.h"
+#include "dejaview/protozero/scattered_stream_writer.h"
 
-namespace perfetto {
+namespace dejaview {
 
 // Copies the visible state from `sw` to `*w`.
 inline void UpdateStreamWriter(const protozero::ScatteredStreamWriter& sw,
-                               struct PerfettoStreamWriter* w) {
+                               struct DejaViewStreamWriter* w) {
   w->begin = sw.cur_range().begin;
   w->end = sw.cur_range().end;
   w->write_ptr = sw.write_ptr();
   w->written_previously = static_cast<size_t>(sw.written_previously());
 }
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_SHARED_LIB_STREAM_WRITER_H_

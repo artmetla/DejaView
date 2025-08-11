@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "perfetto/base/logging.h"
+#include "dejaview/base/logging.h"
 
 #include <stdint.h>
 
@@ -23,12 +23,12 @@
 #include <thread>
 #include <vector>
 
-#include "perfetto/ext/base/crash_keys.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/crash_keys.h"
+#include "dejaview/ext/base/string_utils.h"
 #include "src/base/log_ring_buffer.h"
 #include "test/gtest_and_gmock.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 namespace {
 
@@ -254,4 +254,4 @@ TEST(CrashKeysTest, ScopedSet) {
 
 }  // namespace
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

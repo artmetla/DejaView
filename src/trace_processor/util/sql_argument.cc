@@ -16,9 +16,9 @@
 
 #include "src/trace_processor/util/sql_argument.h"
 
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace sql_argument {
 
@@ -83,7 +83,7 @@ const char* TypeToHumanFriendlyString(sql_argument::Type type) {
     case Type::kBytes:
       return "BYTES";
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 SqlValue::Type TypeToSqlValueType(sql_argument::Type type) {
@@ -103,7 +103,7 @@ SqlValue::Type TypeToSqlValueType(sql_argument::Type type) {
     case Type::kBytes:
       return SqlValue::kBytes;
   }
-  PERFETTO_FATAL("For GCC");
+  DEJAVIEW_FATAL("For GCC");
 }
 
 base::Status ParseArgumentDefinitions(const std::string& args,
@@ -151,4 +151,4 @@ std::string SerializeArguments(const std::vector<ArgumentDefinition>& args) {
 
 }  // namespace sql_argument
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

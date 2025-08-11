@@ -20,11 +20,11 @@
 #include <memory>
 #include <optional>
 
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
 #include "src/traced/probes/probes_data_source.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace base {
 class TaskRunner;
@@ -58,6 +58,6 @@ class InitialDisplayStateDataSource : public ProbesDataSource {
       weak_factory_;  // Keep last.
 };
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_INITIAL_DISPLAY_STATE_INITIAL_DISPLAY_STATE_DATA_SOURCE_H_

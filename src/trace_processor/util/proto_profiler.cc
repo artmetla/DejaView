@@ -18,22 +18,22 @@
 
 #include <utility>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/protozero/packed_repeated_fields.h"
-#include "perfetto/protozero/proto_decoder.h"
-#include "perfetto/protozero/proto_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/protozero/packed_repeated_fields.h"
+#include "dejaview/protozero/proto_decoder.h"
+#include "dejaview/protozero/proto_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace trace_processor {
 namespace util {
 
 namespace {
-using ::perfetto::protos::pbzero::FieldDescriptorProto;
+using ::dejaview::protos::pbzero::FieldDescriptorProto;
 using ::protozero::proto_utils::ProtoWireType;
 
 // Takes a type full name, and returns only the final part.
-// For example, .perfetto.protos.TracePacket -> TracePacket
+// For example, .dejaview.protos.TracePacket -> TracePacket
 std::string GetFieldTypeName(const std::string& full_type_name) {
   auto pos = full_type_name.rfind('.');
   if (pos == std::string::npos) {
@@ -76,7 +76,7 @@ SizeProfileComputer::SizeProfileComputer(DescriptorPool* pool,
     : pool_(pool) {
   auto message_idx = pool_->FindDescriptorIdx(message_type);
   if (!message_idx) {
-    PERFETTO_ELOG("Cannot find descriptor for type %s", message_type.c_str());
+    DEJAVIEW_ELOG("Cannot find descriptor for type %s", message_type.c_str());
     return;
   }
   root_message_idx_ = *message_idx;
@@ -100,7 +100,7 @@ std::optional<size_t> SizeProfileComputer::GetNext() {
     // The leaf path needs to be popped to continue iterating on the current
     // proto.
     field_path_.pop_back();
-    PERFETTO_DCHECK(field_path_.size() == state_stack_.size());
+    DEJAVIEW_DCHECK(field_path_.size() == state_stack_.size());
   }
   State& state = state_stack_.back();
 
@@ -111,7 +111,7 @@ std::optional<size_t> SizeProfileComputer::GetNext() {
 
     protozero::Field field = state.decoder.ReadField();
     if (!field.valid()) {
-      PERFETTO_ELOG("Field not valid (can mean field id >1000)");
+      DEJAVIEW_ELOG("Field not valid (can mean field id >1000)");
       break;
     }
 
@@ -133,7 +133,7 @@ std::optional<size_t> SizeProfileComputer::GetNext() {
           pool_->FindDescriptorIdx(field_descriptor->resolved_type_name());
 
       if (!message_idx) {
-        PERFETTO_ELOG("Cannot find descriptor for type %s",
+        DEJAVIEW_ELOG("Cannot find descriptor for type %s",
                       field_descriptor->resolved_type_name().c_str());
         return result;
       }
@@ -177,9 +177,9 @@ size_t SizeProfileComputer::GetFieldSize(const protozero::Field& f) {
     case protozero::proto_utils::ProtoWireType::kFixed64:
       return 8;
   }
-  PERFETTO_FATAL("unexpected field type");  // for gcc
+  DEJAVIEW_FATAL("unexpected field type");  // for gcc
 }
 
 }  // namespace util
 }  // namespace trace_processor
-}  // namespace perfetto
+}  // namespace dejaview

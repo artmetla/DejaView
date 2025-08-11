@@ -19,7 +19,7 @@
 
 #include <iostream>
 
-namespace perfetto {
+namespace dejaview {
 
 namespace trace_processor {
 class TraceProcessor;
@@ -43,6 +43,6 @@ int ExtractSystrace(trace_processor::TraceProcessor*,
                     Keep truncate_keep);
 
 }  // namespace trace_to_text
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACECONV_TRACE_TO_SYSTRACE_H_

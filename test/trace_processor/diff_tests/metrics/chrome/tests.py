@@ -20,7 +20,7 @@ from python.generators.diff_tests.testing import TestSuite
 
 
 class ChromeMetrics(TestSuite):
-  # Tests related to Chrome's use of Perfetto. Chrome histogram hashes
+  # Tests related to Chrome's use of DejaView. Chrome histogram hashes
   def test_chrome_histogram_hashes(self):
     return DiffTestBlueprint(
         trace=TextProto(r"""
@@ -54,7 +54,7 @@ class ChromeMetrics(TestSuite):
         """),
         query=Metric('chrome_histogram_hashes'),
         out=TextProto(r"""
-        [perfetto.protos.chrome_histogram_hashes]: {
+        [dejaview.protos.chrome_histogram_hashes]: {
           hash: 10
           hash: 20
         }
@@ -93,7 +93,7 @@ class ChromeMetrics(TestSuite):
         """),
         query=Metric('chrome_user_event_hashes'),
         out=TextProto(r"""
-        [perfetto.protos.chrome_user_event_hashes]: {
+        [dejaview.protos.chrome_user_event_hashes]: {
           action_hash: 10
           action_hash: 20
         }
@@ -111,7 +111,7 @@ class ChromeMetrics(TestSuite):
             categories: "cat1"
             type: 3
             name: "name1"
-            [perfetto.protos.ChromeTrackEvent.chrome_hashed_performance_mark] {
+            [dejaview.protos.ChromeTrackEvent.chrome_hashed_performance_mark] {
               site_hash: 10
               mark_hash: 100
             }
@@ -125,7 +125,7 @@ class ChromeMetrics(TestSuite):
             categories: "cat2"
             type: 3
             name: "name2"
-            [perfetto.protos.ChromeTrackEvent.chrome_hashed_performance_mark] {
+            [dejaview.protos.ChromeTrackEvent.chrome_hashed_performance_mark] {
               site_hash: 20
               mark_hash: 200
             }
@@ -134,7 +134,7 @@ class ChromeMetrics(TestSuite):
         """),
         query=Metric('chrome_performance_mark_hashes'),
         out=TextProto(r"""
-        [perfetto.protos.chrome_performance_mark_hashes]: {
+        [dejaview.protos.chrome_performance_mark_hashes]: {
           site_hash: 10
           site_hash: 20
           mark_hash: 100
@@ -238,7 +238,7 @@ class ChromeMetrics(TestSuite):
         """),
         query=Metric('chrome_slice_names'),
         out=TextProto(r"""
-        [perfetto.protos.chrome_slice_names]: {
+        [dejaview.protos.chrome_slice_names]: {
           chrome_version_code: 123
           slice_name: "Looper.Dispatch: class1"
           slice_name: "name2"

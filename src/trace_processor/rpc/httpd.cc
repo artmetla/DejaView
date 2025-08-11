@@ -23,20 +23,20 @@
 #include <utility>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/status.h"
-#include "perfetto/ext/base/http/http_server.h"
-#include "perfetto/ext/base/string_utils.h"
-#include "perfetto/ext/base/string_view.h"
-#include "perfetto/ext/base/unix_task_runner.h"
-#include "perfetto/protozero/scattered_heap_buffer.h"
-#include "perfetto/trace_processor/trace_processor.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/status.h"
+#include "dejaview/ext/base/http/http_server.h"
+#include "dejaview/ext/base/string_utils.h"
+#include "dejaview/ext/base/string_view.h"
+#include "dejaview/ext/base/unix_task_runner.h"
+#include "dejaview/protozero/scattered_heap_buffer.h"
+#include "dejaview/trace_processor/trace_processor.h"
 #include "src/trace_processor/rpc/httpd.h"
 #include "src/trace_processor/rpc/rpc.h"
 
-#include "protos/perfetto/trace_processor/trace_processor.pbzero.h"
+#include "protos/dejaview/trace_processor/trace_processor.pbzero.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 constexpr int kBindPort = 9001;
@@ -99,8 +99,8 @@ Httpd::Httpd(std::unique_ptr<TraceProcessor> preloaded_instance)
 Httpd::~Httpd() = default;
 
 void Httpd::Run(int port) {
-  PERFETTO_ILOG("[HTTP] Starting RPC server on localhost:%d", port);
-  PERFETTO_LOG(
+  DEJAVIEW_ILOG("[HTTP] Starting RPC server on localhost:%d", port);
+  DEJAVIEW_LOG(
       "[HTTP] This server can be used by reloading https://ui.perfetto.dev and "
       "clicking on YES on the \"Trace Processor native acceleration\" dialog "
       "or through the Python API (see "
@@ -126,7 +126,7 @@ void Httpd::OnHttpRequest(const base::HttpRequest& req) {
 
   if (seq_id) {
     if (last_req_id && seq_id != last_req_id + 1 && seq_id != 1)
-      PERFETTO_ELOG("HTTP Request out of order");
+      DEJAVIEW_ELOG("HTTP Request out of order");
     last_req_id = seq_id;
   }
 
@@ -213,7 +213,7 @@ void Httpd::OnHttpRequest(const base::HttpRequest& req) {
     // |on_result_chunk| will be called nested within the same callstack of the
     // rpc.Query() call. No further calls will be made once Query() returns.
     auto on_result_chunk = [&](const uint8_t* buf, size_t len, bool has_more) {
-      PERFETTO_DLOG("Sending response chunk, len=%zu eof=%d", len, !has_more);
+      DEJAVIEW_DLOG("Sending response chunk, len=%zu eof=%d", len, !has_more);
       base::StackString<32> chunk_hdr("%zx\r\n", len);
       conn.SendResponseBody(chunk_hdr.c_str(), chunk_hdr.len());
       conn.SendResponseBody(buf, len);
@@ -269,7 +269,7 @@ void RunHttpRPCServer(std::unique_ptr<TraceProcessor> preloaded_instance,
 }
 
 void Httpd::ServeHelpPage(const base::HttpRequest& req) {
-  static const char kPage[] = R"(Perfetto Trace Processor RPC Server
+  static const char kPage[] = R"(DejaView Trace Processor RPC Server
 
 
 This service can be used in two ways:
@@ -284,7 +284,7 @@ See https://perfetto.dev/docs/visualization/large-traces for more.
 
 2. Python API.
 
-Example: perfetto.TraceProcessor(addr='localhost:9001')
+Example: dejaview.TraceProcessor(addr='localhost:9001')
 See https://perfetto.dev/docs/analysis/trace-processor#python-api for more.
 
 
@@ -296,4 +296,4 @@ https://perfetto.dev/docs/contributing/getting-started#community
   req.conn->SendResponse("200 OK", headers, kPage);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

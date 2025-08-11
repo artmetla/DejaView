@@ -126,7 +126,7 @@ def Main():
   parser.add_argument('--system-adb', action='store_true')
   parser.add_argument('--env', '-e', action='append')
   parser.add_argument('out_dir', help='out/android/')
-  parser.add_argument('test_name', help='perfetto_unittests')
+  parser.add_argument('test_name', help='dejaview_unittests')
   parser.add_argument('cmd_args', nargs=argparse.REMAINDER)
   args = parser.parse_args()
 
@@ -143,14 +143,14 @@ def Main():
   AdbCall('root')
   AdbCall('wait-for-device')
 
-  target_dir = '/data/local/tmp/perfetto_tests'
+  target_dir = '/data/local/tmp/dejaview_tests'
   if not args.no_cleanup:
     AdbCall('shell', 'rm -rf "%s"' % target_dir)
   AdbCall('shell', 'mkdir -p "%s"' % target_dir)
   # Some tests require the trace directory to exist, while true for android
   # devices in general some emulators might not have it set up. So we check to
   # see if it exists, and if not create it.
-  trace_dir = '/data/misc/perfetto-traces/bugreport'
+  trace_dir = '/data/misc/dejaview-traces/bugreport'
   AdbCall('shell', 'test -d "%s" || mkdir -p "%s"' % (2 * (trace_dir,)))
   AdbCall('shell', 'rm -rf "%s/*";  ' % trace_dir)
   AdbCall('shell', 'mkdir -p /data/nativetest')
@@ -166,9 +166,9 @@ def Main():
   # See https://android.googlesource.com/platform/system/core/+/main/rootdir/etc/ld.config.txt.
   AdbPush(test_bin, "/data/nativetest")
 
-  # These two binaries are required to run perfetto_integrationtests.
-  AdbPush(os.path.join(args.out_dir, "perfetto"), "/data/nativetest")
-  AdbPush(os.path.join(args.out_dir, "trigger_perfetto"), "/data/nativetest")
+  # These two binaries are required to run dejaview_integrationtests.
+  AdbPush(os.path.join(args.out_dir, "dejaview"), "/data/nativetest")
+  AdbPush(os.path.join(args.out_dir, "trigger_dejaview"), "/data/nativetest")
 
   if not args.no_data_deps:
     for dep in EnumerateDataDeps():

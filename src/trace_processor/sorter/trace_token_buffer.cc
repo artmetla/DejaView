@@ -24,16 +24,16 @@
 #include <optional>
 #include <utility>
 
-#include "perfetto/base/compiler.h"
-#include "perfetto/base/logging.h"
-#include "perfetto/trace_processor/ref_counted.h"
-#include "perfetto/trace_processor/trace_blob.h"
-#include "perfetto/trace_processor/trace_blob_view.h"
+#include "dejaview/base/compiler.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/trace_processor/ref_counted.h"
+#include "dejaview/trace_processor/trace_blob.h"
+#include "dejaview/trace_processor/trace_blob_view.h"
 #include "src/trace_processor/importers/common/parser_types.h"
 #include "src/trace_processor/importers/proto/packet_sequence_state_generation.h"
 #include "src/trace_processor/util/bump_allocator.h"
 
-namespace perfetto::trace_processor {
+namespace dejaview::trace_processor {
 namespace {
 
 struct alignas(8) TrackEventDataDescriptor {
@@ -187,7 +187,7 @@ uint32_t TraceTokenBuffer::InternTraceBlob(InternedIndex interned_index,
   if (last_blob.blob != tbv.blob().get()) {
     return AddTraceBlob(interned_index, tbv);
   }
-  PERFETTO_CHECK(last_blob.offset_in_blob <= tbv.offset());
+  DEJAVIEW_CHECK(last_blob.offset_in_blob <= tbv.offset());
 
   // To allow our offsets in the store to be 16 bits, we intern not only the
   // TraceBlob pointer but also the offset. By having this double indirection,
@@ -229,7 +229,7 @@ uint16_t TraceTokenBuffer::InternSeqState(
     }
   }
   states.emplace_back(ptr.ReleaseUnsafe());
-  PERFETTO_CHECK(states.size() <= std::numeric_limits<uint16_t>::max());
+  DEJAVIEW_CHECK(states.size() <= std::numeric_limits<uint16_t>::max());
   return static_cast<uint16_t>(states.size() - 1);
 }
 
@@ -237,16 +237,16 @@ uint32_t TraceTokenBuffer::AddTraceBlob(InternedIndex interned_index,
                                         const TraceBlobView& tbv) {
   BlobWithOffsets& blobs = interned_blobs_.at(interned_index);
   blobs.emplace_back(BlobWithOffset{tbv.blob().ReleaseUnsafe(), tbv.offset()});
-  PERFETTO_CHECK(blobs.size() <= std::numeric_limits<uint16_t>::max());
+  DEJAVIEW_CHECK(blobs.size() <= std::numeric_limits<uint16_t>::max());
   return 0u;
 }
 
 void TraceTokenBuffer::FreeMemory() {
   uint64_t erased = allocator_.EraseFrontFreeChunks();
-  PERFETTO_CHECK(erased <= std::numeric_limits<size_t>::max());
+  DEJAVIEW_CHECK(erased <= std::numeric_limits<size_t>::max());
   interned_blobs_.erase_front(static_cast<size_t>(erased));
   interned_seqs_.erase_front(static_cast<size_t>(erased));
-  PERFETTO_CHECK(interned_blobs_.size() == interned_seqs_.size());
+  DEJAVIEW_CHECK(interned_blobs_.size() == interned_seqs_.size());
 }
 
 BumpAllocator::AllocId TraceTokenBuffer::AllocAndResizeInternedVectors(
@@ -256,12 +256,12 @@ BumpAllocator::AllocId TraceTokenBuffer::AllocAndResizeInternedVectors(
   uint64_t allocator_chunks_size = alloc_id.chunk_index - erased + 1;
 
   // The allocator should never "remove" chunks from being tracked.
-  PERFETTO_DCHECK(allocator_chunks_size >= interned_blobs_.size());
+  DEJAVIEW_DCHECK(allocator_chunks_size >= interned_blobs_.size());
 
   // We should add at most one chunk in the allocator.
   uint64_t chunks_added = allocator_chunks_size - interned_blobs_.size();
-  PERFETTO_DCHECK(chunks_added <= 1);
-  PERFETTO_DCHECK(interned_blobs_.size() == interned_seqs_.size());
+  DEJAVIEW_DCHECK(chunks_added <= 1);
+  DEJAVIEW_DCHECK(interned_blobs_.size() == interned_seqs_.size());
   for (uint64_t i = 0; i < chunks_added; ++i) {
     interned_blobs_.emplace_back();
     interned_seqs_.emplace_back();
@@ -273,11 +273,11 @@ TraceTokenBuffer::InternedIndex TraceTokenBuffer::GetInternedIndex(
     BumpAllocator::AllocId alloc_id) {
   uint64_t interned_index =
       alloc_id.chunk_index - allocator_.erased_front_chunks_count();
-  PERFETTO_DCHECK(interned_index <= std::numeric_limits<size_t>::max());
-  PERFETTO_DCHECK(interned_index < interned_blobs_.size());
-  PERFETTO_DCHECK(interned_index < interned_seqs_.size());
-  PERFETTO_DCHECK(interned_blobs_.size() == interned_seqs_.size());
+  DEJAVIEW_DCHECK(interned_index <= std::numeric_limits<size_t>::max());
+  DEJAVIEW_DCHECK(interned_index < interned_blobs_.size());
+  DEJAVIEW_DCHECK(interned_index < interned_seqs_.size());
+  DEJAVIEW_DCHECK(interned_blobs_.size() == interned_seqs_.size());
   return static_cast<size_t>(interned_index);
 }
 
-}  // namespace perfetto::trace_processor
+}  // namespace dejaview::trace_processor

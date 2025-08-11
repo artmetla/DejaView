@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#include "perfetto/ext/base/temp_file.h"
+#include "dejaview/ext/base/temp_file.h"
 
-#include "perfetto/base/build_config.h"
+#include "dejaview/base/build_config.h"
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 #include <Windows.h>
 #include <direct.h>
 #include <fileapi.h>
@@ -31,19 +31,19 @@
 #include <unistd.h>
 #endif
 
-#include "perfetto/base/logging.h"
-#include "perfetto/ext/base/file_utils.h"
-#include "perfetto/ext/base/string_utils.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/ext/base/file_utils.h"
+#include "dejaview/ext/base/string_utils.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace base {
 
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
 namespace {
 std::string GetTempFilePathWin() {
-  std::string tmplt = GetSysTempDir() + "\\perfetto-XXXXXX";
-  StackString<255> name("%s\\perfetto-XXXXXX", GetSysTempDir().c_str());
-  PERFETTO_CHECK(_mktemp_s(name.mutable_data(), name.len() + 1) == 0);
+  std::string tmplt = GetSysTempDir() + "\\dejaview-XXXXXX";
+  StackString<255> name("%s\\dejaview-XXXXXX", GetSysTempDir().c_str());
+  DEJAVIEW_CHECK(_mktemp_s(name.mutable_data(), name.len() + 1) == 0);
   return name.ToStdString();
 }
 }  // namespace
@@ -51,7 +51,7 @@ std::string GetTempFilePathWin() {
 
 std::string GetSysTempDir() {
   const char* tmpdir = nullptr;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   if ((tmpdir = getenv("TMP")))
     return tmpdir;
   if ((tmpdir = getenv("TEMP")))
@@ -60,7 +60,7 @@ std::string GetSysTempDir() {
 #else
   if ((tmpdir = getenv("TMPDIR")))
     return base::StripSuffix(tmpdir, "/");
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_ANDROID)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_ANDROID)
   return "/data/local/tmp";
 #else
   return "/tmp";
@@ -71,7 +71,7 @@ std::string GetSysTempDir() {
 // static
 TempFile TempFile::Create() {
   TempFile temp_file;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   temp_file.path_ = GetTempFilePathWin();
   // Several tests want to read-back the temp file while still open. On Windows,
   // that requires FILE_SHARE_READ. FILE_SHARE_READ is NOT settable when using
@@ -81,17 +81,17 @@ TempFile TempFile::Create() {
       ::CreateFileA(temp_file.path_.c_str(), GENERIC_READ | GENERIC_WRITE,
                     FILE_SHARE_DELETE | FILE_SHARE_READ, nullptr, CREATE_ALWAYS,
                     FILE_ATTRIBUTE_TEMPORARY, nullptr);
-  PERFETTO_CHECK(PlatformHandleChecker::IsValid(h));
+  DEJAVIEW_CHECK(PlatformHandleChecker::IsValid(h));
   // According to MSDN, when using _open_osfhandle the caller must not call
   // CloseHandle(). Ownership is moved to the file descriptor, which then needs
   // to be closed with just with _close().
   temp_file.fd_.reset(_open_osfhandle(reinterpret_cast<intptr_t>(h), 0));
 #else
-  temp_file.path_ = GetSysTempDir() + "/perfetto-XXXXXXXX";
+  temp_file.path_ = GetSysTempDir() + "/dejaview-XXXXXXXX";
   temp_file.fd_.reset(mkstemp(&temp_file.path_[0]));
 #endif
-  if (PERFETTO_UNLIKELY(!temp_file.fd_)) {
-    PERFETTO_FATAL("Could not create temp file %s", temp_file.path_.c_str());
+  if (DEJAVIEW_UNLIKELY(!temp_file.fd_)) {
+    DEJAVIEW_FATAL("Could not create temp file %s", temp_file.path_.c_str());
   }
   return temp_file;
 }
@@ -117,12 +117,12 @@ ScopedFile TempFile::ReleaseFD() {
 void TempFile::Unlink() {
   if (path_.empty())
     return;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   // If the FD is still open DeleteFile will mark the file as pending deletion
   // and delete it only when the process exists.
-  PERFETTO_CHECK(DeleteFileA(path_.c_str()));
+  DEJAVIEW_CHECK(DeleteFileA(path_.c_str()));
 #else
-  PERFETTO_CHECK(unlink(path_.c_str()) == 0);
+  DEJAVIEW_CHECK(unlink(path_.c_str()) == 0);
 #endif
   path_.clear();
 }
@@ -133,12 +133,12 @@ TempFile& TempFile::operator=(TempFile&&) = default;
 // static
 TempDir TempDir::Create() {
   TempDir temp_dir;
-#if PERFETTO_BUILDFLAG(PERFETTO_OS_WIN)
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_WIN)
   temp_dir.path_ = GetTempFilePathWin();
-  PERFETTO_CHECK(_mkdir(temp_dir.path_.c_str()) == 0);
+  DEJAVIEW_CHECK(_mkdir(temp_dir.path_.c_str()) == 0);
 #else
-  temp_dir.path_ = GetSysTempDir() + "/perfetto-XXXXXXXX";
-  PERFETTO_CHECK(mkdtemp(&temp_dir.path_[0]));
+  temp_dir.path_ = GetSysTempDir() + "/dejaview-XXXXXXXX";
+  DEJAVIEW_CHECK(mkdtemp(&temp_dir.path_[0]));
 #endif
   return temp_dir;
 }
@@ -150,8 +150,8 @@ TempDir& TempDir::operator=(TempDir&&) = default;
 TempDir::~TempDir() {
   if (path_.empty())
     return;  // For objects that get std::move()d.
-  PERFETTO_CHECK(Rmdir(path_));
+  DEJAVIEW_CHECK(Rmdir(path_));
 }
 
 }  // namespace base
-}  // namespace perfetto
+}  // namespace dejaview

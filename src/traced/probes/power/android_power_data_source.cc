@@ -19,26 +19,26 @@
 #include <optional>
 #include <vector>
 
-#include "perfetto/base/logging.h"
-#include "perfetto/base/task_runner.h"
-#include "perfetto/base/time.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/tracing/core/trace_packet.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/tracing/core/data_source_config.h"
+#include "dejaview/base/logging.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/base/time.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/tracing/core/trace_packet.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/tracing/core/data_source_config.h"
 #include "src/android_internal/health_hal.h"
 #include "src/android_internal/lazy_library_loader.h"
 #include "src/android_internal/power_stats.h"
 
-#include "protos/perfetto/common/android_energy_consumer_descriptor.pbzero.h"
-#include "protos/perfetto/config/power/android_power_config.pbzero.h"
-#include "protos/perfetto/trace/power/android_energy_estimation_breakdown.pbzero.h"
-#include "protos/perfetto/trace/power/android_entity_state_residency.pbzero.h"
-#include "protos/perfetto/trace/power/battery_counters.pbzero.h"
-#include "protos/perfetto/trace/power/power_rails.pbzero.h"
-#include "protos/perfetto/trace/trace_packet.pbzero.h"
+#include "protos/dejaview/common/android_energy_consumer_descriptor.pbzero.h"
+#include "protos/dejaview/config/power/android_power_config.pbzero.h"
+#include "protos/dejaview/trace/power/android_energy_estimation_breakdown.pbzero.h"
+#include "protos/dejaview/trace/power/android_entity_state_residency.pbzero.h"
+#include "protos/dejaview/trace/power/battery_counters.pbzero.h"
+#include "protos/dejaview/trace/power/power_rails.pbzero.h"
+#include "protos/dejaview/trace/trace_packet.pbzero.h"
 
-namespace perfetto {
+namespace dejaview {
 
 namespace {
 constexpr uint32_t kMinPollIntervalMs = 100;
@@ -55,19 +55,19 @@ const ProbesDataSource::Descriptor AndroidPowerDataSource::descriptor = {
     /*fill_descriptor_func*/ nullptr,
 };
 
-// Dynamically loads the libperfetto_android_internal.so library which
+// Dynamically loads the libdejaview_android_internal.so library which
 // allows to proxy calls to android hwbinder in in-tree builds.
 struct AndroidPowerDataSource::DynamicLibLoader {
-  PERFETTO_LAZY_LOAD(android_internal::GetBatteryCounter, get_battery_counter_);
-  PERFETTO_LAZY_LOAD(android_internal::GetAvailableRails, get_available_rails_);
-  PERFETTO_LAZY_LOAD(android_internal::GetRailEnergyData,
+  DEJAVIEW_LAZY_LOAD(android_internal::GetBatteryCounter, get_battery_counter_);
+  DEJAVIEW_LAZY_LOAD(android_internal::GetAvailableRails, get_available_rails_);
+  DEJAVIEW_LAZY_LOAD(android_internal::GetRailEnergyData,
                      get_rail_energy_data_);
-  PERFETTO_LAZY_LOAD(android_internal::GetEnergyConsumerInfo,
+  DEJAVIEW_LAZY_LOAD(android_internal::GetEnergyConsumerInfo,
                      get_energy_consumer_info_);
-  PERFETTO_LAZY_LOAD(android_internal::GetEnergyConsumed, get_energy_consumed_);
-  PERFETTO_LAZY_LOAD(android_internal::GetPowerEntityStates,
+  DEJAVIEW_LAZY_LOAD(android_internal::GetEnergyConsumed, get_energy_consumed_);
+  DEJAVIEW_LAZY_LOAD(android_internal::GetPowerEntityStates,
                      get_power_entity_states_);
-  PERFETTO_LAZY_LOAD(android_internal::GetPowerEntityStateResidency,
+  DEJAVIEW_LAZY_LOAD(android_internal::GetPowerEntityStateResidency,
                      get_power_entity_state_residency_);
 
   std::optional<int64_t> GetCounter(android_internal::BatteryCounter counter) {
@@ -87,7 +87,7 @@ struct AndroidPowerDataSource::DynamicLibLoader {
         kMaxNumRails);
     size_t num_rails = rail_descriptors.size();
     if (!get_available_rails_(&rail_descriptors[0], &num_rails)) {
-      PERFETTO_ELOG("Failed to retrieve rail descriptors.");
+      DEJAVIEW_ELOG("Failed to retrieve rail descriptors.");
       num_rails = 0;
     }
     rail_descriptors.resize(num_rails);
@@ -101,7 +101,7 @@ struct AndroidPowerDataSource::DynamicLibLoader {
     std::vector<android_internal::RailEnergyData> energy_data(kMaxNumRails);
     size_t num_rails = energy_data.size();
     if (!get_rail_energy_data_(&energy_data[0], &num_rails)) {
-      PERFETTO_ELOG("Failed to retrieve rail energy data.");
+      DEJAVIEW_ELOG("Failed to retrieve rail energy data.");
       num_rails = 0;
     }
     energy_data.resize(num_rails);
@@ -116,7 +116,7 @@ struct AndroidPowerDataSource::DynamicLibLoader {
         kMaxNumEnergyConsumer);
     size_t num_power_entities = consumers.size();
     if (!get_energy_consumer_info_(&consumers[0], &num_power_entities)) {
-      PERFETTO_ELOG("Failed to retrieve energy consumer info.");
+      DEJAVIEW_ELOG("Failed to retrieve energy consumer info.");
       num_power_entities = 0;
     }
     consumers.resize(num_power_entities);
@@ -131,7 +131,7 @@ struct AndroidPowerDataSource::DynamicLibLoader {
         kMaxNumPowerEntities);
     size_t num_power_entities = energy_breakdown.size();
     if (!get_energy_consumed_(&energy_breakdown[0], &num_power_entities)) {
-      PERFETTO_ELOG("Failed to retrieve energy estimation breakdown.");
+      DEJAVIEW_ELOG("Failed to retrieve energy estimation breakdown.");
       num_power_entities = 0;
     }
     energy_breakdown.resize(num_power_entities);
@@ -146,7 +146,7 @@ struct AndroidPowerDataSource::DynamicLibLoader {
         kMaxNumPowerEntities);
     size_t num_power_entities = entity.size();
     if (!get_power_entity_states_(&entity[0], &num_power_entities)) {
-      PERFETTO_ELOG("Failed to retrieve power entities.");
+      DEJAVIEW_ELOG("Failed to retrieve power entities.");
       num_power_entities = 0;
     }
     entity.resize(num_power_entities);
@@ -162,7 +162,7 @@ struct AndroidPowerDataSource::DynamicLibLoader {
         kMaxNumPowerEntities);
     size_t num_power_entities = entity.size();
     if (!get_power_entity_state_residency_(&entity[0], &num_power_entities)) {
-      PERFETTO_ELOG("Failed to retrieve power entities.");
+      DEJAVIEW_ELOG("Failed to retrieve power entities.");
       num_power_entities = 0;
     }
     entity.resize(num_power_entities);
@@ -192,7 +192,7 @@ AndroidPowerDataSource::AndroidPowerDataSource(
     poll_interval_ms_ = kDefaultPollIntervalMs;
 
   if (poll_interval_ms_ < kMinPollIntervalMs) {
-    PERFETTO_ELOG("Battery poll interval of %" PRIu32
+    DEJAVIEW_ELOG("Battery poll interval of %" PRIu32
                   " ms is too low. Capping to %" PRIu32 " ms",
                   poll_interval_ms_, kMinPollIntervalMs);
     poll_interval_ms_ = kMinPollIntervalMs;
@@ -218,7 +218,7 @@ AndroidPowerDataSource::AndroidPowerDataSource(
         hal_id = android_internal::BatteryCounter::kVoltage;
         break;
     }
-    PERFETTO_CHECK(static_cast<size_t>(hal_id) < counters_enabled_.size());
+    DEJAVIEW_CHECK(static_cast<size_t>(hal_id) < counters_enabled_.size());
     counters_enabled_.set(static_cast<size_t>(hal_id));
   }
 }
@@ -275,7 +275,7 @@ void AndroidPowerDataSource::WriteBatteryCounters() {
 
     switch (counter) {
       case android_internal::BatteryCounter::kUnspecified:
-        PERFETTO_DFATAL("Unspecified counter");
+        DEJAVIEW_DFATAL("Unspecified counter");
         break;
 
       case android_internal::BatteryCounter::kCharge:
@@ -378,7 +378,7 @@ void AndroidPowerDataSource::WriteEnergyEstimationBreakdown() {
           breakdown.energy_consumer_id);
       energy_estimation_proto->set_energy_uws(breakdown.energy_uws);
     } else {
-      PERFETTO_CHECK(energy_estimation_proto != nullptr);
+      DEJAVIEW_CHECK(energy_estimation_proto != nullptr);
       auto* uid_breakdown_proto =
           energy_estimation_proto->add_per_uid_breakdown();
       uid_breakdown_proto->set_uid(breakdown.uid);
@@ -433,4 +433,4 @@ void AndroidPowerDataSource::ClearIncrementalState() {
   should_emit_descriptors_ = true;
 }
 
-}  // namespace perfetto
+}  // namespace dejaview

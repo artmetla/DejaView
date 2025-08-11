@@ -25,14 +25,14 @@
 #include <unwindstack/Error.h>
 #include <unwindstack/Regs.h>
 
-#include "perfetto/base/task_runner.h"
-#include "perfetto/ext/base/scoped_file.h"
-#include "perfetto/ext/base/unix_socket.h"
-#include "perfetto/ext/base/weak_ptr.h"
-#include "perfetto/ext/tracing/core/basic_types.h"
-#include "perfetto/ext/tracing/core/producer.h"
-#include "perfetto/ext/tracing/core/trace_writer.h"
-#include "perfetto/ext/tracing/core/tracing_service.h"
+#include "dejaview/base/task_runner.h"
+#include "dejaview/ext/base/scoped_file.h"
+#include "dejaview/ext/base/unix_socket.h"
+#include "dejaview/ext/base/weak_ptr.h"
+#include "dejaview/ext/tracing/core/basic_types.h"
+#include "dejaview/ext/tracing/core/producer.h"
+#include "dejaview/ext/tracing/core/trace_writer.h"
+#include "dejaview/ext/tracing/core/tracing_service.h"
 #include "src/profiling/common/callstack_trie.h"
 #include "src/profiling/common/interning_output.h"
 #include "src/profiling/common/unwind_support.h"
@@ -45,7 +45,7 @@
 // TODO(rsavitski): move to e.g. src/tracefs/.
 #include "src/traced/probes/ftrace/ftrace_procfs.h"
 
-namespace perfetto {
+namespace dejaview {
 namespace profiling {
 
 // TODO(rsavitski): describe the high-level architecture and threading. Rough
@@ -288,6 +288,6 @@ class PerfProducer : public Producer,
 };
 
 }  // namespace profiling
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_PROFILING_PERF_PERF_PRODUCER_H_

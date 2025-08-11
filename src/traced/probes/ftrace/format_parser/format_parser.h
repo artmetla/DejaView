@@ -26,7 +26,7 @@
 #include <tuple>
 #include <vector>
 
-namespace perfetto {
+namespace dejaview {
 
 struct FtraceEvent {
   struct Field {
@@ -90,6 +90,6 @@ bool ParseFtraceEventBody(std::string input,
 //   field:__u16 mode;  offset:20;  size:2;  signed:0;
 bool ParseFtraceEvent(std::string input, FtraceEvent* output = nullptr);
 
-}  // namespace perfetto
+}  // namespace dejaview
 
 #endif  // SRC_TRACED_PROBES_FTRACE_FORMAT_PARSER_FORMAT_PARSER_H_

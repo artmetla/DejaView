@@ -131,8 +131,8 @@ export function postMessageHandler(messageEvent: MessageEvent) {
   const fromOpenee = (messageEvent.source as WindowProxy).opener === window;
 
   if (
-    messageEvent.source === null ||
-    !(fromOpener || fromIframeHost || fromOpenee)
+    (messageEvent.source === null ||
+    !(fromOpener || fromIframeHost || fromOpenee))
   ) {
     // This can happen if an extension tries to postMessage.
     return;

@@ -259,6 +259,8 @@ void HttpServer::HandleCorsPreflightRequest(const HttpRequest& req) {
 }
 
 bool HttpServer::IsOriginAllowed(StringView origin) {
+  if (origin.StartsWith("vscode-webview://"))
+      return true;
   for (const std::string& allowed_origin : allowed_origins_) {
     if (origin.CaseInsensitiveEq(StringView(allowed_origin))) {
       return true;

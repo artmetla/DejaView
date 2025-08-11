@@ -1,0 +1,55 @@
+{
+  "name": "dejaview",
+  "displayName": "DejaView",
+  "description": "QEMU full-system deterministic record & replay tracing",
+  "publisher": "florent-revest",
+  "license": "MIT",
+  "icon": "icon.png",
+  "version": "1.0.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/FlorentRevest/DejaView.git"
+  },
+  "engines": {
+    "vscode": "^1.59.0"
+  },
+  "categories": [
+    "Other"
+  ],
+	"activationEvents": [],
+  "main": "./out/src/extension.js",
+	"contributes": {
+		"customEditors": [
+			{
+				"viewType": "dejaview.ui",
+				"displayName": "DejaView",
+				"selector": [
+					{
+						"filenamePattern": "*.dvtrace"
+					}
+				]
+			}
+		]
+	},
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "npm-run-all compile:*",
+    "compile:extension": "../tools/write_version_header.py --ts_out src/version.ts && tsc -p ./",
+    "compile:view": "../ui/build --no-wasm --out out/ui",
+    "watch": "npm-run-all -p watch:*",
+    "watch:extension": "../tools/write_version_header.py --ts_out src/version.ts && tsc -watch -p ./",
+    "watch:view": "../ui/build --no-wasm --watch --out out/ui",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.13.0",
+    "@stylistic/eslint-plugin": "^2.9.0",
+    "@types/node": "^22",
+    "@types/vscode": "^1.100.0",
+    "eslint": "^9.13.0",
+    "npm-run-all": "^4.1.5",
+    "typescript": "^5.9.2",
+    "typescript-eslint": "^8.39.0"
+  }
+}

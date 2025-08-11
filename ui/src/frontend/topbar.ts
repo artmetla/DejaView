@@ -30,6 +30,7 @@ import {downloadUrl} from './download_utils';
 import {isDownloadable, isTraceLoaded} from './trace_attrs';
 import {Trace} from '../public/trace';
 import {Router} from '../core/router';
+import {isInVSCode} from './vscode';
 
 const VIZ_PAGE_IN_NAV_FLAG = featureFlags.register({
   id: 'showVizPageInNav',
@@ -324,17 +325,19 @@ export class Topbar implements m.ClassComponent<TopbarAttrs> {
           m('i.material-icons', {title: 'UI help'}, 'help'),
         ),
       );
-      buttonsAfterOmnibox.push(
-        m(
-          'button.topbar-button',
-          {
-            onclick: (e: Event) => {
-              closeTrace(e);
+      if (!isInVSCode()) {
+        buttonsAfterOmnibox.push(
+          m(
+            'button.topbar-button',
+            {
+              onclick: (e: Event) => {
+                closeTrace(e);
+              },
             },
-          },
-          m('i.material-icons', {title: 'Close trace'}, 'close'),
-        ),
-      );
+            m('i.material-icons', {title: 'Close trace'}, 'close'),
+          ),
+        );
+      }
     }
 
     const {omnibox} = attrs;

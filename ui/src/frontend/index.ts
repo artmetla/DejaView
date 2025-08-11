@@ -57,6 +57,7 @@ import {AppImpl} from '../core/app_impl';
 import {setAddSqlTableTabImplFunction} from './sql_table_tab_interface';
 import {addSqlTableTabImpl} from './sql_table_tab';
 import {getServingRoot} from '../base/http_utils';
+import {isInVSCode} from './vscode';
 
 const CSP_WS_PERMISSIVE_PORT = featureFlags.register({
   id: 'cspAllowAnyWebsocketPort',
@@ -65,7 +66,7 @@ const CSP_WS_PERMISSIVE_PORT = featureFlags.register({
     'Allows simultaneous usage of several trace_processor_shell ' +
     '-D --http-port 1234 by opening ' +
     'https://ui.perfetto.dev/#!/?rpc_port=1234',
-  defaultValue: false,
+  defaultValue: isInVSCode(),
 });
 
 function routeChange(route: Route) {
@@ -92,16 +93,20 @@ function setupContentSecurityPolicy() {
     'ws://127.0.0.1:9001', // Ditto, for the websocket RPC.
   ];
   if (CSP_WS_PERMISSIVE_PORT.get()) {
-    const route = Router.parseUrl(window.location.href);
-    if (/^\d+$/.exec(route.args.rpc_port ?? '')) {
+    const rpcPort = getRpcPort();
+    if (rpcPort) {
       rpcPolicy = [
-        `http://127.0.0.1:${route.args.rpc_port}`,
-        `ws://127.0.0.1:${route.args.rpc_port}`,
+        `http://127.0.0.1:${rpcPort}`,
+        `ws://127.0.0.1:${rpcPort}`,
       ];
     }
   }
+  let vscodePolicy: string[] = [];
+  if (isInVSCode()) {
+    vscodePolicy = [ 'https://*.vscode-cdn.net', ]
+  }
   const policy = {
-    'default-src': [`'self'`],
+    'default-src': [`'self'`].concat(vscodePolicy),
     'script-src': [
       `'self'`,
       // TODO(b/201596551): this is required for Wasm after crrev.com/c/3179051
@@ -110,21 +115,21 @@ function setupContentSecurityPolicy() {
       'blob:',
       'data:',
       'https://*.google.com',
-    ],
+    ].concat(vscodePolicy),
     'object-src': ['none'],
     'connect-src': [
       `'self'`,
       'https://*.googleapis.com', // For Google Cloud Storage fetches.
       'blob:',
       'data:',
-    ].concat(rpcPolicy),
+    ].concat(rpcPolicy).concat(vscodePolicy),
     'img-src': [
       `'self'`,
       'data:',
       'blob:',
       'https://*.googleapis.com',
-    ],
-    'style-src': [`'self'`, `'unsafe-inline'`],
+    ].concat(vscodePolicy),
+    'style-src': [`'self'`, `'unsafe-inline'`].concat(vscodePolicy),
   };
   const meta = document.createElement('meta');
   meta.httpEquiv = 'Content-Security-Policy';
@@ -287,12 +292,21 @@ function onCssLoaded() {
   }
 }
 
+function getRpcPort(): string | undefined {
+  let rpcPort = (window as any).rpc_port as string | undefined;
+  if (rpcPort == undefined) {
+    const route = Router.parseUrl(window.location.href);
+    rpcPort = route.args.rpc_port;
+  }
+  return rpcPort;
+}
+
 // If the URL is /#!?rpc_port=1234, change the default RPC port.
 // For security reasons, this requires toggling a flag. Detect this and tell the
 // user what to do in this case.
 function maybeChangeRpcPortFromFragment() {
-  const route = Router.parseUrl(window.location.href);
-  if (route.args.rpc_port !== undefined) {
+  let rpcPort = getRpcPort();
+  if (rpcPort !== undefined) {
     if (!CSP_WS_PERMISSIVE_PORT.get()) {
       showModal({
         title: 'Using a different port requires a flag change',
@@ -314,7 +328,7 @@ function maybeChangeRpcPortFromFragment() {
         ],
       });
     } else {
-      HttpRpcEngine.rpcPort = route.args.rpc_port;
+      HttpRpcEngine.rpcPort = rpcPort;
     }
   }
 }

@@ -14,11 +14,15 @@
 
 import {assertExists, assertTrue} from '../base/logging';
 import {EngineBase} from '../trace_processor/engine';
+import {isInVSCode} from '../frontend/vscode';
 
 let bundlePath: string;
 let idleWasmWorker: Worker;
 
 export function initWasm(root: string) {
+  if (isInVSCode())
+    return;
+
   bundlePath = root + 'engine_bundle.js';
   idleWasmWorker = new Worker(bundlePath);
 }
@@ -31,7 +35,7 @@ export class WasmEngineProxy extends EngineBase implements Disposable {
   readonly mode = 'WASM';
   readonly id: string;
   private port: MessagePort;
-  private worker: Worker;
+  private worker?: Worker;
 
   constructor(id: string) {
     super();
@@ -40,6 +44,9 @@ export class WasmEngineProxy extends EngineBase implements Disposable {
     const channel = new MessageChannel();
     const port1 = channel.port1;
     this.port = channel.port2;
+
+    if (isInVSCode())
+      return;
 
     // We keep an idle instance around to hide the latency of initializing the
     // instance. Creating the worker (new Worker()) is ~instantaneous, but then
@@ -67,6 +74,9 @@ export class WasmEngineProxy extends EngineBase implements Disposable {
   }
 
   [Symbol.dispose]() {
+    if (!this.worker)
+      return;
+
     this.worker.terminate();
   }
 }

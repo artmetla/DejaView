@@ -16,9 +16,13 @@ import m from 'mithril';
 import {globals} from './globals';
 import {Anchor} from '../widgets/anchor';
 import {PageAttrs} from '../core/router';
+import {isInVSCode} from './vscode';
 
 export class Actions implements m.ClassComponent {
   view() {
+    if (isInVSCode())
+      return;
+
     return m(
       '.home-page-actions',
       m(

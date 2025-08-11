@@ -34,6 +34,7 @@ import {Timestamp} from './widgets/timestamp';
 import {getSqlTableDescription} from './widgets/sql/table/sql_table_registry';
 import {assertExists} from '../base/logging';
 import {Trace} from '../public/trace';
+import {isInVSCode, openSymbol} from './vscode';
 
 // Renders a widget storing all of the generic details for a slice from the
 // slice table.
@@ -54,6 +55,13 @@ export function renderDetails(
           {
             trigger: m(Anchor, slice.name),
           },
+          isInVSCode() &&
+          m(MenuItem, {
+            label: 'Lookup symbol in VSCode',
+            onclick: () => {
+              openSymbol(slice.name);
+            },
+          }),
           m(MenuItem, {
             label: 'Slices with the same name',
             onclick: () => {

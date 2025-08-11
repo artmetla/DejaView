@@ -20,6 +20,7 @@ import {HttpRpcEngine} from '../trace_processor/http_rpc_engine';
 import {showModal} from '../widgets/modal';
 import {publishHttpRpcState} from './publish';
 import {AppImpl} from '../core/app_impl';
+import {isInVSCode} from './vscode';
 
 const CURRENT_API_VERSION =
   TraceProcessorApiVersion.TRACE_PROCESSOR_CURRENT_API_VERSION;
@@ -208,7 +209,10 @@ export async function CheckHttpRpcConnection(): Promise<void> {
     // If a trace is already loaded in the trace processor (e.g., the user
     // launched trace_processor_shell -D trace_file.pftrace), prompt the user to
     // initialize the UI with the already-loaded trace.
-    const result = await showDialogToUsePreloadedTrace(tpStatus);
+    let result = PreloadedDialogResult.UseRpcWithPreloadedTrace;
+    if (!isInVSCode()) {
+        result = await showDialogToUsePreloadedTrace(tpStatus);
+    }
     switch (result) {
       case PreloadedDialogResult.Dismissed:
       case PreloadedDialogResult.UseRpcWithPreloadedTrace:

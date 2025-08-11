@@ -38,6 +38,8 @@ if (enable_dejaview_trace_processor) {
   all_targets += [ "src/trace_redaction:trace_redactor" ]
 }
 
+all_targets += [ "src/qemu_plugin:qemu_plugin" ]
+
 if (enable_dejaview_tools) {
   all_targets += [ "src/tools" ]
 }

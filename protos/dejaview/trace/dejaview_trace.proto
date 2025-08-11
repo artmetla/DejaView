@@ -3903,6 +3903,19 @@ message ProcessTree {
 
 // End of protos/dejaview/trace/ps/process_tree.proto
 
+// Begin of protos/dejaview/trace/qemu/qemu_info.proto
+
+// When recording a trace with the qemu plugin, this stores information
+// about how QEMU was started so that deterministic record can be replayed
+message QemuInfo {
+    // QEMU's /proc/self/cmdline when the plugin got loaded
+    repeated string record_cmd = 1;
+    // QEMU's getcwd() when the plugin got loaded
+    required string record_cwd = 2;
+}
+
+// End of protos/dejaview/trace/qemu/qemu_info.proto
+
 // Begin of protos/dejaview/trace/remote_clock_sync.proto
 
 // Records the parameters for aligning clock readings between machines.

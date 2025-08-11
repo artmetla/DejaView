@@ -33,3 +33,6 @@ GRTAGS
 GTAGS
 perf.data*
 TAGS
+/*.qcow2
+/*.pb
+/*.bin

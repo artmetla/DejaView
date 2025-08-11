@@ -1,0 +1,250 @@
+// Copyright 2016 Google Inc. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#include "attr.h"
+
+#include <assert.h>
+
+#include "dejaview/base/compiler.h"
+
+#include "debug_info.h"
+#include "dwarf_util.h"
+#include "dwarf_constants.h"
+#include "util.h"
+#include "../qemu_helpers.h"
+
+using string_view = std::string_view;
+using namespace dwarf2reader;
+
+namespace dwarf {
+
+std::optional<uint64_t> AttrValue::ToUint(const CU& cu) const {
+  if (form_ == DW_FORM_implicit_const) {
+    // DW_FORM_implicit_const value is stored in AbbrevTable, but
+    // we don't keep it in AttrValue (discarded in AbbrevTable::ReadAbbrevs()).
+    // return std::nullopt to make sure the value is not available.
+    return std::nullopt;
+  }
+  if (IsUint()) return GetUint(cu);
+  string_view str = GetString(cu);
+  switch (str.size()) {
+    case 1:
+      return ReadFixed<uint8_t>(&str);
+    case 2:
+      return ReadFixed<uint16_t>(&str);
+    case 4:
+      return ReadFixed<uint32_t>(&str);
+    case 8:
+      return ReadFixed<uint64_t>(&str);
+  }
+  return std::nullopt;
+}
+
+uint64_t AttrValue::GetUint(const CU& cu) const {
+  if (type_ == Type::kUnresolvedUint) {
+    return ResolveIndirectAddress(cu);
+  } else {
+    assert(type_ == Type::kUint);
+    // DW_FORM_implicit_const value is stored in AbbrevTable, but
+    // we don't keep it in AttrValue (discarded in AbbrevTable::ReadAbbrevs()).
+    // Assertion makes sure that nobody is trying to read a fake value.
+    assert(form_ != DW_FORM_implicit_const);
+    return uint_;
+  }
+}
+
+string_view AttrValue::GetString(const CU& cu) const {
+  if (type_ == Type::kUnresolvedString) {
+    return ResolveDoubleIndirectString(cu);
+  } else {
+    assert(type_ == Type::kString);
+    return string_;
+  }
+}
+
+template <class D>
+string_view AttrValue::ReadBlock(string_view* data) {
+  D len = ReadFixed<D>(data);
+  return ReadBytes(len, data);
+}
+
+string_view AttrValue::ReadVariableBlock(string_view* data) {
+  uint64_t len = ReadLEB128<uint64_t>(data);
+  return ReadBytes(len, data);
+}
+
+string_view AttrValue::ResolveIndirectString(const CU& cu, uint64_t ofs) {
+  // offset into a string table contained in the .debug_str of the object file.
+  string_view ret = ReadDebugStrEntry(cu.dwarf().debug_str, ofs);
+  cu.AddIndirectString(ret);
+  return ret;
+}
+
+string_view AttrValue::ResolveIndirectLineString(const CU& cu, uint64_t ofs) {
+  // offset into a string table contained in the .debug_line_str of the object file.
+  string_view ret = ReadDebugStrEntry(cu.dwarf().debug_line_str, ofs);
+  cu.AddIndirectString(ret);
+  return ret;
+}
+
+template <class D>
+string_view AttrValue::ReadIndirectString(const CU& cu, string_view* data) {
+  return ResolveIndirectString(cu, ReadFixed<D>(data));
+}
+
+template <class D>
+string_view AttrValue::ReadIndirectLineString(const CU& cu, string_view* data) {
+  return ResolveIndirectLineString(cu, ReadFixed<D>(data));
+}
+
+string_view
+AttrValue::ResolveDoubleIndirectString(const CU &cu) const {
+  uint64_t ofs = uint_;
+  string_view offsets = cu.dwarf().debug_str_offsets;
+  uint64_t ofs2;
+  if (cu.unit_sizes().dwarf64()) {
+    SkipBytes((ofs * 8) + cu.str_offsets_base(), &offsets);
+    ofs2 = ReadFixed<uint64_t>(&offsets);
+  } else {
+    SkipBytes((ofs * 4) + cu.str_offsets_base(), &offsets);
+    ofs2 = ReadFixed<uint32_t>(&offsets);
+  }
+  string_view ret = ReadDebugStrEntry(cu.dwarf().debug_str, ofs2);
+  cu.AddIndirectString(ret);
+  return ret;
+}
+
+uint64_t AttrValue::ResolveIndirectAddress(const CU& cu) const {
+  return ReadIndirectAddress(cu, uint_);
+}
+
+AttrValue AttrValue::ParseAttr(const CU& cu, uint16_t form, string_view* data) {
+  switch (form) {
+    case DW_FORM_indirect: {
+      uint16_t indirect_form = ReadLEB128<uint16_t>(data);
+      if (indirect_form == DW_FORM_indirect) {
+        QEMU_LOG() << "indirect attribute has indirect form type\n";
+        exit(1);
+      }
+      return ParseAttr(cu, indirect_form, data);
+    }
+    case DW_FORM_ref1:
+      return AttrValue(form, ReadFixed<uint8_t>(data));
+    case DW_FORM_ref2:
+      return AttrValue(form, ReadFixed<uint16_t>(data));
+    case DW_FORM_ref4:
+      return AttrValue(form, ReadFixed<uint32_t>(data));
+    case DW_FORM_ref_sig8:
+    case DW_FORM_ref8:
+      return AttrValue(form, ReadFixed<uint64_t>(data));
+    case DW_FORM_ref_udata:
+    case DW_FORM_strx1:
+      return AttrValue::UnresolvedString(form, ReadFixed<uint8_t>(data));
+    case DW_FORM_strx2:
+      return AttrValue::UnresolvedString(form, ReadFixed<uint16_t>(data));
+    case DW_FORM_strx3:
+      return AttrValue::UnresolvedString(form, ReadFixed<uint32_t, 3>(data));
+    case DW_FORM_strx4:
+      return AttrValue::UnresolvedString(form, ReadFixed<uint32_t>(data));
+    case DW_FORM_strx:
+    case DW_FORM_GNU_str_index:
+      return AttrValue::UnresolvedString(form, ReadLEB128<uint64_t>(data));
+    case DW_FORM_addrx1:
+      return AttrValue::UnresolvedUint(form, ReadFixed<uint8_t>(data));
+    case DW_FORM_addrx2:
+      return AttrValue::UnresolvedUint(form, ReadFixed<uint16_t>(data));
+    case DW_FORM_addrx3:
+      return AttrValue::UnresolvedUint(form, ReadFixed<uint32_t, 3>(data));
+    case DW_FORM_addrx4:
+      return AttrValue::UnresolvedUint(form, ReadFixed<uint32_t>(data));
+    case DW_FORM_addrx:
+    case DW_FORM_GNU_addr_index:
+      return AttrValue::UnresolvedUint(form, ReadLEB128<uint64_t>(data));
+    case DW_FORM_addr:
+    address_size:
+      switch (cu.unit_sizes().address_size()) {
+        case 4:
+          return AttrValue(form, ReadFixed<uint32_t>(data));
+        case 8:
+          return AttrValue(form, ReadFixed<uint64_t>(data));
+        default:
+          __builtin_unreachable();
+      }
+    case DW_FORM_ref_addr:
+      if (cu.unit_sizes().dwarf_version() <= 2) {
+        goto address_size;
+      }
+      DEJAVIEW_FALLTHROUGH;
+    case DW_FORM_sec_offset:
+      if (cu.unit_sizes().dwarf64()) {
+        return AttrValue(form, ReadFixed<uint64_t>(data));
+      } else {
+        return AttrValue(form, ReadFixed<uint32_t>(data));
+      }
+    case DW_FORM_udata:
+      return AttrValue(form, ReadLEB128<uint64_t>(data));
+    case DW_FORM_block1:
+      return AttrValue(form, ReadBlock<uint8_t>(data));
+    case DW_FORM_block2:
+      return AttrValue(form, ReadBlock<uint16_t>(data));
+    case DW_FORM_block4:
+      return AttrValue(form, ReadBlock<uint32_t>(data));
+    case DW_FORM_block:
+    case DW_FORM_exprloc:
+      return AttrValue(form, ReadVariableBlock(data));
+    case DW_FORM_string:
+      return AttrValue(form, ReadNullTerminated(data));
+    case DW_FORM_strp:
+      if (cu.unit_sizes().dwarf64()) {
+        return AttrValue(form, ReadIndirectString<uint64_t>(cu, data));
+      } else {
+        return AttrValue(form, ReadIndirectString<uint32_t>(cu, data));
+      }
+    case DW_FORM_line_strp:
+      if (cu.unit_sizes().dwarf64()) {
+        return AttrValue(form, ReadIndirectLineString<uint64_t>(cu, data));
+      } else {
+        return AttrValue(form, ReadIndirectLineString<uint32_t>(cu, data));
+      }
+    case DW_FORM_data1:
+      return AttrValue(form, ReadBytes(1, data));
+    case DW_FORM_data2:
+      return AttrValue(form, ReadBytes(2, data));
+    case DW_FORM_data4:
+      return AttrValue(form, ReadBytes(4, data));
+    case DW_FORM_data8:
+      return AttrValue(form, ReadBytes(8, data));
+    case DW_FORM_data16:
+      return AttrValue(form, ReadBytes(16, data));
+    case DW_FORM_loclistx:
+    case DW_FORM_rnglistx:
+      return AttrValue(form, ReadLEB128<uint64_t>(data));
+
+    // We don't currently care about any bool or signed data.
+    // So we fudge it a bit and just stuff these in a uint64.
+    case DW_FORM_flag_present:
+      return AttrValue(form, 1);
+    case DW_FORM_flag:
+      return AttrValue(form, ReadFixed<uint8_t>(data));
+    case DW_FORM_sdata:
+      return AttrValue(form, ReadLEB128<uint64_t>(data));
+    case DW_FORM_implicit_const:
+      return AttrValue(form, 1);
+    default:
+      QEMU_LOG() << "Don't know how to parse DWARF form: " << form << "\n";
+      exit(1);
+  }
+}
+
+}  // namepsace dwarf

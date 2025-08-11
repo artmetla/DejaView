@@ -97,6 +97,7 @@ dejaview_proto_library("non_minimal_@TYPE@") {
     "dejaview:@TYPE@",
     "profiling:@TYPE@",
     "ps:@TYPE@",
+    "qemu:@TYPE@",
     "sys_stats:@TYPE@",
     "system_info:@TYPE@",
     "translation:@TYPE@",

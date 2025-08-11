@@ -278,6 +278,11 @@ BUILD_DEPS_HOST = [
     Dependency('buildtools/linenoise',
                'https://fuchsia.googlesource.com/third_party/linenoise.git',
                'c894b9e59f02203dbe4e2be657572cf88c4230c3', 'all', 'all'),
+
+    # capstone is used to disassemble instructions and recognize calls/rets
+    Dependency('buildtools/capstone',
+               'https://github.com/capstone-engine/capstone.git',
+               '5cca00533dadfe53181f1de3525f859769f69b65', 'all', 'all'),
 ]
 
 TYPEFACES_SHA256 = '1065172aaf0e9c22bc4f206ed9fdf5f1b4355d233fb21f9f26a89cd66c941940'

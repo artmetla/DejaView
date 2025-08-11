@@ -1,4 +1,6 @@
 /benchmark/
+/capstone/
+/clang_format/
 /clang_format/
 /googletest/
 /jsoncpp/

@@ -1224,6 +1224,45 @@ source_set("llvm_demangle") {
   deps = [ "//gn:default_deps" ]
 }
 
+config("capstone_config") {
+  visibility = _buildtools_visibility
+  cflags = [
+    dejaview_isystem_cflag,
+    rebase_path("capstone/include/", root_build_dir),
+  ]
+}
+
+source_set("capstone") {
+  visibility = _buildtools_visibility
+  sources = [
+    "capstone/cs.c",
+    "capstone/utils.c",
+    "capstone/SStream.c",
+    "capstone/Mapping.c",
+    "capstone/MCInstrDesc.c",
+    "capstone/MCRegisterInfo.c",
+    "capstone/MCInst.c",
+    "capstone/arch/AArch64/AArch64BaseInfo.c",
+    "capstone/arch/AArch64/AArch64Disassembler.c",
+    "capstone/arch/AArch64/AArch64InstPrinter.c",
+    "capstone/arch/AArch64/AArch64Mapping.c",
+    "capstone/arch/AArch64/AArch64Module.c",
+    "capstone/arch/X86/X86DisassemblerDecoder.c",
+    "capstone/arch/X86/X86Disassembler.c",
+    "capstone/arch/X86/X86IntelInstPrinter.c",
+    "capstone/arch/X86/X86InstPrinterCommon.c",
+    "capstone/arch/X86/X86ATTInstPrinter.c",
+    "capstone/arch/X86/X86Mapping.c",
+    "capstone/arch/X86/X86Module.c",
+  ]
+  include_dirs = [
+    "capstone/include",
+  ]
+  configs -= [ "//gn/standalone:extra_warnings" ]
+  deps = [ "//gn:default_deps" ]
+  cflags = [ "-DCAPSTONE_HAS_X86 -DCAPSTONE_HAS_ARM64 -DCAPSTONE_USE_SYS_DYN_MEM" ]
+}
+
 config("freebsd_elf_config") {
   visibility = _buildtools_visibility
   cflags = [

@@ -344,6 +344,11 @@ config("sqlite_third_party_include_path") {
   include_dirs = [ "//third_party/sqlite" ]
 }
 
+group("freebsd_elf") {
+  public_configs = [ "//buildtools:freebsd_elf_config" ]
+  public_deps = [ "//buildtools:freebsd_elf" ]
+}
+
 group("jsoncpp") {
   public_configs = [ "//buildtools:jsoncpp_config" ]
   public_deps = [ "//buildtools:jsoncpp" ]

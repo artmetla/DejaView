@@ -1224,3 +1224,22 @@ source_set("llvm_demangle") {
   deps = [ "//gn:default_deps" ]
 }
 
+config("freebsd_elf_config") {
+  visibility = _buildtools_visibility
+  cflags = [
+    dejaview_isystem_cflag,
+    rebase_path("freebsd_elf", root_build_dir),
+  ]
+}
+
+source_set("freebsd_elf") {
+  visibility = _buildtools_visibility
+  sources = [
+    "freebsd_elf/elf_common.h",
+    "freebsd_elf/elf.h",
+    "freebsd_elf/elf32.h",
+    "freebsd_elf/elf64.h",
+  ]
+  configs -= [ "//gn/standalone:extra_warnings" ]
+  deps = [ "//gn:default_deps" ]
+}

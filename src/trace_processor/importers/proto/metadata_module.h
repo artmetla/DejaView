@@ -48,6 +48,7 @@ class MetadataModule : public ProtoImporterModule {
 
  private:
   void ParseTrigger(int64_t ts, ConstBytes);
+  void ParseQemuInfo(ConstBytes);
   void ParseTraceUuid(ConstBytes);
 
   TraceProcessorContext* context_;

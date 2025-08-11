@@ -21,6 +21,7 @@
 #include <cstdint>
 #include <functional>
 #include <memory>
+#include <mutex>
 #include <string>
 #include <utility>
 #include <vector>
@@ -30,7 +31,15 @@
 #include "dejaview/protozero/field.h"
 #include "dejaview/trace_processor/basic_types.h"
 
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+#include "src/trace_processor/qemu/qemu.h"
+#endif
+
 namespace dejaview {
+
+namespace base {
+class TaskRunner;
+}
 
 namespace protos::pbzero {
 class ComputeMetricResult;
@@ -61,7 +70,7 @@ class Rpc {
   // The unique_ptr argument is optional. If non-null it will adopt the passed
   // instance and allow to directly query that. If null, a new instanace will be
   // created internally by calling Parse().
-  explicit Rpc(std::unique_ptr<TraceProcessor>);
+  explicit Rpc(std::unique_ptr<TraceProcessor>, base::TaskRunner*);
   Rpc();
   ~Rpc();
 
@@ -151,6 +160,10 @@ class Rpc {
   int64_t t_parse_started_ = 0;
   size_t bytes_last_progress_ = 0;
   size_t bytes_parsed_ = 0;
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+  Qemu qemu_;
+#endif
+  std::mutex send_mu_;
 };
 
 }  // namespace trace_processor

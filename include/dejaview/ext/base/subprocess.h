@@ -116,6 +116,7 @@ class Subprocess {
   enum class InputMode {
     kBuffer = 0,  // dup() onto a pipe and write args.input on it.
     kDevNull,     // dup() onto /dev/null.
+    kFd,          // dup() onto the passed args.fd.
   };
 
   // Input arguments for configuring the subprocess behavior.
@@ -146,6 +147,12 @@ class Subprocess {
     // This can be used to avoid that subprocesses receive CTRL-C from the
     // terminal, while still living in the same session.
     std::optional<pid_t> posix_proc_group_id{};
+
+    // Directory to chdir() to before executing the child process.
+    std::optional<std::string> cwd{};
+
+    // Whether setsid() and ioctl(fd, TIOCSCTTY) should be used on the fd.
+    bool fd_is_pty;
 #endif
 
     // If non-empty, replaces the environment passed to exec().

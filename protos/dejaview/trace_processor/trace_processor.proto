@@ -105,6 +105,8 @@ message TraceProcessorRpc {
     TPM_GET_STATUS = 10;
     TPM_RESET_TRACE_PROCESSOR = 11;
     TPM_REGISTER_SQL_PACKAGE = 13;
+    TPM_DEBUG = 14;
+    TPM_DEBUGGER_IO = 15;
   }
 
   oneof type {
@@ -138,6 +140,10 @@ message TraceProcessorRpc {
     ResetTraceProcessorArgs reset_trace_processor_args = 107;
     // For TPM_REGISTER_SQL_PACKAGE.
     RegisterSqlPackageArgs register_sql_package_args = 108;
+    // For TPM_DEBUG.
+    DebugArgs debug_args = 109;
+    // For TPM_DEBUGGER_IO
+    DebuggerIoArgs debugger_io_args = 110;
 
     // TraceProcessorMethod response args.
     // For TPM_APPEND_TRACE_DATA.
@@ -154,6 +160,10 @@ message TraceProcessorRpc {
     StatusResult status = 210;
     // For TPM_REGISTER_SQL_PACKAGE.
     RegisterSqlPackageResult register_sql_package_result = 211;
+    // For TPM_DEBUG.
+    DebugResult debug_result = 212;
+    // For TPM_DEBUGGER_IO
+    DebuggerIoResult debugger_io_result = 213;
   }
 
   // Previously: RawQueryArgs for TPM_QUERY_RAW_DEPRECATED
@@ -349,4 +359,25 @@ message RegisterSqlPackageArgs {
 
 message RegisterSqlPackageResult {
   optional string error = 1;
+}
+
+message DebugArgs {
+  optional uint64 target_icount = 1;
+}
+
+message DebugResult {
+  optional string error = 1;
+  optional uint64 current_icount = 2;
+}
+
+message DebuggerIoArgs {
+  optional bytes input = 1;
+  optional uint32 rows = 2;
+  optional uint32 cols = 3;
+}
+
+message DebuggerIoResult {
+  optional bool started = 1;
+  optional bool stopped = 2;
+  optional bytes stdout = 3;
 }

@@ -41,7 +41,7 @@
 namespace dejaview::trace_processor {
 
 base::Status RunStdioRpcServer(std::unique_ptr<TraceProcessor> tp) {
-  Rpc rpc(std::move(tp));
+  Rpc rpc(std::move(tp), nullptr);
   char buffer[4096];
   for (;;) {
     ssize_t ret = base::Read(STDIN_FILENO, buffer, base::ArraySize(buffer));

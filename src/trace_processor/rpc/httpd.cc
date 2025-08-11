@@ -60,12 +60,14 @@ class Httpd : public base::HttpRequestHandler {
   // HttpRequestHandler implementation.
   void OnHttpRequest(const base::HttpRequest&) override;
   void OnWebsocketMessage(const base::WebsocketMessage&) override;
+  void OnHttpConnectionClosed(base::HttpServerConnection*) override;
 
   static void ServeHelpPage(const base::HttpRequest&);
 
   Rpc global_trace_processor_rpc_;
   base::UnixTaskRunner task_runner_;
   base::HttpServer http_srv_;
+  base::HttpServerConnection* current_conn_;
 };
 
 base::StringView Vec2Sv(const std::vector<uint8_t>& v) {
@@ -94,7 +96,7 @@ void SendRpcChunk(base::HttpServerConnection* conn,
 }
 
 Httpd::Httpd(std::unique_ptr<TraceProcessor> preloaded_instance)
-    : global_trace_processor_rpc_(std::move(preloaded_instance)),
+    : global_trace_processor_rpc_(std::move(preloaded_instance), &task_runner_),
       http_srv_(&task_runner_, this) {}
 Httpd::~Httpd() = default;
 
@@ -111,6 +113,13 @@ void Httpd::Run(int port) {
   }
   http_srv_.Start(port);
   task_runner_.Run();
+}
+
+void Httpd::OnHttpConnectionClosed(base::HttpServerConnection* conn) {
+  if (conn == current_conn_) {
+    current_conn_ = nullptr;
+    global_trace_processor_rpc_.SetRpcResponseFunction(nullptr);
+  }
 }
 
 void Httpd::OnHttpRequest(const base::HttpRequest& req) {
@@ -165,13 +174,14 @@ void Httpd::OnHttpRequest(const base::HttpRequest& req) {
     // Start the chunked reply.
     conn.SendResponseHeaders("200 OK", chunked_headers,
                              base::HttpServerConnection::kOmitContentLength);
-    global_trace_processor_rpc_.SetRpcResponseFunction(
-        [&](const void* data, uint32_t len) {
-          SendRpcChunk(&conn, data, len);
-        });
+    if (current_conn_ != req.conn) {
+      current_conn_ = req.conn;
+      global_trace_processor_rpc_.SetRpcResponseFunction([this](const void* data, uint32_t len) {
+        SendRpcChunk(current_conn_, data, len);
+      });
+    }
     // OnRpcRequest() will call SendRpcChunk() one or more times.
     global_trace_processor_rpc_.OnRpcRequest(req.body.data(), req.body.size());
-    global_trace_processor_rpc_.SetRpcResponseFunction(nullptr);
 
     // Terminate chunked stream.
     conn.SendResponseBody("0\r\n\r\n", 5);
@@ -249,13 +259,13 @@ void Httpd::OnHttpRequest(const base::HttpRequest& req) {
 }
 
 void Httpd::OnWebsocketMessage(const base::WebsocketMessage& msg) {
-  global_trace_processor_rpc_.SetRpcResponseFunction(
-      [&](const void* data, uint32_t len) {
-        SendRpcChunk(msg.conn, data, len);
-      });
-  // OnRpcRequest() will call SendRpcChunk() one or more times.
+  if (current_conn_ != msg.conn) {
+    current_conn_ = msg.conn;
+    global_trace_processor_rpc_.SetRpcResponseFunction([this](const void* data, uint32_t len) {
+      SendRpcChunk(current_conn_, data, len);
+    });
+  }
   global_trace_processor_rpc_.OnRpcRequest(msg.data.data(), msg.data.size());
-  global_trace_processor_rpc_.SetRpcResponseFunction(nullptr);
 }
 
 }  // namespace

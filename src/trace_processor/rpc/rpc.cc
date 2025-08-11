@@ -97,13 +97,58 @@ void Response::Send(Rpc::RpcResponseFunction send_fn) {
 
 }  // namespace
 
-Rpc::Rpc(std::unique_ptr<TraceProcessor> preloaded_instance)
-    : trace_processor_(std::move(preloaded_instance)) {
+Rpc::Rpc(std::unique_ptr<TraceProcessor> preloaded_instance, base::TaskRunner *task_runner)
+    : trace_processor_(std::move(preloaded_instance))
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+    , qemu_(task_runner)
+#endif
+ {
   if (!trace_processor_)
     ResetTraceProcessorInternal(Config());
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+  qemu_.SetIcountChangedFunction([this](uint64_t icount){
+    std::lock_guard<std::mutex> lock(send_mu_);
+    if (rpc_response_fn_) {
+      Response icountResp(tx_seq_id_++, RpcProto::TPM_DEBUG);
+      auto* debugResult = icountResp->set_debug_result();
+      debugResult->set_current_icount(icount);
+      icountResp.Send(rpc_response_fn_);
+    }
+  });
+  qemu_.SetDebuggerStartedFunction([this](){
+    std::lock_guard<std::mutex> lock(send_mu_);
+    if (rpc_response_fn_) {
+      Response startedResp(tx_seq_id_++, RpcProto::TPM_DEBUGGER_IO);
+      auto* debuggerIoResult = startedResp->set_debugger_io_result();
+      debuggerIoResult->set_started(true);
+      startedResp.Send(rpc_response_fn_);
+    }
+  });
+  qemu_.SetDebuggerStoppedFunction([this](){
+    std::lock_guard<std::mutex> lock(send_mu_);
+    if (rpc_response_fn_) {
+      Response stoppedResp(tx_seq_id_++, RpcProto::TPM_DEBUGGER_IO);
+      auto* debuggerIoResult = stoppedResp->set_debugger_io_result();
+      debuggerIoResult->set_stopped(true);
+      stoppedResp.Send(rpc_response_fn_);
+    }
+  });
+  qemu_.SetDebuggerStdoutFunction([this](const uint8_t* data, size_t size){
+    std::lock_guard<std::mutex> lock(send_mu_);
+    if (rpc_response_fn_) {
+      Response stdoutResp(tx_seq_id_++, RpcProto::TPM_DEBUGGER_IO);
+      auto* debuggerIoResult = stdoutResp->set_debugger_io_result();
+      debuggerIoResult->set_stdout(data, size);
+      stdoutResp.Send(rpc_response_fn_);
+    }
+  });
+#else
+  // Avoid an unused argument warning
+  (void)task_runner;
+#endif
 }
 
-Rpc::Rpc() : Rpc(nullptr) {}
+Rpc::Rpc() : Rpc(nullptr, nullptr) {}
 Rpc::~Rpc() = default;
 
 void Rpc::ResetTraceProcessorInternal(const Config& config) {
@@ -170,6 +215,7 @@ TraceProcessor::MetatraceCategories MetatraceCategoriesToPublicEnum(
 // [data, len] here is a tokenized TraceProcessorRpc proto message, without the
 // size header.
 void Rpc::ParseRpcRequest(const uint8_t* data, size_t len) {
+  std::lock_guard<std::mutex> lock(send_mu_);
   RpcProto::Decoder req(data, len);
 
   // We allow restarting the sequence from 0. This happens when refreshing the
@@ -332,6 +378,40 @@ void Rpc::ParseRpcRequest(const uint8_t* data, size_t len) {
         res->set_error(status.message());
       }
       resp.Send(rpc_response_fn_);
+      break;
+    }
+    case RpcProto::TPM_DEBUG: {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+      protozero::ConstBytes args = req.debug_args();
+      protos::pbzero::DebugArgs::Decoder debug_args(args.data, args.size);
+      uint64_t target_icount = debug_args.target_icount();
+      base::Status status = qemu_.Debug(target_icount, *trace_processor_);
+      Response resp(tx_seq_id_++, req_type);
+      auto* res = resp->set_debug_result();
+      if (!status.ok())
+        res->set_error(status.message());
+      resp.Send(rpc_response_fn_);
+#else
+      Response resp(tx_seq_id_++, req_type);
+      auto* res = resp->set_debug_result();
+      res->set_error("Debugging is not supported without running an external trace_processor_shell");
+      resp.Send(rpc_response_fn_);
+#endif
+      break;
+    }
+    case RpcProto::TPM_DEBUGGER_IO: {
+#if DEJAVIEW_BUILDFLAG(DEJAVIEW_OS_LINUX)
+      protozero::ConstBytes args = req.debugger_io_args();
+      protos::pbzero::DebuggerIoArgs::Decoder debugger_io_args(args.data, args.size);
+      if (debugger_io_args.has_input()) {
+        protozero::ConstBytes bytes = debugger_io_args.input();
+        qemu_.DebuggerStdin(bytes.data, bytes.size);
+      } else if (debugger_io_args.rows() && debugger_io_args.cols()) {
+        uint16_t rows = static_cast<uint16_t>(debugger_io_args.rows());
+        uint16_t cols = static_cast<uint16_t>(debugger_io_args.cols());
+        qemu_.DebuggerResize(rows, cols);
+      }
+#endif
       break;
     }
     default: {

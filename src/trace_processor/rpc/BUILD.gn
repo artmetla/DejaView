@@ -41,6 +41,9 @@ source_set("rpc") {
     "../../protozero:proto_ring_buffer",
     "../util",
   ]
+  if (!is_wasm) {
+    deps += [ "../qemu" ]
+  }
   public_deps = [
     "../../../include/dejaview/ext/trace_processor/rpc:query_result_serializer",
   ]

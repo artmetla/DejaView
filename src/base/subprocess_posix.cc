@@ -26,6 +26,7 @@
 #include <poll.h>
 #include <signal.h>
 #include <stdio.h>
+#include <sys/ioctl.h>
 #include <sys/resource.h>
 #include <sys/types.h>
 #include <sys/wait.h>
@@ -59,6 +60,7 @@ struct ChildProcessArgs {
   std::vector<char*> env;
   int stdin_pipe_rd = -1;
   int stdouterr_pipe_wr = -1;
+  bool fd_is_pty = false;
 };
 
 // Don't add any dynamic allocation in this function. This will be invoked
@@ -82,6 +84,12 @@ void __attribute__((noreturn)) ChildProcess(ChildProcessArgs* args) {
     _exit(128);
   };
 
+  if (args->create_args->cwd.has_value()) {
+    if (chdir(args->create_args->cwd.value().c_str())) {
+      die("chdir() failed");
+    }
+  }
+
   if (args->create_args->posix_proc_group_id.has_value()) {
     if (setpgid(0 /*self*/, args->create_args->posix_proc_group_id.value())) {
       die("setpgid() failed");
@@ -100,6 +108,13 @@ void __attribute__((noreturn)) ChildProcess(ChildProcessArgs* args) {
   if (getppid() == 1)
     die("terminating because parent process died");
 
+  if (args->fd_is_pty) {
+    if (setsid() < 0)
+      die("setsid() failed");
+    if (ioctl(*args->create_args->out_fd, TIOCSCTTY, 0) < 0)
+      die("ioctl(TIOCSCTTY) failed");
+  }
+
   switch (args->create_args->stdin_mode) {
     case Subprocess::InputMode::kBuffer:
       if (dup2(args->stdin_pipe_rd, STDIN_FILENO) == -1)
@@ -109,6 +124,10 @@ void __attribute__((noreturn)) ChildProcess(ChildProcessArgs* args) {
     case Subprocess::InputMode::kDevNull:
       if (dup2(open("/dev/null", O_RDONLY), STDIN_FILENO) == -1)
         die("Failed to dup2(STDOUT)");
+      break;
+    case Subprocess::InputMode::kFd:
+      if (dup2(*args->create_args->out_fd, STDIN_FILENO) == -1)
+        die("Failed to dup2(STDIN)");
       break;
   }
 

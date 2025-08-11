@@ -28,6 +28,7 @@
 #include "src/trace_processor/util/protozero_to_text.h"
 
 #include "protos/dejaview/config/trace_config.pbzero.h"
+#include "protos/dejaview/trace/qemu/qemu_info.pbzero.h"
 #include "protos/dejaview/trace/trace_packet.pbzero.h"
 #include "protos/dejaview/trace/trace_uuid.pbzero.h"
 #include "protos/dejaview/trace/trigger.pbzero.h"
@@ -45,6 +46,7 @@ MetadataModule::MetadataModule(TraceProcessorContext* context)
   RegisterForField(TracePacket::kUiStateFieldNumber, context);
   RegisterForField(TracePacket::kTriggerFieldNumber, context);
   RegisterForField(TracePacket::kTraceUuidFieldNumber, context);
+  RegisterForField(TracePacket::kQemuInfoFieldNumber, context);
 }
 
 ModuleResult MetadataModule::TokenizePacket(
@@ -94,6 +96,9 @@ void MetadataModule::ParseTracePacketData(
   if (field_id == TracePacket::kTriggerFieldNumber) {
     ParseTrigger(ts, decoder.trigger());
   }
+  if (field_id == TracePacket::kQemuInfoFieldNumber) {
+    ParseQemuInfo(decoder.qemu_info());
+  }
 }
 
 void MetadataModule::ParseTrigger(int64_t ts, ConstBytes blob) {
@@ -117,6 +122,23 @@ void MetadataModule::ParseTrigger(int64_t ts, ConstBytes blob) {
                              Variadic::Integer(trigger.trusted_producer_uid()));
         }
       });
+}
+
+void MetadataModule::ParseQemuInfo(ConstBytes blob) {
+  protos::pbzero::QemuInfo::Decoder info(blob.data, blob.size);
+
+  for (auto cmdline_it = info.record_cmd(); cmdline_it;) {
+    StringId cmd_id = context_->storage->InternString(*cmdline_it);
+    context_->metadata_tracker->SetDynamicMetadata(
+        context_->storage->InternString("qemu_record_cmd"),
+        Variadic::String(cmd_id));
+    cmdline_it++;
+  }
+
+  StringId cwd_id = context_->storage->InternString(info.record_cwd());
+  context_->metadata_tracker->SetDynamicMetadata(
+      context_->storage->InternString("qemu_record_cwd"),
+      Variadic::String(cwd_id));
 }
 
 void MetadataModule::ParseTraceUuid(ConstBytes blob) {

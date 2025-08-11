@@ -20,6 +20,7 @@ import BufferConfig = protos.dejaview.protos.TraceConfig.BufferConfig;
 import ComputeMetricArgs = protos.dejaview.protos.ComputeMetricArgs;
 import ComputeMetricResult = protos.dejaview.protos.ComputeMetricResult;
 import ConsumerPort = protos.dejaview.protos.ConsumerPort;
+import DebugArgs = protos.dejaview.protos.DebugArgs;
 import DataSourceConfig = protos.dejaview.protos.DataSourceConfig;
 import DataSourceDescriptor = protos.dejaview.protos.DataSourceDescriptor;
 import DisableAndReadMetatraceResult = protos.dejaview.protos.DisableAndReadMetatraceResult;
@@ -76,6 +77,7 @@ export {
   ConsumerPort,
   DataSourceConfig,
   DataSourceDescriptor,
+  DebugArgs,
   DisableAndReadMetatraceResult,
   DisableTracingRequest,
   DisableTracingResponse,

@@ -364,6 +364,7 @@ function renderOverlay(
   const timescale = new TimeScale(timewindow, {left: 0, right: size.width});
 
   renderHoveredNoteVertical(ctx, timescale, size);
+  renderDebugCursorVertical(ctx, timescale, size);
   renderHoveredCursorVertical(ctx, timescale, size);
   renderWakeupVertical(ctx, timescale, size);
   renderNoteVerticals(ctx, timescale, size);
@@ -483,6 +484,22 @@ export function renderHoveredNoteVertical(
       globals.state.hoveredNoteTimestamp,
       size.height,
       `#aaa`,
+    );
+  }
+}
+
+export function renderDebugCursorVertical(
+  ctx: CanvasRenderingContext2D,
+  timescale: TimeScale,
+  size: Size2D,
+) {
+  if (globals.trace.timeline.debugCursorTimestamp !== undefined) {
+    drawVerticalLineAtTime(
+      ctx,
+      timescale,
+      globals.trace.timeline.debugCursorTimestamp,
+      size.height,
+      `#349650`,
     );
   }
 }

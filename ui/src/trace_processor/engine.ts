@@ -17,6 +17,7 @@ import {assertExists, assertTrue} from '../base/logging';
 import {
   ComputeMetricArgs,
   ComputeMetricResult,
+  DebugArgs,
   DisableAndReadMetatraceResult,
   EnableMetatraceArgs,
   MetatraceCategories,
@@ -128,9 +129,11 @@ export abstract class EngineBase implements Engine, Disposable {
   private pendingComputeMetrics = new Array<Deferred<string | Uint8Array>>();
   private pendingReadMetatrace?: Deferred<DisableAndReadMetatraceResult>;
   private pendingRegisterSqlPackage?: Deferred<void>;
+  private pendingDebug?: Deferred<void>;
   private _isMetatracingEnabled = false;
   private _numRequestsPending = 0;
   private _failed: Optional<string> = undefined;
+  private icountUpdate_?: (currentIcount?: number) => void;
 
   // TraceController sets this to raf.scheduleFullRedraw().
   onResponseReceived?: () => void;
@@ -274,6 +277,22 @@ export abstract class EngineBase implements Engine, Disposable {
           res.resolve();
         }
         break;
+      case TPM.TPM_DEBUG:
+        const debugResult = assertExists(rpc.debugResult);
+        const debugRes = assertExists(this.pendingDebug);
+        if (exists(debugResult.error) && debugResult.error.length > 0) {
+          debugRes.reject(debugResult.error);
+        } else {
+          debugRes.resolve();
+        }
+        if (this.icountUpdate_) {
+          if (exists(debugResult.currentIcount)) {
+            this.icountUpdate_(debugResult.currentIcount);
+          } else {
+            this.icountUpdate_(undefined);
+          }
+        }
+        break;
       default:
         console.log(
           'Unexpected TraceProcessor response received: ',
@@ -339,6 +358,24 @@ export abstract class EngineBase implements Engine, Disposable {
     args.ftraceDropUntilAllCpusValid = ftraceDropUntilAllCpusValid;
     this.rpcSendRequest(rpc);
     return asyncRes;
+  }
+
+  debug(
+    targetIcount: number,
+    icountUpdate?: (currentIcount?: number) => void,
+  ): Promise<void> {
+    this.icountUpdate_ = icountUpdate;
+
+    const result = defer<void>();
+    this.pendingDebug = result;
+
+    const rpc = TraceProcessorRpc.create();
+    rpc.request = TPM.TPM_DEBUG;
+    const args = (rpc.debugArgs = new DebugArgs());
+    args.targetIcount = targetIcount;
+
+    this.rpcSendRequest(rpc);
+    return result;
   }
 
   // Resets the trace processor state by destroying any table/views created by
@@ -590,6 +627,10 @@ export class EngineProxy implements Engine, Disposable {
 
   getProxy(tag: string): EngineProxy {
     return this.engine.getProxy(`${this.tag}/${tag}`);
+  }
+
+  debug(targetIcount: number, icountUpdate: (currentIcount?: number) => void) {
+    return this.engine.debug(targetIcount, icountUpdate);
   }
 
   get numRequestsPending() {

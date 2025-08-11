@@ -35,6 +35,7 @@ const MIN_DURATION = 10;
 export class TimelineImpl implements Timeline {
   private _visibleWindow: HighPrecisionTimeSpan;
   private _hoverCursorTimestamp?: time;
+  private _debugCursorTimestamp?: time;
 
   // This is used to calculate the tracks within a Y range for area selection.
   areaY: Range = {};
@@ -135,6 +136,15 @@ export class TimelineImpl implements Timeline {
 
   set hoverCursorTimestamp(t: time | undefined) {
     this._hoverCursorTimestamp = t;
+    raf.scheduleRedraw();
+  }
+
+  get debugCursorTimestamp(): time | undefined {
+    return this._debugCursorTimestamp;
+  }
+
+  set debugCursorTimestamp(t: time | undefined) {
+    this._debugCursorTimestamp = t;
     raf.scheduleRedraw();
   }
 

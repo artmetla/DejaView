@@ -56,6 +56,24 @@ export class Timestamp implements m.ClassComponent<TimestampAttrs> {
           copyToClipboard(ts.toString());
         },
       }),
+      m(MenuItem, {
+        icon: Icons.Copy,
+        label: `Debug`,
+        onclick: async () => {
+          await globals.trace.engine.debug(
+            Number(ts),
+            (currentIcount?: number) => {
+              if (currentIcount != undefined) {
+                globals.trace.timeline.debugCursorTimestamp = Time.fromRaw(
+                  BigInt(currentIcount),
+                );
+              } else {
+                globals.trace.timeline.debugCursorTimestamp = undefined;
+              }
+            },
+          );
+        },
+      }),
     );
   }
 }

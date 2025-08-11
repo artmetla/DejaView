@@ -28,6 +28,9 @@ export interface Timeline {
   // Render a vertical line on the timeline at this timestamp.
   hoverCursorTimestamp: time | undefined;
 
+  // Render a vertical line on the timeline at this timestamp.
+  debugCursorTimestamp: time | undefined;
+
   // Get the current timestamp offset.
   timestampOffset(): time;
 

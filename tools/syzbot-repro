@@ -1,0 +1,383 @@
+#!/usr/bin/env python
+
+# Copyright 2025 Google LLC
+#
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# version 2 as published by the Free Software Foundation.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+# GNU General Public License for more details.
+
+from pathlib import Path
+import multiprocessing
+import urllib.request
+import pandas as pd
+import subprocess
+import hashlib
+import shutil
+import time
+import stat
+import sys
+import io
+import os
+import re
+
+# A lot of security features get in the way of good tracing so disable them:
+# nokaslr: Makes kernelspace symbols extraction easier
+# sysctl.kernel.randomize_va_space=0: Makes userspace symbols extraction easier
+# mitigations=off: disables a lot of CPU bug mitigations, for example:
+# - nopti: share page tables between kernel and userspace, makes tracing easier
+# - nospectre_v2: disable RSB stuffing on context switches which confuses the
+#   callstack_instr plugin with many calls that never return
+extra_qemu_kernel_args = "-kernel {} -append \"root=/dev/sda rw init=/init nokaslr sysctl.kernel.randomize_va_space=0 mitigations=off console=ttyS0\""
+extra_qemu_machine_args = "-nographic -bios qboot.rom -machine q35 -cpu max -net nic,model=virtio-net-pci -net user,hostfwd=tcp::5555-:22 -smp 1 -m 4G -qmp tcp:localhost:4444,server,nowait -serial mon:stdio -icount shift=auto,rr=record,rrfile={},rrsnapshot=init -plugin {},symbols_from={},starting_from=start_kernel,min_insns=1000 -d plugin -drive file={},id=rr"
+
+# Short boot-script that sets up a minimal environment to run a reproducer
+init_code = f"""#!/bin/sh
+
+# Mount various important file systems
+mount -t proc none /proc
+mount -t sysfs none /sys
+mount -t tmpfs none /run
+mount -t tmpfs none /tmp
+mount -t devtmpfs none /dev
+mount -t debugfs none /sys/kernel/debug
+mount -t securityfs none /sys/kernel/security
+mount -t configfs none /sys/kernel/config
+mount -t binfmt_misc none /proc/sys/fs/binfmt_misc
+mount -t fusectl none /sys/fs/fuse/connections
+mount -t pstore none /sys/fs/pstore
+mount -t bpf none /sys/fs/bpf
+mount -t tracefs none /sys/kernel/tracing
+mkdir -p /dev/pts /dev/shm
+mount -t devpts none /dev/pts
+mount -t tmpfs none /dev/shm
+
+# Run the reproducer
+/repro
+
+# If we're here, it didn't crash the kernel. Write something and wait
+echo REPRODUCER DID NOT CRASH
+read
+
+# If we end up here, someone is debugging manually, drop them into a shell
+setsid /sbin/getty -l /bin/sh -n 115200 ttyS0
+"""
+
+# To cache URLs that were already downloaded, implement a hash
+def strHash(str):
+    return hashlib.sha1(str.encode("UTF-8")).hexdigest()[:10]
+
+# Download a file if not already downloaded
+def cached_download(url, download_dest_prefix, download_dest_suffix=""):
+    path = download_dest_prefix + "-" + strHash(url) + download_dest_suffix
+
+    if os.path.exists(path):
+        print(f"Re-using {path} as cache for {url}...")
+    else:
+        print(f"Downloading {path} from {url} ...")
+        urllib.request.urlretrieve(url, path)
+
+    return path
+
+# Write a file to disk if not already existing
+def cached_file(content, dest_prefix, dest_suffix=""):
+    path = dest_prefix + "-" + strHash(content) + dest_suffix
+
+    if os.path.exists(path):
+        print(f"Re-using {path} as cache...")
+    else:
+        print(f"Writing {path} ...")
+        with open(path, 'w') as f:
+            f.write(content)
+
+    return path
+
+# Origin of a .config, either from a URL or on-disk
+class Config:
+    @classmethod
+    def from_str(cls, cfg):
+        return cls(cached_file(cfg, "config"))
+
+    @classmethod
+    def from_url(cls, url):
+        return cls(cached_download(url, "config"))
+
+    def __init__(self, path="/dev/null", disabled_cfgs=[], enabled_cfgs=["DEBUG_INFO_DWARF4"]):
+        self.path = path
+        self.disabled_cfgs = disabled_cfgs
+        self.enabled_cfgs = enabled_cfgs
+
+    def enable(self, cfg):
+        self.enabled_cfgs.append(cfg)
+
+    def disable(self, cfg):
+        self.disabled_cfgs.append(cfg)
+
+# Origin of a stimulus source code, either from a URL or on-disk
+class Stimulus:
+    @classmethod
+    def from_str(cls, code):
+        return cls(cached_file(code, "stimulus", ".c"))
+
+    @classmethod
+    def from_url(cls, url):
+        return cls(cached_download(url, "stimulus", ".c"))
+
+    def __init__(self, path, force_rebuild=False):
+        build_path, _ = os.path.splitext(path)
+
+        if force_rebuild or not os.path.exists(build_path):
+            print(f"Building {build_path} from {path} ...")
+            gcc = subprocess.run(["gcc", "-g", "-pthread", "-static", "-o", build_path, path],
+                                 capture_output=True, text=True)
+            if gcc.returncode:
+                raise Exception("Compiling {path} failed: " + gcc.stderr)
+        else:
+            print(f"Skipping {build_path} build from {path}")
+
+        self.built_path = build_path
+
+# Origin of a kernel source code, either from a git URL or on-disk directory
+class Kernel:
+    @classmethod
+    def from_git(cls, config=Config(), commit_hash="HEAD", path="linux/",
+                 url="git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux.git",
+                 force_rebuild=False):
+        # Only clone linux once
+        if not os.path.exists(path):
+            print(f"Cloning {url} to {path} ...")
+            clone = subprocess.run(["git", "clone", url, path],
+                                   capture_output=True, text=True)
+            if clone.returncode:
+                raise Exception("Cloning linux failed: " + clone.stdout)
+        else:
+            print(f"Re-using existing {path}")
+            revparse = subprocess.run(["git", "rev-parse", "--verify", commit_hash],
+                                      capture_output=True, text=True, cwd=path)
+            if revparse.returncode:
+                print(f"{commit_hash} missing - fetching {url} in {path} ...")
+                clone = subprocess.run(["git", "fetch", url],
+                                       capture_output=True, text=True, cwd=path)
+
+        # Checkout the crashing hash in linux
+        print(f"Checking out {commit_hash} ...")
+        checkout = subprocess.run(["git", "checkout", commit_hash],
+                                  capture_output=True, text=True, cwd=path)
+        if checkout.returncode:
+            raise Exception("Checking out commit hash failed: " + checkout.stderr)
+
+        return cls(path, config, force_rebuild)
+
+    def __init__(self, path, config=Config(), force_rebuild=False):
+        self.path = path
+        build_path = os.path.join(self.path, "arch", "x86", "boot", "bzImage")
+
+        if force_rebuild or not os.path.exists(build_path):
+            # Copy .config
+            print("Configuring the kernel ...")
+            shutil.copyfile(config.path, os.path.join(self.path, ".config"))
+            subprocess.run(["make", "olddefconfig"],
+                           capture_output=True, text=True, cwd=self.path)
+
+            if len(config.disabled_cfgs) != 0:
+                cmd = ["scripts/config"]
+                for cfg in config.disabled_cfgs:
+                    cmd.append("-d")
+                    cmd.append(cfg)
+                print(f"Disabling {', '.join(config.disabled_cfgs)}")
+                subprocess.run(cmd, capture_output=True, text=True, cwd=self.path)
+
+            if len(config.enabled_cfgs) != 0:
+                cmd = ["scripts/config"]
+                for cfg in config.enabled_cfgs:
+                    cmd.append("-e")
+                    cmd.append(cfg)
+                print(f"Enabling {', '.join(config.enabled_cfgs)}")
+                subprocess.run(cmd, capture_output=True, text=True, cwd=self.path)
+
+            # Build on all CPUs
+            print("Building the kernel ...")
+            make = subprocess.run(["make", "-j", str(os.cpu_count())],
+                                   capture_output=True, text=True, cwd=self.path)
+            if make.returncode:
+                raise Exception("Building Linux failed: " + make.stderr)
+        else:
+            print(f"Skipping kernel build and re-using {build_path}")
+
+        self.built_path = build_path
+        self.debug_path = os.path.join(self.path, "vmlinux")
+
+# Origin of a rootfs (busybox + stimulus)
+class Rootfs:
+    def __init__(self, stimulus, busybox_url="https://github.com/mirror/busybox", busybox_commit_hash="master",
+                 busybox_path="busybox/", rootfs_path="rootfs/", image_path="rootfs.qcow2"):
+        if not os.path.exists(busybox_path):
+            print(f"Cloning {busybox_url} to {busybox_path} ...")
+            clone = subprocess.run(["git", "clone", busybox_url, busybox_path],
+                                   capture_output=True, text=True)
+            if clone.returncode:
+                raise Exception("Cloning busybox failed: " + clone.stdout)
+        else:
+            print(f"Re-using existing {busybox_path}")
+            revparse = subprocess.run(["git", "rev-parse", "--verify", busybox_commit_hash],
+                                      capture_output=True, text=True, cwd=busybox_path)
+            if revparse.returncode:
+                print(f"{busybox_commit_hash} missing - fetching {busybox_url} in {path} ...")
+                clone = subprocess.run(["git", "fetch", busybox_url],
+                                       capture_output=True, text=True, cwd=busybox_path)
+
+        # Checkout the crashing hash in busybox
+        print(f"Checking out {busybox_commit_hash} ...")
+        checkout = subprocess.run(["git", "checkout", busybox_commit_hash],
+                                  capture_output=True, text=True, cwd=busybox_path)
+        if checkout.returncode:
+            raise Exception("Checking out commit hash failed: " + checkout.stderr)
+
+        # Build Busybox
+        self.busybox_debug_path = os.path.join(busybox_path, "busybox_unstripped")
+        if not os.path.exists(self.busybox_debug_path):
+            print("Building Busybox ...")
+            defconfig = subprocess.run(["make", "defconfig"], capture_output=True, text=True, cwd=busybox_path)
+            if defconfig.returncode:
+                raise Exception("Configuring Busybox failed: " + defconfig.stderr)
+            set_static = subprocess.run(["sed", "-i", "s@# CONFIG_STATIC is not set@CONFIG_STATIC=y@", ".config"],
+                                        capture_output=True, text=True, cwd=busybox_path)
+            if set_static.returncode:
+                raise Exception("Enabling static Busybox build failed: " + set_static.stderr)
+            unset_tc = subprocess.run(["sed", "-i", "s@CONFIG_TC=y@# CONFIG_TC is not set@", ".config"],
+                                        capture_output=True, text=True, cwd=busybox_path)
+            if unset_tc.returncode:
+                raise Exception("Disabling Busybox tc failed: " + unset_tc.stderr)
+            make = subprocess.run(["make", "-j", str(os.cpu_count())],
+                                  capture_output=True, text=True, cwd=busybox_path)
+            if make.returncode:
+                raise Exception("Building Busybox failed: " + make.stderr)
+            install = subprocess.run(["make", "install", f"CONFIG_PREFIX={os.path.join(os.getcwd(), rootfs_path)}"],
+                                  capture_output=True, text=True, cwd=busybox_path)
+            if install.returncode:
+                raise Exception("Installing Busybox failed: " + install.stderr)
+        else:
+            print(f"Skipping Busybox build and re-using {self.busybox_debug_path}")
+
+        # Create a rootfs skeleton
+        print(f"Filling {rootfs_path} ...")
+        for dir in ["proc", "sys", "run", "tmp", "dev"]:
+            # Ignore if the directory already exists
+            try:
+                os.makedirs(os.path.join(rootfs_path, dir))
+            except FileExistsError:
+                pass
+
+        # Install the static reproducer
+        repro_path = os.path.join(rootfs_path, "repro")
+        shutil.copyfile(stimulus.built_path, repro_path)
+        self.stimulus_debug_path = stimulus.built_path
+
+        # Instal an init script
+        init_path = os.path.join(rootfs_path, "init")
+        with open(init_path, "w") as init:
+            init.write(init_code)
+
+        # Chmod +x /init and /repro
+        for path in [init_path, repro_path]:
+            mode = os.stat(path).st_mode
+            os.chmod(path, mode | stat.S_IEXEC)
+
+        # Generate the qcow2 image
+        print(f"Generating {image_path} ...")
+        virtmakefs = subprocess.run(["virt-make-fs", "--format=qcow2", "--type=ext4",
+                                     rootfs_path, image_path], capture_output=True, text=True)
+        if virtmakefs.returncode:
+            raise Exception("Generating a qcow2 image failed: " + virtmakefs.stderr)
+
+        self.path = image_path
+
+def record(kernel, rootfs, output="record"):
+    print(f"Recording ... (TODO: currently doesn't automatically stop at a panic)")
+    qemu = "qemu-system-x86_64"
+    kernel_cmdline = "console=ttyS0,115200 root=/dev/sda rw nokaslr init=/init debug mitigations=off"
+    plugin = Path(__file__).resolve().parent / "../out/linux/libqemu_plugin.so"
+    qemu = subprocess.run([qemu, "-nographic", "-bios", "qboot.rom",
+        "-machine", "q35", "-cpu", "max", "-net", "nic,model=virtio-net-pci",
+        "-net", "user,hostfwd=tcp::5555-:22", "-serial", "mon:stdio", 
+        "-append", kernel_cmdline, "-smp", "1", "-m", "4G", "-qmp",
+        "tcp:localhost:4444,server,nowait", "-kernel", kernel.built_path,
+        "-drive", "file=" + rootfs.path + ",id=rr", "-icount",
+        "shift=auto,rr=record,rrfile=" + output + ",rrsnapshot=init",
+        "-plugin", str(plugin) + ",symbols_from=" + kernel.debug_path + ",starting_from=start_kernel,min_insns=1000",
+        "-d", "plugin"], capture_output=True, text=True)
+    if qemu.returncode:
+        raise Exception("Recording failed: " + qemu.stderr)
+
+# Syzbot bug pages parsing and extraction utilities
+def contains_word_case_insensitive(string, word):
+  return re.search(rf"\b{word}\b", string, flags=re.IGNORECASE) is not None
+
+def from_syzbot(url, crash_nb=0, reduce_config=True):
+    # Allow the argument to be just the bug id - for brevity
+    if not url.startswith("https://syzkaller.appspot.com/bug?extid="):
+        url = "https://syzkaller.appspot.com/bug?extid=" + url
+
+    # Download the bug page's HTML
+    bug_path = cached_download(url, "bug")
+    with open(bug_path, "r", encoding="latin-1") as f:
+        bug_html = f.read()
+
+    # Extract the 'Crashes' table
+    crashes = pd.read_html(io.StringIO(bug_html), match="C repro", extract_links="body")[0]
+    if len(crashes) == 0:
+        raise Exception("Crashes table is empty")
+
+    # Find the buggy commit hash and the URLs of the reproducer and .config
+    buggy_commit = crashes["Commit"][crash_nb][0]
+    repro_url = 'https://syzkaller.appspot.com' + crashes['C repro'][crash_nb][1]
+    config_url = 'https://syzkaller.appspot.com' + crashes['Config'][crash_nb][1]
+    # TODO: Handle Syz reproducers
+
+    # Create a config and a stimulus
+    config = Config.from_url(config_url)
+    stimulus = Stimulus.from_url(repro_url)
+
+    # To optimize boot-time, disable slow but unnecessary CONFIG options
+    if reduce_config:
+        # KCov is only useful during fuzzing, this saves 70% of boot-time
+        config.disable("KCOV")
+        # Slow boots mean that the hung task detector can panic the boot
+        config.disable("CONFIG_BOOTPARAM_HUNG_TASK_PANIC")
+
+        # Disale CONFIGs if the bug doesn't contain certain keywords
+        disable_rules = [
+            # Only keep the sanitizers that reported the bug
+            ("kasan",  ["KASAN"]),
+            ("ubsan",  ["UBSAN"]),
+            ("kmsan",  ["KMSAN"]),
+            ("kcsan",  ["KCSAN"]),
+            ("kfence", ["KFENCE"]),
+            ("rcu",    ["PROVE_RCU"]),
+            ("lock",   ["LOCKDEP", "PROVE_LOCKING"]),
+            # Disable slow subsystems that don't appear in the backtrace
+            ("usb",    ["USB"]),
+            ("vivid",  ["VIDEO_VIVID"]),
+            # TODO: DEBUG_LIST, DEBUG_PLIST, DEBUG_SG, DEBUG_NOTIFIERS, DEBUG_MAPLE_TREE,
+            # DEBUG_IRQFLAGS, DEBUG_ATOMIC_SLEEP, DEBUG_SPINLOCK, DEBUG_MUTEXES,
+            # DEBUG_WW_MUTEX_SLOWPATH, DEBUG_RWSEMS, DEBUG_LOCK_ALLOC, DEBUG_TIMEKEEPING,
+            # DEBUG_PREEMPT, DEBUG_VM, SOUND, FB, DRM
+        ]
+        for keyword, configs_to_disable in disable_rules:
+            if not contains_word_case_insensitive(bug_html, keyword):
+                for cfg in configs_to_disable:
+                    config.disable(cfg)
+
+    return Kernel.from_git(config, buggy_commit), Rootfs(stimulus)
+
+if len(sys.argv) != 2:
+    print("Usage: syzbot-repro syzbot_bug_id")
+    exit(1)
+
+kernel, rootfs = from_syzbot(sys.argv[1])
+record(kernel, rootfs, "replay.bin")
+

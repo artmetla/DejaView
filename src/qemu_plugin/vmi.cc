@@ -219,6 +219,16 @@ int VMI::Init(ElfFile &elf, Symbolizer *symbolizer) {
   if (!m_pcpuHotOffset)
     return -1;
 
+  if (!m_pcpuHotOffset) {
+    m_perCpuOffset = symbolizer->lookupSymbol("__per_cpu_offset");
+    if (!m_perCpuOffset)
+      return -1;
+
+    m_currentTaskOffset = symbolizer->lookupSymbol("current_task");
+    if (!m_currentTaskOffset)
+      return -1;
+  }
+
   m_switchToAddr = symbolizer->lookupSymbol("__switch_to_asm");
   if (!m_switchToAddr)
     return -1;
@@ -233,10 +243,22 @@ uint64_t VMI::GetCurrentTaskStruct() {
 
   if (qemu_plugin_read_register(get_gs_base_handle(), reg) < 0)
     goto exit;
-  memcpy(&gs_base, reg->data, sizeof(gs_base));
 
-  if (!qemu_plugin_read_memory_vaddr(gs_base + m_pcpuHotOffset, reg, sizeof(ret)))
-    goto exit;
+  memcpy(&gs_base, reg->data, sizeof(gs_base));
+  
+  if (m_pcpuHotOffset) {
+    if (!qemu_plugin_read_memory_vaddr(gs_base + m_pcpuHotOffset, reg, sizeof(ret)))
+      goto exit;
+  } else {
+    if (!qemu_plugin_read_memory_vaddr(m_perCpuOffset, reg, sizeof(ret)))
+      goto exit;
+
+    memcpy(&ret, reg->data, sizeof(ret));
+
+    if (!qemu_plugin_read_memory_vaddr(ret + m_currentTaskOffset, reg, sizeof(ret)))
+      goto exit;
+  }
+
   memcpy(&ret, reg->data, sizeof(ret));
 
 exit:

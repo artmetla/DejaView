@@ -27,7 +27,7 @@ public:
 private:
   uint64_t GetCurrentTaskStruct();
   long m_tgidOffset, m_pidOffset, m_commOffset;
-  uint64_t m_pcpuHotOffset, m_switchToAddr;
+  uint64_t m_pcpuHotOffset, m_switchToAddr, m_perCpuOffset, m_currentTaskOffset;
   bool m_processInvalidated;
 };
 
